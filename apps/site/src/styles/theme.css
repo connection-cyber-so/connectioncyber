@@ -19,11 +19,15 @@
   --cc-gray-100: #f1f5f9;
   --cc-white: #ffffff;
 
-  /* Logo accent colors */
-  --cc-orange: #f5871f;
-  --cc-red: #d92b2b;
-  --cc-green: #3aa757;
-  --cc-teal: #189c8e;
+  /* Logo accent colors — paleta oficial ConnectionCyber */
+  --cc-orange: #f6851f;
+  --cc-orange-alt: #f8961d;
+  --cc-red: #e01f27;
+  --cc-red-alt: #ca2127;
+  --cc-green: #2c9c48;
+  --cc-green-alt: #4cb853;
+  --cc-teal: #28a992;
+  --cc-teal-alt: #1e9680;
 
   /* Semantic */
   --cc-bg: var(--cc-white);

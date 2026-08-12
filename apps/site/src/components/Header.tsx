@@ -14,7 +14,7 @@ export default function Header() {
     <header style={styles.header}>
       <div className="container" style={styles.inner}>
         <Link href={routes.home} style={styles.brand} onClick={() => setOpen(false)}>
-          <img src="/logo.svg" alt="ConnectionCyber" style={styles.logo} />
+          <img src="/logo.png" alt="ConnectionCyber" style={styles.logo} />
           <span style={styles.brandText}>{t('brand.name')}</span>
         </Link>
 

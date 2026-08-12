@@ -26,7 +26,7 @@ export default function Layout({ children, title, description }: LayoutProps) {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:type" content="website" />
-        <link rel="icon" href="/logo.svg" />
+        <link rel="icon" href="/logo.png" />
       </Head>
       <a href="#main-content" className="skip-link">
         Pular para o conteúdo

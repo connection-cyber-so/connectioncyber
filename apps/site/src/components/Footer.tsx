@@ -12,7 +12,7 @@ export default function Footer() {
       <div className="container" style={styles.grid}>
         <div>
           <div style={styles.brand}>
-            <img src="/logo.svg" alt="ConnectionCyber" style={{ height: 32 }} />
+            <img src="/logo.png" alt="ConnectionCyber" style={{ height: 32 }} />
             <strong>{t('brand.name')}</strong>
           </div>
           <p style={styles.slogan}>{t('brand.slogan')}</p>
