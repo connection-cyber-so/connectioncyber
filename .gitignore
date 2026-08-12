@@ -1,0 +1,23 @@
+# Node (applies at any depth: apps/site, future apps/platform, packages/*)
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+
+# Claude Code local-only settings
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Vercel
+.vercel

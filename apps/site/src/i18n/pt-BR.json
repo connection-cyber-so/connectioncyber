@@ -1,0 +1,122 @@
+{
+  "brand": {
+    "name": "ConnectionCyber",
+    "full": "ConnectionCyber — Assessoria e Treinamento Tecnológico",
+    "slogan": "Tecnologia que traz conhecimento e gestão."
+  },
+  "nav": {
+    "home": "Início",
+    "about": "Sobre",
+    "services": "Serviços",
+    "courses": "Treinamentos",
+    "products": "Produtos",
+    "clients": "Clientes",
+    "system": "Sistema",
+    "contact": "Contato",
+    "members": "Área de Alunos",
+    "login": "Entrar"
+  },
+  "home": {
+    "heroTitle": "Tecnologia, Sistemas e Treinamento para Empresas Modernas",
+    "heroSubtitle": "Soluções corporativas em desenvolvimento de sistemas, assessoria técnica, redes, implantação e capacitação tecnológica.",
+    "ctaPrimary": "Fale Conosco",
+    "ctaSecondary": "Conheça nossos serviços",
+    "aboutTitle": "Quem Somos",
+    "aboutText": "A ConnectionCyber é uma empresa especializada em soluções tecnológicas corporativas, oferecendo desenvolvimento de sistemas, assessoria técnica, implantação de redes, suporte global e treinamento profissional. Combinamos experiência técnica, visão corporativa e atendimento humano para entregar soluções de alto desempenho.",
+    "servicesTitle": "Serviços Principais",
+    "differentiatorsTitle": "Diferenciais",
+    "differentiators": [
+      "Mais de 10 anos de experiência",
+      "Carteira com 15 clientes ativos e contratos contínuos",
+      "Suporte técnico global",
+      "Tecnologia moderna e segura",
+      "Atendimento humano e profissional"
+    ],
+    "clientsTitle": "Empresas que confiam na ConnectionCyber há mais de uma década",
+    "finalCtaTitle": "Pronto para evoluir tecnologicamente?",
+    "finalCtaSubtitle": "A ConnectionCyber está preparada para transformar sua empresa.",
+    "finalCtaButton": "Entrar em contato"
+  },
+  "about": {
+    "title": "Sobre a Empresa",
+    "intro": "A ConnectionCyber é uma empresa de tecnologia corporativa com mais de 10 anos de atuação, oferecendo soluções completas em TI, sistemas, redes e treinamento profissional.",
+    "missionTitle": "Missão",
+    "mission": "Capacitar pessoas e organizações através da tecnologia, oferecendo soluções inteligentes, seguras e acessíveis que promovam crescimento, eficiência e transformação digital.",
+    "visionTitle": "Visão",
+    "vision": "Ser referência nacional em assessoria tecnológica, desenvolvimento de sistemas e formação profissional, entregando inovação com simplicidade e excelência.",
+    "valuesTitle": "Valores",
+    "values": [
+      "Profissionalismo",
+      "Transparência",
+      "Segurança digital",
+      "Inovação contínua",
+      "Responsabilidade técnica",
+      "Compromisso com o cliente"
+    ],
+    "historyTitle": "Nossa História",
+    "history": "Fundada há mais de 10 anos, a ConnectionCyber construiu uma carteira sólida de clientes corporativos, mantendo contratos ativos e entregando tecnologia com excelência."
+  },
+  "services": {
+    "title": "Serviços",
+    "subtitle": "Soluções completas em tecnologia para empresas que precisam evoluir com segurança.",
+    "items": [
+      {
+        "title": "Desenvolvimento de Sistemas e Aplicativos",
+        "description": "Sistemas corporativos, aplicativos e plataformas digitais com arquitetura moderna, segurança avançada e alta performance.",
+        "bullets": ["Sistemas web", "Aplicativos mobile", "Portais corporativos", "Painéis administrativos", "Integrações com APIs"]
+      },
+      {
+        "title": "Treinamento Tecnológico Profissional",
+        "description": "Capacitação de equipes, líderes e instituições para dominar ferramentas digitais.",
+        "bullets": ["Treinamentos presenciais e online", "Formação técnica", "Workshops práticos", "Cursos corporativos"]
+      },
+      {
+        "title": "Assessoria Técnica Especializada",
+        "description": "Orientação profissional para decisões tecnológicas seguras e estratégicas.",
+        "bullets": ["Consultoria em TI", "Planejamento tecnológico", "Auditoria de sistemas", "Acompanhamento técnico contínuo"]
+      },
+      {
+        "title": "Implantação de Sistemas",
+        "description": "Instalação, configuração e operação estável de sistemas corporativos.",
+        "bullets": ["Configuração de servidores", "Publicação de sistemas", "Ajustes de ambiente", "Integração de plataformas"]
+      },
+      {
+        "title": "Instalação de Redes e Infraestrutura",
+        "description": "Redes estruturadas e infraestrutura tecnológica completa.",
+        "bullets": ["Redes cabeadas e Wi-Fi", "Estrutura de TI", "Equipamentos e configuração", "Segurança de rede"]
+      },
+      {
+        "title": "Suporte Tecnológico Global",
+        "description": "Atendimento contínuo garantindo sistemas, redes e plataformas sem interrupções.",
+        "bullets": ["Atendimento contínuo", "Manutenção", "Monitoramento", "Segurança"]
+      }
+    ]
+  },
+  "courses": {
+    "title": "Treinamentos",
+    "subtitle": "Cursos e capacitações práticas para equipes, líderes e instituições.",
+    "modalities": ["Presencial", "Online", "Híbrido"],
+    "cta": "Solicitar Treinamento"
+  },
+  "clients": {
+    "title": "Clientes que confiam na ConnectionCyber há mais de 10 anos",
+    "description": "Apresentamos nossa carteira de clientes corporativos, instituições e empresas que mantêm parceria contínua com a ConnectionCyber, comprovando nossa qualidade, confiança e compromisso.",
+    "yearsLabel": "anos de parceria"
+  },
+  "contact": {
+    "title": "Contato",
+    "subtitle": "Fale com a nossa equipe e descubra como podemos ajudar sua empresa.",
+    "formName": "Nome",
+    "formEmail": "E-mail",
+    "formPhone": "Telefone",
+    "formCompany": "Empresa",
+    "formMessage": "Mensagem",
+    "formSubmit": "Enviar mensagem",
+    "location": "Piracicaba – SP"
+  },
+  "footer": {
+    "rights": "Todos os direitos reservados.",
+    "privacy": "Política de Privacidade",
+    "terms": "Termos de Uso"
+  }
+}

@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ConnectionCyber — Mapa Arquitetural Enterprise</title>
+<style>
+  :root{
+    --bg:#0a1420;
+    --bg-alt:#0f2033;
+    --panel:#0f2033ee;
+    --border:#1f3b57;
+    --text:#e6edf5;
+    --muted:#8fa5bd;
+    --blue:#2566a0;
+    --orange:#f5871f;
+    --red:#d92b2b;
+    --green:#3aa757;
+    --teal:#189c8e;
+    --purple:#8b5cf6;
+    --heat-low:#2566a0;
+    --heat-medium:#189c8e;
+    --heat-high:#f5871f;
+    --heat-max:#d92b2b;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:radial-gradient(circle at 30% 20%, #10233a 0%, var(--bg) 60%);
+    color:var(--text);
+    font-family:'Segoe UI', Inter, Roboto, -apple-system, sans-serif;
+    overflow:hidden;
+  }
+  #app{ position:relative; width:100vw; height:100vh; }
+  canvas{ display:block; width:100%; height:100%; cursor:grab; }
+  canvas.dragging{ cursor:grabbing; }
+
+  /* ---------- Painel lateral ---------- */
+  #sidebar{
+    position:absolute; top:0; left:0; bottom:0; width:288px;
+    background:var(--panel); border-right:1px solid var(--border);
+    backdrop-filter:blur(6px);
+    display:flex; flex-direction:column;
+    padding:18px 16px; gap:18px;
+    overflow-y:auto;
+    z-index:5;
+    transition:transform .25s ease;
+  }
+  #sidebar.collapsed{ transform:translateX(-100%); }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-dot{ width:14px; height:14px; border-radius:50%;
+    background:conic-gradient(var(--orange),var(--red),var(--green),var(--teal),var(--orange)); }
+  .brand-title{ font-weight:800; font-size:.95rem; letter-spacing:.02em; }
+  .brand-sub{ font-size:.68rem; color:var(--muted); margin-top:2px; }
+
+  .panel-section{ border-top:1px solid var(--border); padding-top:14px; }
+  .panel-title{ font-size:.72rem; text-transform:uppercase; letter-spacing:.12em;
+    color:var(--muted); margin-bottom:10px; font-weight:700; }
+
+  .mode-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .mode-btn{
+    background:#132a41; border:1px solid var(--border); color:var(--text);
+    border-radius:8px; padding:9px 6px; font-size:.72rem; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    transition:background .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .mode-btn:hover{ transform:translateY(-1px); border-color:var(--teal); }
+  .mode-btn.active{ background:linear-gradient(135deg,var(--blue),var(--teal)); border-color:transparent; font-weight:700; }
+  .mode-icon{ font-size:1.05rem; }
+
+  .legend-item{ display:flex; align-items:center; gap:8px; font-size:.78rem; padding:5px 0; color:var(--muted); cursor:pointer; }
+  .legend-item:hover{ color:var(--text); }
+  .legend-swatch{ width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+
+  .stat-row{ display:flex; justify-content:space-between; font-size:.74rem; color:var(--muted); padding:3px 0; }
+  .stat-row b{ color:var(--text); }
+
+  #node-info{
+    position:absolute; right:18px; top:18px; width:280px;
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:16px; z-index:6; display:none; backdrop-filter:blur(6px);
+  }
+  #node-info.visible{ display:block; }
+  #node-info h3{ margin:0 0 6px; font-size:1rem; }
+  #node-info .badge{
+    display:inline-block; font-size:.65rem; padding:3px 8px; border-radius:999px;
+    background:rgba(24,156,142,.18); color:var(--teal); font-weight:700; margin-bottom:10px;
+  }
+  #node-info p{ font-size:.78rem; color:var(--muted); line-height:1.5; margin:0 0 10px; }
+  #node-info .close{ position:absolute; top:10px; right:12px; cursor:pointer; color:var(--muted); background:none; border:none; font-size:1rem; }
+  #node-info .heat-bar{ height:6px; border-radius:4px; background:#132a41; overflow:hidden; margin-top:4px; }
+  #node-info .heat-fill{ height:100%; border-radius:4px; }
+
+  #topbar{
+    position:absolute; top:18px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:10px; z-index:6;
+    background:var(--panel); border:1px solid var(--border); border-radius:999px;
+    padding:8px 18px; font-size:.78rem; color:var(--muted); backdrop-filter:blur(6px);
+  }
+  #topbar b{ color:var(--text); }
+
+  #toggle-sidebar{
+    position:absolute; top:18px; left:18px; z-index:7;
+    background:var(--panel); border:1px solid var(--border); color:var(--text);
+    width:38px; height:38px; border-radius:10px; cursor:pointer; font-size:1rem;
+    display:none; align-items:center; justify-content:center;
+  }
+  #sidebar.collapsed ~ #toggle-sidebar{ display:flex; }
+
+  #zoom-controls{
+    position:absolute; bottom:18px; right:18px; z-index:6;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  #zoom-controls button{
+    width:38px; height:38px; border-radius:10px; background:var(--panel);
+    border:1px solid var(--border); color:var(--text); font-size:1.05rem; cursor:pointer;
+  }
+
+  #legend-heat{
+    position:absolute; bottom:18px; left:306px; z-index:6;
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:10px 14px; font-size:.7rem; color:var(--muted); display:none; gap:8px; align-items:center;
+  }
+  #legend-heat.visible{ display:flex; }
+  #legend-heat .chip{ width:12px; height:12px; border-radius:3px; }
+
+  @media (max-width: 760px){
+    #sidebar{ transform:translateX(-100%); width:78vw; }
+    #sidebar.open{ transform:translateX(0); }
+    #toggle-sidebar{ display:flex !important; }
+    #node-info{ right:10px; width:calc(100vw - 20px); }
+    #legend-heat{ left:10px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="canvas"></canvas>
+
+  <div id="topbar">
+    <span>Modo: <b id="mode-label">Enterprise</b></span>
+    <span>·</span>
+    <span><b id="node-count">0</b> nós</span>
+    <span>·</span>
+    <span><b id="edge-count">0</b> conexões</span>
+  </div>
+
+  <button id="toggle-sidebar" aria-label="Abrir painel">☰</button>
+
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <div>
+        <div class="brand-title">CONNECTIONCYBER</div>
+        <div class="brand-sub">Mapa Arquitetural Enterprise</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Modos</div>
+      <div class="mode-grid" id="mode-grid">
+        <button class="mode-btn" data-mode="enterprise"><span class="mode-icon">🏢</span>Enterprise</button>
+        <button class="mode-btn" data-mode="heatmap"><span class="mode-icon">🔥</span>Heatmap</button>
+        <button class="mode-btn" data-mode="fisica"><span class="mode-icon">🧲</span>Física</button>
+        <button class="mode-btn" data-mode="orbita"><span class="mode-icon">🪐</span>Órbita</button>
+        <button class="mode-btn" data-mode="ia"><span class="mode-icon">🤖</span>IA</button>
+        <button class="mode-btn" data-mode="seguranca"><span class="mode-icon">🛡️</span>Segurança</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Clusters de negócio</div>
+      <div id="cluster-legend"></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Governança</div>
+      <div class="stat-row"><span>Uptime simulado</span><b id="stat-uptime">99.9%</b></div>
+      <div class="stat-row"><span>Nós críticos</span><b id="stat-critical">2</b></div>
+      <div class="stat-row"><span>Última reorganização IA</span><b id="stat-reorg">agora</b></div>
+    </div>
+
+    <div class="panel-section" style="border-top:none; margin-top:auto; padding-top:0;">
+      <p style="font-size:.68rem; color:var(--muted); line-height:1.5;">
+        Scroll = zoom · Arrastar = pan · Clique num nó = detalhes · Arraste um nó no modo Física
+      </p>
+    </div>
+  </aside>
+
+  <div id="node-info">
+    <button class="close" id="node-info-close">✕</button>
+    <h3 id="ni-title">—</h3>
+    <span class="badge" id="ni-badge">cluster</span>
+    <p id="ni-desc">—</p>
+    <div>
+      <div class="stat-row"><span>Heat</span><b id="ni-heat-val">—</b></div>
+      <div class="heat-bar"><div class="heat-fill" id="ni-heat-fill" style="width:0%"></div></div>
+    </div>
+    <div class="stat-row" style="margin-top:8px;"><span>Conexões</span><b id="ni-links">—</b></div>
+    <div class="stat-row"><span>Segurança</span><b id="ni-security">—</b></div>
+  </div>
+
+  <div id="legend-heat">
+    <span class="chip" style="background:var(--heat-low)"></span> baixo
+    <span class="chip" style="background:var(--heat-medium)"></span> médio
+    <span class="chip" style="background:var(--heat-high)"></span> alto
+    <span class="chip" style="background:var(--heat-max)"></span> máximo
+  </div>
+
+  <div id="zoom-controls">
+    <button id="zoom-in">+</button>
+    <button id="zoom-out">−</button>
+    <button id="zoom-reset">⤾</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ===================== DADOS: CLUSTERS E MÓDULOS =====================
+  var CLUSTERS = [
+    { id: 'treinamentos',    label: 'Treinamentos & Cursos',        color: '#f5871f', desc: 'Formação profissional, workshops e capacitação técnica.' },
+    { id: 'consultoria',     label: 'Consultoria & Assessoria',     color: '#189c8e', desc: 'Planejamento tecnológico, auditoria e acompanhamento contínuo.' },
+    { id: 'desenvolvimento', label: 'Desenvolvimento de Sistemas',  color: '#2566a0', desc: 'Sistemas web, aplicativos, portais e integrações corporativas.' },
+    { id: 'produtos-fisicos',label: 'Produtos Físicos',             color: '#3aa757', desc: 'Kits de infraestrutura e equipamentos de rede.' },
+    { id: 'produtos-digitais',label:'Produtos Digitais',            color: '#2fae4e', desc: 'E-books, materiais de apoio e conteúdos digitais.' },
+    { id: 'seguranca',       label: 'Segurança & Cyber Defense',    color: '#d92b2b', desc: 'Governança de segurança, auditoria e defesa cibernética.' },
+    { id: 'ia',              label: 'Inteligência Artificial',      color: '#8b5cf6', desc: 'IA / RAG, recomendações e automações inteligentes.' }
+  ];
+
+  var MODULES = [
+    { id: 'blueprint',   label: 'Blueprint Corporativo', cluster: 'desenvolvimento', hub: true,  desc: 'Arquitetura de referência que conecta todos os clusters de negócio.' },
+    { id: 'seguranca-mod',label: 'Segurança',             cluster: 'seguranca',      hub: true,  desc: 'Políticas de acesso, RBAC/RLS e auditoria.' },
+    { id: 'dados',       label: 'Modelo de Dados',        cluster: 'desenvolvimento',              desc: 'Schema Supabase/PostgreSQL — usuários, cursos, pedidos, logs.' },
+    { id: 'financeiro',  label: 'Financeiro',             cluster: 'consultoria',                  desc: 'Pedidos, pagamentos e conciliação financeira.' },
+    { id: 'inventario',  label: 'Inventário',             cluster: 'produtos-fisicos',              desc: 'Estoque de produtos físicos e equipamentos.' },
+    { id: 'patrimonio',  label: 'Patrimônio',             cluster: 'produtos-fisicos',              desc: 'Ativos físicos e controle patrimonial de clientes.' },
+    { id: 'ia-rag',      label: 'IA / RAG',               cluster: 'ia', hub: true,                 desc: 'Recomendações inteligentes e busca aumentada por contexto.' },
+    { id: 'cursos',      label: 'Cursos', cluster: 'treinamentos', hub: true,                       desc: 'Catálogo de cursos, matrículas e progresso.' },
+    { id: 'treinamentos-mod', label: 'Treinamentos',      cluster: 'treinamentos',                  desc: 'Workshops e formações presenciais/online/híbridas.' },
+    { id: 'produtos-mod', label: 'Produtos',              cluster: 'produtos-digitais',              desc: 'Catálogo de produtos digitais e físicos integrados ao checkout.' },
+    { id: 'servicos',    label: 'Serviços',               cluster: 'consultoria',                   desc: 'Portfólio de serviços de assessoria técnica.' },
+    { id: 'sistemas',    label: 'Sistemas', cluster: 'desenvolvimento', hub: true,                  desc: 'Sistemas corporativos entregues sob medida.' },
+    { id: 'plataformas', label: 'Plataformas',            cluster: 'desenvolvimento',                desc: 'Portais e painéis administrativos.' },
+    { id: 'governanca',  label: 'Governança',             cluster: 'consultoria',                   desc: 'Políticas, compliance e padrões corporativos.' },
+    { id: 'cyber-defense',label: 'Cyber Defense',         cluster: 'seguranca',                      desc: 'Monitoramento de ameaças e resposta a incidentes.' }
+  ];
+
+  // Conexões extras entre módulos/clusters (dependências e integrações)
+  var EXTRA_EDGES = [
+    ['ia-rag', 'sistemas'], ['ia-rag', 'cursos'],
+    ['seguranca-mod', 'cyber-defense'], ['seguranca-mod', 'governanca'],
+    ['financeiro', 'produtos-mod'], ['dados', 'financeiro'],
+    ['blueprint', 'seguranca-mod'], ['blueprint', 'ia-rag'], ['blueprint', 'cursos'], ['blueprint', 'sistemas'],
+    ['plataformas', 'dados'], ['servicos', 'governanca']
+  ];
+
+  var HUB_IDS = ['blueprint', 'ia-rag', 'seguranca-mod', 'cursos', 'sistemas'];
+
+  // ===================== ESTADO =====================
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+  var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  var camera = { x: 0, y: 0, scale: 1 };
+  var mode = 'enterprise';
+  var nodes = [];
+  var edges = [];
+  var selected = null;
+  var dragNode = null;
+  var isPanning = false;
+  var panStart = { x: 0, y: 0 };
+  var camStart = { x: 0, y: 0 };
+  var lastPointer = { x: 0, y: 0 };
+  var t = 0;
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  // ===================== INICIALIZAÇÃO DOS NÓS =====================
+  function buildGraph() {
+    nodes = [];
+    edges = [];
+
+    CLUSTERS.forEach(function (c, i) {
+      var angle = (i / CLUSTERS.length) * Math.PI * 2;
+      nodes.push({
+        id: c.id, label: c.label, type: 'cluster', color: c.color, desc: c.desc,
+        x: Math.cos(angle) * 260, y: Math.sin(angle) * 260,
+        vx: 0, vy: 0, radius: 30, heat: rand(0.3, 0.9), security: c.id === 'seguranca',
+        orbitCenter: null, orbitRadius: 0, orbitAngle: angle, orbitSpeed: 0
+      });
+    });
+
+    MODULES.forEach(function (m, i) {
+      var parent = nodes.filter(function (n) { return n.id === m.cluster; })[0];
+      var angle = rand(0, Math.PI * 2);
+      var dist = rand(70, 130);
+      nodes.push({
+        id: m.id, label: m.label, type: 'module', cluster: m.cluster,
+        color: parent ? parent.color : '#4a8bc2', desc: m.desc,
+        x: (parent ? parent.x : 0) + Math.cos(angle) * dist,
+        y: (parent ? parent.y : 0) + Math.sin(angle) * dist,
+        vx: 0, vy: 0, radius: m.hub ? 20 : 14,
+        heat: rand(0.15, 1), security: m.id === 'seguranca-mod' || m.id === 'cyber-defense',
+        hub: !!m.hub,
+        orbitCenter: m.cluster, orbitRadius: dist, orbitAngle: angle, orbitSpeed: rand(0.15, 0.35) * (Math.random() < 0.5 ? 1 : -1)
+      });
+      edges.push({ a: m.cluster, b: m.id, kind: 'structural' });
+    });
+
+    EXTRA_EDGES.forEach(function (pair) {
+      edges.push({ a: pair[0], b: pair[1], kind: 'integration' });
+    });
+
+    // Hub central conecta-se a todos os clusters (visão de blueprint corporativo)
+    CLUSTERS.forEach(function (c) {
+      if (c.id !== 'desenvolvimento') edges.push({ a: 'blueprint', b: c.id, kind: 'governance' });
+    });
+
+    document.getElementById('node-count').textContent = nodes.length;
+    document.getElementById('edge-count').textContent = edges.length;
+  }
+
+  function nodeById(id) { return nodes.filter(function (n) { return n.id === id; })[0]; }
+
+  // ===================== FÍSICA (força / repulsão / atração / colisão) =====================
+  function stepPhysics(dt) {
+    var REPULSION = 2600;
+    var SPRING = 0.02;
+    var SPRING_LEN = 130;
+    var DAMPING = 0.86;
+    var CENTER_PULL = 0.0025;
+
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      var fx = 0, fy = 0;
+
+      // Repulsão entre todos os pares (O(n²) — aceitável para ~22 nós)
+      for (var j = 0; j < nodes.length; j++) {
+        if (i === j) continue;
+        var o = nodes[j];
+        var dx = n.x - o.x, dy = n.y - o.y;
+        var distSq = Math.max(dx * dx + dy * dy, 40);
+        var dist = Math.sqrt(distSq);
+        var force = REPULSION / distSq;
+        fx += (dx / dist) * force;
+        fy += (dy / dist) * force;
+      }
+
+      // Atração central suave (mantém o grafo coeso na tela)
+      fx += -n.x * CENTER_PULL;
+      fy += -n.y * CENTER_PULL;
+
+      n.fx = fx; n.fy = fy;
+    }
+
+    // Molas ao longo das arestas (atração entre módulos relacionados)
+    edges.forEach(function (e) {
+      var a = nodeById(e.a), b = nodeById(e.b);
+      if (!a || !b) return;
+      var dx = b.x - a.x, dy = b.y - a.y;
+      var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      var diff = dist - SPRING_LEN;
+      var force = diff * SPRING;
+      var nx = dx / dist, ny = dy / dist;
+      a.fx += nx * force; a.fy += ny * force;
+      b.fx -= nx * force; b.fy -= ny * force;
+    });
+
+    nodes.forEach(function (n) {
+      if (n === dragNode) return;
+      n.vx = (n.vx + n.fx * dt) * DAMPING;
+      n.vy = (n.vy + n.fy * dt) * DAMPING;
+      n.x += n.vx * dt;
+      n.y += n.vy * dt;
+    });
+
+    // Colisão suave (afasta nós sobrepostos)
+    for (var a2 = 0; a2 < nodes.length; a2++) {
+      for (var b2 = a2 + 1; b2 < nodes.length; b2++) {
+        var n1 = nodes[a2], n2 = nodes[b2];
+        var dx2 = n2.x - n1.x, dy2 = n2.y - n1.y;
+        var minDist = n1.radius + n2.radius + 12;
+        var dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2) || 0.01;
+        if (dist2 < minDist) {
+          var push = (minDist - dist2) / 2;
+          var nx2 = dx2 / dist2, ny2 = dy2 / dist2;
+          n1.x -= nx2 * push; n1.y -= ny2 * push;
+          n2.x += nx2 * push; n2.y += ny2 * push;
+        }
+      }
+    }
+  }
+
+  // ===================== MODO ÓRBITA =====================
+  function stepOrbit(dt) {
+    nodes.forEach(function (n) {
+      if (n.type === 'cluster') {
+        // Clusters orbitam suavemente o centro do mapa
+        n.orbitAngle += 0.03 * dt;
+        var R = 260;
+        n.x = Math.cos(n.orbitAngle) * R;
+        n.y = Math.sin(n.orbitAngle) * R;
+      } else {
+        var center = nodeById(n.orbitCenter);
+        if (!center) return;
+        n.orbitAngle += n.orbitSpeed * dt;
+        n.x = center.x + Math.cos(n.orbitAngle) * n.orbitRadius;
+        n.y = center.y + Math.sin(n.orbitAngle) * n.orbitRadius;
+      }
+    });
+  }
+
+  // ===================== MODO IA (auto-clusterização simulada) =====================
+  var iaPulse = 0;
+  function stepIA(dt) {
+    iaPulse += dt;
+    // Periodicamente "reorganiza" — anima módulos convergindo levemente ao centroide do cluster
+    nodes.forEach(function (n) {
+      if (n.type !== 'module') return;
+      var center = nodeById(n.cluster);
+      if (!center) return;
+      var pulse = (Math.sin(iaPulse * 0.6 + n.orbitAngle) + 1) / 2; // 0..1
+      var targetDist = 90 + pulse * 40;
+      var dx = n.x - center.x, dy = n.y - center.y;
+      var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      var nx = dx / dist, ny = dy / dist;
+      var targetX = center.x + nx * targetDist;
+      var targetY = center.y + ny * targetDist;
+      n.x += (targetX - n.x) * 0.02 * dt;
+      n.y += (targetY - n.y) * 0.02 * dt;
+      n.heat = 0.4 + pulse * 0.6;
+    });
+    if (Math.floor(iaPulse) % 6 === 0) {
+      document.getElementById('stat-reorg').textContent = Math.floor(iaPulse) + 's atrás';
+    }
+  }
+
+  // ===================== HEATMAP =====================
+  function heatColor(h) {
+    if (h < 0.35) return getCss('--heat-low');
+    if (h < 0.6) return getCss('--heat-medium');
+    if (h < 0.85) return getCss('--heat-high');
+    return getCss('--heat-max');
+  }
+  var cssCache = {};
+  function getCss(varName) {
+    if (!cssCache[varName]) {
+      cssCache[varName] = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    }
+    return cssCache[varName];
+  }
+
+  function stepHeat(dt) {
+    nodes.forEach(function (n) {
+      n.heat += Math.sin(t * 0.8 + n.x * 0.01 + n.y * 0.01) * 0.004 * dt;
+      n.heat = Math.max(0.05, Math.min(1, n.heat));
+    });
+  }
+
+  // ===================== RENDER =====================
+  function resize() {
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = W * DPR; canvas.height = H * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+
+  function worldToScreen(x, y) {
+    return { x: (x - camera.x) * camera.scale + W / 2, y: (y - camera.y) * camera.scale + H / 2 };
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    drawGrid();
+
+    // Arestas
+    edges.forEach(function (e) {
+      var a = nodeById(e.a), b = nodeById(e.b);
+      if (!a || !b) return;
+      var pa = worldToScreen(a.x, a.y), pb = worldToScreen(b.x, b.y);
+
+      var dim = mode === 'seguranca' && !(a.security || b.security);
+      ctx.save();
+      ctx.globalAlpha = dim ? 0.12 : (e.kind === 'governance' ? 0.55 : 0.32);
+      ctx.strokeStyle = e.kind === 'governance' ? '#189c8e' : (mode === 'seguranca' && (a.security || b.security) ? '#d92b2b' : '#4a8bc2');
+      ctx.lineWidth = e.kind === 'governance' ? 1.6 : 1;
+
+      // Linha animada (efeito de fluxo tracejado)
+      ctx.setLineDash([6, 8]);
+      ctx.lineDashOffset = -t * 26;
+      ctx.beginPath();
+      ctx.moveTo(pa.x, pa.y);
+      ctx.lineTo(pb.x, pb.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    });
+
+    // Nós
+    nodes.forEach(function (n) {
+      var p = worldToScreen(n.x, n.y);
+      var r = n.radius * camera.scale;
+      var color = n.color;
+
+      if (mode === 'heatmap') color = heatColor(n.heat);
+      if (mode === 'seguranca' && !n.security) {
+        ctx.globalAlpha = 0.28;
+      } else {
+        ctx.globalAlpha = 1;
+      }
+
+      // Halo pulsante para hubs / selecionado
+      if (n.hub || n === selected) {
+        var haloR = r + 10 + Math.sin(t * 2 + n.x) * 3;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, haloR, 0, Math.PI * 2);
+        ctx.strokeStyle = color;
+        ctx.globalAlpha *= 0.35;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.globalAlpha = mode === 'seguranca' && !n.security ? 0.28 : 1;
+      }
+
+      // Corpo do nó
+      var grad = ctx.createRadialGradient(p.x - r * 0.3, p.y - r * 0.3, r * 0.1, p.x, p.y, r);
+      grad.addColorStop(0, lighten(color, 25));
+      grad.addColorStop(1, color);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, Math.max(r, 3), 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      if (n.type === 'cluster') {
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+        ctx.stroke();
+      }
+
+      if (n.security && mode === 'seguranca') {
+        ctx.fillStyle = '#fff';
+        ctx.font = (12 * camera.scale) + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🛡', p.x, p.y);
+      }
+
+      // Label
+      if (camera.scale > 0.55) {
+        ctx.globalAlpha = mode === 'seguranca' && !n.security ? 0.3 : 0.92;
+        ctx.fillStyle = '#e6edf5';
+        ctx.font = (n.type === 'cluster' ? 700 : 500) + ' ' + (11 * Math.min(camera.scale, 1.3)) + 'px Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(n.label, p.x, p.y + r + 6);
+      }
+      ctx.globalAlpha = 1;
+    });
+  }
+
+  function drawGrid() {
+    var spacing = 60 * camera.scale;
+    if (spacing < 14) return;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(74,139,194,0.08)';
+    ctx.lineWidth = 1;
+    var offsetX = (W / 2 - camera.x * camera.scale) % spacing;
+    var offsetY = (H / 2 - camera.y * camera.scale) % spacing;
+    for (var x = offsetX; x < W; x += spacing) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (var y = offsetY; y < H; y += spacing) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function lighten(hex, amt) {
+    var c = hex.replace('#', '');
+    if (c.length !== 6) return hex;
+    var num = parseInt(c, 16);
+    var r = Math.min(255, (num >> 16) + amt);
+    var g = Math.min(255, ((num >> 8) & 0xff) + amt);
+    var b = Math.min(255, (num & 0xff) + amt);
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+
+  // ===================== LOOP PRINCIPAL =====================
+  var lastTime = performance.now();
+  function loop(now) {
+    var dt = Math.min((now - lastTime) / 16.67, 3);
+    lastTime = now;
+    t += dt * 0.016;
+
+    if (mode === 'orbita') {
+      stepOrbit(dt);
+    } else if (mode === 'ia') {
+      stepIA(dt);
+      stepPhysics(dt * 0.3);
+    } else if (mode === 'heatmap') {
+      stepHeat(dt);
+      stepPhysics(dt * 0.5);
+    } else {
+      stepPhysics(dt);
+    }
+
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  // ===================== INTERAÇÃO: ZOOM / PAN / DRAG =====================
+  function screenToWorld(sx, sy) {
+    return { x: (sx - W / 2) / camera.scale + camera.x, y: (sy - H / 2) / camera.scale + camera.y };
+  }
+
+  function pointerPos(e) {
+    var rect = canvas.getBoundingClientRect();
+    var cx = e.touches ? e.touches[0].clientX : e.clientX;
+    var cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: cx - rect.left, y: cy - rect.top };
+  }
+
+  function hitTest(sx, sy) {
+    var world = screenToWorld(sx, sy);
+    for (var i = nodes.length - 1; i >= 0; i--) {
+      var n = nodes[i];
+      var dx = world.x - n.x, dy = world.y - n.y;
+      if (Math.sqrt(dx * dx + dy * dy) <= n.radius + 6) return n;
+    }
+    return null;
+  }
+
+  canvas.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    var factor = e.deltaY > 0 ? 0.9 : 1.1;
+    camera.scale = Math.max(0.25, Math.min(2.6, camera.scale * factor));
+  }, { passive: false });
+
+  canvas.addEventListener('mousedown', function (e) {
+    var pos = pointerPos(e);
+    var hit = hitTest(pos.x, pos.y);
+    if (hit && mode === 'fisica') {
+      dragNode = hit;
+    } else {
+      isPanning = true;
+      canvas.classList.add('dragging');
+      panStart = pos;
+      camStart = { x: camera.x, y: camera.y };
+    }
+    lastPointer = pos;
+  });
+
+  window.addEventListener('mousemove', function (e) {
+    var pos = pointerPos(e);
+    if (dragNode) {
+      var world = screenToWorld(pos.x, pos.y);
+      dragNode.x = world.x; dragNode.y = world.y;
+      dragNode.vx = 0; dragNode.vy = 0;
+    } else if (isPanning) {
+      camera.x = camStart.x - (pos.x - panStart.x) / camera.scale;
+      camera.y = camStart.y - (pos.y - panStart.y) / camera.scale;
+    }
+    lastPointer = pos;
+  });
+
+  window.addEventListener('mouseup', function (e) {
+    if (!dragNode && !isPanning) return;
+    var pos = lastPointer;
+    var moved = Math.abs(pos.x - panStart.x) + Math.abs(pos.y - panStart.y);
+    if (!dragNode && isPanning && moved < 4) {
+      var hit = hitTest(pos.x, pos.y);
+      selectNode(hit);
+    }
+    dragNode = null;
+    isPanning = false;
+    canvas.classList.remove('dragging');
+  });
+
+  canvas.addEventListener('touchstart', function (e) {
+    var pos = pointerPos(e);
+    isPanning = true;
+    panStart = pos;
+    camStart = { x: camera.x, y: camera.y };
+  }, { passive: true });
+  canvas.addEventListener('touchmove', function (e) {
+    var pos = pointerPos(e);
+    if (isPanning) {
+      camera.x = camStart.x - (pos.x - panStart.x) / camera.scale;
+      camera.y = camStart.y - (pos.y - panStart.y) / camera.scale;
+    }
+  }, { passive: true });
+  canvas.addEventListener('touchend', function (e) { isPanning = false; });
+
+  // ===================== PAINEL DE DETALHES =====================
+  function selectNode(n) {
+    selected = n;
+    var info = document.getElementById('node-info');
+    if (!n) { info.classList.remove('visible'); return; }
+    info.classList.add('visible');
+    document.getElementById('ni-title').textContent = n.label;
+    document.getElementById('ni-badge').textContent = n.type === 'cluster' ? 'Cluster de negócio' : (n.hub ? 'Módulo hub' : 'Módulo');
+    document.getElementById('ni-desc').textContent = n.desc || '';
+    var heatPct = Math.round(n.heat * 100);
+    document.getElementById('ni-heat-val').textContent = heatPct + '%';
+    var fill = document.getElementById('ni-heat-fill');
+    fill.style.width = heatPct + '%';
+    fill.style.background = heatColor(n.heat);
+    var linkCount = edges.filter(function (e) { return e.a === n.id || e.b === n.id; }).length;
+    document.getElementById('ni-links').textContent = linkCount;
+    document.getElementById('ni-security').textContent = n.security ? 'Crítico — monitorado' : 'Padrão';
+  }
+  document.getElementById('node-info-close').addEventListener('click', function () { selectNode(null); });
+
+  // ===================== CONTROLES =====================
+  document.getElementById('mode-grid').addEventListener('click', function (e) {
+    var btn = e.target.closest('.mode-btn');
+    if (!btn) return;
+    setMode(btn.getAttribute('data-mode'));
+  });
+
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll('.mode-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-mode') === m);
+    });
+    var labels = { enterprise: 'Enterprise', heatmap: 'Heatmap', fisica: 'Física', orbita: 'Órbita', ia: 'IA', seguranca: 'Segurança' };
+    document.getElementById('mode-label').textContent = labels[m] || m;
+    document.getElementById('legend-heat').classList.toggle('visible', m === 'heatmap');
+  }
+
+  document.getElementById('zoom-in').addEventListener('click', function () { camera.scale = Math.min(2.6, camera.scale * 1.2); });
+  document.getElementById('zoom-out').addEventListener('click', function () { camera.scale = Math.max(0.25, camera.scale / 1.2); });
+  document.getElementById('zoom-reset').addEventListener('click', function () { camera.scale = 1; camera.x = 0; camera.y = 0; });
+
+  document.getElementById('toggle-sidebar').addEventListener('click', function () {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  // ===================== LEGENDA DE CLUSTERS =====================
+  function buildLegend() {
+    var el = document.getElementById('cluster-legend');
+    CLUSTERS.forEach(function (c) {
+      var row = document.createElement('div');
+      row.className = 'legend-item';
+      row.innerHTML = '<span class="legend-swatch" style="background:' + c.color + '"></span>' + c.label;
+      row.addEventListener('click', function () { selectNode(nodeById(c.id)); focusOn(nodeById(c.id)); });
+      el.appendChild(row);
+    });
+  }
+
+  function focusOn(n) {
+    if (!n) return;
+    camera.x = n.x; camera.y = n.y; camera.scale = 1.4;
+  }
+
+  // ===================== BOOT =====================
+  window.addEventListener('resize', resize);
+  resize();
+  buildGraph();
+  buildLegend();
+  setMode('enterprise');
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

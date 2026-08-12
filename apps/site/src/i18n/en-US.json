@@ -1,0 +1,122 @@
+{
+  "brand": {
+    "name": "ConnectionCyber",
+    "full": "ConnectionCyber — Technology Advisory & Training",
+    "slogan": "Technology that brings knowledge and management."
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "courses": "Training",
+    "products": "Products",
+    "clients": "Clients",
+    "system": "System",
+    "contact": "Contact",
+    "members": "Student Area",
+    "login": "Sign in"
+  },
+  "home": {
+    "heroTitle": "Technology, Systems and Training for Modern Companies",
+    "heroSubtitle": "Corporate solutions in system development, technical advisory, networking, deployment and technology training.",
+    "ctaPrimary": "Contact Us",
+    "ctaSecondary": "Explore our services",
+    "aboutTitle": "Who We Are",
+    "aboutText": "ConnectionCyber is a company specialized in corporate technology solutions, offering system development, technical advisory, network deployment, global support and professional training. We combine technical expertise, corporate vision and human service to deliver high-performance solutions.",
+    "servicesTitle": "Core Services",
+    "differentiatorsTitle": "Why Choose Us",
+    "differentiators": [
+      "Over 10 years of experience",
+      "Portfolio of 15 active clients with ongoing contracts",
+      "Global technical support",
+      "Modern and secure technology",
+      "Human and professional service"
+    ],
+    "clientsTitle": "Companies that have trusted ConnectionCyber for over a decade",
+    "finalCtaTitle": "Ready to evolve technologically?",
+    "finalCtaSubtitle": "ConnectionCyber is ready to transform your company.",
+    "finalCtaButton": "Get in touch"
+  },
+  "about": {
+    "title": "About the Company",
+    "intro": "ConnectionCyber is a corporate technology company with over 10 years of operation, offering complete solutions in IT, systems, networks and professional training.",
+    "missionTitle": "Mission",
+    "mission": "Empower people and organizations through technology, offering intelligent, secure and accessible solutions that promote growth, efficiency and digital transformation.",
+    "visionTitle": "Vision",
+    "vision": "To be a national reference in technology advisory, system development and professional training, delivering innovation with simplicity and excellence.",
+    "valuesTitle": "Values",
+    "values": [
+      "Professionalism",
+      "Transparency",
+      "Digital security",
+      "Continuous innovation",
+      "Technical responsibility",
+      "Client commitment"
+    ],
+    "historyTitle": "Our History",
+    "history": "Founded over 10 years ago, ConnectionCyber built a solid portfolio of corporate clients, maintaining active contracts and delivering technology with excellence."
+  },
+  "services": {
+    "title": "Services",
+    "subtitle": "Complete technology solutions for companies that need to evolve securely.",
+    "items": [
+      {
+        "title": "Systems and Application Development",
+        "description": "Corporate systems, applications and digital platforms with modern architecture, advanced security and high performance.",
+        "bullets": ["Web systems", "Mobile apps", "Corporate portals", "Admin dashboards", "API integrations"]
+      },
+      {
+        "title": "Professional Technology Training",
+        "description": "Training for teams, leaders and institutions to master digital tools.",
+        "bullets": ["On-site and online training", "Technical education", "Hands-on workshops", "Corporate courses"]
+      },
+      {
+        "title": "Specialized Technical Advisory",
+        "description": "Professional guidance for secure and strategic technology decisions.",
+        "bullets": ["IT consulting", "Technology planning", "System audits", "Continuous technical follow-up"]
+      },
+      {
+        "title": "System Deployment",
+        "description": "Installation, configuration and stable operation of corporate systems.",
+        "bullets": ["Server configuration", "System publishing", "Environment tuning", "Platform integration"]
+      },
+      {
+        "title": "Network and Infrastructure Installation",
+        "description": "Structured networks and complete technology infrastructure.",
+        "bullets": ["Wired and Wi-Fi networks", "IT structure", "Equipment and setup", "Network security"]
+      },
+      {
+        "title": "Global Technology Support",
+        "description": "Continuous service ensuring systems, networks and platforms run without interruption.",
+        "bullets": ["Continuous support", "Maintenance", "Monitoring", "Security"]
+      }
+    ]
+  },
+  "courses": {
+    "title": "Training",
+    "subtitle": "Practical courses and training for teams, leaders and institutions.",
+    "modalities": ["On-site", "Online", "Hybrid"],
+    "cta": "Request Training"
+  },
+  "clients": {
+    "title": "Clients who have trusted ConnectionCyber for over 10 years",
+    "description": "We present our portfolio of corporate clients, institutions and companies that maintain a continuous partnership with ConnectionCyber, proving our quality, trust and commitment.",
+    "yearsLabel": "years of partnership"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Talk to our team and find out how we can help your company.",
+    "formName": "Name",
+    "formEmail": "Email",
+    "formPhone": "Phone",
+    "formCompany": "Company",
+    "formMessage": "Message",
+    "formSubmit": "Send message",
+    "location": "Piracicaba – SP, Brazil"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use"
+  }
+}
