@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Metodologia de povoamento de tenant via CNPJ + CNAE | ConnectionCyber</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg-alt:#f5f8fa; --ink:#0e2233; --muted:#55677c;
+    --line:#dbe4ec; --teal:#0f7a6e; --teal-soft:#e3f3f1;
+    --green:#2f7d47; --green-soft:#e9f5ec; --red:#b3312c; --red-soft:#fbeceb;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    --font-sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+      --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+      --red:#f0827c; --red-soft:#331a19;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+    --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+    --red:#f0827c; --red-soft:#331a19;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-sans); line-height:1.65; }
+  .page{ max-width:760px; margin:0 auto; padding:48px 24px 96px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); margin-bottom:10px; font-weight:700; }
+  h1{ font-size:1.55rem; margin:0 0 8px; text-wrap:balance; }
+  .sub{ color:var(--muted); font-size:.85rem; margin:0 0 32px; }
+  h2{ font-size:1.1rem; margin:34px 0 12px; border-top:1px solid var(--line); padding-top:24px; }
+  h3{ font-size:.95rem; margin:18px 0 8px; }
+  code{ font-family:var(--font-mono); font-size:.85em; background:var(--bg-alt); border:1px solid var(--line); padding:1px 6px; border-radius:4px; }
+  ol,ul{ padding-left:20px; }
+  li{ margin-bottom:9px; font-size:.9rem; }
+  .callout-red{ background:var(--red-soft); border-left:3px solid var(--red); border-radius:8px; padding:14px 18px; font-size:.88rem; margin:16px 0; }
+  .callout-green{ background:var(--green-soft); border-left:3px solid var(--green); border-radius:8px; padding:14px 18px; font-size:.88rem; margin:16px 0; }
+  .item{ border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:12px; font-size:.88rem; }
+  .item b{ display:block; margin-bottom:4px; }
+  footer{ margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:.78rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">connectioncyber · documentação técnica</div>
+  <h1>Metodologia de povoamento de tenant via CNPJ + cenário por CNAE</h1>
+  <p class="sub">Trazida da auditoria de <code>C:\Users\joaqu\Downloads\BPO</code> — documenta o padrão, não importa os dados específicos do documento original.</p>
+
+  <h2>O que é</h2>
+  <ol>
+    <li><b>Consulta de CNPJ</b> pela nossa própria Edge Function <code>lookup-cnpj</code> (já implantada e testada) — razão social, CNAE, porte, situação cadastral, município/UF, data de abertura.</li>
+    <li><b>CNAE decide quais módulos fazem sentido</b> para aquele tenant — não um pacote fixo igual pra todo mundo. Já coerente com <code>module_catalog</code> + <code>tenant_modules</code>.</li>
+    <li><b>Separação de risco por tipo de dado</b>: dado cadastral é registro público (risco baixo); qualquer cenário associado a um módulo, se descrever problema real de empresa real, é sensível — regra: sempre fictício-mas-realista.</li>
+  </ol>
+
+  <h2>Por que não importei os 10 CNPJ do documento original</h2>
+  <div class="callout-red">
+    As 10 empresas do parecer fonte foram povoadas no <b>staging do bpo-system-web-os</b>, vinculadas ao tenant
+    "Connection Cyber Assessoria" <i>daquele</i> sistema — sem relação com o ConnectionCyberSO. Importar o CNPJ/nome
+    delas aqui apresentaria empresas reais como clientes de uma plataforma com a qual não têm vínculo — exatamente
+    o risco que o próprio documento fonte identifica.
+  </div>
+  <p style="font-size:.88rem; color:var(--muted);">Soma-se um problema estrutural: <code>bpo-system-web-os</code> tem
+    staging e produção em projetos Supabase <b>separados</b>; o ConnectionCyberSO hoje tem <b>um projeto só</b>
+    (<code>qfggetvashdxyuvlhihq</code>) — não existe onde povoar dado de demonstração sem cair "em produção".</p>
+
+  <h2>Pronto para uso imediato</h2>
+  <div class="callout-green">
+    <code>lookup-cnpj</code> já resolve a consulta sem trabalho adicional, e <code>tenant_modules.status =
+    'diagnosticado'</code> já suporta "CNAE decide módulo" sem tabela nova — assim que houver um tenant real (ou
+    uma separação staging/produção segura) para aplicar o padrão.
+  </div>
+
+  <h2>Padrões correlatos para <code>apps/platform</code> (ainda não iniciado)</h2>
+  <div class="item">
+    <b>RBAC por pilar/módulo</b>
+    Referência: <code>user_module_access</code> + <code>get_authorized_departments()</code> em <code>bpo-system-web-os</code>.
+    Gap atual: ConnectionCyberSO só tem papel global, sem granularidade por módulo dentro do mesmo tenant.
+  </div>
+  <div class="item">
+    <b>Registro operacional genérico</b>
+    Núcleo comum (<code>id, tenant_id, title, status, assigned_to, created_by, closed_at</code>) + <code>metadata jsonb</code>
+    por módulo + evento genérico <code>campo_alterado</code> em vez de tipo fixo por módulo. Referência:
+    <code>Parecer_Tecnico_Arquitetura_Comum_Pilares.docx</code>.
+  </div>
+
+  <footer>connectioncyber · docs/metodologia-povoamento-tenant-cnpj-cnae · atualizado em 2026-08-13 · também disponível em .md e .json</footer>
+</div>
+</body>
+</html>

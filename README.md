@@ -71,3 +71,4 @@ Cada documento abaixo existe em três formatos — `.md` (leitura), `.json` (est
 | `docs/parecer-tecnico-arquitetura` | Decisões de arquitetura (multi-tenant, isolamento, roteiro de implantação) |
 | `docs/auditoria-ecossistema-connectioncyberos` | Achados da auditoria de `bpo-system-web-os`, `food-service-os` e `cyber-varejo-os`, e o que já foi trazido para cá |
 | `docs/tecnologia-seletor-idioma` | Como o seletor PT/EN do site foi implementado |
+| `docs/metodologia-povoamento-tenant-cnpj-cnae` | Padrão de povoamento de tenant via CNPJ + cenário por CNAE, trazido da auditoria de `Downloads\BPO` |

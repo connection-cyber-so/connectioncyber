@@ -1,0 +1,56 @@
+{
+  "$schema": "connectioncyber-doc-v1",
+  "id": "metodologia-povoamento-tenant-cnpj-cnae",
+  "titulo": "Metodologia de povoamento de tenant via CNPJ + cenário por CNAE",
+  "descricao": "Padrão trazido da auditoria de C:\\Users\\joaqu\\Downloads\\BPO — documenta o método, não importa os dados específicos do documento original.",
+  "atualizado_em": "2026-08-13",
+  "origem": {
+    "documento": "Parecer_Tecnico_Povoamento_CNPJ_CNAE.docx",
+    "projeto_origem": "bpo-system-web-os (não é o ConnectionCyberSO)",
+    "pasta": "C:\\Users\\joaqu\\Downloads\\BPO\\documentacao"
+  },
+  "metodologia": {
+    "passo_1": {
+      "nome": "Consulta de CNPJ",
+      "descricao": "Edge Function lookup-cnpj (já implantada e testada no ConnectionCyberSO) — razão social, CNAE, porte, situação cadastral, município/UF, data de abertura"
+    },
+    "passo_2": {
+      "nome": "CNAE decide módulos",
+      "descricao": "O CNAE do tenant orienta quais módulos do module_catalog fazem sentido habilitar, com status inicial 'diagnosticado' em tenant_modules — não um pacote fixo igual para todos"
+    },
+    "passo_3": {
+      "nome": "Separação de risco por tipo de dado",
+      "dado_cadastral": { "exemplos": ["CNPJ", "razão social", "CNAE", "endereço"], "risco": "baixo — registro público da Receita Federal" },
+      "cenario_de_modulo": { "risco": "sensível se descrever problema real e identificável de empresa real", "regra": "sempre fictício-mas-realista, ancorado em CNAE/porte, a menos que haja anuência explícita da empresa" }
+    }
+  },
+  "decisao_desta_sessao": {
+    "acao": "não importar os 10 CNPJ reais do documento original para a tabela tenants do ConnectionCyberSO",
+    "motivos": [
+      "Essas 10 empresas foram povoadas no staging do bpo-system-web-os, vinculadas ao tenant 'Connection Cyber Assessoria' daquele sistema — não têm relação com o ConnectionCyberSO",
+      "Importar CNPJ/nome real dessas empresas aqui apresentaria empresas reais como clientes de uma plataforma com a qual não têm vínculo",
+      "ConnectionCyberSO tem 1 projeto Supabase só hoje (qfggetvashdxyuvlhihq) — bpo-system-web-os tem staging e produção separados, o que tornava seguro povoar dado de demonstração lá"
+    ],
+    "pergunta_em_aberto_para_o_usuario": "Se quiser popular tenants de demonstração reais no ConnectionCyberSO no futuro, o pré-requisito é resolver a separação staging/produção do Supabase (ex: Supabase Branching, já citado no Parecer Técnico #001)"
+  },
+  "pronto_para_uso_imediato": [
+    "Edge Function lookup-cnpj já resolve a consulta de CNPJ sem trabalho adicional",
+    "tenant_modules.status = 'diagnosticado' já suporta o padrão CNAE-decide-módulo sem tabela nova"
+  ],
+  "padroes_correlatos_para_apps_platform": [
+    {
+      "id": "rbac-por-modulo",
+      "titulo": "RBAC por pilar/módulo",
+      "referencia": "user_module_access + get_authorized_departments() em bpo-system-web-os",
+      "gap_atual": "ConnectionCyberSO só tem papel global (admin/instrutor/aluno/...), sem granularidade por módulo dentro do mesmo tenant",
+      "status": "registrado, não implementado — apps/platform ainda não iniciado"
+    },
+    {
+      "id": "registro-operacional-generico",
+      "titulo": "Registro operacional genérico (núcleo comum + metadata jsonb)",
+      "referencia": "Parecer_Tecnico_Arquitetura_Comum_Pilares.docx em bpo-system-web-os",
+      "padrao": "núcleo comum (id, tenant_id, title, description, status, assigned_to, created_by, created_at, closed_at) + metadata jsonb por módulo + evento genérico campo_alterado em vez de tipo fixo por módulo",
+      "status": "registrado, não implementado — apps/platform ainda não iniciado"
+    }
+  ]
+}

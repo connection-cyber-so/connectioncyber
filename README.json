@@ -61,6 +61,7 @@
   "documentos_relacionados": [
     { "id": "parecer-tecnico-arquitetura", "descricao": "Decisões de arquitetura (multi-tenant, isolamento, roteiro de implantação)" },
     { "id": "auditoria-ecossistema-connectioncyberos", "descricao": "Achados da auditoria de bpo-system-web-os, food-service-os e cyber-varejo-os" },
-    { "id": "tecnologia-seletor-idioma", "descricao": "Como o seletor PT/EN do site foi implementado" }
+    { "id": "tecnologia-seletor-idioma", "descricao": "Como o seletor PT/EN do site foi implementado" },
+    { "id": "metodologia-povoamento-tenant-cnpj-cnae", "descricao": "Padrão de povoamento de tenant via CNPJ + cenário por CNAE, trazido da auditoria de Downloads\\BPO" }
   ]
 }
