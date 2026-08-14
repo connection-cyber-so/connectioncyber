@@ -48,6 +48,8 @@
     { "item": "Schema aplicado: 0001 a 0008 (multi-tenant, auto-provisioning, catálogo de módulos, dados cadastrais, grants)", "feito": true },
     { "item": "Edge Function lookup-cnpj implantada e testada", "feito": true },
     { "item": "10 tenants reais povoados (clientes com contrato ativo, confirmados por Joaquim) + 7 no pipeline aguardando CNPJ", "feito": true },
+    { "item": "Segundo projeto Supabase para staging (ozvylnaipubrmaadikvk) — schema completo aplicado (sem dado de cliente real), lookup-cnpj implantada", "feito": true },
+    { "item": "Variáveis de ambiente da Vercel por ambiente (Production -> Supabase produção, Preview -> Supabase staging)", "feito": true },
     { "item": "Vercel conectado, deploy de produção validado", "feito": true },
     { "item": "custom_access_token_hook ativado em Authentication > Hooks", "feito": false, "acao": "1 clique manual no Dashboard", "url": "https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks" },
     { "item": "apps/platform (ConnectionCyberSO) iniciado", "feito": false }

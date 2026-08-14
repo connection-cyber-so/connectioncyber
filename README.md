@@ -57,6 +57,13 @@ diretório.
   dado cadastral via `lookup-cnpj`. Mais 7 empresas confirmadas no pipeline, aguardando CNPJ. Ver
   `docs/metodologia-povoamento-tenant-cnpj-cnae`.
 - [x] Vercel conectado — deploy de produção validado.
+- [x] **Segundo projeto Supabase criado para staging** (`ozvylnaipubrmaadikvk`) — schema completo
+  aplicado (todas as migrations exceto `0006`, que só tem dado de cliente real), `lookup-cnpj`
+  implantada lá também. `connectioncyber-staging` vinculado a esse projeto.
+- [x] **Variáveis de ambiente da Vercel configuradas por ambiente**: `Production` → Supabase de
+  produção (`qfggetvashdxyuvlhihq`), `Preview` (cobre a branch `staging`) → Supabase de staging
+  (`ozvylnaipubrmaadikvk`). Local (`.env.local`) recomenda-se apontar sempre para staging, nunca
+  para produção — mesma convenção documentada no `food-service-os`.
 - [ ] **Pendente (1 clique manual no Dashboard)**: ativar `custom_access_token_hook` em
   Authentication → Hooks — https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks
 - [ ] `apps/platform` (ConnectionCyberSO) ainda não iniciado.
