@@ -55,22 +55,60 @@
     <li><b>Separação de risco por tipo de dado</b>: dado cadastral é registro público (risco baixo); qualquer cenário associado a um módulo, se descrever problema real de empresa real, é sensível — regra: sempre fictício-mas-realista.</li>
   </ol>
 
-  <h2>Por que não importei os 10 CNPJ do documento original</h2>
-  <div class="callout-red">
-    As 10 empresas do parecer fonte foram povoadas no <b>staging do bpo-system-web-os</b>, vinculadas ao tenant
-    "Connection Cyber Assessoria" <i>daquele</i> sistema — sem relação com o ConnectionCyberSO. Importar o CNPJ/nome
-    delas aqui apresentaria empresas reais como clientes de uma plataforma com a qual não têm vínculo — exatamente
-    o risco que o próprio documento fonte identifica.
+  <h2>Atualização — 2026-08-13: confirmado como clientes reais, implementado</h2>
+  <div class="callout-green">
+    Joaquim Coelho confirmou explicitamente: <i>"Todas as empresas mencionadas — e todas que eu solicitar para
+    adicionar — são clientes com os quais já mantenho contrato."</i> Isso resolveu a ressalva original deste
+    documento. Os 10 CNPJ foram trazidos para <code>tenants</code> como clientes reais.
   </div>
-  <p style="font-size:.88rem; color:var(--muted);">Soma-se um problema estrutural: <code>bpo-system-web-os</code> tem
-    staging e produção em projetos Supabase <b>separados</b>; o ConnectionCyberSO hoje tem <b>um projeto só</b>
-    (<code>qfggetvashdxyuvlhihq</code>) — não existe onde povoar dado de demonstração sem cair "em produção".</p>
+  <ol>
+    <li>Migration <code>0005_tenants_dados_cadastrais.sql</code> — estende <code>tenants</code> com
+      <code>cnpj</code>, <code>razao_social</code>, <code>cnae_principal</code>, <code>cnae_descricao</code>,
+      <code>porte_receita</code>, <code>situacao_cadastral</code>, <code>municipio</code>, <code>uf</code>,
+      <code>data_abertura</code>, <code>natureza_juridica</code>, <code>dados_receita_raw</code> (jsonb).</li>
+    <li>Os 10 CNPJ foram consultados <b>ao vivo</b> via nossa própria <code>lookup-cnpj</code> — todas confirmadas
+      <code>ATIVA</code> no momento do povoamento.</li>
+    <li>Migration <code>0006_povoamento_tenants_reais.sql</code> — insere os 10 tenants, <code>vertical =
+      'varejo'</code>, com o retorno bruto da Receita preservado em <code>dados_receita_raw</code>.</li>
+    <li><b>Nenhum módulo foi habilitado automaticamente</b> — qual serviço cada cliente contrata é fato de negócio
+      que só o Joaquim confirma.</li>
+  </ol>
+
+  <h3>Achado de segurança durante a verificação (corrigido na hora)</h3>
+  <div class="callout-red">
+    Uma consulta com a <code>service_role</code> key foi recusada (<code>42501 — permission denied</code>).
+    Nenhuma migration anterior tinha concedido <code>GRANT</code> de tabela pra ninguém — só RLS habilitado. RLS
+    filtra linhas; <code>GRANT</code> é o pré-requisito de acesso que vem antes, e estava ausente até para o
+    <code>service_role</code>.
+  </div>
+  <p style="font-size:.88rem;">Corrigido em duas migrations: <code>0007</code> concedeu grants a
+    <code>service_role</code> (total) e <code>authenticated</code>; <code>0008</code> foi uma
+    <b>autocorreção imediata</b> — a primeira versão do grant a <code>authenticated</code> incluía
+    INSERT/UPDATE/DELETE em tabelas sem RLS (<code>courses</code>, <code>products</code>, <code>cms_content</code>),
+    o que deixaria qualquer usuário logado editar o catálogo. Corrigido para <code>SELECT</code> por padrão, com
+    escrita liberada só nas tabelas com RLS+policy validada.</p>
+
+  <h2>Empresas confirmadas, ainda sem CNPJ (pipeline — não são tenants ainda)</h2>
+  <p style="font-size:.88rem; color:var(--muted);">Citadas na mesma confirmação, entrada gradual planejada. Entram
+    assim que o CNPJ de cada uma for fornecido.</p>
+  <ul>
+    <li>Oficina mecânica com loja de produtos</li>
+    <li>Distribuidora de águas</li>
+    <li>Fábrica e comércio de sorvetes</li>
+    <li>Rede de restaurantes (5 unidades)</li>
+    <li>Empresa coletora de óleo lubrificante</li>
+    <li>Grupo iGreen — energia solar, seguros de veículos e telecom (chips)</li>
+    <li>Empresa com 2 lojas de manutenção de celulares/notebooks/computadores/eletroeletrônicos</li>
+  </ul>
+  <div class="callout-green" style="font-size:.85rem;">Convenção adotada a partir de agora: toda empresa tratada
+    como tenant real fica documentada como tal, com a fonte da confirmação. Empresa que não for cliente real será
+    explicitamente registrada como tal.</div>
 
   <h2>Pronto para uso imediato</h2>
   <div class="callout-green">
-    <code>lookup-cnpj</code> já resolve a consulta sem trabalho adicional, e <code>tenant_modules.status =
-    'diagnosticado'</code> já suporta "CNAE decide módulo" sem tabela nova — assim que houver um tenant real (ou
-    uma separação staging/produção segura) para aplicar o padrão.
+    <code>lookup-cnpj</code> já em uso nos 10 tenants acima e pronta para as próximas 7 empresas. O padrão "CNAE
+    decide módulo" pode ser aplicado a qualquer um dos 10 tenants via <code>tenant_modules.status =
+    'diagnosticado'</code>, assim que o Joaquim confirmar qual serviço cada um contrata.
   </div>
 
   <h2>Padrões correlatos para <code>apps/platform</code> (ainda não iniciado)</h2>

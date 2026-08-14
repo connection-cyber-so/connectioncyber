@@ -50,9 +50,12 @@ diretório.
 - [x] Repositório Git inicializado, branches `main` e `staging` publicadas no GitHub
   (`connection-cyber-so/connectioncyber`).
 - [x] `supabase link` executado — projeto `connectioncyber` (`qfggetvashdxyuvlhihq`) vinculado.
-- [x] Schema aplicado no projeto real: `0001_init_schema`, `0002_multi_tenant`,
-  `0003_bpo_patterns_auto_provisioning_and_hook`, `0004_module_catalog_and_tenant_themes`.
+- [x] Schema aplicado no projeto real: `0001_init_schema` a `0008_corrige_escopo_grants_authenticated`
+  (multi-tenant, auto-provisioning, catálogo de módulos, dados cadastrais, grants).
 - [x] Edge Function `lookup-cnpj` implantada e testada (consulta BrasilAPI por CNPJ).
+- [x] **10 tenants reais povoados** — clientes com contrato ativo, confirmados por Joaquim Coelho,
+  dado cadastral via `lookup-cnpj`. Mais 7 empresas confirmadas no pipeline, aguardando CNPJ. Ver
+  `docs/metodologia-povoamento-tenant-cnpj-cnae`.
 - [x] Vercel conectado — deploy de produção validado.
 - [ ] **Pendente (1 clique manual no Dashboard)**: ativar `custom_access_token_hook` em
   Authentication → Hooks — https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks

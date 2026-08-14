@@ -45,8 +45,9 @@
     { "item": "Página /login e middleware de proteção de rota", "feito": true },
     { "item": "Repositório Git inicializado, branches main e staging publicadas no GitHub", "feito": true },
     { "item": "supabase link executado, projeto connectioncyber vinculado", "feito": true },
-    { "item": "Schema aplicado: 0001_init_schema, 0002_multi_tenant, 0003_bpo_patterns_auto_provisioning_and_hook, 0004_module_catalog_and_tenant_themes", "feito": true },
+    { "item": "Schema aplicado: 0001 a 0008 (multi-tenant, auto-provisioning, catálogo de módulos, dados cadastrais, grants)", "feito": true },
     { "item": "Edge Function lookup-cnpj implantada e testada", "feito": true },
+    { "item": "10 tenants reais povoados (clientes com contrato ativo, confirmados por Joaquim) + 7 no pipeline aguardando CNPJ", "feito": true },
     { "item": "Vercel conectado, deploy de produção validado", "feito": true },
     { "item": "custom_access_token_hook ativado em Authentication > Hooks", "feito": false, "acao": "1 clique manual no Dashboard", "url": "https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks" },
     { "item": "apps/platform (ConnectionCyberSO) iniciado", "feito": false }

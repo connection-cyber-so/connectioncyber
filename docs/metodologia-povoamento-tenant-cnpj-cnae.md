@@ -26,29 +26,70 @@ cadastral real e cenário de módulo plausível — em vez de começar com telas
    fictício-mas-realista (ancorado em CNAE/porte), nunca um problema real de uma empresa real,
    a menos que essa empresa seja de fato cliente com anuência explícita para uso do nome dela.
 
-## Por que não importei os 10 CNPJ do documento original
+## Atualização — 2026-08-13: confirmado como clientes reais, implementado
 
-O parecer fonte lista 10 empresas reais (varejo: confeitaria, moda, tecidos, material de
-construção, oficinas, doces) povoadas no **staging do `bpo-system-web-os`**, vinculadas ao tenant
-"Connection Cyber Assessoria" daquele sistema. Elas não têm relação nenhuma com o
-ConnectionCyberSO — importar o CNPJ e nome dessas empresas para `tenants` aqui seria apresentar
-empresas reais como clientes de uma plataforma com a qual elas não têm vínculo, exatamente o
-risco que o próprio documento fonte identifica e pede confirmação explícita antes de agir.
+Na sessão seguinte, Joaquim Coelho confirmou explicitamente: *"Todas as empresas mencionadas — e
+todas que eu solicitar para adicionar — são clientes com os quais já mantenho contrato"*. Isso
+resolve a ressalva original deste documento. Com a confirmação, os 10 CNPJ do parecer fonte foram
+trazidos para `connectioncyber` como tenants reais:
 
-Some a isso um problema estrutural: `bpo-system-web-os` tem projetos Supabase de staging e
-produção **separados**, então dado de demonstração fica isolado do que um dia é auditado como
-produção. **O ConnectionCyberSO hoje tem um projeto Supabase só** (`qfggetvashdxyuvlhihq`) — não
-existe ainda um lugar seguro para povoar dado de demonstração sem ele entrar "em produção".
+1. Migration `0005_tenants_dados_cadastrais.sql` — estendeu `tenants` com `cnpj`, `razao_social`,
+   `cnae_principal`, `cnae_descricao`, `porte_receita`, `situacao_cadastral`, `municipio`, `uf`,
+   `data_abertura`, `natureza_juridica`, `dados_receita_raw` (jsonb) — mesmo padrão de
+   `bpo_clients` no `bpo-system-web-os`.
+2. Os 10 CNPJ foram consultados **ao vivo** via nossa própria `lookup-cnpj` (não copiados do
+   documento fonte) — dado cadastral 100% atual no momento do povoamento, confirmado `ATIVA` para
+   todas as 10 empresas.
+3. Migration `0006_povoamento_tenants_reais.sql` — inseriu os 10 tenants, `vertical = 'varejo'`,
+   com o retorno bruto da Receita Federal preservado em `dados_receita_raw`.
+4. **Nenhum módulo foi habilitado automaticamente** em `tenant_modules` para esses tenants — qual
+   serviço cada cliente contrata de fato é informação de negócio real que só o Joaquim pode
+   confirmar; não foi inferida nem inventada a partir do CNAE.
 
-## O que fica pronto para usar, quando fizer sentido
+### Achado de segurança durante a verificação (corrigido na hora)
 
-- A Edge Function `lookup-cnpj` já resolve o passo 1 sem trabalho adicional.
-- O padrão de "CNAE decide módulo, módulo decide cenário" pode ser aplicado a um tenant real
-  assim que ele existir — via `tenant_modules.status = 'diagnosticado'` inicialmente, sem
-  precisar de nenhuma tabela nova.
-- Se um dia fizer sentido povoar tenants de demonstração de verdade (ex: para uma apresentação
-  comercial), o pré-requisito técnico é ter uma separação staging/produção real no Supabase — o
-  parecer técnico #001 já cita o Supabase Branching como caminho para isso.
+Ao validar o povoamento, uma consulta com a `service_role` key (acesso administrativo) foi
+recusada com erro `42501 — permission denied`. Diagnóstico: nenhuma migration anterior (0001-0006)
+tinha concedido `GRANT` de tabela para nenhum papel — só RLS tinha sido habilitado. RLS filtra
+**linhas**; `GRANT` é o pré-requisito de acesso que vem antes disso, e estava ausente até para o
+`service_role`. Corrigido em duas migrations:
+
+- `0007_grants_authenticated_service_role.sql` — concedeu `GRANT` para `service_role` (acesso
+  total, papel interno) e `authenticated`.
+- `0008_corrige_escopo_grants_authenticated.sql` — **autocorreção imediata**: a primeira versão
+  do grant a `authenticated` era ampla demais (INSERT/UPDATE/DELETE em todas as tabelas,
+  inclusive as que não têm RLS habilitado, como `courses`/`products`/`cms_content` — o que
+  deixaria qualquer usuário logado editar o catálogo). Corrigido para `authenticated` ter só
+  `SELECT` por padrão, com `INSERT/UPDATE/DELETE` explícito apenas nas tabelas que já têm RLS +
+  policy própria validada (`tenants`, `users`, `enrollments`, `orders`, `tenant_modules`,
+  `tenant_themes`). Escrita administrativa (cursos, produtos, CMS) continua via `service_role` em
+  API routes, como o código já fazia.
+
+## Empresas confirmadas como clientes, ainda sem CNPJ fornecido (pipeline, não são tenants ainda)
+
+Citadas por Joaquim Coelho na mesma confirmação, como parte da entrada gradual planejada — **não
+foram criadas como tenants**, porque não há CNPJ para consultar ainda. Entram no mesmo processo
+(consulta via `lookup-cnpj` → `tenants`) assim que o CNPJ de cada uma for fornecido:
+
+1. Oficina mecânica com loja de produtos
+2. Distribuidora de águas
+3. Fábrica e comércio de sorvetes
+4. Rede de restaurantes (5 unidades)
+5. Empresa coletora de óleo lubrificante
+6. Grupo iGreen — energia solar, seguros de veículos e telecom (chips)
+7. Empresa com 2 lojas de manutenção de celulares/notebooks/computadores/eletroeletrônicos
+
+**Convenção adotada a partir de agora**: toda empresa tratada como tenant real fica documentada
+como tal, com a fonte da confirmação. Sempre que uma empresa mencionada não for cliente real,
+isso será registrado explicitamente (definição do próprio Joaquim).
+
+## O que fica pronto para usar
+
+- A Edge Function `lookup-cnpj` resolve a consulta de CNPJ sem trabalho adicional — já usada nos
+  10 tenants acima e pronta para as próximas 7 empresas.
+- O padrão de "CNAE decide módulo" pode ser aplicado a qualquer um dos 10 tenants a qualquer
+  momento, via `tenant_modules.status = 'diagnosticado'`, assim que o Joaquim confirmar qual
+  serviço cada um contrata.
 
 ## Padrões correlatos encontrados na mesma auditoria (para `apps/platform`, ainda não iniciado)
 

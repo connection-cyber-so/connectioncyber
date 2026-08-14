@@ -25,14 +25,51 @@
     }
   },
   "decisao_desta_sessao": {
-    "acao": "não importar os 10 CNPJ reais do documento original para a tabela tenants do ConnectionCyberSO",
-    "motivos": [
-      "Essas 10 empresas foram povoadas no staging do bpo-system-web-os, vinculadas ao tenant 'Connection Cyber Assessoria' daquele sistema — não têm relação com o ConnectionCyberSO",
-      "Importar CNPJ/nome real dessas empresas aqui apresentaria empresas reais como clientes de uma plataforma com a qual não têm vínculo",
-      "ConnectionCyberSO tem 1 projeto Supabase só hoje (qfggetvashdxyuvlhihq) — bpo-system-web-os tem staging e produção separados, o que tornava seguro povoar dado de demonstração lá"
+    "status": "implementado",
+    "confirmacao_usuario": {
+      "data": "2026-08-13",
+      "citacao": "Todas as empresas mencionadas — e todas que eu solicitar para adicionar — são clientes com os quais já mantenho contrato",
+      "efeito": "resolve a ressalva original deste documento; os 10 CNPJ foram trazidos para tenants como clientes reais"
+    },
+    "implementacao": [
+      { "migration": "0005_tenants_dados_cadastrais.sql", "descricao": "estende tenants com cnpj, razao_social, cnae_principal, cnae_descricao, porte_receita, situacao_cadastral, municipio, uf, data_abertura, natureza_juridica, dados_receita_raw" },
+      { "migration": "0006_povoamento_tenants_reais.sql", "descricao": "insere os 10 tenants reais, vertical=varejo, dados consultados ao vivo via lookup-cnpj (não copiados do documento fonte)" }
     ],
-    "pergunta_em_aberto_para_o_usuario": "Se quiser popular tenants de demonstração reais no ConnectionCyberSO no futuro, o pré-requisito é resolver a separação staging/produção do Supabase (ex: Supabase Branching, já citado no Parecer Técnico #001)"
+    "modulos_habilitados_automaticamente": false,
+    "motivo_modulos_nao_habilitados": "qual serviço cada cliente contrata de fato é informação de negócio real que só o Joaquim pode confirmar"
   },
+  "achado_seguranca_durante_verificacao": {
+    "sintoma": "consulta com service_role key recusada com erro 42501 (permission denied)",
+    "diagnostico": "nenhuma migration anterior (0001-0006) concedeu GRANT de tabela para nenhum papel — só RLS habilitado. RLS filtra linhas, GRANT é pré-requisito de acesso que vem antes",
+    "correcao": [
+      { "migration": "0007_grants_authenticated_service_role.sql", "descricao": "concede GRANT para service_role (total) e authenticated" },
+      { "migration": "0008_corrige_escopo_grants_authenticated.sql", "descricao": "autocorreção: a versão inicial dava INSERT/UPDATE/DELETE a authenticated em TODAS as tabelas, inclusive sem RLS (courses/products/cms_content) — corrigido para SELECT por padrão, DML explícito só nas tabelas com RLS+policy validada (tenants, users, enrollments, orders, tenant_modules, tenant_themes)" }
+    ]
+  },
+  "pipeline_empresas_confirmadas_sem_cnpj": {
+    "nota": "confirmadas como clientes por Joaquim Coelho em 2026-08-13, ainda não sao tenants — sem CNPJ para consultar ainda; convenção: toda empresa que não for cliente real será explicitamente registrada como tal",
+    "empresas": [
+      "Oficina mecânica com loja de produtos",
+      "Distribuidora de águas",
+      "Fábrica e comércio de sorvetes",
+      "Rede de restaurantes (5 unidades)",
+      "Empresa coletora de óleo lubrificante",
+      "Grupo iGreen — energia solar, seguros de veículos e telecom (chips)",
+      "Empresa com 2 lojas de manutenção de celulares/notebooks/computadores/eletroeletrônicos"
+    ]
+  },
+  "tenants_reais_povoados": [
+    { "nome": "CASA DE BOLOS ACONCHEGO", "cnpj": "26223863000111", "cnae_descricao": "Lanchonetes, casas de chá, de sucos e similares", "municipio": "SANTO ANDRE", "uf": "SP" },
+    { "nome": "ROSE VARIEDADES", "cnpj": "09557258000168", "cnae_descricao": "Comércio varejista de outros artigos de uso pessoal e doméstico não especificados anteriormente", "municipio": "SAO BERNARDO DO CAMPO", "uf": "SP" },
+    { "nome": "BAZAR PARCEIRAS MIX LTDA", "cnpj": "10427822000107", "cnae_descricao": "Comercio varejista de artigos de armarinho", "municipio": "SAO BERNARDO DO CAMPO", "uf": "SP" },
+    { "nome": "PE CONFORTO COMERCIO DE CALCADOS LTDA", "cnpj": "11874249000142", "cnae_descricao": "Comércio varejista de calçados", "municipio": "SAO BERNARDO DO CAMPO", "uf": "SP" },
+    { "nome": "VICTOR AUGUSTO DO NASCIMENTO CONSTRUCAO", "cnpj": "17210928000101", "cnae_descricao": "Comércio varejista de materiais de construção não especificados anteriormente", "municipio": "SAO BERNARDO DO CAMPO", "uf": "SP" },
+    { "nome": "61.905.792 MAURICIO CANDIDO DA SILVA", "cnpj": "61905792000138", "cnae_descricao": "Comércio varejista de doces, balas, bombons e semelhantes", "municipio": "SAO BERNARDO DO CAMPO", "uf": "SP" },
+    { "nome": "HOLANDA BIKES", "cnpj": "19971419000119", "cnae_descricao": "Comércio varejista de bicicletas e triciclos; peças e acessórios", "municipio": "SAO BERNARDO DO CAMPO", "uf": "SP" },
+    { "nome": "BAZAR IRMAOS FREITAS LTDA", "cnpj": "02975098000128", "cnae_descricao": "Comercio varejista de artigos de armarinho", "municipio": "SAO BERNARDO DO CAMPO", "uf": "SP" },
+    { "nome": "44.164.681 EDICARLOS FERREIRA PINHO", "cnpj": "44164681000107", "cnae_descricao": "Serviços de usinagem, tornearia e solda", "municipio": "RIO CLARO", "uf": "SP" },
+    { "nome": "NART COMERCIO DE PRODUTOS ALIMENTICIOS LTDA", "cnpj": "57796526000147", "cnae_descricao": "Comércio varejista de doces, balas, bombons e semelhantes", "municipio": "SAO BERNARDO DO CAMPO", "uf": "SP" }
+  ],
   "pronto_para_uso_imediato": [
     "Edge Function lookup-cnpj já resolve a consulta de CNPJ sem trabalho adicional",
     "tenant_modules.status = 'diagnosticado' já suporta o padrão CNAE-decide-módulo sem tabela nova"
