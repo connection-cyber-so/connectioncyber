@@ -88,14 +88,11 @@
     <tr><td class="ok">✅</td><td>Segundo projeto Supabase para staging (<code>ozvylnaipubrmaadikvk</code>) — schema completo, sem dado de cliente real</td></tr>
     <tr><td class="ok">✅</td><td>Variáveis de ambiente da Vercel por ambiente (Production → Supabase produção, Preview → Supabase staging)</td></tr>
     <tr><td class="ok">✅</td><td>Vercel conectado, deploy de produção validado</td></tr>
+    <tr><td class="ok">✅</td><td><b>Produção e staging validados ao vivo</b> (todas as rotas 200) — causa raiz de um <code>NOT_FOUND</code> persistente encontrada: <b>Framework Preset em "Other"</b> em vez de "Next.js" (Build and Deployment), Root Directory <code>apps/site</code> sempre esteve correto. Corrigido e redeploy disparado.</td></tr>
     <tr><td class="pending">◐</td><td><b>Pendente (1 clique manual)</b>: ativar <code>custom_access_token_hook</code> — <a href="https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks">Authentication → Hooks</a></td></tr>
     <tr><td class="pending">○</td><td>apps/platform (ConnectionCyberSO) ainda não iniciado</td></tr>
+    <tr><td class="ok">✅</td><td>GitHub desbloqueado — <code>main</code> sincronizado com <code>origin/main</code></td></tr>
   </table>
-
-  <div class="alert" style="margin-top:20px;">
-    <b>⚠️ GitHub temporariamente suspenso</b> (conta <code>connection-cyber-so</code>, desbloqueio já solicitado) —
-    commits seguem sendo feitos localmente; <code>main</code> está com commits aguardando push.
-  </div>
 
   <h2>Documentação do projeto</h2>
   <p style="font-size:.88rem; color:var(--muted);">Cada documento existe em três formatos — <code>.md</code> (leitura), <code>.json</code> (estruturado) e <code>.html</code> (visual) — com o mesmo conteúdo.</p>
@@ -106,7 +103,7 @@
     <li><code>docs/metodologia-povoamento-tenant-cnpj-cnae</code> — padrão de povoamento de tenant via CNPJ + cenário por CNAE (auditoria de Downloads\BPO)</li>
   </ul>
 
-  <footer>connectioncyber · README · atualizado em 2026-08-13 · também disponível em .md e .json</footer>
+  <footer>connectioncyber · README · atualizado em 2026-08-13 (outage Framework Preset resolvido) · também disponível em .md e .json</footer>
 </div>
 </body>
 </html>

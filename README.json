@@ -51,16 +51,12 @@
     { "item": "Segundo projeto Supabase para staging (ozvylnaipubrmaadikvk) — schema completo aplicado (sem dado de cliente real), lookup-cnpj implantada", "feito": true },
     { "item": "Variáveis de ambiente da Vercel por ambiente (Production -> Supabase produção, Preview -> Supabase staging)", "feito": true },
     { "item": "Vercel conectado, deploy de produção validado", "feito": true },
+    { "item": "Produção e staging validados ao vivo (connectioncyber.vercel.app 200 em todas as rotas testadas). Causa raiz de um NOT_FOUND persistente: Framework Preset estava em 'Other' em vez de 'Next.js' em Project Settings > Build and Deployment (Root Directory apps/site sempre esteve correto). Corrigido trocando o preset e disparando novo deploy.", "feito": true },
     { "item": "custom_access_token_hook ativado em Authentication > Hooks", "feito": false, "acao": "1 clique manual no Dashboard", "url": "https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks" },
-    { "item": "apps/platform (ConnectionCyberSO) iniciado", "feito": false }
+    { "item": "apps/platform (ConnectionCyberSO) iniciado", "feito": false },
+    { "item": "GitHub desbloqueado, main sincronizado com origin/main", "feito": true }
   ],
-  "alertas": [
-    {
-      "tipo": "github_suspenso",
-      "descricao": "Conta connection-cyber-so temporariamente suspensa pelo GitHub, desbloqueio já solicitado. Commits seguem sendo feitos localmente.",
-      "impacto": "main está com commits locais aguardando push para origin/main"
-    }
-  ],
+  "alertas": [],
   "documentos_relacionados": [
     { "id": "parecer-tecnico-arquitetura", "descricao": "Decisões de arquitetura (multi-tenant, isolamento, roteiro de implantação)" },
     { "id": "auditoria-ecossistema-connectioncyberos", "descricao": "Achados da auditoria de bpo-system-web-os, food-service-os e cyber-varejo-os" },

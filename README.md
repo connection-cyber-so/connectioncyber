@@ -64,12 +64,17 @@ diretório.
   produção (`qfggetvashdxyuvlhihq`), `Preview` (cobre a branch `staging`) → Supabase de staging
   (`ozvylnaipubrmaadikvk`). Local (`.env.local`) recomenda-se apontar sempre para staging, nunca
   para produção — mesma convenção documentada no `food-service-os`.
+- [x] **Produção e staging validados ao vivo na Vercel** (`connectioncyber.vercel.app` retorna 200,
+  todas as rotas testadas). Causa raiz de um `NOT_FOUND` persistente encontrada e corrigida:
+  **Project Settings → Build and Deployment → Framework Preset estava em "Other"**, não "Next.js"
+  — o Root Directory (`apps/site`) sempre esteve certo, o build sempre teve sucesso, mas a Vercel
+  não aplicava o roteamento de páginas do Next.js na hora de servir. Corrigido trocando o preset
+  para "Next.js" e disparando um novo deploy (mudança de preset não redeploya sozinha).
 - [ ] **Pendente (1 clique manual no Dashboard)**: ativar `custom_access_token_hook` em
   Authentication → Hooks — https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks
 - [ ] `apps/platform` (ConnectionCyberSO) ainda não iniciado.
-- ⚠️ **GitHub temporariamente suspenso** (conta `connection-cyber-so`, desbloqueio já
-  solicitado) — commits seguem sendo feitos localmente; `main` está 5 commits à frente de
-  `origin/main` aguardando push.
+- [x] **GitHub desbloqueado** — todos os commits pendentes enviados; `main` sincronizado com
+  `origin/main`.
 
 ## Documentação do projeto
 
