@@ -63,9 +63,10 @@
 ├─ supabase/
 │  ├─ migrations/       schema único do projeto Supabase (multi-tenant via tenant_id + RLS)
 │  └─ functions/        Edge Functions (lookup-cnpj)
-├─ docs/                documentação técnica do projeto
-├─ documentos/          briefings originais do projeto
+├─ docs/                único local de armazenamento — briefings originais e documentos
+│                       técnicos (parecer, auditoria, metodologia) juntos aqui
 └─ logo/                identidade visual (logosf.png é o arquivo oficial)</pre>
+  <p style="font-size:.83rem; color:var(--muted); margin-top:-4px;"><code>docs/</code> só existe na branch <code>main</code> (produção) — era duplicado em <code>staging</code>, consolidado aqui em 2026-08-14.</p>
 
   <h2>Decisões de arquitetura confirmadas</h2>
   <ul>
@@ -101,6 +102,8 @@
     <li><code>docs/auditoria-ecossistema-connectioncyberos</code> — achados da auditoria multi-projeto</li>
     <li><code>docs/tecnologia-seletor-idioma</code> — implementação do seletor PT/EN</li>
     <li><code>docs/metodologia-povoamento-tenant-cnpj-cnae</code> — padrão de povoamento de tenant via CNPJ + cenário por CNAE (auditoria de Downloads\BPO)</li>
+    <li><code>docs/Connection Cyber Site.txt</code> — briefing original, conteúdo institucional/copy (documento-fonte, sem versão JSON/HTML)</li>
+    <li><code>docs/prompt geral.txt</code> — briefing original, blueprint técnico enterprise (documento-fonte, sem versão JSON/HTML)</li>
   </ul>
 
   <footer>connectioncyber · README · atualizado em 2026-08-13 (outage Framework Preset resolvido) · também disponível em .md e .json</footer>

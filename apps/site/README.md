@@ -5,8 +5,8 @@
 > enterprise da **ConnectionCyber — Assessoria e Treinamento Tecnológico**.
 
 Este app foi gerado a partir da unificação de dois documentos de briefing
-(`documentos/Connection Cyber Site.txt` — conteúdo institucional/copy — e
-`documentos/prompt geral.txt` — blueprint técnico enterprise) em um único
+(`docs/Connection Cyber Site.txt` — conteúdo institucional/copy — e
+`docs/prompt geral.txt` — blueprint técnico enterprise) em um único
 projeto Next.js executável, construído de ponta a ponta.
 
 Faz parte do monorepo `connectioncyber` (ver `Parecer técnico #001` para o
@@ -88,9 +88,9 @@ raiz, em `../../supabase/migrations` — não mais dentro deste app.
 
 ```
 F:\Projetos\connectioncyber                 ← produção · branch main
-├─ documentos/                  (briefings originais)
 ├─ logo/                        (logo oficial — logosf.png)
-├─ docs/                        (documentação do projeto — JSON+MD+HTML)
+├─ docs/                        (único local de documentação — briefings originais +
+│                                 documentos técnicos JSON+MD+HTML; só existe em main)
 ├─ supabase/
 │  ├─ migrations/                (0001 a 0004, schema único, todo o monorepo)
 │  └─ functions/lookup-cnpj/     (Edge Function — implantada)

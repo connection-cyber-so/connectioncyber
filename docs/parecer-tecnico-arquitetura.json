@@ -57,7 +57,7 @@
     { "etapa": "00", "descricao": "Parecer técnico", "status": "concluida" },
     { "etapa": "01", "descricao": "3 decisões confirmadas", "status": "concluida" },
     { "etapa": "02", "descricao": "Reorganizar pastas locais em monorepo", "status": "concluida" },
-    { "etapa": "03", "descricao": "Git + GitHub (init, branches, clone de staging)", "status": "concluida", "alerta": "GitHub temporariamente suspenso desde então — commits seguem localmente" },
+    { "etapa": "03", "descricao": "Git + GitHub (init, branches, clone de staging)", "status": "concluida", "detalhe": "GitHub desbloqueado, main e staging sincronizados com origin" },
     { "etapa": "04", "descricao": "Supabase (link, migrations, tenants/RLS)", "status": "concluida", "detalhe": "4 migrations aplicadas" },
     { "etapa": "05", "descricao": "Vercel (ambientes Produção/Staging)", "status": "concluida", "detalhe": "deploy de produção validado" },
     { "etapa": "06", "descricao": "Validação de build/deploy", "status": "concluida" },

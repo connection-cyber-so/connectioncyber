@@ -4,7 +4,7 @@
   "titulo": "apps/site — Site Corporativo ConnectionCyber",
   "descricao": "Site institucional, portal de pagamentos, área de membros e mapa arquitetural enterprise da ConnectionCyber — Assessoria e Treinamento Tecnológico.",
   "atualizado_em": "2026-08-13",
-  "origem": "Unificação de documentos/Connection Cyber Site.txt (conteúdo institucional) e documentos/prompt geral.txt (blueprint técnico), em apps/site do monorepo connectioncyber",
+  "origem": "Unificação de docs/Connection Cyber Site.txt (conteúdo institucional) e docs/prompt geral.txt (blueprint técnico), em apps/site do monorepo connectioncyber",
   "stack": ["Next.js 14", "TypeScript", "Pages Router", "Supabase", "Mercado Pago", "@supabase/ssr (middleware)"] ,
   "pronto_e_funcionando": [
     "Site institucional completo: Home, Sobre, Serviços, Treinamentos/Cursos, Produtos, Área de Clientes, Contato, Sistema, Checkout, retorno de pagamento",

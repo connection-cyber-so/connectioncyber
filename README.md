@@ -20,14 +20,20 @@ connectioncyber/
 ├─ supabase/
 │  ├─ migrations/       schema único do projeto Supabase (multi-tenant via tenant_id + RLS)
 │  └─ functions/        Edge Functions (lookup-cnpj)
-├─ docs/                documentação técnica do projeto (este índice, parecer, auditoria)
-├─ documentos/          briefings originais do projeto
+├─ docs/                documentação do projeto — único local de armazenamento: os briefings
+│                       originais (`Connection Cyber Site.txt`, `prompt geral.txt`) e os
+│                       documentos técnicos (parecer, auditoria, metodologia) vivem juntos aqui
 └─ logo/                identidade visual (logosf.png é o arquivo oficial)
 ```
 
 Ambiente de desenvolvimento (staging) é um **segundo clone** deste mesmo repositório, na
 branch `staging`, em `F:\Projetos\connectioncyber-staging` — não uma pasta dentro deste
 diretório.
+
+> **`docs/` só existe na branch `main` (produção).** Era duplicado em `staging` — mesmo
+> conteúdo, duas cópias. Consolidado em 2026-08-14: produção é a fonte única de documentação;
+> `connectioncyber-staging` não versiona `docs/` nem `documentos/`. Para consultar, use esta
+> pasta ou a branch `main` no GitHub.
 
 ## Decisões de arquitetura confirmadas
 
@@ -87,3 +93,5 @@ Cada documento abaixo existe em três formatos — `.md` (leitura), `.json` (est
 | `docs/auditoria-ecossistema-connectioncyberos` | Achados da auditoria de `bpo-system-web-os`, `food-service-os` e `cyber-varejo-os`, e o que já foi trazido para cá |
 | `docs/tecnologia-seletor-idioma` | Como o seletor PT/EN do site foi implementado |
 | `docs/metodologia-povoamento-tenant-cnpj-cnae` | Padrão de povoamento de tenant via CNPJ + cenário por CNAE, trazido da auditoria de `Downloads\BPO` |
+| `docs/Connection Cyber Site.txt` | Briefing original — conteúdo institucional/copy (não gera `.md`/`.json`/`.html`, é o documento-fonte) |
+| `docs/prompt geral.txt` | Briefing original — blueprint técnico enterprise (não gera `.md`/`.json`/`.html`, é o documento-fonte) |

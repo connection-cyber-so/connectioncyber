@@ -16,19 +16,19 @@
     "packages/core": "regras de negócio compartilhadas entre tenants — ainda não iniciado",
     "supabase/migrations": "schema único do projeto Supabase (multi-tenant via tenant_id + RLS)",
     "supabase/functions": "Edge Functions (lookup-cnpj)",
-    "docs": "documentação técnica do projeto (JSON+MD+HTML)",
-    "documentos": "briefings originais do projeto",
+    "docs": "único local de armazenamento de documentação — briefings originais (Connection Cyber Site.txt, prompt geral.txt) e documentos técnicos (JSON+MD+HTML) juntos aqui",
     "logo": "identidade visual (logosf.png é o arquivo oficial)"
   },
   "ambientes": {
     "producao": {
       "pasta": "F:\\Projetos\\connectioncyber",
-      "branch": "main"
+      "branch": "main",
+      "nota": "fonte única de docs/ — connectioncyber-staging não versiona esta pasta desde 2026-08-14"
     },
     "staging": {
       "pasta": "F:\\Projetos\\connectioncyber-staging",
       "branch": "staging",
-      "nota": "segundo clone do mesmo repositório, não uma pasta dentro da produção"
+      "nota": "segundo clone do mesmo repositório, não uma pasta dentro da produção; não possui docs/ nem documentos/ — eram cópia idêntica da produção, consolidados em main"
     }
   },
   "decisoes_arquitetura_confirmadas": [
@@ -61,6 +61,8 @@
     { "id": "parecer-tecnico-arquitetura", "descricao": "Decisões de arquitetura (multi-tenant, isolamento, roteiro de implantação)" },
     { "id": "auditoria-ecossistema-connectioncyberos", "descricao": "Achados da auditoria de bpo-system-web-os, food-service-os e cyber-varejo-os" },
     { "id": "tecnologia-seletor-idioma", "descricao": "Como o seletor PT/EN do site foi implementado" },
-    { "id": "metodologia-povoamento-tenant-cnpj-cnae", "descricao": "Padrão de povoamento de tenant via CNPJ + cenário por CNAE, trazido da auditoria de Downloads\\BPO" }
+    { "id": "metodologia-povoamento-tenant-cnpj-cnae", "descricao": "Padrão de povoamento de tenant via CNPJ + cenário por CNAE, trazido da auditoria de Downloads\\BPO" },
+    { "id": "Connection Cyber Site.txt", "descricao": "Briefing original (documento-fonte, sem versão JSON/HTML) — conteúdo institucional/copy" },
+    { "id": "prompt geral.txt", "descricao": "Briefing original (documento-fonte, sem versão JSON/HTML) — blueprint técnico enterprise" }
   ]
 }

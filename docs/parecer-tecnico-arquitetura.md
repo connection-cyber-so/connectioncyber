@@ -109,7 +109,7 @@ que ganha um Supabase dedicado, fora do padrão.
 | 00 | Este parecer | ✅ concluída |
 | 01 | 3 decisões confirmadas | ✅ concluída |
 | 02 | Reorganizar pastas locais em monorepo | ✅ concluída |
-| 03 | Git + GitHub (init, branches, clone de staging) | ✅ concluída (GitHub temporariamente suspenso desde então — commits seguem localmente) |
+| 03 | Git + GitHub (init, branches, clone de staging) | ✅ concluída — GitHub desbloqueado, `main` e `staging` sincronizados com `origin` |
 | 04 | Supabase (link, migrations, tenants/RLS) | ✅ concluída — 4 migrations aplicadas |
 | 05 | Vercel (ambientes Produção/Staging) | ✅ concluída — deploy de produção validado |
 | 06 | Validação de build/deploy | ✅ concluída |
