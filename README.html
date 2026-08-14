@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>connectioncyber — ConnectionCyberSO</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg-alt:#f5f8fa; --ink:#0e2233; --muted:#55677c;
+    --line:#dbe4ec; --teal:#0f7a6e; --teal-soft:#e3f3f1;
+    --green:#2f7d47; --green-soft:#e9f5ec; --orange:#b85e10; --orange-soft:#faf0e3;
+    --red:#b3312c; --red-soft:#fbeceb;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    --font-sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+      --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+      --orange:#f2a25c; --orange-soft:#2c2015; --red:#f0827c; --red-soft:#331a19;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+    --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+    --orange:#f2a25c; --orange-soft:#2c2015; --red:#f0827c; --red-soft:#331a19;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-sans); line-height:1.65; }
+  .page{ max-width:760px; margin:0 auto; padding:48px 24px 96px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); margin-bottom:10px; font-weight:700; }
+  h1{ font-size:1.9rem; margin:0 0 6px; }
+  .sub{ color:var(--muted); margin:0 0 6px; }
+  .empresa{ font-size:.8rem; color:var(--muted); margin-bottom:32px; }
+  h2{ font-size:1.15rem; margin:36px 0 12px; border-top:1px solid var(--line); padding-top:24px; }
+  code{ font-family:var(--font-mono); font-size:.87em; background:var(--bg-alt); border:1px solid var(--line); padding:1px 6px; border-radius:4px; }
+  pre{ background:var(--bg-alt); border:1px solid var(--line); border-radius:10px; padding:16px 18px; font-family:var(--font-mono); font-size:.82rem; overflow-x:auto; line-height:1.7; }
+  table{ width:100%; border-collapse:collapse; font-size:.88rem; }
+  td{ padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  td:first-child{ width:28px; }
+  .ok{ color:var(--green); font-weight:700; }
+  .pending{ color:var(--orange); font-weight:700; }
+  .alert{ background:var(--orange-soft); border-left:3px solid var(--orange); border-radius:8px; padding:14px 18px; font-size:.88rem; }
+  ul{ padding-left:20px; }
+  li{ margin-bottom:6px; font-size:.9rem; }
+  footer{ margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:.78rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">connectioncyber · monorepo</div>
+  <h1>connectioncyber — ConnectionCyberSO</h1>
+  <p class="sub"><b>Tecnologia que traz conhecimento e gestão.</b> Monorepo de produção (branch <code>main</code>) da ConnectionCyber — Assessoria e Treinamento Tecnológico.</p>
+  <p class="empresa">Gabriel Batista de Assis Soares Coelho — MEI · CNPJ 13.348.881/0001-88</p>
+
+  <h2>Estrutura</h2>
+  <pre>connectioncyber/
+├─ apps/
+│  ├─ site/           site institucional — Next.js/TS, Pages Router
+│  └─ platform/        ConnectionCyberSO (ERP/CRM/SaaS multi-tenant) — ainda não iniciado
+├─ packages/
+│  └─ core/            regras de negócio compartilhadas entre tenants — ainda não iniciado
+├─ supabase/
+│  ├─ migrations/       schema único do projeto Supabase (multi-tenant via tenant_id + RLS)
+│  └─ functions/        Edge Functions (lookup-cnpj)
+├─ docs/                documentação técnica do projeto
+├─ documentos/          briefings originais do projeto
+└─ logo/                identidade visual (logosf.png é o arquivo oficial)</pre>
+
+  <h2>Decisões de arquitetura confirmadas</h2>
+  <ul>
+    <li><b>Multi-tenant</b>: 1 projeto Supabase único (<code>qfggetvashdxyuvlhihq</code>), isolamento por <code>tenant_id</code> + RLS. Cliente novo = linha em <code>tenants</code>, não projeto/repositório/pasta novos.</li>
+    <li><b>Staging</b>: clone irmão do repositório, não aninhado (<code>F:\Projetos\connectioncyber-staging</code>).</li>
+    <li><b>Site</b>: parte deste monorepo (<code>apps/site</code>), não projeto separado.</li>
+    <li><b>Pendente</b>: divergência entre a stack canônica do ecossistema (App Router + Tailwind) e a stack atual (Pages Router, CSS custom).</li>
+  </ul>
+
+  <h2>Status</h2>
+  <table>
+    <tr><td class="ok">✅</td><td>apps/site construído e validado (build limpo)</td></tr>
+    <tr><td class="ok">✅</td><td>Logo oficial e paleta de marca corrigidas</td></tr>
+    <tr><td class="ok">✅</td><td>Página /login e middleware de proteção de rota</td></tr>
+    <tr><td class="ok">✅</td><td>Git inicializado, main e staging publicadas no GitHub</td></tr>
+    <tr><td class="ok">✅</td><td>supabase link executado, projeto vinculado</td></tr>
+    <tr><td class="ok">✅</td><td>Schema aplicado: 0001, 0002, 0003, 0004</td></tr>
+    <tr><td class="ok">✅</td><td>Edge Function lookup-cnpj implantada e testada</td></tr>
+    <tr><td class="ok">✅</td><td>Vercel conectado, deploy de produção validado</td></tr>
+    <tr><td class="pending">◐</td><td><b>Pendente (1 clique manual)</b>: ativar <code>custom_access_token_hook</code> — <a href="https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks">Authentication → Hooks</a></td></tr>
+    <tr><td class="pending">○</td><td>apps/platform (ConnectionCyberSO) ainda não iniciado</td></tr>
+  </table>
+
+  <div class="alert" style="margin-top:20px;">
+    <b>⚠️ GitHub temporariamente suspenso</b> (conta <code>connection-cyber-so</code>, desbloqueio já solicitado) —
+    commits seguem sendo feitos localmente; <code>main</code> está com commits aguardando push.
+  </div>
+
+  <h2>Documentação do projeto</h2>
+  <p style="font-size:.88rem; color:var(--muted);">Cada documento existe em três formatos — <code>.md</code> (leitura), <code>.json</code> (estruturado) e <code>.html</code> (visual) — com o mesmo conteúdo.</p>
+  <ul>
+    <li><code>docs/parecer-tecnico-arquitetura</code> — decisões de arquitetura e roteiro de implantação</li>
+    <li><code>docs/auditoria-ecossistema-connectioncyberos</code> — achados da auditoria multi-projeto</li>
+    <li><code>docs/tecnologia-seletor-idioma</code> — implementação do seletor PT/EN</li>
+  </ul>
+
+  <footer>connectioncyber · README · atualizado em 2026-08-13 · também disponível em .md e .json</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{
+  "$schema": "connectioncyber-doc-v1",
+  "id": "readme-raiz",
+  "titulo": "connectioncyber — ConnectionCyberSO",
+  "slogan": "Tecnologia que traz conhecimento e gestão.",
+  "descricao": "Monorepo de produção (branch main) da ConnectionCyber — Assessoria e Treinamento Tecnológico.",
+  "atualizado_em": "2026-08-13",
+  "empresa": {
+    "nome_responsavel": "Gabriel Batista de Assis Soares Coelho",
+    "regime": "MEI",
+    "cnpj": "13.348.881/0001-88"
+  },
+  "estrutura": {
+    "apps/site": "site institucional — Next.js/TS, Pages Router",
+    "apps/platform": "ConnectionCyberSO (ERP/CRM/SaaS multi-tenant) — ainda não iniciado",
+    "packages/core": "regras de negócio compartilhadas entre tenants — ainda não iniciado",
+    "supabase/migrations": "schema único do projeto Supabase (multi-tenant via tenant_id + RLS)",
+    "supabase/functions": "Edge Functions (lookup-cnpj)",
+    "docs": "documentação técnica do projeto (JSON+MD+HTML)",
+    "documentos": "briefings originais do projeto",
+    "logo": "identidade visual (logosf.png é o arquivo oficial)"
+  },
+  "ambientes": {
+    "producao": {
+      "pasta": "F:\\Projetos\\connectioncyber",
+      "branch": "main"
+    },
+    "staging": {
+      "pasta": "F:\\Projetos\\connectioncyber-staging",
+      "branch": "staging",
+      "nota": "segundo clone do mesmo repositório, não uma pasta dentro da produção"
+    }
+  },
+  "decisoes_arquitetura_confirmadas": [
+    "Multi-tenant: 1 projeto Supabase único (qfggetvashdxyuvlhihq), isolamento por tenant_id + RLS. Cliente novo = linha na tabela tenants, não projeto/repositório/pasta novos.",
+    "Staging: clone irmão do repositório, não aninhado.",
+    "Site: parte deste monorepo (apps/site), não projeto separado."
+  ],
+  "decisoes_pendentes": [
+    "Divergência entre a stack canônica documentada no ecossistema (Next.js App Router + Tailwind) e a stack atual deste repositório (Next.js 14 Pages Router, CSS custom) — ver docs/auditoria-ecossistema-connectioncyberos"
+  ],
+  "status": [
+    { "item": "apps/site construído e validado (npm run build limpo)", "feito": true },
+    { "item": "Logo oficial e paleta de marca corrigidas", "feito": true },
+    { "item": "Página /login e middleware de proteção de rota", "feito": true },
+    { "item": "Repositório Git inicializado, branches main e staging publicadas no GitHub", "feito": true },
+    { "item": "supabase link executado, projeto connectioncyber vinculado", "feito": true },
+    { "item": "Schema aplicado: 0001_init_schema, 0002_multi_tenant, 0003_bpo_patterns_auto_provisioning_and_hook, 0004_module_catalog_and_tenant_themes", "feito": true },
+    { "item": "Edge Function lookup-cnpj implantada e testada", "feito": true },
+    { "item": "Vercel conectado, deploy de produção validado", "feito": true },
+    { "item": "custom_access_token_hook ativado em Authentication > Hooks", "feito": false, "acao": "1 clique manual no Dashboard", "url": "https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks" },
+    { "item": "apps/platform (ConnectionCyberSO) iniciado", "feito": false }
+  ],
+  "alertas": [
+    {
+      "tipo": "github_suspenso",
+      "descricao": "Conta connection-cyber-so temporariamente suspensa pelo GitHub, desbloqueio já solicitado. Commits seguem sendo feitos localmente.",
+      "impacto": "main está com commits locais aguardando push para origin/main"
+    }
+  ],
+  "documentos_relacionados": [
+    { "id": "parecer-tecnico-arquitetura", "descricao": "Decisões de arquitetura (multi-tenant, isolamento, roteiro de implantação)" },
+    { "id": "auditoria-ecossistema-connectioncyberos", "descricao": "Achados da auditoria de bpo-system-web-os, food-service-os e cyber-varejo-os" },
+    { "id": "tecnologia-seletor-idioma", "descricao": "Como o seletor PT/EN do site foi implementado" }
+  ]
+}

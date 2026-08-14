@@ -22,11 +22,20 @@ raiz, em `../../supabase/migrations` — não mais dentro deste app.
 - **Site institucional completo** (Next.js 14 + TypeScript + Pages Router):
   Home, Sobre, Serviços, Treinamentos/Cursos, Produtos, Área de Clientes,
   Contato, Sistema (mapa enterprise), Checkout, retorno de pagamento.
-- **Identidade visual** aplicada a partir do logo (laranja/vermelho/verde/teal
-  + azul corporativo) — `src/styles/theme.css`.
+- **Identidade visual oficial** — logo real (`public/logo.png`, a partir de
+  `logo/logosf.png`) e paleta de marca oficial em `src/styles/theme.css`
+  (`#F6851F`/`#F8961D`/`#E01F27`/`#CA2127`/`#2C9C48`/`#4CB853`/`#28A992`/`#1E9680`).
 - **i18n PT-BR / EN-US** — `src/i18n/*.json` + `LanguageContext` +
-  `LanguageSwitcher` no header. i18n nativo do Next.js também habilitado em
-  `next.config.js` (rotas duplicadas por locale).
+  `LanguageSwitcher` no header (Context API do React, sem biblioteca externa
+  — ver `../../docs/tecnologia-seletor-idioma.md`). O i18n nativo do Next.js
+  foi **removido** de `next.config.js`: duplicava as páginas por locale sem
+  que nada navegasse para as URLs prefixadas, e foi a causa mais provável de
+  um `NOT_FOUND` na borda da Vercel após o deploy.
+- **Página `/login`** funcional (`src/pages/login/index.tsx`) e **middleware
+  de proteção de rota** (`src/middleware.ts`, via `@supabase/ssr`) — protege
+  `/membros` no servidor, antes de qualquer HTML ser enviado. Substitui a
+  dependência exclusiva do guard client-side (`ProtectedRoute.tsx`), que
+  travava em "Verificando acesso…" quando o Supabase não estava configurado.
 - **Header, Footer, Layout, rotas protegidas, botões flutuantes de redes
   sociais** (WhatsApp, Instagram, Facebook, LinkedIn, YouTube, TikTok) com
   tracking best-effort (gtag + webhook n8n).
@@ -43,12 +52,16 @@ raiz, em `../../supabase/migrations` — não mais dentro deste app.
   `/checkout` + `/pagamento/sucesso` + `/pagamento/erro`.
 - **Formulário de contato funcional** — `/api/contato` grava em
   `contact_messages` (Supabase) e dispara webhook n8n, se configurados.
-- **Schema completo Supabase/PostgreSQL** —
-  `../../supabase/migrations/0001_init_schema.sql` (raiz do monorepo): usuários, papéis (RBAC),
-  cursos, matrículas, trilhas, quizzes, provas/simulados, produtos, pedidos,
-  pagamentos, mídia, CMS, analytics, módulo de acesso remoto para clientes,
-  RLS habilitado nas tabelas sensíveis, triggers de `updated_at`, e placeholders
-  comentados para os clusters opcionais Varejo/Food.
+- **Schema completo Supabase/PostgreSQL** — `../../supabase/migrations/` (raiz do monorepo),
+  4 migrations aplicadas no projeto real (`qfggetvashdxyuvlhihq`):
+  usuários, papéis (RBAC), cursos, matrículas, trilhas, quizzes, provas/simulados, produtos,
+  pedidos, pagamentos, mídia, CMS, analytics, módulo de acesso remoto para clientes;
+  `tenants` + `tenant_id` + RLS (multi-tenant); trigger de auto-provisionamento
+  (`auth.users` → `public.users`) e `custom_access_token_hook` (função pronta — falta 1 clique
+  manual no Dashboard para ativar); `module_catalog` + `tenant_modules` (catálogo de módulos
+  compartilhado, habilitação por tenant) + `tenant_themes` (branding por tenant).
+- **Edge Function `lookup-cnpj`** (`../../supabase/functions/lookup-cnpj`) — consulta a
+  BrasilAPI por CNPJ, implantada e testada.
 - **Sistema Visual Enterprise** — `public/enterprise-system.html`
   (HTML+CSS+JS puro, sem dependências externas), embutido em `/sistema` via
   `<iframe>`. Mapa com 22 nós (7 clusters + 15 módulos) e 33 conexões,
@@ -62,8 +75,12 @@ raiz, em `../../supabase/migrations` — não mais dentro deste app.
   - zoom (scroll) + pan (arraste) + seleção de nó com painel de detalhes
   - painel lateral com legenda de clusters, métricas de governança e troca
     de modo
-- **`npm run build` validado** — 42 páginas estáticas geradas, 0 erros de
-  tipo, 0 erros de compilação.
+- **`npm run build` validado** — 17 rotas (14 páginas + 3 API routes), 0 erros de
+  tipo/compilação (contagem caiu de 42 para o número real de rotas únicas
+  depois da remoção do i18n nativo do Next.js, que duplicava tudo por locale).
+- **Deploy Vercel validado** — produção no ar; dois problemas reais foram
+  encontrados e corrigidos no processo: Deployment Protection bloqueando o
+  domínio público (desativada no painel), e o `NOT_FOUND` do i18n citado acima.
 
 ---
 
@@ -72,9 +89,11 @@ raiz, em `../../supabase/migrations` — não mais dentro deste app.
 ```
 F:\Projetos\connectioncyber                 ← produção · branch main
 ├─ documentos/                  (briefings originais)
-├─ logo/                        (logo oficial)
+├─ logo/                        (logo oficial — logosf.png)
+├─ docs/                        (documentação do projeto — JSON+MD+HTML)
 ├─ supabase/
-│  └─ migrations/0001_init_schema.sql       (schema único, todo o monorepo)
+│  ├─ migrations/                (0001 a 0004, schema único, todo o monorepo)
+│  └─ functions/lookup-cnpj/     (Edge Function — implantada)
 ├─ packages/
 │  └─ core/                     (regras de negócio compartilhadas — ainda não iniciado)
 └─ apps/
@@ -82,7 +101,7 @@ F:\Projetos\connectioncyber                 ← produção · branch main
    └─ site/                     ← projeto Next.js (este README)
       ├─ src/
       │  ├─ pages/              (rotas: index, sobre, servicos, cursos,
-      │  │                       produtos, clientes, membros, sistema,
+      │  │                       produtos, clientes, membros, login, sistema,
       │  │                       contato, checkout, pagamento/*, api/*)
       │  ├─ components/         (Header, Footer, Layout, LanguageSwitcher,
       │  │                       ProtectedRoute, FloatingSocialButtons,
@@ -91,8 +110,9 @@ F:\Projetos\connectioncyber                 ← produção · branch main
       │  ├─ lib/                (supabaseClient, auth, payments)
       │  ├─ config/             (env, routes, clients)
       │  ├─ i18n/               (pt-BR.json, en-US.json)
-      │  └─ styles/             (globals.css, theme.css)
-      ├─ public/enterprise-system.html
+      │  ├─ styles/             (globals.css, theme.css)
+      │  └─ middleware.ts       (protege /membros no servidor)
+      ├─ public/enterprise-system.html, logo.png
       ├─ package.json / tsconfig.json / next.config.js
       └─ .env.local.example
 
@@ -122,16 +142,13 @@ até as chaves serem configuradas (ver próxima seção).
 Estas são as únicas partes que **não podem ser inventadas** — precisam de
 dados reais ou de uma conta sua em cada serviço:
 
-1. **Supabase** — projeto já existe (`qfggetvashdxyuvlhihq`, org
-   connection-cyber-so). Falta rodar `supabase link` + `supabase db push`
-   a partir da raiz do monorepo (`../../supabase/migrations/0001_init_schema.sql`)
-   e preencher `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` /
-   `SUPABASE_SERVICE_ROLE_KEY` no `.env.local` — ver Etapa 04 do roteiro.
+1. ~~**Supabase**~~ ✅ feito — projeto linkado, 4 migrations aplicadas, Edge Function no ar.
+   Falta só ativar o `custom_access_token_hook` em Authentication → Hooks no Dashboard
+   (1 clique, não dá pra fazer por CLI em projeto hospedado).
 2. **Mercado Pago** — conta de vendedor + `MERCADOPAGO_ACCESS_TOKEN` +
    `NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY` (produção ou sandbox).
-3. **Domínio `connectioncyber.com.br`** — apontar DNS para a Vercel quando o
-   deploy for feito.
-4. **Vercel** — conectar o repositório (GitHub) para deploy + CI/CD.
+3. **Domínio `connectioncyber.com.br`** — apontar DNS para a Vercel.
+4. ~~**Vercel**~~ ✅ feito — repositório conectado, deploy de produção validado.
 5. **Carteira de 15 clientes** — `src/config/clients.ts` está com
    placeholders genéricos (`Cliente Corporativo 1..15`) porque os nomes
    reais das empresas não estavam nos documentos de briefing. Substitua
@@ -141,6 +158,8 @@ dados reais ou de uma conta sua em cada serviço:
    sociais genéricos — trocar pelos reais.
 7. **n8n** — URL da instância (`N8N_BASE_URL`) e token, se/quando a
    automação for ativada.
+8. **GitHub** — conta `connection-cyber-so` está temporariamente suspensa;
+   desbloqueio já solicitado. `main` está com commits locais aguardando push.
 
 Nenhuma dessas pendências bloqueia o funcionamento do site — todas têm
 fallback seguro (dados de demonstração, tracking silenciosamente

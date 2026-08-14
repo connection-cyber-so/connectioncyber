@@ -1,0 +1,73 @@
+{
+  "$schema": "connectioncyber-doc-v1",
+  "id": "readme-apps-site",
+  "titulo": "apps/site — Site Corporativo ConnectionCyber",
+  "descricao": "Site institucional, portal de pagamentos, área de membros e mapa arquitetural enterprise da ConnectionCyber — Assessoria e Treinamento Tecnológico.",
+  "atualizado_em": "2026-08-13",
+  "origem": "Unificação de documentos/Connection Cyber Site.txt (conteúdo institucional) e documentos/prompt geral.txt (blueprint técnico), em apps/site do monorepo connectioncyber",
+  "stack": ["Next.js 14", "TypeScript", "Pages Router", "Supabase", "Mercado Pago", "@supabase/ssr (middleware)"] ,
+  "pronto_e_funcionando": [
+    "Site institucional completo: Home, Sobre, Serviços, Treinamentos/Cursos, Produtos, Área de Clientes, Contato, Sistema, Checkout, retorno de pagamento",
+    "Identidade visual oficial: logo real (public/logo.png) e paleta de marca oficial em src/styles/theme.css",
+    "i18n PT-BR/EN-US via Context API (sem biblioteca externa) — i18n nativo do Next.js removido (causava NOT_FOUND na Vercel)",
+    "Página /login funcional e middleware de proteção de rota (src/middleware.ts) — corrige hang de /membros",
+    "Header, Footer, Layout, botões flutuantes de redes sociais",
+    "Área de Clientes com componente pronto (dados reais dos 15 clientes ainda pendentes)",
+    "Autenticação e RBAC via Supabase Auth (src/lib/auth.ts)",
+    "Área de Membros estilo Netflix (/membros) — estrutura de trilhas e progresso",
+    "Pagamentos Mercado Pago: create-preference, webhook, checkout, sucesso/erro",
+    "Formulário de contato funcional (/api/contato)",
+    "Schema completo Supabase/PostgreSQL — 4 migrations aplicadas no projeto real (qfggetvashdxyuvlhihq)",
+    "Edge Function lookup-cnpj implantada e testada",
+    "Sistema Visual Enterprise (public/enterprise-system.html) — mapa com 22 nós, 33 conexões, física/heatmap/órbita/IA/segurança",
+    "npm run build validado — 17 rotas (14 páginas + 3 API routes), 0 erros"
+  ],
+  "schema_banco": {
+    "migrations_aplicadas": [
+      "0001_init_schema.sql",
+      "0002_multi_tenant.sql",
+      "0003_bpo_patterns_auto_provisioning_and_hook.sql",
+      "0004_module_catalog_and_tenant_themes.sql"
+    ],
+    "tabelas_chave": ["tenants", "users", "module_catalog", "tenant_modules", "tenant_themes"],
+    "pendente": "Ativação manual do custom_access_token_hook em Authentication > Hooks no Dashboard"
+  },
+  "como_rodar_localmente": {
+    "comandos": [
+      "cd F:/Projetos/connectioncyber/apps/site",
+      "npm install",
+      "cp .env.local.example .env.local",
+      "npm run dev"
+    ],
+    "url": "http://localhost:3000",
+    "nota": "Funciona sem nenhuma credencial preenchida — modo demonstração com fallback seguro em todas as integrações"
+  },
+  "acoes_pendentes": [
+    { "item": "Supabase", "status": "concluido", "detalhe": "projeto linkado, 4 migrations aplicadas, Edge Function no ar; falta só ativar custom_access_token_hook (1 clique no Dashboard)" },
+    { "item": "Mercado Pago", "status": "pendente", "detalhe": "conta de vendedor + MERCADOPAGO_ACCESS_TOKEN + NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY" },
+    { "item": "Domínio connectioncyber.com.br", "status": "pendente", "detalhe": "apontar DNS para a Vercel" },
+    { "item": "Vercel", "status": "concluido", "detalhe": "repositório conectado, deploy de produção validado" },
+    { "item": "Carteira de 15 clientes", "status": "pendente", "detalhe": "src/config/clients.ts com placeholders genéricos, dados reais não estavam no briefing" },
+    { "item": "Números de contato reais", "status": "pendente", "detalhe": "src/config/routes.ts (socialLinks) com WhatsApp/redes sociais placeholder" },
+    { "item": "n8n", "status": "pendente", "detalhe": "URL da instância (N8N_BASE_URL) e token, se/quando a automação for ativada" },
+    { "item": "GitHub", "status": "bloqueado_externamente", "detalhe": "conta connection-cyber-so temporariamente suspensa, desbloqueio já solicitado" }
+  ],
+  "modulos_avancados_roadmap": [
+    { "modulo": "Automação n8n", "status": "parcial", "observacao": "webhooks previstos no código (env.n8n), workflows n8n fora deste repo" },
+    { "modulo": "Reconhecimento facial", "status": "nao_iniciado", "observacao": "requer escolha de provedor e política de privacidade/LGPD" },
+    { "modulo": "Quizzes/simulados/provas", "status": "parcial", "observacao": "schema pronto (quizzes, exam_*), falta painel administrativo" },
+    { "modulo": "Gamificação", "status": "nao_iniciado", "observacao": "depende do motor de quizzes/provas primeiro" },
+    { "modulo": "CMS administrativo", "status": "parcial", "observacao": "tabela cms_content pronta, falta painel de edição" },
+    { "modulo": "Analytics/observabilidade", "status": "parcial", "observacao": "tabela analytics_events pronta, falta integração externa" },
+    { "modulo": "Painel de Acesso Remoto", "status": "parcial", "observacao": "tabelas remote_* prontas, falta interface administrativa" },
+    { "modulo": "Clusters Varejo/Food", "status": "nao_iniciado", "observacao": "comentado no SQL, ativar quando contratados" },
+    { "modulo": "CI/CD (GitHub Actions)", "status": "nao_iniciado", "observacao": "depende do repositório estar no GitHub (atualmente suspenso)" },
+    { "modulo": "Feature flags", "status": "nao_iniciado", "observacao": "pode nascer como linhas em system_settings ou tenant_modules" }
+  ],
+  "seguranca": [
+    "npm audit limpo de vulnerabilidades críticas (Next.js 14.2.35)",
+    "Chaves privadas (SUPABASE_SERVICE_ROLE_KEY, MERCADOPAGO_ACCESS_TOKEN) só lidas em código server-side",
+    "RLS habilitado nas tabelas com dado pessoal/financeiro",
+    "Edge Function lookup-cnpj exige anon key (JWT verification ativa)"
+  ]
+}

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>apps/site — Site Corporativo ConnectionCyber</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg-alt:#f5f8fa; --ink:#0e2233; --muted:#55677c;
+    --line:#dbe4ec; --teal:#0f7a6e; --teal-soft:#e3f3f1;
+    --green:#2f7d47; --green-soft:#e9f5ec; --orange:#b85e10; --orange-soft:#faf0e3;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    --font-sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+      --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+      --orange:#f2a25c; --orange-soft:#2c2015;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+    --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+    --orange:#f2a25c; --orange-soft:#2c2015;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-sans); line-height:1.65; }
+  .page{ max-width:800px; margin:0 auto; padding:48px 24px 96px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); margin-bottom:10px; font-weight:700; }
+  h1{ font-size:1.7rem; margin:0 0 8px; }
+  .sub{ color:var(--muted); margin:0 0 32px; font-size:.92rem; }
+  h2{ font-size:1.1rem; margin:34px 0 12px; border-top:1px solid var(--line); padding-top:24px; }
+  code{ font-family:var(--font-mono); font-size:.85em; background:var(--bg-alt); border:1px solid var(--line); padding:1px 6px; border-radius:4px; }
+  pre{ background:var(--bg-alt); border:1px solid var(--line); border-radius:10px; padding:14px 16px; font-family:var(--font-mono); font-size:.78rem; overflow-x:auto; line-height:1.6; }
+  ul{ padding-left:20px; }
+  li{ margin-bottom:7px; font-size:.9rem; }
+  table{ width:100%; border-collapse:collapse; font-size:.86rem; }
+  td{ padding:7px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  .tag{ font-family:var(--font-mono); font-size:.64rem; font-weight:700; padding:2px 8px; border-radius:999px; text-transform:uppercase; }
+  .tag-done{ background:var(--green-soft); color:var(--green); }
+  .tag-pending{ background:var(--orange-soft); color:var(--orange); }
+  footer{ margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:.78rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">connectioncyber · apps/site</div>
+  <h1>apps/site — Site Corporativo ConnectionCyber</h1>
+  <p class="sub"><b>Tecnologia que traz conhecimento e gestão.</b> Site institucional, portal de pagamentos, área de membros e mapa arquitetural enterprise. Faz parte do monorepo <code>connectioncyber</code>, ao lado de <code>apps/platform</code> e <code>packages/core</code>.</p>
+
+  <h2>✅ Pronto e funcionando</h2>
+  <ul>
+    <li>Site institucional completo (Home, Sobre, Serviços, Cursos, Produtos, Clientes, Contato, Sistema, Checkout, retorno de pagamento)</li>
+    <li>Identidade visual oficial — logo real e paleta de marca oficial em <code>src/styles/theme.css</code></li>
+    <li>i18n PT-BR/EN-US via Context API (sem biblioteca externa) — i18n nativo do Next.js removido (causava <code>NOT_FOUND</code> na Vercel)</li>
+    <li><code>/login</code> funcional + middleware de proteção de rota (<code>src/middleware.ts</code>) — corrige o hang de <code>/membros</code></li>
+    <li>Autenticação e RBAC via Supabase Auth</li>
+    <li>Pagamentos Mercado Pago (create-preference, webhook, checkout)</li>
+    <li>Schema Supabase completo — <b>4 migrations aplicadas no projeto real</b></li>
+    <li>Edge Function <code>lookup-cnpj</code> implantada e testada</li>
+    <li>Sistema Visual Enterprise (mapa com 22 nós, 33 conexões)</li>
+    <li><code>npm run build</code> validado — 17 rotas, 0 erros</li>
+  </ul>
+
+  <h2>Como rodar localmente</h2>
+  <pre>cd F:/Projetos/connectioncyber/apps/site
+npm install
+cp .env.local.example .env.local
+npm run dev</pre>
+  <p style="font-size:.88rem; color:var(--muted);">Abra <code>http://localhost:3000</code>. Funciona sem nenhuma credencial preenchida (modo demonstração).</p>
+
+  <h2>Ações pendentes</h2>
+  <table>
+    <tr><td><span class="tag tag-done">feito</span></td><td>Supabase — falta só ativar <code>custom_access_token_hook</code> (1 clique no Dashboard)</td></tr>
+    <tr><td><span class="tag tag-pending">pendente</span></td><td>Mercado Pago — conta de vendedor + chaves</td></tr>
+    <tr><td><span class="tag tag-pending">pendente</span></td><td>Domínio <code>connectioncyber.com.br</code></td></tr>
+    <tr><td><span class="tag tag-done">feito</span></td><td>Vercel — repositório conectado, deploy validado</td></tr>
+    <tr><td><span class="tag tag-pending">pendente</span></td><td>Carteira de 15 clientes reais</td></tr>
+    <tr><td><span class="tag tag-pending">pendente</span></td><td>Números de contato reais</td></tr>
+    <tr><td><span class="tag tag-pending">pendente</span></td><td>n8n</td></tr>
+    <tr><td><span class="tag tag-pending">bloqueado</span></td><td>GitHub — conta suspensa, desbloqueio solicitado</td></tr>
+  </table>
+
+  <h2>Segurança</h2>
+  <ul>
+    <li><code>npm audit</code> limpo de vulnerabilidades críticas</li>
+    <li>Chaves privadas só lidas em código server-side</li>
+    <li>RLS habilitado nas tabelas com dado pessoal/financeiro</li>
+    <li>Edge Function <code>lookup-cnpj</code> exige anon key</li>
+  </ul>
+
+  <footer>connectioncyber/apps/site · README · atualizado em 2026-08-13 · também disponível em .md e .json</footer>
+</div>
+</body>
+</html>

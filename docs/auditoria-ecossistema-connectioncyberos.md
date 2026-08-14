@@ -7,6 +7,14 @@
 > pastas auditadas foi alterado; o que está aqui é referência para decidir o que trazer para
 > `connectioncyber`.
 
+## Status desta auditoria
+
+**Atualizado em 2026-08-13.** Os 6 padrões reutilizáveis listados abaixo já foram trazidos
+para este repositório (ver commits `f7234f8` e `449d9b7`) — as caixas de seleção originais
+foram marcadas como concluídas. A decisão de stack (Pages Router vs. App Router) segue em
+aberto. Os 3 itens de segurança urgentes continuam fora deste repositório e sem ação (dependem
+do Joaquim diretamente, em contas de outros projetos).
+
 ## Ação imediata — segurança (fora deste repositório, mas urgente)
 
 - [ ] **Revogar/rotacionar os segredos expostos em texto puro** em
@@ -20,37 +28,41 @@
 - [ ] Ao portar qualquer `GRANT` de `bpo-system-web-os` para `connectioncyber`, **não usar
   `GRANT ALL ... TO anon`** — escopar ao mínimo necessário por tabela.
 
-## Padrões prontos para adotar no `apps/platform` (ConnectionCyberSO)
+## Padrões trazidos para `connectioncyber` — todos implementados
 
-Já validados em código real de outro projeto do mesmo ecossistema — não são teoria:
+Validados em código real de outro projeto do mesmo ecossistema, e já aplicados aqui:
 
-1. **Trigger de auto-provisionamento de perfil.** `connectioncyber` hoje não cria
-   automaticamente uma linha em `public.users` quando alguém se cadastra pelo Supabase Auth —
-   é um gap real. Referência: `handle_new_bpo_admin()` em
-   `bpo-system-web-os/supabase/migrations/20260724163546_onboarding_trigger.sql` (trigger em
-   `auth.users`, lê `bpo_id`/`role` de `raw_user_meta_data`).
-2. **RLS via Custom Access Token Hook (JWT claims) em vez de subquery.** O `current_tenant_id()`
-   atual do `connectioncyber` faz `select ... from users where id = auth.uid()` a cada checagem
-   de RLS. Referência superior: `custom_access_token_hook()` em
-   `bpo-system-web-os/supabase/migrations/20260724161539_jwt_hook_and_rls_nucleo.sql`, que
-   grava `tenant_id`/`role` direto no `app_metadata` do JWT na emissão do token — RLS lê do
-   token, sem subquery.
-3. **Proteção de rota no middleware, não em componente client-side.** Foi a causa raiz do bug
-   de `/membros` travado em "Verificando acesso…" corrigido nesta sessão. Referência:
-   `middleware.ts` + `utils/supabase/middleware.ts` em `bpo-system-web-os` e
-   `food-service-os-staging` (padrão idêntico nos dois).
-4. **Catálogo de módulos compartilhado + habilitação por cliente.** Confirma a arquitetura já
-   decidida para o ConnectionCyberSO (Opção A do Parecer Técnico #001): uma rotina/módulo entra
-   uma vez no catálogo, cada tenant liga/desliga individualmente. Referência: `module_catalog` +
-   `client_modules` (com ciclo `diagnosticado → proposto → ativo → suspenso → encerrado`) em
+1. **✅ Trigger de auto-provisionamento de perfil.** Implementado em
+   `supabase/migrations/0003_bpo_patterns_auto_provisioning_and_hook.sql`
+   (`handle_new_user()`, trigger `on_auth_user_created` em `auth.users`). Referência original:
+   `handle_new_bpo_admin()` em
+   `bpo-system-web-os/supabase/migrations/20260724163546_onboarding_trigger.sql`.
+2. **🟡 RLS via Custom Access Token Hook (JWT claims) em vez de subquery.** Função
+   `custom_access_token_hook()` criada em `0003_bpo_patterns_auto_provisioning_and_hook.sql` —
+   **falta 1 passo manual**: ativar em Authentication → Hooks no Dashboard do Supabase
+   (não existe comando de CLI para isso em projeto hospedado). Até lá, `current_tenant_id()`
+   continua funcionando exatamente como antes (subquery), nada quebrou. Referência original:
+   `bpo-system-web-os/supabase/migrations/20260724161539_jwt_hook_and_rls_nucleo.sql`.
+3. **✅ Proteção de rota no middleware, não em componente client-side.** Implementado em
+   `apps/site/src/middleware.ts` (com `@supabase/ssr`) — corrige a causa raiz do bug de
+   `/membros` travado em "Verificando acesso…" encontrado na validação local desta sessão.
+   Referência original: `middleware.ts` + `utils/supabase/middleware.ts` em `bpo-system-web-os`
+   e `food-service-os-staging` (padrão idêntico nos dois).
+4. **✅ Catálogo de módulos compartilhado + habilitação por cliente.** Implementado em
+   `supabase/migrations/0004_module_catalog_and_tenant_themes.sql` (`module_catalog` +
+   `tenant_modules`, ciclo `diagnosticado → proposto → ativo → suspenso → encerrado`), já com
+   seed dos 4 módulos que a ConnectionCyber vende hoje, todos `ativo` para o tenant
+   ConnectionCyber. Confirma a arquitetura já decidida (Opção A do Parecer Técnico #001).
+   Referência original: `module_catalog` + `client_modules` em
    `bpo-system-web-os/supabase/migrations/20260724162515_module_aware_core.sql`.
-5. **Enriquecimento de cadastro via CNPJ.** Edge Function que consulta a BrasilAPI e preenche
-   razão social, CNAE, situação cadastral, município/UF automaticamente a partir do CNPJ.
-   Referência: `bpo-system-web-os/supabase/functions/lookup-cnpj/index.ts`. Direto reaproveitável
-   para o cadastro de tenant/cliente do ConnectionCyberSO.
-6. **Identidade visual por tenant como tabela própria.** `client_themes` (cor primária/secundária,
-   logo, fonte, por `client_id`) em `bpo-system-web-os` — modelo de referência para quando
-   `tenants` precisar de branding além do campo `dominio` que já existe.
+5. **✅ Enriquecimento de cadastro via CNPJ.** Implementado e testado em
+   `supabase/functions/lookup-cnpj/index.ts` — consulta a BrasilAPI e devolve razão social,
+   CNAE, situação cadastral, município/UF a partir do CNPJ. Diferente da referência original,
+   já exige o `anon key` por padrão (verificação de JWT ativa). Referência original:
+   `bpo-system-web-os/supabase/functions/lookup-cnpj/index.ts`.
+6. **✅ Identidade visual por tenant como tabela própria.** Implementado em
+   `0004_module_catalog_and_tenant_themes.sql` (`tenant_themes`: cor primária/secundária, logo,
+   fonte, por `tenant_id`). Referência original: `client_themes` em `bpo-system-web-os`.
 
 ## Decisão de arquitetura pendente — stack canônica
 

@@ -1,0 +1,108 @@
+{
+  "$schema": "connectioncyber-doc-v1",
+  "id": "auditoria-ecossistema-connectioncyberos",
+  "titulo": "Auditoria multi-projeto do ecossistema ConnectionCyberOS — achados relevantes para implementação",
+  "descricao": "Resumo acionável da auditoria somente-leitura de bpo-system-web-os, food-service-os(-staging) e cyber-varejo-os, e o que já foi trazido para connectioncyber.",
+  "origem": {
+    "data_auditoria": "2026-08-12",
+    "escopo": [
+      "F:\\Projetos\\bpo",
+      "F:\\Projetos\\food",
+      "F:\\Projetos\\varejo",
+      "F:\\Projetos\\ZZ-TECNICAS GERAIS SITES",
+      "F:\\Projetos\\ZZZ-MATRI GUIA MESTRE MARCO ZERO"
+    ],
+    "modo": "somente-leitura, nenhum arquivo alterado nas pastas auditadas"
+  },
+  "atualizado_em": "2026-08-13",
+  "status_geral": "5 de 6 padrões implementados em connectioncyber; 1 aguarda ativação manual no Dashboard do Supabase; decisão de stack (Pages Router vs App Router) segue em aberto; 3 itens de segurança urgentes seguem fora deste repositório, sem ação.",
+  "acao_imediata_seguranca_fora_do_repo": [
+    {
+      "id": "segredos-expostos-docx",
+      "descricao": "Revogar/rotacionar segredos em texto puro em CYBER VAREJO OS documentação.docx (tokens GitHub e uma chave service_role completa do Supabase).",
+      "status": "pendente",
+      "responsavel": "Joaquim — credencial de outra conta/projeto"
+    },
+    {
+      "id": "onboard-bpo-sem-auth",
+      "descricao": "Revisar o endpoint onboard-bpo (Edge Function) em bpo-system-web-os — público, sem autenticação, sem rate limit, usa service_role key para criar tenants e usuários admin.",
+      "status": "pendente",
+      "responsavel": "Joaquim — infraestrutura de outro projeto"
+    },
+    {
+      "id": "grant-all-anon",
+      "descricao": "Não reutilizar GRANT ALL ... TO anon ao portar padrões de bpo-system-web-os — escopar ao mínimo necessário por tabela.",
+      "status": "aplicado como diretriz nas migrations 0003/0004 deste repositório (GRANT amplo não foi replicado)"
+    }
+  ],
+  "padroes_trazidos_para_connectioncyber": [
+    {
+      "id": "auto-provisioning-trigger",
+      "titulo": "Trigger de auto-provisionamento de perfil",
+      "status": "implementado",
+      "arquivo": "supabase/migrations/0003_bpo_patterns_auto_provisioning_and_hook.sql",
+      "funcao": "handle_new_user()",
+      "referencia_original": "bpo-system-web-os/supabase/migrations/20260724163546_onboarding_trigger.sql (handle_new_bpo_admin)"
+    },
+    {
+      "id": "jwt-hook-rls",
+      "titulo": "RLS via Custom Access Token Hook (JWT claims) em vez de subquery",
+      "status": "funcao_criada_ativacao_pendente",
+      "arquivo": "supabase/migrations/0003_bpo_patterns_auto_provisioning_and_hook.sql",
+      "funcao": "custom_access_token_hook(event jsonb)",
+      "passo_manual_pendente": "Ativar em Authentication > Hooks no Dashboard do Supabase — não existe comando de CLI para isso em projeto hospedado",
+      "url_dashboard": "https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks",
+      "impacto_se_nao_ativado": "Nenhum — current_tenant_id() continua funcionando via subquery, como antes",
+      "referencia_original": "bpo-system-web-os/supabase/migrations/20260724161539_jwt_hook_and_rls_nucleo.sql"
+    },
+    {
+      "id": "middleware-route-protection",
+      "titulo": "Proteção de rota no middleware, não em componente client-side",
+      "status": "implementado",
+      "arquivo": "apps/site/src/middleware.ts",
+      "dependencia_adicionada": "@supabase/ssr",
+      "bug_corrigido": "/membros travado em 'Verificando acesso…' quando Supabase não configurado",
+      "referencia_original": "bpo-system-web-os e food-service-os-staging (middleware.ts + utils/supabase/middleware.ts, padrão idêntico nos dois)"
+    },
+    {
+      "id": "module-catalog",
+      "titulo": "Catálogo de módulos compartilhado + habilitação por cliente",
+      "status": "implementado",
+      "arquivo": "supabase/migrations/0004_module_catalog_and_tenant_themes.sql",
+      "tabelas": ["module_catalog", "tenant_modules"],
+      "ciclo_status": ["diagnosticado", "proposto", "ativo", "suspenso", "encerrado"],
+      "seed": "4 módulos que a ConnectionCyber vende hoje (desenvolvimento-sistemas, assessoria-tecnica, treinamento-tecnologico, suporte-global), todos ativos para o tenant connectioncyber",
+      "referencia_original": "bpo-system-web-os/supabase/migrations/20260724162515_module_aware_core.sql (module_catalog + client_modules)"
+    },
+    {
+      "id": "lookup-cnpj",
+      "titulo": "Enriquecimento de cadastro via CNPJ (BrasilAPI)",
+      "status": "implementado_e_testado",
+      "arquivo": "supabase/functions/lookup-cnpj/index.ts",
+      "diferenca_da_referencia": "Exige anon key por padrão (verificação de JWT ativa) — a referência original não tinha essa proteção",
+      "teste_realizado": "CNPJ real (Open Knowledge Brasil) consultado com sucesso",
+      "referencia_original": "bpo-system-web-os/supabase/functions/lookup-cnpj/index.ts"
+    },
+    {
+      "id": "tenant-themes",
+      "titulo": "Identidade visual por tenant como tabela própria",
+      "status": "implementado",
+      "arquivo": "supabase/migrations/0004_module_catalog_and_tenant_themes.sql",
+      "tabela": "tenant_themes",
+      "campos": ["primary_color", "secondary_color", "logo_url", "font_family"],
+      "referencia_original": "bpo-system-web-os (client_themes)"
+    }
+  ],
+  "decisao_arquitetura_pendente": {
+    "id": "stack-canonica",
+    "titulo": "Next.js App Router + Tailwind (padrão citado no ecossistema) vs. Pages Router sem Tailwind (usado em connectioncyber)",
+    "status": "nao_decidido",
+    "fonte_do_padrao_citado": "HANDOFF_FOODSERVICE_OS.docx cita ECOSISTEMA_PADRAO.md — arquivo não encontrado no escopo desta auditoria; provavelmente em F:\\Projetos\\connection-cyber-os (fora do escopo anexado)",
+    "recomendacao": "Localizar ECOSISTEMA_PADRAO.md e decidir explicitamente antes que apps/platform cresça e a migração fique mais cara"
+  },
+  "achados_sem_acao": [
+    "ZZZ-MATRI GUIA MESTRE MARCO ZERO duplica parte do conteúdo de ZZ-TECNICAS GERAIS SITES (diff idêntico confirmado em pelo menos um arquivo)",
+    "Cliente piloto real do FoodOS: Natural da Terra, 4 unidades em Piracicaba/SP",
+    "Arquitetura de PDV offline planejada em cyber-varejo-os (Electron + SQLite local + impressora térmica) — zero código ainda"
+  ]
+}

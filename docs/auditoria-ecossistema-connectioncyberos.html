@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Auditoria multi-projeto ConnectionCyberOS — achados acionáveis | ConnectionCyber</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg-alt:#f5f8fa; --ink:#0e2233; --muted:#55677c;
+    --line:#dbe4ec; --teal:#0f7a6e; --teal-soft:#e3f3f1;
+    --green:#2f7d47; --green-soft:#e9f5ec; --orange:#b85e10; --orange-soft:#faf0e3;
+    --red:#b3312c; --red-soft:#fbeceb;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    --font-sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+      --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+      --orange:#f2a25c; --orange-soft:#2c2015; --red:#f0827c; --red-soft:#331a19;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+    --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+    --orange:#f2a25c; --orange-soft:#2c2015; --red:#f0827c; --red-soft:#331a19;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-sans); line-height:1.65; }
+  .page{ max-width:800px; margin:0 auto; padding:48px 24px 96px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); margin-bottom:10px; font-weight:700; }
+  h1{ font-size:1.8rem; margin:0 0 8px; text-wrap:balance; }
+  .sub{ color:var(--muted); margin:0 0 24px; }
+  .status-banner{ background:var(--teal-soft); border:1px solid var(--teal); border-radius:10px; padding:14px 18px; font-size:.88rem; margin-bottom:32px; }
+  h2{ font-size:1.2rem; margin:40px 0 14px; border-top:1px solid var(--line); padding-top:28px; }
+  h3{ font-size:.98rem; margin:20px 0 8px; }
+  code{ font-family:var(--font-mono); font-size:.87em; background:var(--bg-alt); border:1px solid var(--line); padding:1px 6px; border-radius:4px; }
+  .item{ border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin-bottom:14px; }
+  .item-head{ display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+  .badge{ font-family:var(--font-mono); font-size:.65rem; font-weight:700; padding:3px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.04em; }
+  .badge-done{ background:var(--green-soft); color:var(--green); }
+  .badge-pending{ background:var(--orange-soft); color:var(--orange); }
+  .badge-blocked{ background:var(--red-soft); color:var(--red); }
+  .item-title{ font-weight:700; font-size:.95rem; }
+  .item p{ margin:6px 0; font-size:.88rem; color:var(--muted); }
+  .item p b{ color:var(--ink); }
+  ul{ padding-left:20px; }
+  li{ margin-bottom:6px; font-size:.9rem; color:var(--ink); }
+  footer{ margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:.78rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">connectioncyber · documentação técnica</div>
+  <h1>Auditoria multi-projeto do ecossistema ConnectionCyberOS</h1>
+  <p class="sub">Achados relevantes para implementação — auditoria somente-leitura de <code>bpo-system-web-os</code>, <code>food-service-os(-staging)</code> e <code>cyber-varejo-os</code>, realizada em 2026-08-12.</p>
+
+  <div class="status-banner">
+    <b>Status em 2026-08-13:</b> 5 de 6 padrões reutilizáveis já implementados neste repositório
+    (commits <code>f7234f8</code> e <code>449d9b7</code>). 1 aguarda um clique manual no Dashboard
+    do Supabase. A decisão de stack (Pages Router vs. App Router) segue em aberto. Os 3 itens de
+    segurança urgentes seguem fora deste repositório, sem ação — dependem do Joaquim diretamente.
+  </div>
+
+  <h2>Ação imediata — segurança (fora deste repositório)</h2>
+  <div class="item">
+    <div class="item-head"><span class="badge badge-blocked">pendente — outra conta</span><span class="item-title">Segredos em texto puro no .docx do varejo</span></div>
+    <p>Revogar/rotacionar tokens do GitHub e uma chave <code>service_role</code> completa do Supabase, expostos em <code>CYBER VAREJO OS documentação.docx</code>.</p>
+  </div>
+  <div class="item">
+    <div class="item-head"><span class="badge badge-blocked">pendente — outra conta</span><span class="item-title">Edge Function onboard-bpo sem autenticação</span></div>
+    <p>Em <code>bpo-system-web-os</code>: endpoint público, sem auth, sem rate limit, usa <code>service_role key</code> para criar tenants e admins.</p>
+  </div>
+  <div class="item">
+    <div class="item-head"><span class="badge badge-done">aplicado como diretriz</span><span class="item-title">GRANT ALL para anon não foi replicado</span></div>
+    <p>As migrations 0003/0004 deste repositório escoparam privilégios ao mínimo necessário, sem repetir o <code>GRANT ALL ... TO anon</code> encontrado em <code>bpo-system-web-os</code>.</p>
+  </div>
+
+  <h2>Padrões trazidos para connectioncyber</h2>
+
+  <div class="item">
+    <div class="item-head"><span class="badge badge-done">implementado</span><span class="item-title">1. Trigger de auto-provisionamento de perfil</span></div>
+    <p><code>supabase/migrations/0003_bpo_patterns_auto_provisioning_and_hook.sql</code> — função <code>handle_new_user()</code>.</p>
+    <p>Referência original: <code>bpo-system-web-os</code>, <code>handle_new_bpo_admin()</code>.</p>
+  </div>
+
+  <div class="item">
+    <div class="item-head"><span class="badge badge-pending">função pronta — ativação pendente</span><span class="item-title">2. RLS via Custom Access Token Hook (JWT claims)</span></div>
+    <p>Função <code>custom_access_token_hook()</code> criada na mesma migration. <b>Falta ativar</b> em Authentication → Hooks no Dashboard — não existe comando de CLI para isso em projeto hospedado.</p>
+    <p>Enquanto não ativado: <code>current_tenant_id()</code> continua funcionando via subquery, nada quebra.</p>
+  </div>
+
+  <div class="item">
+    <div class="item-head"><span class="badge badge-done">implementado</span><span class="item-title">3. Proteção de rota no middleware</span></div>
+    <p><code>apps/site/src/middleware.ts</code> (com <code>@supabase/ssr</code>) — corrige o bug de <code>/membros</code> travado em "Verificando acesso…" quando o Supabase não estava configurado.</p>
+  </div>
+
+  <div class="item">
+    <div class="item-head"><span class="badge badge-done">implementado</span><span class="item-title">4. Catálogo de módulos + habilitação por cliente</span></div>
+    <p><code>module_catalog</code> + <code>tenant_modules</code>, ciclo <code>diagnosticado → proposto → ativo → suspenso → encerrado</code>. Seed dos 4 módulos que a ConnectionCyber vende hoje, todos ativos para o tenant ConnectionCyber.</p>
+  </div>
+
+  <div class="item">
+    <div class="item-head"><span class="badge badge-done">implementado e testado</span><span class="item-title">5. Enriquecimento de cadastro via CNPJ</span></div>
+    <p><code>supabase/functions/lookup-cnpj</code> — consulta a BrasilAPI. Diferente da referência original, já exige o <code>anon key</code> por padrão. Testado com um CNPJ real.</p>
+  </div>
+
+  <div class="item">
+    <div class="item-head"><span class="badge badge-done">implementado</span><span class="item-title">6. Identidade visual por tenant</span></div>
+    <p>Tabela <code>tenant_themes</code> — cor primária/secundária, logo, fonte, por <code>tenant_id</code>.</p>
+  </div>
+
+  <h2>Decisão de arquitetura pendente</h2>
+  <div class="item">
+    <div class="item-head"><span class="badge badge-pending">não decidido</span><span class="item-title">Stack canônica: App Router + Tailwind vs. Pages Router atual</span></div>
+    <p>O <code>HANDOFF_FOODSERVICE_OS.docx</code> cita um <code>ECOSISTEMA_PADRAO.md</code> como stack obrigatória do ecossistema — arquivo não encontrado no escopo desta auditoria, provavelmente em <code>F:\Projetos\connection-cyber-os</code>.</p>
+  </div>
+
+  <h2>Achados sem ação</h2>
+  <ul>
+    <li><code>ZZZ-MATRI GUIA MESTRE MARCO ZERO</code> duplica parte de <code>ZZ-TECNICAS GERAIS SITES</code> (diff idêntico confirmado).</li>
+    <li>Cliente piloto real do FoodOS: <b>Natural da Terra</b>, 4 unidades em Piracicaba/SP.</li>
+    <li>Arquitetura de PDV offline planejada em <code>cyber-varejo-os</code> (Electron + SQLite + impressora térmica) — zero código ainda.</li>
+  </ul>
+
+  <footer>connectioncyber · docs/auditoria-ecossistema-connectioncyberos · atualizado em 2026-08-13 · também disponível em .md e .json</footer>
+</div>
+</body>
+</html>
