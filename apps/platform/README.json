@@ -4,7 +4,7 @@
   "titulo": "apps/platform — ConnectionCyberSO (painel interno)",
   "descricao": "Painel interno de gestão de tenants, módulos e clientes — separado do site institucional.",
   "atualizado_em": "2026-08-15",
-  "fase_atual": "Fase 1 concluída (esqueleto + login). Primeiro módulo de negócio em produção: Diagnóstico Digital (IA), migrado de cc-commerce-studio.",
+  "fase_atual": "Fase 1 concluída (esqueleto + login). 2 módulos de negócio em produção: Diagnóstico Digital (IA) e Catálogo de Produtos e Ofertas (IA), ambos migrados de cc-commerce-studio.",
   "decisao_arquitetura": {
     "escolha": "Next.js 14 + App Router",
     "diferenca_de": "apps/site (Pages Router) — decisão intencional, sem necessidade de convergência entre os dois apps",
@@ -17,8 +17,12 @@
     "src/app/page.tsx": "dashboard, protegido, force-dynamic, link para os módulos",
     "src/app/login/page.tsx": "login de equipe (Client Component)",
     "src/app/diagnostics/page.tsx": "módulo Diagnóstico Digital (IA)",
+    "src/app/products/page.tsx": "módulo Catálogo — cadastro de produtos",
+    "src/app/offers/page.tsx": "módulo Catálogo — geração de oferta por IA",
     "src/components/LogoutButton.tsx": "botão de logout",
-    "src/features/diagnostics": "actions.ts, service.ts, types.ts, validations.ts, components/ — migrado de cc-commerce-studio, ver docs/migracao-diagnostico-digital-cc-commerce-studio",
+    "src/features/diagnostics": "actions.ts, service.ts, types.ts, validations.ts, components/ — migrado de cc-commerce-studio",
+    "src/features/products": "idem — mpi_products",
+    "src/features/offers": "idem — mpi_offers (referencia products.id); ver docs/migracao-diagnostico-digital-cc-commerce-studio",
     "src/lib/tenant.ts": "getCurrentTenantId()/requireCurrentTenantId() — deriva o tenant da sessão, nunca de formulário/query string",
     "src/lib/supabase/client.ts": "Supabase para Client Components (browser, chave anônima)",
     "src/lib/supabase/server.ts": "Supabase para Server Components (lê sessão dos cookies)",
@@ -29,19 +33,21 @@
   "modelo_seguranca": "Servidor deriva o usuário da sessão via cookies (@supabase/ssr), nunca de dado enviado pelo cliente. middleware.ts usa supabase.auth.getUser() (não getSession()) — valida o JWT contra o servidor do Supabase a cada request.",
   "validado_em": "2026-08-15",
   "validacao": [
-    "npm run build limpo (App Router, / e /diagnostics como rotas dinâmicas por dependerem de sessão)",
+    "npm run build limpo (App Router, /, /diagnostics, /products, /offers como rotas dinâmicas por dependerem de sessão)",
     "Testado contra o Supabase de staging real: acesso sem sessão redireciona para /login",
     "Submeter credenciais inválidas retorna o erro real do Supabase Auth (Invalid login credentials) — confirma client, middleware e staging conectados de ponta a ponta",
-    "Módulo Diagnóstico Digital testado com usuário real de staging (criado e apagado só para o teste): criar diagnóstico grava em mpi_diagnostics com tenant_id derivado da sessão, RLS valida, tela atualiza; editar título funciona pela UI. Detalhe em docs/migracao-diagnostico-digital-cc-commerce-studio",
+    "Diagnóstico Digital testado com usuário real de staging: criar diagnóstico grava em mpi_diagnostics com tenant_id derivado da sessão, RLS valida, tela atualiza; editar título funciona pela UI",
+    "Catálogo de Produtos e Ofertas testado com um segundo usuário real de staging: cadastrar produto grava em mpi_products; oferta lista o produto automaticamente; 'Gerar copy com IA' busca o produto sob RLS da sessão; criar oferta grava em mpi_offers com product_id correto. Detalhe em docs/migracao-diagnostico-digital-cc-commerce-studio",
     "Testado em modo produção (next start) — modo dev (next dev) tem HMR instável neste ambiente, mesma observação já registrada para apps/site"
   ],
   "proximos_passos": [
     { "fase": 1, "descricao": "Esqueleto + login", "status": "concluida" },
-    { "fase": 2, "descricao": "Primeiro módulo de negócio (Diagnóstico Digital, migrado de cc-commerce-studio)", "status": "concluida" },
-    { "fase": 3, "descricao": "Lista de tenants (Server Component lendo a tabela tenants) — os 10 clientes reais visíveis pela primeira vez fora do Supabase Table Editor", "status": "pendente" },
-    { "fase": 4, "descricao": "RBAC por módulo (padrão user_module_access do bpo-system-web-os)", "status": "pendente" },
-    { "fase": 5, "descricao": "CRUD de tenant + módulos, com lookup-cnpj embutido no formulário", "status": "pendente" },
-    { "fase": 6, "descricao": "Migrar os outros 6 motores do cc-commerce-studio (Offer Engine, Landing Pages, Video Script Engine, Brands, Products, Workspace genérico)", "status": "pendente" },
-    { "fase": 7, "descricao": "Deploy: novo projeto Vercel apontando para esta pasta", "status": "pendente", "nota": "decisão pendente sobre Deployment Protection — recomendado ligada por padrão, é painel interno" }
+    { "fase": 2, "descricao": "Diagnóstico Digital (migrado de cc-commerce-studio)", "status": "concluida" },
+    { "fase": 3, "descricao": "Catálogo de Produtos e Ofertas (Products + Offer Engine, migrados de cc-commerce-studio)", "status": "concluida" },
+    { "fase": 4, "descricao": "Lista de tenants (Server Component lendo a tabela tenants) — os 10 clientes reais visíveis pela primeira vez fora do Supabase Table Editor", "status": "pendente" },
+    { "fase": 5, "descricao": "RBAC por módulo (padrão user_module_access do bpo-system-web-os)", "status": "pendente" },
+    { "fase": 6, "descricao": "CRUD de tenant + módulos, com lookup-cnpj embutido no formulário", "status": "pendente" },
+    { "fase": 7, "descricao": "Migrar os outros 5 motores do cc-commerce-studio (Landing Pages, Video Script Engine, Brands, Workspace genérico)", "status": "pendente" },
+    { "fase": 8, "descricao": "Deploy: novo projeto Vercel apontando para esta pasta", "status": "pendente", "nota": "decisão pendente sobre Deployment Protection — recomendado ligada por padrão, é painel interno" }
   ]
 }

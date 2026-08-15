@@ -85,12 +85,13 @@ diretório.
   em `apps/platform/README.md`): esqueleto + login de equipe funcionando, testado de ponta a ponta
   contra o Supabase de staging real. `apps/site` continua Pages Router — sem necessidade de
   convergência entre os dois apps.
-- [x] **Primeiro módulo de negócio: Diagnóstico Digital (IA)** — migrado de `cc-commerce-studio`
-  (avaliado em auditoria read-only de `J:\BK_connectioncyber`, ver
-  `docs/migracao-diagnostico-digital-cc-commerce-studio.md`). Decisão "workspace = tenant, 1 pra 1"
-  confirmada por Joaquim; falha de segurança do original (tenant vindo de formulário) corrigida —
-  aqui o tenant sempre vem da sessão. Migration `0009` aplicada em produção e staging. Testado de
-  ponta a ponta com usuário real de staging (criar/editar diagnóstico gravando de verdade).
+- [x] **2 módulos de negócio migrados de `cc-commerce-studio`** (avaliado em auditoria read-only
+  de `J:\BK_connectioncyber`, ver `docs/migracao-diagnostico-digital-cc-commerce-studio.md`):
+  **Diagnóstico Digital (IA)** (migration `0009`) e **Catálogo de Produtos e Ofertas (IA)**
+  (migration `0010`). Decisão "workspace = tenant, 1 pra 1" confirmada por Joaquim; falha de
+  segurança do original (tenant vindo de formulário) corrigida em ambos — o tenant sempre vem
+  da sessão. Migrations aplicadas em produção e staging. Testados de ponta a ponta com usuários
+  reais de staging (criar/editar diagnóstico, cadastrar produto, gerar e salvar oferta).
 - [x] **GitHub desbloqueado** — todos os commits pendentes enviados; `main` sincronizado com
   `origin/main`.
 

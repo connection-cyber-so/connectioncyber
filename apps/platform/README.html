@@ -48,7 +48,7 @@
 <div class="page">
   <div class="eyebrow">connectioncyber · apps/platform</div>
   <h1>apps/platform — ConnectionCyberSO (painel interno)</h1>
-  <div class="callout-green"><b>Fase 1 concluída</b> (esqueleto + login). <b>Primeiro módulo de negócio real em produção:</b> Diagnóstico Digital (IA), migrado de <code>cc-commerce-studio</code> — ver <code>docs/migracao-diagnostico-digital-cc-commerce-studio</code>. Lista de tenants ainda não existe.</div>
+  <div class="callout-green"><b>Fase 1 concluída</b> (esqueleto + login). <b>2 módulos de negócio em produção:</b> Diagnóstico Digital (IA) e Catálogo de Produtos e Ofertas (IA), ambos migrados de <code>cc-commerce-studio</code> — ver <code>docs/migracao-diagnostico-digital-cc-commerce-studio</code>. Lista de tenants ainda não existe.</div>
   <p style="font-size:.9rem;">Painel interno de gestão de tenants, módulos e clientes — separado do site institucional (<code>apps/site</code>). Só a equipe entra aqui; clientes finais usam <code>apps/site</code> (<code>/membros</code>).</p>
 
   <h2>Decisão de arquitetura</h2>
@@ -62,10 +62,12 @@
 │  │  ├─ globals.css       tokens de marca + shell do painel
 │  │  ├─ page.tsx           dashboard (protegido, link para os módulos)
 │  │  ├─ login/page.tsx     login de equipe
-│  │  └─ diagnostics/page.tsx  módulo Diagnóstico Digital (IA)
+│  │  ├─ diagnostics/page.tsx  módulo Diagnóstico Digital (IA)
+│  │  ├─ products/page.tsx     módulo Catálogo — produtos
+│  │  └─ offers/page.tsx       módulo Catálogo — ofertas (IA)
 │  ├─ components/LogoutButton.tsx
-│  ├─ features/diagnostics/  actions/service/types/validations/components — migrado de
-│  │                          cc-commerce-studio, ver docs/migracao-diagnostico-digital-*
+│  ├─ features/{diagnostics,products,offers}/  actions/service/types/validations/components
+│  │                          — migrados de cc-commerce-studio, ver docs/migracao-diagnostico-digital-*
 │  ├─ lib/
 │  │  ├─ tenant.ts          getCurrentTenantId() — deriva o tenant da SESSÃO
 │  │  └─ supabase/
@@ -87,22 +89,24 @@ npm run dev   # porta 3001 (apps/site usa a 3000)</pre>
 
   <h2>Validado em 2026-08-15</h2>
   <table>
-    <tr><td class="ok">✅</td><td><code>npm run build</code> limpo (<code>/</code> e <code>/diagnostics</code> como rotas dinâmicas por dependerem de sessão)</td></tr>
+    <tr><td class="ok">✅</td><td><code>npm run build</code> limpo (<code>/</code>, <code>/diagnostics</code>, <code>/products</code>, <code>/offers</code> como rotas dinâmicas por dependerem de sessão)</td></tr>
     <tr><td class="ok">✅</td><td>Testado contra o Supabase de staging real: acesso sem sessão redireciona para <code>/login</code></td></tr>
     <tr><td class="ok">✅</td><td>Credenciais inválidas retornam o erro real do Supabase Auth (<code>Invalid login credentials</code>) — client, middleware e staging conectados de ponta a ponta</td></tr>
-    <tr><td class="ok">✅</td><td><b>Módulo Diagnóstico Digital testado com usuário real de staging</b> (criado e apagado só para o teste): criar diagnóstico grava em <code>mpi_diagnostics</code> com <code>tenant_id</code> derivado da sessão, RLS valida, tela atualiza; editar título funciona pela UI</td></tr>
+    <tr><td class="ok">✅</td><td><b>Diagnóstico Digital testado com usuário real de staging</b>: criar diagnóstico grava em <code>mpi_diagnostics</code> com <code>tenant_id</code> derivado da sessão, RLS valida, tela atualiza; editar título funciona pela UI</td></tr>
+    <tr><td class="ok">✅</td><td><b>Catálogo de Produtos e Ofertas testado com um segundo usuário real</b>: produto grava em <code>mpi_products</code>, oferta lista o produto automaticamente, "Gerar copy com IA" busca sob RLS da sessão, oferta grava em <code>mpi_offers</code> com <code>product_id</code> correto</td></tr>
     <tr><td class="ok">✅</td><td>Testado em modo produção (<code>next start</code>) — modo dev tem HMR instável neste ambiente, mesma observação já registrada para <code>apps/site</code></td></tr>
   </table>
 
   <h2>Próximos passos</h2>
   <table>
     <tr><td class="ok">✅</td><td>Fase 1 — Esqueleto + login</td></tr>
-    <tr><td class="ok">✅</td><td>Fase 2 — Primeiro módulo de negócio (Diagnóstico Digital, migrado de <code>cc-commerce-studio</code>)</td></tr>
-    <tr><td class="pending">○</td><td>Fase 3 — Lista de tenants (os 10 clientes reais visíveis pela primeira vez fora do Table Editor)</td></tr>
-    <tr><td class="pending">○</td><td>Fase 4 — RBAC por módulo (padrão <code>user_module_access</code> do <code>bpo-system-web-os</code>)</td></tr>
-    <tr><td class="pending">○</td><td>Fase 5 — CRUD de tenant + módulos, com <code>lookup-cnpj</code> embutido</td></tr>
-    <tr><td class="pending">○</td><td>Fase 6 — Migrar os outros 6 motores do <code>cc-commerce-studio</code></td></tr>
-    <tr><td class="pending">○</td><td>Fase 7 — Deploy: novo projeto Vercel (Deployment Protection recomendada ligada, é painel interno)</td></tr>
+    <tr><td class="ok">✅</td><td>Fase 2 — Diagnóstico Digital (migrado de <code>cc-commerce-studio</code>)</td></tr>
+    <tr><td class="ok">✅</td><td>Fase 3 — Catálogo de Produtos e Ofertas (Products + Offer Engine, migrados de <code>cc-commerce-studio</code>)</td></tr>
+    <tr><td class="pending">○</td><td>Fase 4 — Lista de tenants (os 10 clientes reais visíveis pela primeira vez fora do Table Editor)</td></tr>
+    <tr><td class="pending">○</td><td>Fase 5 — RBAC por módulo (padrão <code>user_module_access</code> do <code>bpo-system-web-os</code>)</td></tr>
+    <tr><td class="pending">○</td><td>Fase 6 — CRUD de tenant + módulos, com <code>lookup-cnpj</code> embutido</td></tr>
+    <tr><td class="pending">○</td><td>Fase 7 — Migrar os outros 5 motores do <code>cc-commerce-studio</code></td></tr>
+    <tr><td class="pending">○</td><td>Fase 8 — Deploy: novo projeto Vercel (Deployment Protection recomendada ligada, é painel interno)</td></tr>
   </table>
 
   <footer>connectioncyber · apps/platform/README · atualizado em 2026-08-15 · também disponível em .md e .json</footer>
