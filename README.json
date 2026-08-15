@@ -12,7 +12,7 @@
   },
   "estrutura": {
     "apps/site": "site institucional — Next.js/TS, Pages Router",
-    "apps/platform": "ConnectionCyberSO (ERP/CRM/SaaS multi-tenant) — Next.js/TS, App Router. Fase 1 concluída (esqueleto + login), sem conteúdo de negócio ainda",
+    "apps/platform": "ConnectionCyberSO (ERP/CRM/SaaS multi-tenant) — Next.js/TS, App Router. Fase 1 concluída (esqueleto + login); primeiro módulo de negócio (Diagnóstico Digital) já em produção",
     "packages/core": "regras de negócio compartilhadas entre tenants — ainda não iniciado",
     "supabase/migrations": "schema único do projeto Supabase (multi-tenant via tenant_id + RLS)",
     "supabase/functions": "Edge Functions (lookup-cnpj)",
@@ -53,6 +53,7 @@
     { "item": "Produção e staging validados ao vivo (connectioncyber.vercel.app 200 em todas as rotas testadas). Causa raiz de um NOT_FOUND persistente: Framework Preset estava em 'Other' em vez de 'Next.js' em Project Settings > Build and Deployment (Root Directory apps/site sempre esteve correto). Corrigido trocando o preset e disparando novo deploy.", "feito": true },
     { "item": "custom_access_token_hook ativado em Authentication > Hooks", "feito": false, "acao": "1 clique manual no Dashboard", "url": "https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks" },
     { "item": "apps/platform (ConnectionCyberSO) — Fase 1 concluída (esqueleto + login, App Router), testado contra Supabase de staging real", "feito": true },
+    { "item": "Primeiro módulo de negócio: Diagnóstico Digital (IA), migrado de cc-commerce-studio (J:\\BK_connectioncyber). Migration 0009 em produção e staging. Testado de ponta a ponta com usuário real de staging.", "feito": true },
     { "item": "GitHub desbloqueado, main sincronizado com origin/main", "feito": true }
   ],
   "alertas": [],
@@ -62,6 +63,7 @@
     { "id": "tecnologia-seletor-idioma", "descricao": "Como o seletor PT/EN do site foi implementado" },
     { "id": "metodologia-povoamento-tenant-cnpj-cnae", "descricao": "Padrão de povoamento de tenant via CNPJ + cenário por CNAE, trazido da auditoria de Downloads\\BPO" },
     { "id": "visao-longo-prazo-modulos", "descricao": "Mapa de 104 módulos avaliado em Downloads\\connectionHMTL — arquivado como referência de longo prazo, nada implementado" },
+    { "id": "migracao-diagnostico-digital-cc-commerce-studio", "descricao": "Como o módulo Diagnóstico Digital (IA) foi migrado de cc-commerce-studio (J:\\BK_connectioncyber) para apps/platform" },
     { "id": "Connection Cyber Site.txt", "descricao": "Briefing original (documento-fonte, sem versão JSON/HTML) — conteúdo institucional/copy" },
     { "id": "prompt geral.txt", "descricao": "Briefing original (documento-fonte, sem versão JSON/HTML) — blueprint técnico enterprise" }
   ]

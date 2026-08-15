@@ -1,7 +1,9 @@
 # apps/platform — ConnectionCyberSO (painel interno)
 
-> **Fase 1 do plano de ação concluída**: esqueleto publicável + login funcionando. Ainda sem
-> conteúdo de negócio — a lista de tenants é a Fase 2.
+> **Fase 1 concluída**: esqueleto + login. **Primeiro módulo de negócio real em produção**:
+> Diagnóstico Digital (IA) — migrado de `cc-commerce-studio` (ver
+> `docs/migracao-diagnostico-digital-cc-commerce-studio.md`). A lista de tenants (Fase 2)
+> ainda não existe.
 
 Painel interno de gestão de tenants, módulos e clientes da ConnectionCyber — separado do site
 institucional (`apps/site`). Só a equipe entra aqui; clientes finais usam `apps/site` (`/membros`).
@@ -26,14 +28,21 @@ apps/platform/
 │  ├─ app/
 │  │  ├─ layout.tsx        layout raiz
 │  │  ├─ globals.css       tokens de marca (copiados de apps/site/src/styles/theme.css) + shell
-│  │  ├─ page.tsx           dashboard placeholder (protegido, force-dynamic)
-│  │  └─ login/page.tsx     login de equipe (Client Component)
+│  │  ├─ page.tsx           dashboard (protegido, force-dynamic, link para os módulos)
+│  │  ├─ login/page.tsx     login de equipe (Client Component)
+│  │  └─ diagnostics/page.tsx  módulo Diagnóstico Digital (IA)
 │  ├─ components/
 │  │  └─ LogoutButton.tsx
-│  ├─ lib/supabase/
-│  │  ├─ client.ts          Supabase para Client Components (browser, chave anônima)
-│  │  ├─ server.ts          Supabase para Server Components (lê sessão dos cookies)
-│  │  └─ middleware.ts       updateSession() — padrão oficial @supabase/ssr para App Router
+│  ├─ features/
+│  │  └─ diagnostics/       actions.ts, service.ts, types.ts, validations.ts, components/
+│  │                        (migrado de cc-commerce-studio — ver docs/migracao-diagnostico-*)
+│  ├─ lib/
+│  │  ├─ tenant.ts          getCurrentTenantId()/requireCurrentTenantId() — deriva o tenant
+│  │  │                      da SESSÃO, nunca de formulário/query string
+│  │  └─ supabase/
+│  │     ├─ client.ts       Supabase para Client Components (browser, chave anônima)
+│  │     ├─ server.ts       Supabase para Server Components (lê sessão dos cookies)
+│  │     └─ middleware.ts    updateSession() — padrão oficial @supabase/ssr para App Router
 │  ├─ middleware.ts          protege tudo exceto /login
 │  └─ config/env.ts
 ├─ .env.local.example
@@ -59,11 +68,16 @@ npm run dev   # porta 3001 (apps/site usa a 3000)
 
 ## Validado em 2026-08-15
 
-- `npm run build` limpo (App Router, `/` como rota dinâmica por depender de sessão).
-- Rodando contra o Supabase de staging real: acesso a `/` sem sessão redireciona para `/login`;
+- `npm run build` limpo (App Router, `/` e `/diagnostics` como rotas dinâmicas por dependerem
+  de sessão).
+- Rodando contra o Supabase de staging real: acesso sem sessão redireciona para `/login`;
   submeter credenciais inválidas retorna o erro real do Supabase Auth (`Invalid login
   credentials`), confirmando que client, middleware e o projeto de staging estão conectados de
   ponta a ponta.
+- **Módulo Diagnóstico Digital testado com usuário real de staging** (criado e apagado só para
+  o teste): criar diagnóstico grava de verdade em `mpi_diagnostics` com `tenant_id` derivado da
+  sessão, RLS valida, tela atualiza; editar título funciona pela UI. Detalhe completo em
+  `docs/migracao-diagnostico-digital-cc-commerce-studio.md`.
 - Testado em modo produção (`next start`) — o modo dev (`next dev`) tem HMR instável neste
   ambiente sandboxed, mesma observação já registrada para `apps/site`.
 
@@ -71,11 +85,14 @@ npm run dev   # porta 3001 (apps/site usa a 3000)
 
 Ver o plano de ação completo na conversa com Joaquim — resumo:
 
-1. ~~Esqueleto + login~~ (esta entrega)
-2. Lista de tenants (Server Component lendo a tabela `tenants`) — os 10 clientes reais visíveis
+1. ~~Esqueleto + login~~ (concluído)
+2. ~~Primeiro módulo de negócio (Diagnóstico Digital, migrado de `cc-commerce-studio`)~~ (concluído)
+3. Lista de tenants (Server Component lendo a tabela `tenants`) — os 10 clientes reais visíveis
    pela primeira vez fora do Supabase Table Editor
-3. RBAC por módulo (padrão `user_module_access` do `bpo-system-web-os`)
-4. CRUD de tenant + módulos, com `lookup-cnpj` embutido no formulário
-5. Deploy: novo projeto Vercel apontando para esta pasta — ainda não criado, decisão pendente
+4. RBAC por módulo (padrão `user_module_access` do `bpo-system-web-os`)
+5. CRUD de tenant + módulos, com `lookup-cnpj` embutido no formulário
+6. Migrar os outros 6 motores do `cc-commerce-studio` (Offer Engine, Landing Pages, Video
+   Script Engine, Brands, Products, Workspace genérico), um de cada vez
+7. Deploy: novo projeto Vercel apontando para esta pasta — ainda não criado, decisão pendente
    sobre Deployment Protection (recomendado: ligada por padrão, é painel interno, não site
    público)

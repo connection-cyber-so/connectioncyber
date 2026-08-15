@@ -91,16 +91,27 @@ a {
   color: var(--cc-text-muted);
 }
 
-.pf-field input {
+.pf-field input,
+.pf-field textarea,
+.pf-field select {
   padding: 10px 12px;
   border-radius: var(--cc-radius-sm);
   border: 1px solid var(--cc-border);
   background: var(--cc-bg);
   color: var(--cc-text);
   font-size: 0.92rem;
+  font-family: inherit;
+  width: 100%;
 }
 
-.pf-field input:focus {
+.pf-field textarea {
+  resize: vertical;
+  min-height: 64px;
+}
+
+.pf-field input:focus,
+.pf-field textarea:focus,
+.pf-field select:focus {
   outline: 2px solid var(--cc-teal);
   outline-offset: 1px;
 }
@@ -147,4 +158,148 @@ a {
 .pf-muted {
   color: var(--cc-text-muted);
   font-size: 0.85rem;
+}
+
+.pf-success {
+  font-size: 0.82rem;
+  color: var(--cc-success);
+  margin-top: 10px;
+}
+
+/* ---- páginas de conteúdo (dashboard, módulos) ---- */
+
+.pf-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.pf-content {
+  flex: 1;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.pf-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.pf-page-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.pf-page-header p {
+  color: var(--cc-text-muted);
+  font-size: 0.9rem;
+  margin: 4px 0 0;
+}
+
+.pf-content-card {
+  background: var(--cc-bg);
+  border: 1px solid var(--cc-border);
+  border-radius: var(--cc-radius-md);
+  box-shadow: var(--cc-shadow-sm);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.pf-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 720px) {
+  .pf-grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.pf-empty {
+  border: 1px dashed var(--cc-border);
+  border-radius: var(--cc-radius-md);
+  padding: 28px;
+  text-align: center;
+  color: var(--cc-text-muted);
+}
+
+.pf-empty strong {
+  display: block;
+  color: var(--cc-text);
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.pf-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pf-pill {
+  display: inline-block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: var(--cc-bg-alt);
+  color: var(--cc-text-muted);
+}
+
+.pf-pill-generated {
+  background: color-mix(in srgb, var(--cc-success) 18%, transparent);
+  color: var(--cc-success);
+}
+
+.pf-icon-btn {
+  border: none;
+  background: transparent;
+  color: var(--cc-text-muted);
+  padding: 5px;
+  border-radius: var(--cc-radius-sm);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.pf-icon-btn:hover {
+  background: var(--cc-bg-alt);
+  color: var(--cc-accent);
+}
+
+.pf-link-btn {
+  background: none;
+  border: none;
+  color: var(--cc-accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.pf-link-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pf-inline-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pf-inline-actions .pf-button {
+  width: auto;
+  margin-top: 0;
+  padding: 8px 16px;
 }

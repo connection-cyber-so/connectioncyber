@@ -1,0 +1,46 @@
+{
+  "$schema": "connectioncyber-doc-v1",
+  "id": "migracao-diagnostico-digital-cc-commerce-studio",
+  "titulo": "Migração: módulo Diagnóstico Digital (origem: cc-commerce-studio)",
+  "descricao": "Registro de como o Diagnostic Engine do cc-commerce-studio (J:\\BK_connectioncyber) foi adaptado e migrado para apps/platform como o módulo Diagnóstico Digital (IA).",
+  "atualizado_em": "2026-08-15",
+  "origem": {
+    "pasta": "J:\\BK_connectioncyber\\connectioncyber\\cc-commerce-studio",
+    "feature_origem": "features/diagnostic-engine",
+    "data_avaliacao": "2026-08-15"
+  },
+  "decisao_arquitetura": {
+    "escolha": "Workspace = Tenant, 1 pra 1",
+    "confirmado_por": "Joaquim Coelho",
+    "data": "2026-08-15",
+    "motivo": "Reaproveita tenants + current_tenant_id() já existentes. Descarta workspace_members (tabela de membros N:N do original) — nenhum tenant hoje precisa de múltiplos workspaces por conta."
+  },
+  "mudancas": [
+    { "original": "workspace_id em toda tabela/tipo/query", "aqui": "tenant_id" },
+    { "original": "workspaces + workspace_members (RLS via subquery de membro)", "aqui": "tenants + current_tenant_id() (já existente)" },
+    { "original": "projects (nome genérico, órfão)", "aqui": "mpi_projects (renomeado, evita colisão com domínio de e-commerce existente)" },
+    { "original": "diagnostics", "aqui": "mpi_diagnostics" },
+    { "original": "Tailwind (components/ui/*)", "aqui": "tokens .pf-* já usados no apps/platform" },
+    { "original": "features/diagnostic-engine/{actions,mutations,queries,services,types,validations} (6 pastas)", "aqui": "features/diagnostics/{actions.ts,service.ts,types.ts,validations.ts,components/} — sem wrappers de 1 linha" }
+  ],
+  "achado_seguranca_corrigido": "No original, Server Actions liam tenant_id (lá, workspace_id) de formData.get() — dado do cliente. RLS ainda protegia, mas não seguia o padrão 'servidor deriva o tenant da sessão' já adotado neste projeto. Corrigido: toda action aqui chama requireCurrentTenantId() (apps/platform/src/lib/tenant.ts), que lê a sessão no servidor.",
+  "migration": {
+    "arquivo": "supabase/migrations/0009_modulo_diagnostico_digital.sql",
+    "tabelas_criadas": ["mpi_projects", "mpi_diagnostics"],
+    "rls": "current_tenant_id() / is_platform_staff(), mesmo padrão de 0002/0004",
+    "grants": "mesmo padrão de 0008 (authenticated com DML explícito, tabelas já têm RLS real)",
+    "modulo_catalogo": "diagnostico-digital-ia",
+    "aplicada_em": ["producao (qfggetvashdxyuvlhihq)", "staging (ozvylnaipubrmaadikvk)"],
+    "nota": "É só schema, sem dado de cliente — diferente de 0006, exclusiva de produção"
+  },
+  "verificacao": [
+    { "item": "Acesso a /diagnostics sem sessão redireciona para /login", "resultado": "ok" },
+    { "item": "getOrCreateMpiProject cria o projeto MPI do tenant na primeira visita", "resultado": "ok" },
+    { "item": "Criar diagnóstico pelo formulário — grava em mpi_diagnostics, RLS valida tenant_id", "resultado": "ok" },
+    { "item": "Editar diagnóstico (título) pela UI", "resultado": "ok" },
+    { "item": "Excluir diagnóstico", "resultado": "codigo revisado, nao confirmado clique-a-clique (window.confirm nativo nao respondivel pela automacao)" }
+  ],
+  "dados_de_teste": "Usuário, projeto MPI e diagnóstico de teste criados no staging para a verificação foram todos apagados ao final — nada de teste ficou para trás.",
+  "backlog": "Os outros 6 motores do cc-commerce-studio (Offer Engine, Landing Pages, Video Script Engine, Brands, Products, Workspace genérico) — mesmo processo, um de cada vez. GEMINI_API_KEY própria ainda não configurada em nenhum ambiente.",
+  "documentos_relacionados": ["visao-longo-prazo-modulos", "parecer-tecnico-arquitetura"]
+}
