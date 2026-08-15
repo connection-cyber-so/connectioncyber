@@ -12,7 +12,7 @@
   },
   "estrutura": {
     "apps/site": "site institucional — Next.js/TS, Pages Router",
-    "apps/platform": "ConnectionCyberSO (ERP/CRM/SaaS multi-tenant) — ainda não iniciado",
+    "apps/platform": "ConnectionCyberSO (ERP/CRM/SaaS multi-tenant) — Next.js/TS, App Router. Fase 1 concluída (esqueleto + login), sem conteúdo de negócio ainda",
     "packages/core": "regras de negócio compartilhadas entre tenants — ainda não iniciado",
     "supabase/migrations": "schema único do projeto Supabase (multi-tenant via tenant_id + RLS)",
     "supabase/functions": "Edge Functions (lookup-cnpj)",
@@ -34,11 +34,10 @@
   "decisoes_arquitetura_confirmadas": [
     "Multi-tenant: 1 projeto Supabase único (qfggetvashdxyuvlhihq), isolamento por tenant_id + RLS. Cliente novo = linha na tabela tenants, não projeto/repositório/pasta novos.",
     "Staging: clone irmão do repositório, não aninhado.",
-    "Site: parte deste monorepo (apps/site), não projeto separado."
+    "Site: parte deste monorepo (apps/site), não projeto separado.",
+    "Stack por app, não por monorepo: apps/site é Pages Router (sem dado sensível de tenant); apps/platform é App Router, decidido em 2026-08-15 (painel com dado real de cliente, Server Components consultam o Supabase direto no servidor, alinhado ao padrão do resto do ecossistema auditado)."
   ],
-  "decisoes_pendentes": [
-    "Divergência entre a stack canônica documentada no ecossistema (Next.js App Router + Tailwind) e a stack atual deste repositório (Next.js 14 Pages Router, CSS custom) — ver docs/auditoria-ecossistema-connectioncyberos"
-  ],
+  "decisoes_pendentes": [],
   "status": [
     { "item": "apps/site construído e validado (npm run build limpo)", "feito": true },
     { "item": "Logo oficial e paleta de marca corrigidas", "feito": true },
@@ -53,7 +52,7 @@
     { "item": "Vercel conectado, deploy de produção validado", "feito": true },
     { "item": "Produção e staging validados ao vivo (connectioncyber.vercel.app 200 em todas as rotas testadas). Causa raiz de um NOT_FOUND persistente: Framework Preset estava em 'Other' em vez de 'Next.js' em Project Settings > Build and Deployment (Root Directory apps/site sempre esteve correto). Corrigido trocando o preset e disparando novo deploy.", "feito": true },
     { "item": "custom_access_token_hook ativado em Authentication > Hooks", "feito": false, "acao": "1 clique manual no Dashboard", "url": "https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks" },
-    { "item": "apps/platform (ConnectionCyberSO) iniciado", "feito": false },
+    { "item": "apps/platform (ConnectionCyberSO) — Fase 1 concluída (esqueleto + login, App Router), testado contra Supabase de staging real", "feito": true },
     { "item": "GitHub desbloqueado, main sincronizado com origin/main", "feito": true }
   ],
   "alertas": [],

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>apps/platform — ConnectionCyberSO (painel interno)</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg-alt:#f5f8fa; --ink:#0e2233; --muted:#55677c;
+    --line:#dbe4ec; --teal:#0f7a6e; --teal-soft:#e3f3f1;
+    --green:#2f7d47; --green-soft:#e9f5ec; --orange:#b85e10; --orange-soft:#faf0e3;
+    --red:#b3312c; --red-soft:#fbeceb;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    --font-sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+      --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+      --orange:#f2a25c; --orange-soft:#2c2015; --red:#f0827c; --red-soft:#331a19;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+    --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+    --orange:#f2a25c; --orange-soft:#2c2015; --red:#f0827c; --red-soft:#331a19;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-sans); line-height:1.65; }
+  .page{ max-width:760px; margin:0 auto; padding:48px 24px 96px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); margin-bottom:10px; font-weight:700; }
+  h1{ font-size:1.7rem; margin:0 0 12px; }
+  h2{ font-size:1.1rem; margin:32px 0 12px; border-top:1px solid var(--line); padding-top:22px; }
+  code{ font-family:var(--font-mono); font-size:.87em; background:var(--bg-alt); border:1px solid var(--line); padding:1px 6px; border-radius:4px; }
+  pre{ background:var(--bg-alt); border:1px solid var(--line); border-radius:10px; padding:16px 18px; font-family:var(--font-mono); font-size:.82rem; overflow-x:auto; line-height:1.7; }
+  .callout-green{ background:var(--green-soft); border-left:3px solid var(--green); border-radius:8px; padding:14px 18px; font-size:.88rem; margin:16px 0; }
+  ul,ol{ padding-left:20px; }
+  li{ margin-bottom:8px; font-size:.9rem; }
+  table{ width:100%; border-collapse:collapse; font-size:.88rem; }
+  td{ padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  td:first-child{ width:28px; }
+  .ok{ color:var(--green); font-weight:700; }
+  .pending{ color:var(--orange); font-weight:700; }
+  footer{ margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:.78rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">connectioncyber · apps/platform</div>
+  <h1>apps/platform — ConnectionCyberSO (painel interno)</h1>
+  <div class="callout-green"><b>Fase 1 do plano de ação concluída:</b> esqueleto publicável + login funcionando. Ainda sem conteúdo de negócio — a lista de tenants é a Fase 2.</div>
+  <p style="font-size:.9rem;">Painel interno de gestão de tenants, módulos e clientes — separado do site institucional (<code>apps/site</code>). Só a equipe entra aqui; clientes finais usam <code>apps/site</code> (<code>/membros</code>).</p>
+
+  <h2>Decisão de arquitetura</h2>
+  <p style="font-size:.9rem;"><b>Next.js 14 + App Router</b>, diferente do <code>apps/site</code> (Pages Router). Decidido com Joaquim Coelho em 2026-08-15: Server Components consultam o Supabase direto no servidor — sem API route intermediária a esquecer de proteger — alinhado ao modelo de isolamento por tenant já adotado, e ao padrão já usado no resto do ecossistema auditado (<code>bpo-system-web-os</code>, <code>food-service-os</code>, <code>cyber-varejo-os</code>). <code>apps/site</code> continua Pages Router — não há necessidade técnica de convergência.</p>
+
+  <h2>Estrutura</h2>
+  <pre>apps/platform/
+├─ src/
+│  ├─ app/
+│  │  ├─ layout.tsx        layout raiz
+│  │  ├─ globals.css       tokens de marca + shell do painel
+│  │  ├─ page.tsx           dashboard placeholder (protegido)
+│  │  └─ login/page.tsx     login de equipe
+│  ├─ components/LogoutButton.tsx
+│  ├─ lib/supabase/
+│  │  ├─ client.ts          Supabase (browser, chave anônima)
+│  │  ├─ server.ts          Supabase (Server Components, sessão via cookies)
+│  │  └─ middleware.ts       updateSession() — padrão @supabase/ssr
+│  ├─ middleware.ts          protege tudo exceto /login
+│  └─ config/env.ts</pre>
+
+  <h2>Modelo de segurança</h2>
+  <p style="font-size:.9rem;">O servidor deriva o usuário da sessão via cookies (<code>@supabase/ssr</code>), nunca de dado enviado pelo cliente. <code>middleware.ts</code> usa <code>supabase.auth.getUser()</code> (não <code>getSession()</code>) — valida o JWT contra o servidor do Supabase a cada request.</p>
+
+  <h2>Rodando localmente</h2>
+  <pre>cd apps/platform
+npm install
+cp .env.local.example .env.local
+# preencha com as chaves do Supabase de STAGING (ozvylnaipubrmaadikvk) — nunca produção
+npm run dev   # porta 3001 (apps/site usa a 3000)</pre>
+
+  <h2>Validado em 2026-08-15</h2>
+  <table>
+    <tr><td class="ok">✅</td><td><code>npm run build</code> limpo (<code>/</code> como rota dinâmica por depender de sessão)</td></tr>
+    <tr><td class="ok">✅</td><td>Testado contra o Supabase de staging real: <code>/</code> sem sessão redireciona para <code>/login</code></td></tr>
+    <tr><td class="ok">✅</td><td>Credenciais inválidas retornam o erro real do Supabase Auth (<code>Invalid login credentials</code>) — client, middleware e staging conectados de ponta a ponta</td></tr>
+    <tr><td class="ok">✅</td><td>Testado em modo produção (<code>next start</code>) — modo dev tem HMR instável neste ambiente, mesma observação já registrada para <code>apps/site</code></td></tr>
+  </table>
+
+  <h2>Próximos passos</h2>
+  <table>
+    <tr><td class="ok">✅</td><td>Fase 1 — Esqueleto + login</td></tr>
+    <tr><td class="pending">○</td><td>Fase 2 — Lista de tenants (os 10 clientes reais visíveis pela primeira vez fora do Table Editor)</td></tr>
+    <tr><td class="pending">○</td><td>Fase 3 — RBAC por módulo (padrão <code>user_module_access</code> do <code>bpo-system-web-os</code>)</td></tr>
+    <tr><td class="pending">○</td><td>Fase 4 — CRUD de tenant + módulos, com <code>lookup-cnpj</code> embutido</td></tr>
+    <tr><td class="pending">○</td><td>Fase 5 — Deploy: novo projeto Vercel (Deployment Protection recomendada ligada, é painel interno)</td></tr>
+  </table>
+
+  <footer>connectioncyber · apps/platform/README · atualizado em 2026-08-15 · também disponível em .md e .json</footer>
+</div>
+</body>
+</html>
