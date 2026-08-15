@@ -1,0 +1,65 @@
+/**
+ * ConnectionCyber — Design Tokens
+ * Paleta: azul/cinza corporativo + cores do logo (laranja, vermelho, verde, azul-ciano)
+ */
+:root {
+  /* Corporate base */
+  --cc-blue-900: #0a1f33;
+  --cc-blue-800: #0f2c47;
+  --cc-blue-700: #14395c;
+  --cc-blue-600: #1c4e7a;
+  --cc-blue-500: #2566a0;
+  --cc-blue-400: #4a8bc2;
+  --cc-gray-900: #12161c;
+  --cc-gray-800: #1c222b;
+  --cc-gray-700: #2c3440;
+  --cc-gray-600: #4b5563;
+  --cc-gray-400: #94a3b8;
+  --cc-gray-200: #e2e8f0;
+  --cc-gray-100: #f1f5f9;
+  --cc-white: #ffffff;
+
+  /* Logo accent colors — paleta oficial ConnectionCyber */
+  --cc-orange: #f6851f;
+  --cc-orange-alt: #f8961d;
+  --cc-red: #e01f27;
+  --cc-red-alt: #ca2127;
+  --cc-green: #2c9c48;
+  --cc-green-alt: #4cb853;
+  --cc-teal: #28a992;
+  --cc-teal-alt: #1e9680;
+
+  /* Semantic */
+  --cc-bg: var(--cc-white);
+  --cc-bg-alt: var(--cc-gray-100);
+  --cc-text: var(--cc-gray-900);
+  --cc-text-muted: var(--cc-gray-600);
+  --cc-primary: var(--cc-blue-700);
+  --cc-primary-dark: var(--cc-blue-900);
+  --cc-accent: var(--cc-teal);
+  --cc-success: var(--cc-green);
+  --cc-warning: var(--cc-orange);
+  --cc-danger: var(--cc-red);
+  --cc-border: var(--cc-gray-200);
+
+  --cc-radius-sm: 6px;
+  --cc-radius-md: 12px;
+  --cc-radius-lg: 20px;
+
+  --cc-shadow-sm: 0 1px 2px rgba(10, 31, 51, 0.06);
+  --cc-shadow-md: 0 8px 24px rgba(10, 31, 51, 0.10);
+  --cc-shadow-lg: 0 16px 48px rgba(10, 31, 51, 0.16);
+
+  --cc-font-sans: 'Segoe UI', Inter, Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+  --cc-container: 1200px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cc-bg: var(--cc-gray-900);
+    --cc-bg-alt: var(--cc-gray-800);
+    --cc-text: var(--cc-gray-100);
+    --cc-text-muted: var(--cc-gray-400);
+    --cc-border: var(--cc-gray-700);
+  }
+}

@@ -12,6 +12,18 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "apps/site", "run", "start"],
       "port": 3000
+    },
+    {
+      "name": "platform-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "apps/platform", "run", "dev"],
+      "port": 3001
+    },
+    {
+      "name": "platform-prod",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "apps/platform", "run", "start"],
+      "port": 3001
     }
   ]
 }

@@ -14,7 +14,8 @@ trazido de outros projetos do ecossistema estão em `docs/auditoria-ecossistema-
 connectioncyber/
 ├─ apps/
 │  ├─ site/           site institucional — Next.js 14/TS, Pages Router (ver apps/site/README.md)
-│  └─ platform/        ConnectionCyberSO (ERP/CRM/SaaS multi-tenant) — ainda não iniciado
+│  └─ platform/        ConnectionCyberSO (ERP/CRM/SaaS multi-tenant) — Next.js 14/TS, App Router
+│                       (ver apps/platform/README.md) — Fase 1 concluída, sem conteúdo ainda
 ├─ packages/
 │  └─ core/            regras de negócio compartilhadas entre tenants — ainda não iniciado
 ├─ supabase/
@@ -42,9 +43,11 @@ diretório.
   vira uma linha na tabela `tenants`.
 - **Staging**: clone irmão do repositório, não aninhado.
 - **Site**: parte deste monorepo (`apps/site`), não um projeto separado.
-- **Pendente de decisão**: divergência entre a stack canônica documentada no ecossistema
-  (Next.js App Router + Tailwind) e a stack atual deste repositório (Next.js 14 Pages Router,
-  CSS custom) — ver `docs/auditoria-ecossistema-connectioncyberos.md`.
+- **Stack por app, não por monorepo**: `apps/site` é Pages Router (site institucional, sem dado
+  sensível de tenant); `apps/platform` é **App Router** (decidido em 2026-08-15) — painel que
+  lida com dado real de cliente, Server Components consultam o Supabase direto no servidor sem
+  API route intermediária a esquecer de proteger, alinhado ao padrão do resto do ecossistema
+  auditado. Não há necessidade dos dois convergirem — ver `apps/platform/README.md`.
 
 ## Status
 
@@ -78,7 +81,10 @@ diretório.
   para "Next.js" e disparando um novo deploy (mudança de preset não redeploya sozinha).
 - [ ] **Pendente (1 clique manual no Dashboard)**: ativar `custom_access_token_hook` em
   Authentication → Hooks — https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks
-- [ ] `apps/platform` (ConnectionCyberSO) ainda não iniciado.
+- [x] **`apps/platform` iniciado — Fase 1 concluída** (Next.js 14 + App Router, decisão registrada
+  em `apps/platform/README.md`): esqueleto + login de equipe funcionando, testado de ponta a ponta
+  contra o Supabase de staging real. Ainda sem conteúdo de negócio (lista de tenants é a Fase 2).
+  `apps/site` continua Pages Router — sem necessidade de convergência entre os dois apps.
 - [x] **GitHub desbloqueado** — todos os commits pendentes enviados; `main` sincronizado com
   `origin/main`.
 

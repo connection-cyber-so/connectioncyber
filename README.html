@@ -57,7 +57,7 @@
   <pre>connectioncyber/
 ├─ apps/
 │  ├─ site/           site institucional — Next.js/TS, Pages Router
-│  └─ platform/        ConnectionCyberSO (ERP/CRM/SaaS multi-tenant) — ainda não iniciado
+│  └─ platform/        ConnectionCyberSO (ERP/CRM/SaaS multi-tenant) — App Router, Fase 1 concluída
 ├─ packages/
 │  └─ core/            regras de negócio compartilhadas entre tenants — ainda não iniciado
 ├─ supabase/
@@ -73,7 +73,7 @@
     <li><b>Multi-tenant</b>: 1 projeto Supabase único (<code>qfggetvashdxyuvlhihq</code>), isolamento por <code>tenant_id</code> + RLS. Cliente novo = linha em <code>tenants</code>, não projeto/repositório/pasta novos.</li>
     <li><b>Staging</b>: clone irmão do repositório, não aninhado (<code>F:\Projetos\connectioncyber-staging</code>).</li>
     <li><b>Site</b>: parte deste monorepo (<code>apps/site</code>), não projeto separado.</li>
-    <li><b>Pendente</b>: divergência entre a stack canônica do ecossistema (App Router + Tailwind) e a stack atual (Pages Router, CSS custom).</li>
+    <li><b>Stack por app</b>: <code>apps/site</code> é Pages Router (sem dado sensível de tenant); <code>apps/platform</code> é <b>App Router</b> (decidido em 2026-08-15) — Server Components consultam o Supabase direto no servidor, alinhado ao padrão do resto do ecossistema auditado. Os dois apps não precisam convergir.</li>
   </ul>
 
   <h2>Status</h2>
@@ -91,7 +91,7 @@
     <tr><td class="ok">✅</td><td>Vercel conectado, deploy de produção validado</td></tr>
     <tr><td class="ok">✅</td><td><b>Produção e staging validados ao vivo</b> (todas as rotas 200) — causa raiz de um <code>NOT_FOUND</code> persistente encontrada: <b>Framework Preset em "Other"</b> em vez de "Next.js" (Build and Deployment), Root Directory <code>apps/site</code> sempre esteve correto. Corrigido e redeploy disparado.</td></tr>
     <tr><td class="pending">◐</td><td><b>Pendente (1 clique manual)</b>: ativar <code>custom_access_token_hook</code> — <a href="https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks">Authentication → Hooks</a></td></tr>
-    <tr><td class="pending">○</td><td>apps/platform (ConnectionCyberSO) ainda não iniciado</td></tr>
+    <tr><td class="ok">✅</td><td><b>apps/platform — Fase 1 concluída</b> (esqueleto + login, App Router), testado contra Supabase de staging real — <a href="../apps/platform/README.html">ver apps/platform/README</a></td></tr>
     <tr><td class="ok">✅</td><td>GitHub desbloqueado — <code>main</code> sincronizado com <code>origin/main</code></td></tr>
   </table>
 

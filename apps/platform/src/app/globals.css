@@ -1,0 +1,150 @@
+@import '../styles/theme.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--cc-bg);
+  color: var(--cc-text);
+  font-family: var(--cc-font-sans);
+}
+
+a {
+  color: inherit;
+}
+
+.pf-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.pf-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--cc-border);
+  background: var(--cc-bg);
+}
+
+.pf-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.pf-brand .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cc-teal);
+}
+
+.pf-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.pf-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--cc-bg);
+  border: 1px solid var(--cc-border);
+  border-radius: var(--cc-radius-md);
+  box-shadow: var(--cc-shadow-md);
+  padding: 32px;
+}
+
+.pf-eyebrow {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cc-teal);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.pf-title {
+  font-size: 1.4rem;
+  margin: 0 0 20px;
+}
+
+.pf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.pf-field label {
+  font-size: 0.8rem;
+  color: var(--cc-text-muted);
+}
+
+.pf-field input {
+  padding: 10px 12px;
+  border-radius: var(--cc-radius-sm);
+  border: 1px solid var(--cc-border);
+  background: var(--cc-bg);
+  color: var(--cc-text);
+  font-size: 0.92rem;
+}
+
+.pf-field input:focus {
+  outline: 2px solid var(--cc-teal);
+  outline-offset: 1px;
+}
+
+.pf-button {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: var(--cc-radius-sm);
+  border: none;
+  background: var(--cc-primary);
+  color: var(--cc-white);
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.pf-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.pf-button-secondary {
+  background: transparent;
+  border: 1px solid var(--cc-border);
+  color: var(--cc-text);
+}
+
+.pf-notice {
+  font-size: 0.82rem;
+  background: var(--cc-bg-alt);
+  border: 1px solid var(--cc-warning);
+  border-radius: var(--cc-radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 16px;
+}
+
+.pf-error {
+  font-size: 0.82rem;
+  color: var(--cc-danger);
+  margin-top: 10px;
+}
+
+.pf-muted {
+  color: var(--cc-text-muted);
+  font-size: 0.85rem;
+}
