@@ -1,12 +1,12 @@
 {
   "$schema": "connectioncyber-doc-v1",
   "id": "migracao-diagnostico-digital-cc-commerce-studio",
-  "titulo": "Migração: módulos Diagnóstico Digital e Catálogo de Produtos/Ofertas (origem: cc-commerce-studio)",
-  "descricao": "Registro de como o Diagnostic Engine e o Offer Engine (com Products) do cc-commerce-studio (J:\\BK_connectioncyber) foram adaptados e migrados para apps/platform.",
+  "titulo": "Migração: módulos Diagnóstico Digital, Catálogo de Produtos/Ofertas e Roteiro de Vídeo (origem: cc-commerce-studio)",
+  "descricao": "Registro de como o Diagnostic Engine, o Offer Engine (com Products) e o Video Script Engine do cc-commerce-studio (J:\\BK_connectioncyber) foram adaptados e migrados para apps/platform.",
   "atualizado_em": "2026-08-15",
   "origem": {
     "pasta": "J:\\BK_connectioncyber\\connectioncyber\\cc-commerce-studio",
-    "features_origem": ["features/diagnostic-engine", "features/products", "features/offer-engine"],
+    "features_origem": ["features/diagnostic-engine", "features/products", "features/offer-engine", "features/video-script-engine"],
     "data_avaliacao": "2026-08-15"
   },
   "decisao_arquitetura": {
@@ -32,12 +32,20 @@
       "tabelas": ["mpi_products", "mpi_offers"],
       "module_catalog_key": "catalogo-produtos-ofertas-ia",
       "escopo_reduzido": "brand_id (FK opcional para brands) não foi trazido — brands ainda não migrado, nenhum tenant precisa disso hoje"
+    },
+    {
+      "nome": "Roteiro de Vídeo (IA)",
+      "ordem": 3,
+      "motivo_escolha": "Depende de mpi_offers (offer_id obrigatório) — só possível após a rodada anterior. Escolhido em vez de Landing Pages por ser o mesmo padrão CRUD+IA já validado 2x, sem a complexidade nova de página pública sem autenticação",
+      "migration": "0011_modulo_roteiro_video.sql",
+      "tabelas": ["mpi_video_scripts"],
+      "module_catalog_key": "roteiro-video-ia"
     }
   ],
   "mudancas_padrao": [
     { "original": "workspace_id em toda tabela/tipo/query", "aqui": "tenant_id" },
     { "original": "workspaces + workspace_members (RLS via subquery de membro)", "aqui": "tenants + current_tenant_id() (já existente)" },
-    { "original": "projects / products / offers (nomes genéricos)", "aqui": "mpi_projects / mpi_products / mpi_offers — evita colisão com o domínio de e-commerce (courses/products/orders) já existente da própria ConnectionCyber" },
+    { "original": "projects / products / offers / video_scripts (nomes genéricos)", "aqui": "mpi_projects / mpi_products / mpi_offers / mpi_video_scripts — evita colisão com o domínio de e-commerce (courses/products/orders) já existente da própria ConnectionCyber" },
     { "original": "Tailwind (components/ui/*)", "aqui": "tokens .pf-* já usados no apps/platform" },
     { "original": "features/<nome>/{actions,mutations,queries,services,types,validations} (6 pastas)", "aqui": "features/<nome>/{actions.ts,service.ts,types.ts,validations.ts,components/} — sem wrappers de 1 linha" }
   ],
@@ -57,9 +65,12 @@
     { "modulo": "Catálogo de Produtos e Ofertas", "item": "Cadastrar produto em /products grava em mpi_products", "resultado": "ok" },
     { "modulo": "Catálogo de Produtos e Ofertas", "item": "Formulário de oferta lista o produto recém-criado automaticamente", "resultado": "ok" },
     { "modulo": "Catálogo de Produtos e Ofertas", "item": "Gerar copy com IA busca o produto sob RLS da sessão (getProductById só enxerga o próprio tenant) e referencia o nome certo", "resultado": "ok" },
-    { "modulo": "Catálogo de Produtos e Ofertas", "item": "Criar oferta grava em mpi_offers com status generated (copy não-vazia) e product_id correto", "resultado": "ok" }
+    { "modulo": "Catálogo de Produtos e Ofertas", "item": "Criar oferta grava em mpi_offers com status generated (copy não-vazia) e product_id correto", "resultado": "ok" },
+    { "modulo": "Roteiro de Vídeo", "item": "/video-scripts pré-seleciona a oferta recém-criada no formulário", "resultado": "ok" },
+    { "modulo": "Roteiro de Vídeo", "item": "Gerar roteiro com IA busca oferta + produto (via offer.product_id) sob RLS da sessão e referencia o título certo", "resultado": "ok" },
+    { "modulo": "Roteiro de Vídeo", "item": "Criar roteiro grava em mpi_video_scripts com offer_id correto", "resultado": "ok" }
   ],
-  "dados_de_teste": "Dois usuários de teste (teste-diagnostico@connectioncyber.local, teste-catalogo@connectioncyber.local) e todos os registros criados durante a verificação (diagnóstico, projeto MPI, produto, oferta) foram apagados do staging ao final — nada de teste ficou para trás.",
-  "backlog": "Os outros 5 motores do cc-commerce-studio (Landing Pages, Video Script Engine, Brands, Workspace genérico) — mesmo processo, um de cada vez. Landing Pages e Video Script Engine dependem de offers (já disponível) — próximos candidatos naturais. GEMINI_API_KEY própria ainda não configurada em nenhum ambiente — 'Gerar com IA' cai num rascunho manual em ambos os módulos.",
+  "dados_de_teste": "Três usuários de teste (teste-diagnostico@, teste-catalogo@, teste-video@connectioncyber.local) e todos os registros criados durante a verificação (diagnóstico, projeto MPI, produto, oferta, roteiro de vídeo) foram apagados do staging ao final — nada de teste ficou para trás.",
+  "backlog": "Os outros 4 motores do cc-commerce-studio (Landing Pages, Brands, Workspace genérico) — mesmo processo, um de cada vez. Landing Pages é o próximo candidato natural (depende de offers, já disponível), mas introduz página pública sem autenticação (/lp/[slug]), que exige decisão de arquitetura própria. GEMINI_API_KEY própria ainda não configurada em nenhum ambiente — 'Gerar com IA' cai num rascunho manual em todos os módulos.",
   "documentos_relacionados": ["visao-longo-prazo-modulos", "parecer-tecnico-arquitetura"]
 }

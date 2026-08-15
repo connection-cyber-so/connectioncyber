@@ -43,6 +43,9 @@ export default async function DashboardPage() {
             <a href="/offers" className="pf-button pf-button-secondary" style={{ textDecoration: 'none' }}>
               Ofertas
             </a>
+            <a href="/video-scripts" className="pf-button pf-button-secondary" style={{ textDecoration: 'none' }}>
+              Roteiros de Vídeo
+            </a>
           </div>
         </div>
       </main>

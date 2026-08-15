@@ -1,4 +1,4 @@
-# Migração: módulos Diagnóstico Digital e Catálogo de Produtos/Ofertas (origem: cc-commerce-studio)
+# Migração: módulos Diagnóstico Digital, Catálogo de Produtos/Ofertas e Roteiro de Vídeo (origem: cc-commerce-studio)
 
 > Origem: código real avaliado em `J:\BK_connectioncyber\connectioncyber\cc-commerce-studio`
 > (auditoria read-only de 2026-08-15, ver `docs/visao-longo-prazo-modulos.md` para o resto do
@@ -8,7 +8,7 @@
 ## O que foi trazido
 
 O `cc-commerce-studio` tinha 7 "motores" de marketing com IA (feature-sliced: `actions/
-mutations/queries/services/types/validations` por feature). Dois já foram migrados, em duas
+mutations/queries/services/types/validations` por feature). Três já foram migrados, em três
 rodadas:
 
 1. **Diagnóstico Digital** (0009) — o menor e mais autocontido, piloto do processo.
@@ -16,6 +16,10 @@ rodadas:
    `offers.product_id` é obrigatório no código original — não dava pra migrar um sem o outro.
    `Brands` (marca do produto) ficou de fora: é uma FK opcional em `offers`/`products`, e nenhum
    tenant hoje precisa de múltiplas marcas por conta — fica de próximo incremento.
+3. **Roteiro de Vídeo** (0011) — Video Script Engine, depende de `mpi_offers` (`offer_id`
+   obrigatório) — só foi possível depois da rodada anterior. Escolhido em vez de Landing Pages
+   por ser o mesmo padrão de CRUD+geração por IA já validado duas vezes, sem introduzir a
+   complexidade nova de página pública sem autenticação que Landing Pages exigiria.
 
 ## Decisão de arquitetura: Workspace = Tenant, 1 pra 1
 
@@ -34,7 +38,7 @@ já existentes (lê de `public.users`, 1 usuário = 1 tenant). Nenhuma tabela de
 | `diagnostics` | `mpi_diagnostics` |
 | Tailwind (`components/ui/*`) | tokens `.pf-*` já usados no `apps/platform` (login/dashboard) — sem introduzir uma segunda linguagem visual num app que acabou de nascer |
 | `features/diagnostic-engine/{actions,mutations,queries,services,types,validations}` (6 pastas) | `features/diagnostics/{actions.ts,service.ts,types.ts,validations.ts,components/}` — mesma separação de responsabilidade, sem a indireção de wrappers de 1 linha (mutations/queries só chamavam o service) |
-| `products` / `offers` | `mpi_products` / `mpi_offers` (mesmo motivo do `mpi_projects` — evita colisão com o catálogo de cursos/produtos já existente da própria ConnectionCyber) |
+| `products` / `offers` / `video_scripts` | `mpi_products` / `mpi_offers` / `mpi_video_scripts` (mesmo motivo do `mpi_projects` — evita colisão com o catálogo de cursos/produtos já existente da própria ConnectionCyber) |
 | `offers.brand_id`, `products.brand_id` (FK para `brands`) | Removido nesta rodada — `brands` não foi migrado, nenhum tenant precisa disso hoje |
 
 ### Achado de segurança corrigido durante a migração
@@ -52,8 +56,10 @@ projeto. **Aqui, nenhuma Server Action recebe tenant_id de formulário** — tod
   `diagnostico-digital-ia` no `module_catalog`.
 - **`0010_modulo_catalogo_produtos_ofertas.sql`** — `mpi_products` + `mpi_offers`
   (`mpi_offers.product_id` referencia `mpi_products`), módulo `catalogo-produtos-ofertas-ia`.
+- **`0011_modulo_roteiro_video.sql`** — `mpi_video_scripts` (`offer_id` referencia
+  `mpi_offers`), módulo `roteiro-video-ia`.
 
-As duas seguem o mesmo padrão: RLS via `current_tenant_id()`/`is_platform_staff()` (mesmo de
+As três seguem o mesmo padrão: RLS via `current_tenant_id()`/`is_platform_staff()` (mesmo de
 `0002`/`0004`), grants explícitos para `authenticated` (mesmo de `0008`), registro no
 `module_catalog` (mesmo mecanismo de habilitação por tenant dos módulos existentes). Aplicadas
 em **produção e staging** — é só schema, sem dado de cliente (diferente da `0006`, exclusiva de
@@ -89,11 +95,23 @@ usado para testar o fluxo completo pela UI:
   vínculo com `product_id` correto.
 - Todos os dados de teste (oferta, produto, usuário) foram apagados do staging ao final.
 
+**Roteiro de Vídeo** — terceiro usuário de teste (`teste-video@connectioncyber.local`), mesmo
+processo, encadeando os três módulos: produto → oferta → roteiro:
+
+- ✅ Produto criado em `/products`, oferta criada em `/offers` referenciando esse produto.
+- ✅ `/video-scripts` — a oferta recém-criada já aparece pré-selecionada no formulário.
+- ✅ "Gerar roteiro com IA" chama `generateVideoScriptAction`, que busca a oferta por id e o
+  produto via `offer.product_id` (ambos **sob RLS da sessão**), e devolve o rascunho manual
+  referenciando corretamente o título da oferta.
+- ✅ Criar roteiro pela UI — grava em `mpi_video_scripts` com `offer_id` correto.
+- Produto, oferta, roteiro e usuário de teste foram todos apagados do staging ao final.
+
 ## Ainda não trazido (backlog)
 
-Os outros 5 motores do `cc-commerce-studio` (Landing Pages, Video Script Engine, Brands,
-Workspace genérico) — mesmo processo, um de cada vez, conforme fizer sentido comercial.
-Landing Pages e Video Script Engine dependem de `offers` (já disponível) — próximos candidatos
-naturais. `GEMINI_API_KEY` própria da ConnectionCyber ainda não configurada em nenhum
-ambiente — sem ela, "Gerar com IA" cai num rascunho manual em ambos os módulos (comportamento
-herdado do original, não é regressão).
+Os outros 4 motores do `cc-commerce-studio` (Landing Pages, Brands, Workspace genérico) — mesmo
+processo, um de cada vez, conforme fizer sentido comercial. Landing Pages é o próximo candidato
+natural (também depende de `offers`, já disponível), mas introduz uma peça nova: página pública
+sem autenticação (`/lp/[slug]`), que exige decisão de arquitetura própria antes de migrar.
+`GEMINI_API_KEY` própria da ConnectionCyber ainda não configurada em nenhum ambiente — sem ela,
+"Gerar com IA" cai num rascunho manual em todos os módulos (comportamento herdado do original,
+não é regressão).

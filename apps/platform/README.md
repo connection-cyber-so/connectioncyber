@@ -1,9 +1,9 @@
 # apps/platform — ConnectionCyberSO (painel interno)
 
-> **Fase 1 concluída**: esqueleto + login. **2 módulos de negócio em produção**: Diagnóstico
-> Digital (IA) e Catálogo de Produtos e Ofertas (IA) — ambos migrados de `cc-commerce-studio`
-> (ver `docs/migracao-diagnostico-digital-cc-commerce-studio.md`). A lista de tenants (Fase 3)
-> ainda não existe.
+> **Fase 1 concluída**: esqueleto + login. **3 módulos de negócio em produção**: Diagnóstico
+> Digital (IA), Catálogo de Produtos e Ofertas (IA) e Roteiro de Vídeo (IA) — todos migrados de
+> `cc-commerce-studio` (ver `docs/migracao-diagnostico-digital-cc-commerce-studio.md`). A lista
+> de tenants (Fase 4) ainda não existe.
 
 Painel interno de gestão de tenants, módulos e clientes da ConnectionCyber — separado do site
 institucional (`apps/site`). Só a equipe entra aqui; clientes finais usam `apps/site` (`/membros`).
@@ -32,13 +32,15 @@ apps/platform/
 │  │  ├─ login/page.tsx     login de equipe (Client Component)
 │  │  ├─ diagnostics/page.tsx  módulo Diagnóstico Digital (IA)
 │  │  ├─ products/page.tsx     módulo Catálogo — cadastro de produtos
-│  │  └─ offers/page.tsx       módulo Catálogo — geração de oferta por IA
+│  │  ├─ offers/page.tsx       módulo Catálogo — geração de oferta por IA
+│  │  └─ video-scripts/page.tsx  módulo Roteiro de Vídeo — geração por IA a partir de oferta
 │  ├─ components/
 │  │  └─ LogoutButton.tsx
 │  ├─ features/
 │  │  ├─ diagnostics/       actions.ts, service.ts, types.ts, validations.ts, components/
 │  │  ├─ products/          idem — mpi_products
-│  │  └─ offers/             idem — mpi_offers (referencia products.id)
+│  │  ├─ offers/             idem — mpi_offers (referencia products.id)
+│  │  └─ video-scripts/      idem — mpi_video_scripts (referencia offers.id)
 │  │                        (migrados de cc-commerce-studio — ver docs/migracao-diagnostico-*)
 │  ├─ lib/
 │  │  ├─ tenant.ts          getCurrentTenantId()/requireCurrentTenantId() — deriva o tenant
@@ -72,8 +74,8 @@ npm run dev   # porta 3001 (apps/site usa a 3000)
 
 ## Validado em 2026-08-15
 
-- `npm run build` limpo (App Router, `/`, `/diagnostics`, `/products`, `/offers` como rotas
-  dinâmicas por dependerem de sessão).
+- `npm run build` limpo (App Router, `/`, `/diagnostics`, `/products`, `/offers`,
+  `/video-scripts` como rotas dinâmicas por dependerem de sessão).
 - Rodando contra o Supabase de staging real: acesso sem sessão redireciona para `/login`;
   submeter credenciais inválidas retorna o erro real do Supabase Auth (`Invalid login
   credentials`), confirmando que client, middleware e o projeto de staging estão conectados de
@@ -84,8 +86,11 @@ npm run dev   # porta 3001 (apps/site usa a 3000)
 - **Catálogo de Produtos e Ofertas testado com um segundo usuário real de staging**: cadastrar
   produto grava em `mpi_products`; o formulário de oferta lista o produto automaticamente;
   "Gerar copy com IA" busca o produto sob RLS da própria sessão e referencia o nome certo;
-  criar oferta grava em `mpi_offers` com `product_id` correto. Detalhe completo em
-  `docs/migracao-diagnostico-digital-cc-commerce-studio.md`.
+  criar oferta grava em `mpi_offers` com `product_id` correto.
+- **Roteiro de Vídeo testado com um terceiro usuário real de staging**: encadeando produto →
+  oferta → roteiro, `/video-scripts` pré-seleciona a oferta recém-criada, "Gerar roteiro com
+  IA" busca oferta + produto sob RLS da sessão, criar roteiro grava em `mpi_video_scripts` com
+  `offer_id` correto. Detalhe completo em `docs/migracao-diagnostico-digital-cc-commerce-studio.md`.
 - Testado em modo produção (`next start`) — o modo dev (`next dev`) tem HMR instável neste
   ambiente sandboxed, mesma observação já registrada para `apps/site`.
 
@@ -96,13 +101,14 @@ Ver o plano de ação completo na conversa com Joaquim — resumo:
 1. ~~Esqueleto + login~~ (concluído)
 2. ~~Diagnóstico Digital (migrado de `cc-commerce-studio`)~~ (concluído)
 3. ~~Catálogo de Produtos e Ofertas (Products + Offer Engine, migrados de `cc-commerce-studio`)~~ (concluído)
-4. Lista de tenants (Server Component lendo a tabela `tenants`) — os 10 clientes reais visíveis
+4. ~~Roteiro de Vídeo (Video Script Engine, migrado de `cc-commerce-studio`)~~ (concluído)
+5. Lista de tenants (Server Component lendo a tabela `tenants`) — os 10 clientes reais visíveis
    pela primeira vez fora do Supabase Table Editor
-5. RBAC por módulo (padrão `user_module_access` do `bpo-system-web-os`)
-6. CRUD de tenant + módulos, com `lookup-cnpj` embutido no formulário
-7. Migrar os outros 5 motores do `cc-commerce-studio` (Landing Pages, Video Script Engine,
-   Brands, Workspace genérico), um de cada vez — Landing Pages e Video Script Engine dependem
-   de `offers` (já disponível)
-8. Deploy: novo projeto Vercel apontando para esta pasta — ainda não criado, decisão pendente
+6. RBAC por módulo (padrão `user_module_access` do `bpo-system-web-os`)
+7. CRUD de tenant + módulos, com `lookup-cnpj` embutido no formulário
+8. Migrar os outros 4 motores do `cc-commerce-studio` (Landing Pages, Brands, Workspace
+   genérico) — Landing Pages exige decisão de arquitetura própria (página pública sem
+   autenticação)
+9. Deploy: novo projeto Vercel apontando para esta pasta — ainda não criado, decisão pendente
    sobre Deployment Protection (recomendado: ligada por padrão, é painel interno, não site
    público)
