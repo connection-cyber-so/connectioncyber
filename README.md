@@ -99,6 +99,10 @@ diretório.
   roteiro de vídeo, publicar landing page e acessá-la em `apps/site` sem sessão nenhuma).
 - [x] **GitHub desbloqueado** — todos os commits pendentes enviados; `main` sincronizado com
   `origin/main`.
+- [x] **`apps/platform` Fase 6 — Lista de tenants** (`/tenants`, só leitura): primeira vez que os
+  clientes reais e os módulos habilitados de cada um ficam visíveis fora do Supabase Table Editor.
+  Testado com um quinto usuário real de staging com papel de equipe (`admin` em `user_roles`).
+  Ver `apps/platform/README.md`.
 
 ## Documentação do projeto
 

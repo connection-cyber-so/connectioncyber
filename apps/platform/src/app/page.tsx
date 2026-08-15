@@ -6,8 +6,7 @@ import { LogoutButton } from '@/components/LogoutButton';
 export const dynamic = 'force-dynamic';
 
 // Rota protegida pelo middleware (src/middleware.ts) — só chega aqui quem
-// tem sessão válida. Lista de tenants (Fase 2 do plano de ação) ainda não
-// existe; o primeiro módulo de negócio real já está em /diagnostics.
+// tem sessão válida.
 export default async function DashboardPage() {
   const supabase = await createClient();
   const {
@@ -30,11 +29,11 @@ export default async function DashboardPage() {
           <p className="pf-muted">
             Sessão ativa como <strong>{user?.email}</strong>.
           </p>
-          <p className="pf-muted" style={{ marginTop: 16 }}>
-            A lista de tenants entra na próxima etapa do roteiro.
-          </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
-            <a href="/diagnostics" className="pf-button" style={{ textDecoration: 'none' }}>
+            <a href="/tenants" className="pf-button" style={{ textDecoration: 'none' }}>
+              Tenants
+            </a>
+            <a href="/diagnostics" className="pf-button pf-button-secondary" style={{ textDecoration: 'none' }}>
               Diagnóstico Digital
             </a>
             <a href="/products" className="pf-button pf-button-secondary" style={{ textDecoration: 'none' }}>

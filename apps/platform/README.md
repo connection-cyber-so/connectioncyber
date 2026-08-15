@@ -4,8 +4,9 @@
 > Digital (IA), Catálogo de Produtos e Ofertas (IA), Roteiro de Vídeo (IA) e Landing Pages —
 > todos migrados de `cc-commerce-studio` (ver
 > `docs/migracao-diagnostico-digital-cc-commerce-studio.md`). Landing Pages é o primeiro módulo
-> com uma peça pública: gestão aqui, página publicada servida por `apps/site`. A lista de
-> tenants (Fase 5) ainda não existe.
+> com uma peça pública: gestão aqui, página publicada servida por `apps/site`.
+> **Fase 6 concluída**: `/tenants` lista os clientes reais e os módulos habilitados de cada um —
+> primeira vez fora do Supabase Table Editor.
 
 Painel interno de gestão de tenants, módulos e clientes da ConnectionCyber — separado do site
 institucional (`apps/site`). Só a equipe entra aqui; clientes finais usam `apps/site` (`/membros`).
@@ -36,7 +37,8 @@ apps/platform/
 │  │  ├─ products/page.tsx     módulo Catálogo — cadastro de produtos
 │  │  ├─ offers/page.tsx       módulo Catálogo — geração de oferta por IA
 │  │  ├─ video-scripts/page.tsx  módulo Roteiro de Vídeo — geração por IA a partir de oferta
-│  │  └─ landing-pages/page.tsx  módulo Landing Pages — gestão (página pública é em apps/site)
+│  │  ├─ landing-pages/page.tsx  módulo Landing Pages — gestão (página pública é em apps/site)
+│  │  └─ tenants/page.tsx      Fase 6 — lista de clientes + módulos habilitados (só leitura)
 │  ├─ components/
 │  │  └─ LogoutButton.tsx
 │  ├─ features/
@@ -44,8 +46,10 @@ apps/platform/
 │  │  ├─ products/          idem — mpi_products
 │  │  ├─ offers/             idem — mpi_offers (referencia products.id)
 │  │  ├─ video-scripts/      idem — mpi_video_scripts (referencia offers.id)
-│  │  └─ landing-pages/       idem — mpi_landing_pages (referencia offers.id)
-│  │                        (migrados de cc-commerce-studio — ver docs/migracao-diagnostico-*)
+│  │  ├─ landing-pages/       idem — mpi_landing_pages (referencia offers.id)
+│  │  │                     (migrados de cc-commerce-studio — ver docs/migracao-diagnostico-*)
+│  │  └─ tenants/             types.ts, service.ts, components/TenantCard.tsx — só leitura,
+│  │                        RLS de public.tenants decide quem vê o quê (não o código)
 │  ├─ lib/
 │  │  ├─ tenant.ts          getCurrentTenantId()/requireCurrentTenantId() — deriva o tenant
 │  │  │                      da SESSÃO, nunca de formulário/query string
@@ -101,6 +105,11 @@ npm run dev   # porta 3001 (apps/site usa a 3000)
   conteúdo real; despublicar (mudando `status` para `draft`) faz a mesma URL devolver `404`,
   confirmando que a RLS pública depende só do `status`. Detalhe completo em
   `docs/migracao-diagnostico-digital-cc-commerce-studio.md`.
+- **`/tenants` testado com um quinto usuário real de staging, com papel de equipe** (`admin` em
+  `user_roles` — criado e removido só para o teste): a página mostrou o tenant e os 4 módulos
+  seed como `ativo`, confirmando que `is_platform_staff()` libera a visão cross-tenant. Um
+  usuário sem esse papel só veria a própria linha — comportamento herdado da RLS já validada em
+  `0002`/`0004`, não retestado à parte por já estar coberto.
 - Testado em modo produção (`next start`) — o modo dev (`next dev`) tem HMR instável neste
   ambiente sandboxed, mesma observação já registrada para `apps/site`.
 
@@ -113,8 +122,7 @@ Ver o plano de ação completo na conversa com Joaquim — resumo:
 3. ~~Catálogo de Produtos e Ofertas (Products + Offer Engine, migrados de `cc-commerce-studio`)~~ (concluído)
 4. ~~Roteiro de Vídeo (Video Script Engine, migrado de `cc-commerce-studio`)~~ (concluído)
 5. ~~Landing Pages (gestão aqui, página pública em `apps/site`, migrado de `cc-commerce-studio`)~~ (concluído)
-6. Lista de tenants (Server Component lendo a tabela `tenants`) — os 10 clientes reais visíveis
-   pela primeira vez fora do Supabase Table Editor
+6. ~~Lista de tenants (`/tenants`, só leitura, RLS decide quem vê o quê)~~ (concluído)
 7. RBAC por módulo (padrão `user_module_access` do `bpo-system-web-os`)
 8. CRUD de tenant + módulos, com `lookup-cnpj` embutido no formulário
 9. Migrar os últimos 2 motores do `cc-commerce-studio` — Brands (FK opcional, sem urgência);
@@ -122,3 +130,15 @@ Ver o plano de ação completo na conversa com Joaquim — resumo:
 10. Deploy: novo projeto Vercel apontando para esta pasta — ainda não criado, decisão pendente
     sobre Deployment Protection (recomendado: ligada por padrão, é painel interno, não site
     público)
+
+## Pendência real: você ainda não tem login próprio no `apps/platform`
+
+Todo teste até agora usou contas descartáveis (criadas e apagadas na mesma sessão) — não crio
+login persistente nem defino senha para você, isso é ação sua. Pra usar o `/tenants` de
+verdade, falta:
+
+1. Criar sua própria conta em
+   [Supabase Dashboard → Authentication → Users → Add user](https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/users)
+   (produção) — você escolhe e-mail e senha.
+2. Me avisar o e-mail usado — eu atribuo o papel `admin` em `user_roles` (isso é só um dado,
+   não uma credencial) para você enxergar todos os tenants, não só um.

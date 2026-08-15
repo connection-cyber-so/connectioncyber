@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx supabase link*)",
+      "Bash(npx supabase projects api-keys*)",
+      "Bash(git fetch*)",
+      "Bash(npx supabase migration list*)",
+      "Bash(npx vercel alias*)",
+      "Bash(npx tsc*)"
+    ]
+  }
+}

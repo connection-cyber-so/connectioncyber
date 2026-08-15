@@ -4,7 +4,7 @@
   "titulo": "connectioncyber — ConnectionCyberSO",
   "slogan": "Tecnologia que traz conhecimento e gestão.",
   "descricao": "Monorepo de produção (branch main) da ConnectionCyber — Assessoria e Treinamento Tecnológico.",
-  "atualizado_em": "2026-08-13",
+  "atualizado_em": "2026-08-15",
   "empresa": {
     "nome_responsavel": "Gabriel Batista de Assis Soares Coelho",
     "regime": "MEI",
@@ -54,7 +54,8 @@
     { "item": "custom_access_token_hook ativado em Authentication > Hooks", "feito": false, "acao": "1 clique manual no Dashboard", "url": "https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks" },
     { "item": "apps/platform (ConnectionCyberSO) — Fase 1 concluída (esqueleto + login, App Router), testado contra Supabase de staging real", "feito": true },
     { "item": "4 módulos de negócio migrados de cc-commerce-studio (J:\\BK_connectioncyber): Diagnóstico Digital (IA, 0009), Catálogo de Produtos e Ofertas (IA, 0010), Roteiro de Vídeo (IA, 0011) e Landing Pages (0012, primeira peça pública — gestão em apps/platform, página publicada servida por apps/site). Aplicadas em produção e staging. Testados de ponta a ponta com usuários reais, incluindo acesso público sem sessão.", "feito": true },
-    { "item": "GitHub desbloqueado, main sincronizado com origin/main", "feito": true }
+    { "item": "GitHub desbloqueado, main sincronizado com origin/main", "feito": true },
+    { "item": "apps/platform Fase 6 — Lista de tenants (/tenants, só leitura): clientes reais e módulos habilitados de cada um, primeira vez fora do Supabase Table Editor. Testado com um quinto usuário real de staging com papel de equipe (admin em user_roles).", "feito": true }
   ],
   "alertas": [],
   "documentos_relacionados": [
