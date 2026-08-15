@@ -131,14 +131,15 @@ Ver o plano de ação completo na conversa com Joaquim — resumo:
     sobre Deployment Protection (recomendado: ligada por padrão, é painel interno, não site
     público)
 
-## Pendência real: você ainda não tem login próprio no `apps/platform`
+## Login próprio de Joaquim — resolvido em 2026-08-15
 
-Todo teste até agora usou contas descartáveis (criadas e apagadas na mesma sessão) — não crio
-login persistente nem defino senha para você, isso é ação sua. Pra usar o `/tenants` de
-verdade, falta:
-
-1. Criar sua própria conta em
-   [Supabase Dashboard → Authentication → Users → Add user](https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/users)
-   (produção) — você escolhe e-mail e senha.
-2. Me avisar o e-mail usado — eu atribuo o papel `admin` em `user_roles` (isso é só um dado,
-   não uma credencial) para você enxergar todos os tenants, não só um.
+Conta pessoal criada pelo próprio Joaquim (Supabase Dashboard → Authentication → Users → Add
+user, ação exclusiva dele) em **produção** (`qfggetvashdxyuvlhihq`) e em **staging**
+(`ozvylnaipubrmaadikvk`), mesmo e-mail (`admin@connectioncyber.com.br`), senhas diferentes por
+ambiente. Em ambos os projetos: linha em `public.users` confirmada (auto-provisionada pelo
+trigger `handle_new_user`, ver `0003_bpo_patterns_auto_provisioning_and_hook.sql`) e papel
+`admin` atribuído em `user_roles` — feito via script pontual com a `service_role` key, apagada
+do disco logo depois de rodar (dado, não credencial). `/tenants` já testado ao vivo com um
+usuário descartável mostrando o tenant ConnectionCyber e os 4 módulos seed; falta só a
+confirmação de Joaquim rodando `npm run build && npm run start` e entrando com a própria conta
+de staging.
