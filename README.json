@@ -53,7 +53,7 @@
     { "item": "Produção e staging validados ao vivo (connectioncyber.vercel.app 200 em todas as rotas testadas). Causa raiz de um NOT_FOUND persistente: Framework Preset estava em 'Other' em vez de 'Next.js' em Project Settings > Build and Deployment (Root Directory apps/site sempre esteve correto). Corrigido trocando o preset e disparando novo deploy.", "feito": true },
     { "item": "custom_access_token_hook ativado em Authentication > Hooks", "feito": false, "acao": "1 clique manual no Dashboard", "url": "https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks" },
     { "item": "apps/platform (ConnectionCyberSO) — Fase 1 concluída (esqueleto + login, App Router), testado contra Supabase de staging real", "feito": true },
-    { "item": "2 módulos de negócio migrados de cc-commerce-studio (J:\\BK_connectioncyber): Diagnóstico Digital (IA, migration 0009) e Catálogo de Produtos e Ofertas (IA, migration 0010). Aplicadas em produção e staging. Testados de ponta a ponta com usuários reais de staging.", "feito": true },
+    { "item": "3 módulos de negócio migrados de cc-commerce-studio (J:\\BK_connectioncyber): Diagnóstico Digital (IA, migration 0009), Catálogo de Produtos e Ofertas (IA, migration 0010) e Roteiro de Vídeo (IA, migration 0011). Aplicadas em produção e staging. Testados de ponta a ponta com usuários reais de staging.", "feito": true },
     { "item": "GitHub desbloqueado, main sincronizado com origin/main", "feito": true }
   ],
   "alertas": [],
