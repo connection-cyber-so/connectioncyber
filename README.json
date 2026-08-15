@@ -62,6 +62,7 @@
     { "id": "auditoria-ecossistema-connectioncyberos", "descricao": "Achados da auditoria de bpo-system-web-os, food-service-os e cyber-varejo-os" },
     { "id": "tecnologia-seletor-idioma", "descricao": "Como o seletor PT/EN do site foi implementado" },
     { "id": "metodologia-povoamento-tenant-cnpj-cnae", "descricao": "Padrão de povoamento de tenant via CNPJ + cenário por CNAE, trazido da auditoria de Downloads\\BPO" },
+    { "id": "visao-longo-prazo-modulos", "descricao": "Mapa de 104 módulos avaliado em Downloads\\connectionHMTL — arquivado como referência de longo prazo, nada implementado" },
     { "id": "Connection Cyber Site.txt", "descricao": "Briefing original (documento-fonte, sem versão JSON/HTML) — conteúdo institucional/copy" },
     { "id": "prompt geral.txt", "descricao": "Briefing original (documento-fonte, sem versão JSON/HTML) — blueprint técnico enterprise" }
   ]

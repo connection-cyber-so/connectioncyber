@@ -93,5 +93,6 @@ Cada documento abaixo existe em três formatos — `.md` (leitura), `.json` (est
 | `docs/auditoria-ecossistema-connectioncyberos` | Achados da auditoria de `bpo-system-web-os`, `food-service-os` e `cyber-varejo-os`, e o que já foi trazido para cá |
 | `docs/tecnologia-seletor-idioma` | Como o seletor PT/EN do site foi implementado |
 | `docs/metodologia-povoamento-tenant-cnpj-cnae` | Padrão de povoamento de tenant via CNPJ + cenário por CNAE, trazido da auditoria de `Downloads\BPO` |
+| `docs/visao-longo-prazo-modulos` | Mapa de 104 módulos avaliado em `Downloads\connectionHMTL` — arquivado como referência de longo prazo, nada implementado |
 | `docs/Connection Cyber Site.txt` | Briefing original — conteúdo institucional/copy (não gera `.md`/`.json`/`.html`, é o documento-fonte) |
 | `docs/prompt geral.txt` | Briefing original — blueprint técnico enterprise (não gera `.md`/`.json`/`.html`, é o documento-fonte) |
