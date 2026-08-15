@@ -33,9 +33,17 @@ export default async function DashboardPage() {
           <p className="pf-muted" style={{ marginTop: 16 }}>
             A lista de tenants entra na próxima etapa do roteiro.
           </p>
-          <a href="/diagnostics" className="pf-button" style={{ display: 'inline-block', marginTop: 20, textDecoration: 'none' }}>
-            Abrir Diagnóstico Digital
-          </a>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
+            <a href="/diagnostics" className="pf-button" style={{ textDecoration: 'none' }}>
+              Diagnóstico Digital
+            </a>
+            <a href="/products" className="pf-button pf-button-secondary" style={{ textDecoration: 'none' }}>
+              Produtos
+            </a>
+            <a href="/offers" className="pf-button pf-button-secondary" style={{ textDecoration: 'none' }}>
+              Ofertas
+            </a>
+          </div>
         </div>
       </main>
     </div>
