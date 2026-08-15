@@ -83,8 +83,14 @@ diretório.
   Authentication → Hooks — https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/hooks
 - [x] **`apps/platform` iniciado — Fase 1 concluída** (Next.js 14 + App Router, decisão registrada
   em `apps/platform/README.md`): esqueleto + login de equipe funcionando, testado de ponta a ponta
-  contra o Supabase de staging real. Ainda sem conteúdo de negócio (lista de tenants é a Fase 2).
-  `apps/site` continua Pages Router — sem necessidade de convergência entre os dois apps.
+  contra o Supabase de staging real. `apps/site` continua Pages Router — sem necessidade de
+  convergência entre os dois apps.
+- [x] **Primeiro módulo de negócio: Diagnóstico Digital (IA)** — migrado de `cc-commerce-studio`
+  (avaliado em auditoria read-only de `J:\BK_connectioncyber`, ver
+  `docs/migracao-diagnostico-digital-cc-commerce-studio.md`). Decisão "workspace = tenant, 1 pra 1"
+  confirmada por Joaquim; falha de segurança do original (tenant vindo de formulário) corrigida —
+  aqui o tenant sempre vem da sessão. Migration `0009` aplicada em produção e staging. Testado de
+  ponta a ponta com usuário real de staging (criar/editar diagnóstico gravando de verdade).
 - [x] **GitHub desbloqueado** — todos os commits pendentes enviados; `main` sincronizado com
   `origin/main`.
 
@@ -100,5 +106,6 @@ Cada documento abaixo existe em três formatos — `.md` (leitura), `.json` (est
 | `docs/tecnologia-seletor-idioma` | Como o seletor PT/EN do site foi implementado |
 | `docs/metodologia-povoamento-tenant-cnpj-cnae` | Padrão de povoamento de tenant via CNPJ + cenário por CNAE, trazido da auditoria de `Downloads\BPO` |
 | `docs/visao-longo-prazo-modulos` | Mapa de 104 módulos avaliado em `Downloads\connectionHMTL` — arquivado como referência de longo prazo, nada implementado |
+| `docs/migracao-diagnostico-digital-cc-commerce-studio` | Como o módulo Diagnóstico Digital (IA) foi migrado de `cc-commerce-studio` (`J:\BK_connectioncyber`) para `apps/platform` |
 | `docs/Connection Cyber Site.txt` | Briefing original — conteúdo institucional/copy (não gera `.md`/`.json`/`.html`, é o documento-fonte) |
 | `docs/prompt geral.txt` | Briefing original — blueprint técnico enterprise (não gera `.md`/`.json`/`.html`, é o documento-fonte) |
