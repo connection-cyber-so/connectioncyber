@@ -97,12 +97,14 @@ F:\Projetos\connectioncyber                 ← produção · branch main
 ├─ packages/
 │  └─ core/                     (regras de negócio compartilhadas — ainda não iniciado)
 └─ apps/
-   ├─ platform/                 (ConnectionCyberSO — ainda não iniciado)
+   ├─ platform/                 (ConnectionCyberSO — painel interno, ver apps/platform/README.md)
    └─ site/                     ← projeto Next.js (este README)
       ├─ src/
       │  ├─ pages/              (rotas: index, sobre, servicos, cursos,
       │  │                       produtos, clientes, membros, login, sistema,
-      │  │                       contato, checkout, pagamento/*, api/*)
+      │  │                       contato, checkout, pagamento/*, api/*,
+      │  │                       lp/[slug] — landing page pública, sem login,
+      │  │                       gerenciada em apps/platform)
       │  ├─ components/         (Header, Footer, Layout, LanguageSwitcher,
       │  │                       ProtectedRoute, FloatingSocialButtons,
       │  │                       ServiceCard, ClientCard)

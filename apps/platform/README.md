@@ -1,9 +1,11 @@
 # apps/platform — ConnectionCyberSO (painel interno)
 
-> **Fase 1 concluída**: esqueleto + login. **3 módulos de negócio em produção**: Diagnóstico
-> Digital (IA), Catálogo de Produtos e Ofertas (IA) e Roteiro de Vídeo (IA) — todos migrados de
-> `cc-commerce-studio` (ver `docs/migracao-diagnostico-digital-cc-commerce-studio.md`). A lista
-> de tenants (Fase 4) ainda não existe.
+> **Fase 1 concluída**: esqueleto + login. **4 módulos de negócio em produção**: Diagnóstico
+> Digital (IA), Catálogo de Produtos e Ofertas (IA), Roteiro de Vídeo (IA) e Landing Pages —
+> todos migrados de `cc-commerce-studio` (ver
+> `docs/migracao-diagnostico-digital-cc-commerce-studio.md`). Landing Pages é o primeiro módulo
+> com uma peça pública: gestão aqui, página publicada servida por `apps/site`. A lista de
+> tenants (Fase 5) ainda não existe.
 
 Painel interno de gestão de tenants, módulos e clientes da ConnectionCyber — separado do site
 institucional (`apps/site`). Só a equipe entra aqui; clientes finais usam `apps/site` (`/membros`).
@@ -33,14 +35,16 @@ apps/platform/
 │  │  ├─ diagnostics/page.tsx  módulo Diagnóstico Digital (IA)
 │  │  ├─ products/page.tsx     módulo Catálogo — cadastro de produtos
 │  │  ├─ offers/page.tsx       módulo Catálogo — geração de oferta por IA
-│  │  └─ video-scripts/page.tsx  módulo Roteiro de Vídeo — geração por IA a partir de oferta
+│  │  ├─ video-scripts/page.tsx  módulo Roteiro de Vídeo — geração por IA a partir de oferta
+│  │  └─ landing-pages/page.tsx  módulo Landing Pages — gestão (página pública é em apps/site)
 │  ├─ components/
 │  │  └─ LogoutButton.tsx
 │  ├─ features/
 │  │  ├─ diagnostics/       actions.ts, service.ts, types.ts, validations.ts, components/
 │  │  ├─ products/          idem — mpi_products
 │  │  ├─ offers/             idem — mpi_offers (referencia products.id)
-│  │  └─ video-scripts/      idem — mpi_video_scripts (referencia offers.id)
+│  │  ├─ video-scripts/      idem — mpi_video_scripts (referencia offers.id)
+│  │  └─ landing-pages/       idem — mpi_landing_pages (referencia offers.id)
 │  │                        (migrados de cc-commerce-studio — ver docs/migracao-diagnostico-*)
 │  ├─ lib/
 │  │  ├─ tenant.ts          getCurrentTenantId()/requireCurrentTenantId() — deriva o tenant
@@ -75,7 +79,7 @@ npm run dev   # porta 3001 (apps/site usa a 3000)
 ## Validado em 2026-08-15
 
 - `npm run build` limpo (App Router, `/`, `/diagnostics`, `/products`, `/offers`,
-  `/video-scripts` como rotas dinâmicas por dependerem de sessão).
+  `/video-scripts`, `/landing-pages` como rotas dinâmicas por dependerem de sessão).
 - Rodando contra o Supabase de staging real: acesso sem sessão redireciona para `/login`;
   submeter credenciais inválidas retorna o erro real do Supabase Auth (`Invalid login
   credentials`), confirmando que client, middleware e o projeto de staging estão conectados de
@@ -90,7 +94,13 @@ npm run dev   # porta 3001 (apps/site usa a 3000)
 - **Roteiro de Vídeo testado com um terceiro usuário real de staging**: encadeando produto →
   oferta → roteiro, `/video-scripts` pré-seleciona a oferta recém-criada, "Gerar roteiro com
   IA" busca oferta + produto sob RLS da sessão, criar roteiro grava em `mpi_video_scripts` com
-  `offer_id` correto. Detalhe completo em `docs/migracao-diagnostico-digital-cc-commerce-studio.md`.
+  `offer_id` correto.
+- **Landing Pages testado com um quarto usuário real de staging, ponta a ponta até o público**:
+  criar como rascunho e publicar funcionam pela UI; a página publicada foi acessada em
+  `apps/site` (`/lp/<slug>`), em processo separado, **sem sessão nenhuma** — carregou o
+  conteúdo real; despublicar (mudando `status` para `draft`) faz a mesma URL devolver `404`,
+  confirmando que a RLS pública depende só do `status`. Detalhe completo em
+  `docs/migracao-diagnostico-digital-cc-commerce-studio.md`.
 - Testado em modo produção (`next start`) — o modo dev (`next dev`) tem HMR instável neste
   ambiente sandboxed, mesma observação já registrada para `apps/site`.
 
@@ -102,13 +112,13 @@ Ver o plano de ação completo na conversa com Joaquim — resumo:
 2. ~~Diagnóstico Digital (migrado de `cc-commerce-studio`)~~ (concluído)
 3. ~~Catálogo de Produtos e Ofertas (Products + Offer Engine, migrados de `cc-commerce-studio`)~~ (concluído)
 4. ~~Roteiro de Vídeo (Video Script Engine, migrado de `cc-commerce-studio`)~~ (concluído)
-5. Lista de tenants (Server Component lendo a tabela `tenants`) — os 10 clientes reais visíveis
+5. ~~Landing Pages (gestão aqui, página pública em `apps/site`, migrado de `cc-commerce-studio`)~~ (concluído)
+6. Lista de tenants (Server Component lendo a tabela `tenants`) — os 10 clientes reais visíveis
    pela primeira vez fora do Supabase Table Editor
-6. RBAC por módulo (padrão `user_module_access` do `bpo-system-web-os`)
-7. CRUD de tenant + módulos, com `lookup-cnpj` embutido no formulário
-8. Migrar os outros 4 motores do `cc-commerce-studio` (Landing Pages, Brands, Workspace
-   genérico) — Landing Pages exige decisão de arquitetura própria (página pública sem
-   autenticação)
-9. Deploy: novo projeto Vercel apontando para esta pasta — ainda não criado, decisão pendente
-   sobre Deployment Protection (recomendado: ligada por padrão, é painel interno, não site
-   público)
+7. RBAC por módulo (padrão `user_module_access` do `bpo-system-web-os`)
+8. CRUD de tenant + módulos, com `lookup-cnpj` embutido no formulário
+9. Migrar os últimos 2 motores do `cc-commerce-studio` — Brands (FK opcional, sem urgência);
+   Workspace genérico não se aplica mais (substituído pelo modelo de tenant)
+10. Deploy: novo projeto Vercel apontando para esta pasta — ainda não criado, decisão pendente
+    sobre Deployment Protection (recomendado: ligada por padrão, é painel interno, não site
+    público)
