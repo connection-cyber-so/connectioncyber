@@ -1,20 +1,34 @@
 {
   "$schema": "connectioncyber-doc-v1",
   "id": "migracao-diagnostico-digital-cc-commerce-studio",
-  "titulo": "Migração: módulos Diagnóstico Digital, Catálogo de Produtos/Ofertas e Roteiro de Vídeo (origem: cc-commerce-studio)",
-  "descricao": "Registro de como o Diagnostic Engine, o Offer Engine (com Products) e o Video Script Engine do cc-commerce-studio (J:\\BK_connectioncyber) foram adaptados e migrados para apps/platform.",
+  "titulo": "Migração: módulos de marketing com IA (origem: cc-commerce-studio)",
+  "descricao": "Registro de como Diagnostic Engine, Offer Engine (com Products), Video Script Engine e Landing Pages do cc-commerce-studio (J:\\BK_connectioncyber) foram adaptados e migrados para apps/platform e apps/site.",
   "atualizado_em": "2026-08-15",
   "origem": {
     "pasta": "J:\\BK_connectioncyber\\connectioncyber\\cc-commerce-studio",
-    "features_origem": ["features/diagnostic-engine", "features/products", "features/offer-engine", "features/video-script-engine"],
+    "features_origem": ["features/diagnostic-engine", "features/products", "features/offer-engine", "features/video-script-engine", "features/landing-pages"],
     "data_avaliacao": "2026-08-15"
   },
-  "decisao_arquitetura": {
-    "escolha": "Workspace = Tenant, 1 pra 1",
-    "confirmado_por": "Joaquim Coelho",
-    "data": "2026-08-15",
-    "motivo": "Reaproveita tenants + current_tenant_id() já existentes. Descarta workspace_members (tabela de membros N:N do original) — nenhum tenant hoje precisa de múltiplos workspaces por conta."
-  },
+  "decisoes_arquitetura": [
+    {
+      "titulo": "Workspace = Tenant, 1 pra 1",
+      "confirmado_por": "Joaquim Coelho",
+      "data": "2026-08-15",
+      "motivo": "Reaproveita tenants + current_tenant_id() já existentes. Descarta workspace_members (tabela de membros N:N do original) — nenhum tenant hoje precisa de múltiplos workspaces por conta."
+    },
+    {
+      "titulo": "Landing page publicada é servida por apps/site, não apps/platform",
+      "confirmado_por": "Joaquim Coelho",
+      "data": "2026-08-15",
+      "motivo": "apps/platform é exclusivamente interno desde a Fase 1 ('só a equipe entra aqui'). A equipe cria/edita em apps/platform; o lead vê a página publicada em apps/site, que já é 100% público. Evita abrir a primeira rota pública dentro de um app que nunca teve nenhuma.",
+      "opcao_descartada": "Rota pública dentro do próprio apps/platform, com exceção no middleware — mais simples, mas fura a regra 'platform é só equipe'."
+    },
+    {
+      "titulo": "slug de landing page: único global, não por tenant",
+      "data": "2026-08-15",
+      "motivo": "Reavaliação: pareceu bug na primeira leitura (dois tenants concorrendo pelo mesmo slug), mas é comportamento correto — a URL pública é sempre sob o domínio da própria ConnectionCyber (connectioncyber.com.br/lp/<slug>), um namespace compartilhado, mesmo modelo de qualquer construtor de landing page (Lead Pages, Unbounce, Carrd). Mantido igual ao original."
+    }
+  ],
   "modulos_migrados": [
     {
       "nome": "Diagnóstico Digital (IA)",
@@ -36,25 +50,36 @@
     {
       "nome": "Roteiro de Vídeo (IA)",
       "ordem": 3,
-      "motivo_escolha": "Depende de mpi_offers (offer_id obrigatório) — só possível após a rodada anterior. Escolhido em vez de Landing Pages por ser o mesmo padrão CRUD+IA já validado 2x, sem a complexidade nova de página pública sem autenticação",
+      "motivo_escolha": "Depende de mpi_offers (offer_id obrigatório) — só possível após a rodada anterior. Escolhido antes de Landing Pages por ser o mesmo padrão CRUD+IA já validado 2x, sem a complexidade nova de página pública sem autenticação",
       "migration": "0011_modulo_roteiro_video.sql",
       "tabelas": ["mpi_video_scripts"],
       "module_catalog_key": "roteiro-video-ia"
+    },
+    {
+      "nome": "Landing Pages",
+      "ordem": 4,
+      "motivo_escolha": "Primeira peça pública de todo o trabalho — trazida por último, de propósito, com decisão de arquitetura própria decidida antes de implementar",
+      "migration": "0012_modulo_landing_pages.sql",
+      "tabelas": ["mpi_landing_pages"],
+      "module_catalog_key": "landing-pages",
+      "nota": "Gestão (criar/editar/publicar) em apps/platform; página pública servida por apps/site (pages/lp/[slug].tsx, Pages Router, sem autenticação)"
     }
   ],
   "mudancas_padrao": [
     { "original": "workspace_id em toda tabela/tipo/query", "aqui": "tenant_id" },
     { "original": "workspaces + workspace_members (RLS via subquery de membro)", "aqui": "tenants + current_tenant_id() (já existente)" },
-    { "original": "projects / products / offers / video_scripts (nomes genéricos)", "aqui": "mpi_projects / mpi_products / mpi_offers / mpi_video_scripts — evita colisão com o domínio de e-commerce (courses/products/orders) já existente da própria ConnectionCyber" },
+    { "original": "projects / products / offers / video_scripts / landing_pages (nomes genéricos)", "aqui": "mpi_projects / mpi_products / mpi_offers / mpi_video_scripts / mpi_landing_pages — evita colisão com o domínio de e-commerce (courses/products/orders) já existente da própria ConnectionCyber" },
     { "original": "Tailwind (components/ui/*)", "aqui": "tokens .pf-* já usados no apps/platform" },
-    { "original": "features/<nome>/{actions,mutations,queries,services,types,validations} (6 pastas)", "aqui": "features/<nome>/{actions.ts,service.ts,types.ts,validations.ts,components/} — sem wrappers de 1 linha" }
+    { "original": "features/<nome>/{actions,mutations,queries,services,types,validations} (6 pastas)", "aqui": "features/<nome>/{actions.ts,service.ts,types.ts,validations.ts,components/} — sem wrappers de 1 linha" },
+    { "original": "rota pública app/lp/[slug] dentro do próprio app (App Router)", "aqui": "apps/site/pages/lp/[slug].tsx (Pages Router) — app diferente, ver decisão de arquitetura" }
   ],
-  "achado_seguranca_corrigido": "No original, Server Actions liam tenant_id (lá, workspace_id) de formData.get() — dado do cliente. RLS ainda protegia, mas não seguia o padrão 'servidor deriva o tenant da sessão' já adotado neste projeto. Corrigido nos dois módulos: toda action chama requireCurrentTenantId() (apps/platform/src/lib/tenant.ts), que lê a sessão no servidor.",
+  "achado_seguranca_corrigido": "No original, Server Actions liam tenant_id (lá, workspace_id) de formData.get() — dado do cliente. RLS ainda protegia, mas não seguia o padrão 'servidor deriva o tenant da sessão' já adotado neste projeto. Corrigido em todos os módulos: toda action chama requireCurrentTenantId() (apps/platform/src/lib/tenant.ts), que lê a sessão no servidor.",
   "migrations_padrao": {
     "rls": "current_tenant_id() / is_platform_staff(), mesmo padrão de 0002/0004",
     "grants": "mesmo padrão de 0008 (authenticated com DML explícito, tabelas já têm RLS real)",
     "aplicadas_em": ["producao (qfggetvashdxyuvlhihq)", "staging (ozvylnaipubrmaadikvk)"],
-    "nota": "É só schema, sem dado de cliente — diferente de 0006, exclusiva de produção"
+    "nota": "É só schema, sem dado de cliente — diferente de 0006, exclusiva de produção",
+    "excecao_0012": "grant select on mpi_landing_pages to anon — primeira tabela do projeto com leitura pública real, escopo limitado pela policy 'público vê landing pages publicadas' (status = 'published')"
   },
   "verificacao": [
     { "modulo": "Diagnóstico Digital", "item": "Acesso a /diagnostics sem sessão redireciona para /login", "resultado": "ok" },
@@ -68,9 +93,13 @@
     { "modulo": "Catálogo de Produtos e Ofertas", "item": "Criar oferta grava em mpi_offers com status generated (copy não-vazia) e product_id correto", "resultado": "ok" },
     { "modulo": "Roteiro de Vídeo", "item": "/video-scripts pré-seleciona a oferta recém-criada no formulário", "resultado": "ok" },
     { "modulo": "Roteiro de Vídeo", "item": "Gerar roteiro com IA busca oferta + produto (via offer.product_id) sob RLS da sessão e referencia o título certo", "resultado": "ok" },
-    { "modulo": "Roteiro de Vídeo", "item": "Criar roteiro grava em mpi_video_scripts com offer_id correto", "resultado": "ok" }
+    { "modulo": "Roteiro de Vídeo", "item": "Criar roteiro grava em mpi_video_scripts com offer_id correto", "resultado": "ok" },
+    { "modulo": "Landing Pages", "item": "Criar landing page como rascunho em /landing-pages grava em mpi_landing_pages com offer_id correto", "resultado": "ok" },
+    { "modulo": "Landing Pages", "item": "Publicar pela UI muda status para published, card mostra link público", "resultado": "ok" },
+    { "modulo": "Landing Pages", "item": "Página publicada acessada em apps/site (/lp/<slug>) em processo separado, sem sessão nenhuma — carregou título e conteúdo reais", "resultado": "ok" },
+    { "modulo": "Landing Pages", "item": "Despublicar (status draft) faz a mesma URL pública devolver 404 — RLS depende só do status", "resultado": "ok, confirmado por manipulação direta do status (clique do botao 'Despublicar' nao reconfirmado por instabilidade pontual da automacao; mesmo codigo do 'Publicar', ja confirmado)" }
   ],
-  "dados_de_teste": "Três usuários de teste (teste-diagnostico@, teste-catalogo@, teste-video@connectioncyber.local) e todos os registros criados durante a verificação (diagnóstico, projeto MPI, produto, oferta, roteiro de vídeo) foram apagados do staging ao final — nada de teste ficou para trás.",
-  "backlog": "Os outros 4 motores do cc-commerce-studio (Landing Pages, Brands, Workspace genérico) — mesmo processo, um de cada vez. Landing Pages é o próximo candidato natural (depende de offers, já disponível), mas introduz página pública sem autenticação (/lp/[slug]), que exige decisão de arquitetura própria. GEMINI_API_KEY própria ainda não configurada em nenhum ambiente — 'Gerar com IA' cai num rascunho manual em todos os módulos.",
+  "dados_de_teste": "Quatro usuários de teste (teste-diagnostico@, teste-catalogo@, teste-video@, teste-lp@connectioncyber.local) e todos os registros criados durante a verificação (diagnóstico, projeto MPI, produto, oferta, roteiro de vídeo, landing page) foram apagados do staging ao final — nada de teste ficou para trás.",
+  "backlog": "Os últimos 2 motores do cc-commerce-studio (Brands, Workspace genérico) — Workspace genérico não se aplica mais (substituído pelo modelo de tenant). Brands é FK opcional que nenhum tenant real precisa hoje. GEMINI_API_KEY própria ainda não configurada em nenhum ambiente — 'Gerar com IA' cai num rascunho manual nos módulos que geram conteúdo.",
   "documentos_relacionados": ["visao-longo-prazo-modulos", "parecer-tecnico-arquitetura"]
 }

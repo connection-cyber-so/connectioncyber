@@ -85,14 +85,18 @@ diretório.
   em `apps/platform/README.md`): esqueleto + login de equipe funcionando, testado de ponta a ponta
   contra o Supabase de staging real. `apps/site` continua Pages Router — sem necessidade de
   convergência entre os dois apps.
-- [x] **3 módulos de negócio migrados de `cc-commerce-studio`** (avaliado em auditoria read-only
+- [x] **4 módulos de negócio migrados de `cc-commerce-studio`** (avaliado em auditoria read-only
   de `J:\BK_connectioncyber`, ver `docs/migracao-diagnostico-digital-cc-commerce-studio.md`):
   **Diagnóstico Digital (IA)** (migration `0009`), **Catálogo de Produtos e Ofertas (IA)**
-  (migration `0010`) e **Roteiro de Vídeo (IA)** (migration `0011`). Decisão "workspace = tenant,
-  1 pra 1" confirmada por Joaquim; falha de segurança do original (tenant vindo de formulário)
-  corrigida em todos — o tenant sempre vem da sessão. Migrations aplicadas em produção e
-  staging. Testados de ponta a ponta com usuários reais de staging (criar/editar diagnóstico,
-  cadastrar produto, gerar e salvar oferta, gerar e salvar roteiro de vídeo).
+  (migration `0010`), **Roteiro de Vídeo (IA)** (migration `0011`) e **Landing Pages** (migration
+  `0012`). Decisão "workspace = tenant, 1 pra 1" confirmada por Joaquim; falha de segurança do
+  original (tenant vindo de formulário) corrigida em todos — o tenant sempre vem da sessão.
+  **Landing Pages é a primeira peça pública** deste trabalho — decisão de arquitetura própria
+  (decidida com Joaquim antes de implementar): gestão em `apps/platform`, página publicada
+  servida por `apps/site` (`/lp/[slug]`, sem login), mantendo `apps/platform` 100% interno.
+  Migrations aplicadas em produção e staging. Testados de ponta a ponta com usuários reais de
+  staging (criar/editar diagnóstico, cadastrar produto, gerar e salvar oferta, gerar e salvar
+  roteiro de vídeo, publicar landing page e acessá-la em `apps/site` sem sessão nenhuma).
 - [x] **GitHub desbloqueado** — todos os commits pendentes enviados; `main` sincronizado com
   `origin/main`.
 

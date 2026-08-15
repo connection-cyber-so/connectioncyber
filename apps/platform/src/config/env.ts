@@ -11,6 +11,11 @@ export const env = {
   platform: {
     url: process.env.NEXT_PUBLIC_PLATFORM_URL ?? 'http://localhost:3001',
   },
+  site: {
+    // Domínio público (apps/site) — usado só para montar o link de landing
+    // pages publicadas (módulo Landing Pages), nunca para autenticação.
+    url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.connectioncyber.com.br',
+  },
 };
 
 /** Indica se as chaves do Supabase foram configuradas (evita crash em dev sem .env). */

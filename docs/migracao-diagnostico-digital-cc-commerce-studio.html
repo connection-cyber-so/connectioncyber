@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Migração: 3 módulos de cc-commerce-studio | ConnectionCyber</title>
+<title>Migração: módulos de cc-commerce-studio | ConnectionCyber</title>
 <style>
   :root{
     --bg:#ffffff; --bg-alt:#f5f8fa; --ink:#0e2233; --muted:#55677c;
@@ -32,10 +32,13 @@
   h1{ font-size:1.5rem; margin:0 0 8px; text-wrap:balance; }
   .sub{ color:var(--muted); font-size:.87rem; margin:0 0 32px; }
   h2{ font-size:1.1rem; margin:32px 0 12px; border-top:1px solid var(--line); padding-top:22px; }
+  h3{ font-size:.95rem; margin:18px 0 8px; }
   code{ font-family:var(--font-mono); font-size:.85em; background:var(--bg-alt); border:1px solid var(--line); padding:1px 6px; border-radius:4px; }
   table{ width:100%; border-collapse:collapse; font-size:.85rem; margin:12px 0; }
   th{ text-align:left; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); padding:6px; border-bottom:1px solid var(--line); }
   td{ padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  ol,ul{ padding-left:20px; }
+  li{ margin-bottom:8px; font-size:.9rem; }
   .callout-red{ background:var(--red-soft); border-left:3px solid var(--red); border-radius:8px; padding:14px 18px; font-size:.88rem; margin:16px 0; }
   .callout-green{ background:var(--green-soft); border-left:3px solid var(--green); border-radius:8px; padding:14px 18px; font-size:.88rem; margin:16px 0; }
   .checklist{ list-style:none; padding:0; font-size:.88rem; }
@@ -48,13 +51,33 @@
 <body>
 <div class="page">
   <div class="eyebrow">connectioncyber · documentação técnica</div>
-  <h1>Migração: módulos Diagnóstico Digital, Catálogo de Produtos/Ofertas e Roteiro de Vídeo (origem: cc-commerce-studio)</h1>
+  <h1>Migração: módulos de marketing com IA (origem: cc-commerce-studio)</h1>
   <p class="sub">Origem: código real avaliado em <code>J:\BK_connectioncyber\connectioncyber\cc-commerce-studio</code>
-  (auditoria read-only de 2026-08-15). O <code>cc-commerce-studio</code> tinha 7 motores de IA — três já foram
+  (auditoria read-only de 2026-08-15). O <code>cc-commerce-studio</code> tinha 7 motores de IA — quatro já foram
   migrados: <b>Diagnóstico Digital</b> (piloto do processo), <b>Catálogo de Produtos e Ofertas</b>
-  (Products + Offer Engine) e <b>Roteiro de Vídeo</b> (Video Script Engine, depende de <code>offers</code>).</p>
+  (Products + Offer Engine), <b>Roteiro de Vídeo</b> (Video Script Engine) e <b>Landing Pages</b> — a primeira
+  peça pública de todo este trabalho.</p>
 
-  <h2>Decisão de arquitetura</h2>
+  <h2>Decisão de arquitetura: onde a landing page publicada é servida</h2>
+  <p style="font-size:.9rem;">Decidida com Joaquim Coelho em 2026-08-15, antes de qualquer código.
+  <code>apps/platform</code> é exclusivamente interno desde a Fase 1 — Landing Pages é o primeiro módulo com
+  uma tela que <b>não</b> é pra equipe: é a página que o lead vê ao clicar num anúncio.</p>
+  <table>
+    <tr><th>Opção</th><th>Descrição</th></tr>
+    <tr><td>A (descartada)</td><td>Rota pública dentro do próprio <code>apps/platform</code>, com exceção no middleware — menos trabalho, mas fura a regra "platform é só equipe".</td></tr>
+    <tr><td><b>B (escolhida)</b></td><td>Equipe cria/edita em <code>apps/platform</code>; a página publicada é servida por <b><code>apps/site</code></b>, que já é 100% público. <code>apps/platform</code> continua sem nenhuma rota sem login.</td></tr>
+  </table>
+  <p style="font-size:.88rem;">Consequência técnica: <code>apps/site</code> (Pages Router, <code>pages/lp/[slug].tsx</code>)
+  lê <code>mpi_landing_pages</code> direto do Supabase com a chave anônima — o middleware do site já só protege
+  <code>/membros</code>, <code>/lp/*</code> ficou público automaticamente, sem mudança nenhuma nele.</p>
+
+  <h3>Correção de avaliação: slug não é um bug, é por design</h3>
+  <div class="callout-green">Na primeira leitura, <code>unique(slug)</code> <b>global</b> (sem <code>tenant_id</code>)
+  pareceu um problema. Reavaliando: como a URL pública é sempre sob o domínio da própria ConnectionCyber
+  (<code>connectioncyber.com.br/lp/&lt;slug&gt;</code>), um namespace compartilhado é o comportamento correto —
+  o mesmo modelo de qualquer construtor de landing page (Lead Pages, Unbounce, Carrd). Mantido único global.</div>
+
+  <h2>Decisão de arquitetura: Workspace = Tenant, 1 pra 1</h2>
   <div class="callout-green"><b>Workspace = Tenant, 1 pra 1</b> — confirmado por Joaquim Coelho em 2026-08-15.
   Reaproveita <code>tenants</code> + <code>current_tenant_id()</code> já existentes. A tabela de membros
   N:N do original (<code>workspace_members</code>) foi descartada — nenhum tenant hoje precisa de vários
@@ -65,10 +88,11 @@
     <tr><th>Original</th><th>Aqui</th></tr>
     <tr><td><code>workspace_id</code></td><td><code>tenant_id</code></td></tr>
     <tr><td><code>workspaces</code> + <code>workspace_members</code></td><td><code>tenants</code> + <code>current_tenant_id()</code></td></tr>
-    <tr><td><code>projects</code> / <code>products</code> / <code>offers</code> / <code>video_scripts</code></td><td><code>mpi_projects</code> / <code>mpi_products</code> / <code>mpi_offers</code> / <code>mpi_video_scripts</code> (evita colisão com o domínio de e-commerce já existente)</td></tr>
+    <tr><td><code>projects</code> / <code>products</code> / <code>offers</code> / <code>video_scripts</code> / <code>landing_pages</code></td><td><code>mpi_projects</code> / <code>mpi_products</code> / <code>mpi_offers</code> / <code>mpi_video_scripts</code> / <code>mpi_landing_pages</code> (evita colisão com o domínio de e-commerce já existente)</td></tr>
     <tr><td>Tailwind</td><td>tokens <code>.pf-*</code> já usados no apps/platform</td></tr>
     <tr><td>6 pastas por feature (actions/mutations/queries/services/types/validations)</td><td><code>actions.ts</code>+<code>service.ts</code>+<code>types.ts</code>+<code>validations.ts</code> — sem wrappers de 1 linha</td></tr>
     <tr><td><code>brand_id</code> (FK opcional para <code>brands</code>)</td><td>Removido nesta rodada — <code>brands</code> ainda não migrado</td></tr>
+    <tr><td>Rota pública <code>app/lp/[slug]</code> dentro do próprio app (App Router)</td><td><code>apps/site/pages/lp/[slug].tsx</code> (Pages Router) — app diferente, ver decisão acima</td></tr>
   </table>
 
   <h2>Achado de segurança corrigido</h2>
@@ -79,13 +103,13 @@
   tenant_id nenhum.</div>
 
   <h2>Migrations</h2>
-  <p style="font-size:.9rem;"><code>0009_modulo_diagnostico_digital.sql</code> (<code>mpi_projects</code> +
-  <code>mpi_diagnostics</code>, módulo <code>diagnostico-digital-ia</code>),
-  <code>0010_modulo_catalogo_produtos_ofertas.sql</code> (<code>mpi_products</code> + <code>mpi_offers</code>,
-  módulo <code>catalogo-produtos-ofertas-ia</code>) e <code>0011_modulo_roteiro_video.sql</code>
-  (<code>mpi_video_scripts</code>, módulo <code>roteiro-video-ia</code>). As três seguem o mesmo padrão: RLS via
-  <code>current_tenant_id()</code>/<code>is_platform_staff()</code> (padrão de 0002/0004), grants explícitos
-  (padrão de 0008). Aplicadas em <b>produção e staging</b> — é só schema, sem dado de cliente.</p>
+  <p style="font-size:.9rem;"><code>0009</code> (<code>mpi_projects</code> + <code>mpi_diagnostics</code>),
+  <code>0010</code> (<code>mpi_products</code> + <code>mpi_offers</code>), <code>0011</code>
+  (<code>mpi_video_scripts</code>) e <code>0012</code> (<code>mpi_landing_pages</code>). As quatro seguem o
+  mesmo padrão: RLS via <code>current_tenant_id()</code>/<code>is_platform_staff()</code> (padrão de 0002/0004),
+  grants explícitos (padrão de 0008). Aplicadas em <b>produção e staging</b> — é só schema, sem dado de cliente.
+  A <code>0012</code> tem uma peça a mais: <code>grant select on mpi_landing_pages to anon</code> — primeira
+  tabela do projeto com leitura pública real, escopo limitado pela policy "só <code>status = 'published'</code>".</p>
 
   <h2>Verificação (não simulada)</h2>
   <p style="font-size:.85rem; font-weight:700; margin-bottom:6px;">Diagnóstico Digital</p>
@@ -94,31 +118,37 @@
     <li><span class="ok">✅</span><code>getOrCreateMpiProject</code> cria o projeto MPI do tenant na 1ª visita</li>
     <li><span class="ok">✅</span>Criar diagnóstico pela UI — grava real em <code>mpi_diagnostics</code>, RLS valida</li>
     <li><span class="ok">✅</span>Editar diagnóstico (título) pela UI</li>
-    <li><span class="mid">◐</span>Excluir: código simétrico ao de editar, revisado — clique não confirmável pela automação (<code>window.confirm</code> nativo)</li>
+    <li><span class="mid">◐</span>Excluir: código revisado — clique não confirmável pela automação (<code>window.confirm</code> nativo)</li>
   </ul>
   <p style="font-size:.85rem; font-weight:700; margin:20px 0 6px;">Catálogo de Produtos e Ofertas</p>
   <ul class="checklist">
     <li><span class="ok">✅</span>Cadastrar produto em <code>/products</code> grava em <code>mpi_products</code></li>
     <li><span class="ok">✅</span>Formulário de oferta lista o produto recém-criado automaticamente</li>
-    <li><span class="ok">✅</span>"Gerar copy com IA" busca o produto sob RLS da sessão (só enxerga o próprio tenant) e referencia o nome certo</li>
+    <li><span class="ok">✅</span>"Gerar copy com IA" busca o produto sob RLS da sessão e referencia o nome certo</li>
     <li><span class="ok">✅</span>Criar oferta grava em <code>mpi_offers</code> com <code>status: generated</code> e <code>product_id</code> correto</li>
   </ul>
   <p style="font-size:.85rem; font-weight:700; margin:20px 0 6px;">Roteiro de Vídeo</p>
   <ul class="checklist">
     <li><span class="ok">✅</span>Produto → oferta → <code>/video-scripts</code> pré-seleciona a oferta recém-criada</li>
-    <li><span class="ok">✅</span>"Gerar roteiro com IA" busca oferta + produto (via <code>offer.product_id</code>) sob RLS da sessão, referencia o título certo</li>
+    <li><span class="ok">✅</span>"Gerar roteiro com IA" busca oferta + produto sob RLS da sessão, referencia o título certo</li>
     <li><span class="ok">✅</span>Criar roteiro grava em <code>mpi_video_scripts</code> com <code>offer_id</code> correto</li>
   </ul>
-  <p style="font-size:.85rem; color:var(--muted); margin-top:12px;">Três usuários de teste e todos os registros
+  <p style="font-size:.85rem; font-weight:700; margin:20px 0 6px;">Landing Pages</p>
+  <ul class="checklist">
+    <li><span class="ok">✅</span>Criar como rascunho em <code>/landing-pages</code> grava em <code>mpi_landing_pages</code> com <code>offer_id</code> correto</li>
+    <li><span class="ok">✅</span>Publicar pela UI muda <code>status</code>, card mostra o link público</li>
+    <li><span class="ok">✅</span><b>Página publicada acessada em <code>apps/site</code> (<code>/lp/&lt;slug&gt;</code>) em processo separado, sem sessão nenhuma — carregou título e conteúdo reais</b></li>
+    <li><span class="ok">✅</span>Despublicar (status <code>draft</code>) faz a mesma URL devolver <code>404</code> — confirmado por manipulação direta do status (clique do botão "Despublicar" não reconfirmado por instabilidade pontual da automação; mesmo código do "Publicar", já confirmado)</li>
+  </ul>
+  <p style="font-size:.85rem; color:var(--muted); margin-top:12px;">Quatro usuários de teste e todos os registros
   criados durante a verificação foram apagados do staging ao final — nada de teste ficou para trás.</p>
 
   <h2>Backlog</h2>
-  <p style="font-size:.9rem;">Os outros 4 motores do <code>cc-commerce-studio</code> (Landing Pages,
-  Brands, Workspace genérico) — mesmo processo, um de cada vez. Landing Pages é o próximo candidato
-  natural (depende de <code>offers</code>, já disponível), mas introduz página pública sem autenticação
-  (<code>/lp/[slug]</code>), que exige decisão de arquitetura própria antes de migrar.
-  <code>GEMINI_API_KEY</code> própria da ConnectionCyber ainda não configurada em nenhum ambiente — sem ela,
-  "Gerar com IA" cai num rascunho manual em todos os módulos (comportamento herdado do original, não é regressão).</p>
+  <p style="font-size:.9rem;">Os últimos 2 motores do <code>cc-commerce-studio</code> (Brands, Workspace genérico) —
+  Workspace genérico não se aplica mais (substituído pelo modelo de tenant). Brands é FK opcional que nenhum
+  tenant real precisa hoje. <code>GEMINI_API_KEY</code> própria ainda não configurada em nenhum ambiente — sem
+  ela, "Gerar com IA" cai num rascunho manual nos módulos que geram conteúdo (comportamento herdado do
+  original, não é regressão).</p>
 
   <footer>connectioncyber · docs/migracao-diagnostico-digital-cc-commerce-studio · atualizado em 2026-08-15 · também disponível em .md e .json</footer>
 </div>
