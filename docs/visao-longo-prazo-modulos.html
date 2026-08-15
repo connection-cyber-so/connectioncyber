@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Visão de longo prazo — mapa de 104 módulos | ConnectionCyber</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg-alt:#f5f8fa; --ink:#0e2233; --muted:#55677c;
+    --line:#dbe4ec; --teal:#0f7a6e; --teal-soft:#e3f3f1;
+    --green:#2f7d47; --green-soft:#e9f5ec; --orange:#b85e10; --orange-soft:#faf0e3;
+    --red:#b3312c; --red-soft:#fbeceb;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    --font-sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+      --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+      --orange:#f2a25c; --orange-soft:#2c2015; --red:#f0827c; --red-soft:#331a19;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1620; --bg-alt:#101f2c; --ink:#e7eef4; --muted:#8ea1b3; --line:#22384a;
+    --teal:#4fd0c1; --teal-soft:#123531; --green:#7fd39a; --green-soft:#132a1c;
+    --orange:#f2a25c; --orange-soft:#2c2015; --red:#f0827c; --red-soft:#331a19;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-sans); line-height:1.65; }
+  .page{ max-width:800px; margin:0 auto; padding:48px 24px 96px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); margin-bottom:10px; font-weight:700; }
+  h1{ font-size:1.6rem; margin:0 0 8px; text-wrap:balance; }
+  .sub{ color:var(--muted); font-size:.87rem; margin:0 0 32px; }
+  h2{ font-size:1.1rem; margin:34px 0 12px; border-top:1px solid var(--line); padding-top:24px; }
+  h3{ font-size:.95rem; margin:20px 0 8px; }
+  code{ font-family:var(--font-mono); font-size:.85em; background:var(--bg-alt); border:1px solid var(--line); padding:1px 6px; border-radius:4px; }
+  ol,ul{ padding-left:20px; }
+  li{ margin-bottom:8px; font-size:.9rem; }
+  .callout-orange{ background:var(--orange-soft); border-left:3px solid var(--orange); border-radius:8px; padding:14px 18px; font-size:.88rem; margin:16px 0; }
+  .callout-red{ background:var(--red-soft); border-left:3px solid var(--red); border-radius:8px; padding:14px 18px; font-size:.88rem; margin:16px 0; }
+  .callout-green{ background:var(--green-soft); border-left:3px solid var(--green); border-radius:8px; padding:14px 18px; font-size:.88rem; margin:16px 0; }
+  .camada{ border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-bottom:12px; }
+  .camada-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:8px; }
+  .camada-num{ font-family:var(--font-mono); font-size:.72rem; color:var(--muted); background:var(--bg-alt); border:1px solid var(--line); border-radius:100px; padding:2px 9px; }
+  .camada-nome{ font-weight:700; font-size:.92rem; }
+  .camada-itens{ font-size:.85rem; color:var(--muted); }
+  .camada-nota{ margin-top:8px; font-size:.82rem; background:var(--teal-soft); color:var(--ink); border-radius:6px; padding:8px 12px; }
+  .extra{ display:flex; gap:12px; align-items:baseline; padding:10px 0; border-bottom:1px solid var(--line); font-size:.88rem; }
+  .extra:last-child{ border-bottom:none; }
+  .extra-num{ font-family:var(--font-mono); color:var(--muted); flex:none; width:32px; }
+  .badge-done{ font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; background:var(--green-soft); color:var(--green); padding:2px 8px; border-radius:100px; font-weight:700; margin-left:8px; }
+  footer{ margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:.78rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">connectioncyber · documentação técnica</div>
+  <h1>Visão de longo prazo — mapa de 104 módulos</h1>
+  <p class="sub">Origem: material fornecido por Joaquim Coelho em <code>Downloads\connectionHMTL</code> (16 arquivos), avaliado em 2026-08-15.
+  <b>Arquivado como referência — nada foi implementado em código, schema ou rota.</b> O roteiro ativo continua em <code>docs/parecer-tecnico-arquitetura.md</code> e no plano de ação do <code>apps/platform</code> (Fases 0-7, ainda na Fase 0).</p>
+
+  <h2>O que é</h2>
+  <p style="font-size:.9rem;">Um mapa aspiracional de <b>104 módulos</b>, em 10 camadas de 10 módulos cada, mais 4 extras (101-104).
+  Descreve até onde a plataforma poderia crescer numa escala de hyperscaler — não é o próximo passo técnico do projeto.</p>
+
+  <h2>Por que foi arquivado, e não implementado</h2>
+  <div class="callout-orange">
+    <b>1. Descompasso de escala.</b> As camadas 6-10 (módulos 51-100) são infraestrutura de nível
+    Netflix/Google — multi-cloud, multi-edge, multi-cluster, orquestração de IA global. A base de
+    clientes real hoje são pequenos negócios locais (oficina mecânica, distribuidora de água,
+    sorveteria, rede de restaurantes) — não há cenário de negócio que justifique isso no horizonte visível.
+  </div>
+  <div class="callout-red">
+    <b>2. Falha de segurança no código de exemplo.</b> As rotas <code>/api/tenants/create</code> e
+    <code>/api/users/update</code> em <code>mod0010.html</code> não verificam sessão nenhuma —
+    qualquer chamador poderia criar um tenant ou alterar o <code>role</code> de qualquer usuário
+    passando um <code>id</code> arbitrário. Contraria o modelo de isolamento já adotado (nunca
+    confiar em dado do cliente, derivar tenant da sessão no servidor). Se algum módulo desta lista
+    for implementado no futuro, o código-fonte original <b>não deve ser copiado como está</b>.
+  </div>
+  <div class="callout-orange">
+    <b>3. Incompatibilidade técnica pontual.</b> O módulo 101 usa <code>BullMQ</code> + <code>Redis</code>
+    para workers — não roda em função serverless da Vercel sem infraestrutura adicional.
+  </div>
+  <div class="callout-green">
+    <b>4. Sobreposição com o que já existe.</b> O módulo 104 ("Tecnologia Seletor de Idioma")
+    descreve o seletor PT/EN que já está implementado e documentado em
+    <code>docs/tecnologia-seletor-idioma.md</code>.
+  </div>
+
+  <h2>Mapa completo (referência)</h2>
+
+  <div class="camada">
+    <div class="camada-head"><span class="camada-num">1 · 1-10</span><span class="camada-nome">Fundamentos</span></div>
+    <div class="camada-itens">Autenticação, Usuários, Tenants, Produtos, Checkout, Marketplace, Chat, Automação, Notificações, E-commerce</div>
+    <div class="camada-nota">Autenticação, Usuários e Tenants já têm equivalente real e mais robusto no projeto (migrations 0001-0003, com RLS). Produtos e Checkout são candidatos genuínos para a Fase 7 do plano de ação.</div>
+  </div>
+  <div class="camada">
+    <div class="camada-head"><span class="camada-num">2 · 11-20</span><span class="camada-nome">Operações</span></div>
+    <div class="camada-itens">Pagamentos, Assinaturas, Logs, Estoque, Logística, Financeiro, Suporte, CRM, Marketing, Analytics</div>
+  </div>
+  <div class="camada">
+    <div class="camada-head"><span class="camada-num">3 · 21-30</span><span class="camada-nome">Integração</span></div>
+    <div class="camada-itens">Webhooks, Auditoria, Permissões, Uploads, Mídia, Templates, IA, Configurações, Dashboard, Relatórios</div>
+  </div>
+  <div class="camada">
+    <div class="camada-head"><span class="camada-num">4 · 31-40</span><span class="camada-nome">Sistema</span></div>
+    <div class="camada-itens">Tarefas, Calendário, Comentários, Notas Internas, Favoritos, Endereços, Catálogo, Cupons, Frete, Logs de Erro</div>
+  </div>
+  <div class="camada">
+    <div class="camada-head"><span class="camada-num">5 · 41-50</span><span class="camada-nome">Infraestrutura</span></div>
+    <div class="camada-itens">Exportação, Importação, Etiquetas, Logs de Acesso, Filas Internas, WebSockets, Sessões, Histórico, Logs de Sistema, Integrações</div>
+  </div>
+  <div class="camada">
+    <div class="camada-head"><span class="camada-num">6 · 51-60</span><span class="camada-nome">Arquitetura Distribuída</span></div>
+    <div class="camada-itens">Backup, Restauração, Segurança Avançada, Monitoramento, Alertas, IA de Segurança, Governança, Orquestração Global, Orquestração Distribuída, Arquitetura Distribuída (Microserviços, Edge, CDN, IA)</div>
+  </div>
+  <div class="camada">
+    <div class="camada-head"><span class="camada-num">7 · 61-70</span><span class="camada-nome">Escalabilidade</span></div>
+    <div class="camada-itens">Auto-Scaling, Balanceamento Global, Replicação de Dados, Failover, Latência, CDN Inteligente, IA de Infraestrutura, Regiões, Orquestração Multi-Região, Zero-Downtime</div>
+  </div>
+  <div class="camada">
+    <div class="camada-head"><span class="camada-num">8 · 71-80</span><span class="camada-nome">Multi-Cloud / Multi-Edge</span></div>
+    <div class="camada-itens">Multi-Cloud, Migração entre Clouds, Edge Routing, Edge Analytics, CDN Multi-Região, Cache Multi-Região, IA de Latência, Infraestrutura Paralela, Orquestração Paralela, Infraestrutura Autônoma</div>
+  </div>
+  <div class="camada">
+    <div class="camada-head"><span class="camada-num">9 · 81-90</span><span class="camada-nome">Multi-Infraestrutura Avançada</span></div>
+    <div class="camada-itens">Infraestrutura Auto-Reparável, Observável, Preditiva, Modular, Multi-Tenant Avançado, Multi-Região Avançado, Multi-Cluster, Multi-Zona, Multi-Edge, Multi-CDN</div>
+  </div>
+  <div class="camada">
+    <div class="camada-head"><span class="camada-num">10 · 91-100</span><span class="camada-nome">Orquestração Total</span></div>
+    <div class="camada-itens">Orquestração de IA Global, de Fluxos Multi-Negócio, de Marketing Inteligente, de Vendas Inteligente, de Operações Inteligente, de Infraestrutura Inteligente, Multi-Empresa, Multi-Vertical, Multi-Plataforma, Orquestração Total</div>
+  </div>
+
+  <h3>Extras (101-104)</h3>
+  <div class="extra"><span class="extra-num">101</span><span>Atendimento Remoto ao Cliente — vídeo/áudio/chat + diagnóstico IA (requer Redis/BullMQ, incompatível com serverless Vercel sem infra adicional)</span></div>
+  <div class="extra"><span class="extra-num">102</span><span>BI Avançado</span></div>
+  <div class="extra"><span class="extra-num">103</span><span>Plano de Contas</span></div>
+  <div class="extra"><span class="extra-num">104</span><span>Tecnologia Seletor de Idioma<span class="badge-done">já implementado</span> — ver <code>docs/tecnologia-seletor-idioma</code></span></div>
+
+  <h2>Quando reconsiderar</h2>
+  <p style="font-size:.9rem;">Camadas 1-5 (módulos 1-50) contêm ideias aproveitáveis conforme os módulos operacionais forem
+  construídos na Fase 7 do plano de ação do <code>apps/platform</code>, sempre reescritas com o padrão de segurança do
+  projeto, nunca copiadas diretamente. Camadas 6-10 (51-100) só voltam a fazer sentido reavaliar se a base de clientes e a
+  receita crescerem a ponto de justificar infraestrutura multi-região/multi-cloud — não é uma decisão para o estágio atual.</p>
+
+  <footer>connectioncyber · docs/visao-longo-prazo-modulos · atualizado em 2026-08-15 · também disponível em .md e .json</footer>
+</div>
+</body>
+</html>
