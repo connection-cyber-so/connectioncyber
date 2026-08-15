@@ -118,12 +118,8 @@ npm run dev   # porta 3001 (apps/site usa a 3000)</pre>
     <tr><td class="pending">○</td><td>Fase 10 — Deploy: novo projeto Vercel (Deployment Protection recomendada ligada, é painel interno)</td></tr>
   </table>
 
-  <h2>Pendência real: você ainda não tem login próprio no apps/platform</h2>
-  <p style="font-size:.9rem;">Todo teste até agora usou contas descartáveis, criadas e apagadas na mesma sessão — não crio login persistente nem defino senha para você, isso é ação sua. Pra usar o <code>/tenants</code> de verdade, falta:</p>
-  <ol style="font-size:.9rem;">
-    <li>Criar sua própria conta em <a href="https://supabase.com/dashboard/project/qfggetvashdxyuvlhihq/auth/users">Supabase Dashboard → Authentication → Users → Add user</a> (produção) — você escolhe e-mail e senha.</li>
-    <li>Me avisar o e-mail usado — eu atribuo o papel <code>admin</code> em <code>user_roles</code> (isso é só um dado, não uma credencial) para você enxergar todos os tenants, não só um.</li>
-  </ol>
+  <h2>Login próprio de Joaquim — resolvido em 2026-08-15</h2>
+  <p style="font-size:.9rem;">Conta pessoal criada pelo próprio Joaquim (Supabase Dashboard → Authentication → Users → Add user, ação exclusiva dele) em <b>produção</b> (<code>qfggetvashdxyuvlhihq</code>) e em <b>staging</b> (<code>ozvylnaipubrmaadikvk</code>), mesmo e-mail (<code>admin@connectioncyber.com.br</code>), senhas diferentes por ambiente. Em ambos: linha em <code>public.users</code> confirmada (auto-provisionada pelo trigger <code>handle_new_user</code>) e papel <code>admin</code> atribuído em <code>user_roles</code> via script pontual com a <code>service_role</code> key, apagada do disco logo depois de rodar (dado, não credencial). <code>/tenants</code> já testado ao vivo com um usuário descartável; falta só Joaquim rodar <code>npm run build &amp;&amp; npm run start</code> e entrar com a própria conta de staging.</p>
 
   <footer>connectioncyber · apps/platform/README · atualizado em 2026-08-15 · também disponível em .md e .json</footer>
 </div>

@@ -61,9 +61,11 @@
     { "fase": 9, "descricao": "Migrar Brands (últimos 2 motores do cc-commerce-studio; Workspace genérico não se aplica mais)", "status": "pendente" },
     { "fase": 10, "descricao": "Deploy: novo projeto Vercel apontando para esta pasta", "status": "pendente", "nota": "decisão pendente sobre Deployment Protection — recomendado ligada por padrão, é painel interno" }
   ],
-  "pendencia_login_proprio": {
-    "descricao": "Nenhum login persistente foi criado para Joaquim — todos os testes usaram contas descartáveis, criadas e apagadas na mesma sessão. Criar conta e definir senha é ação exclusiva do usuário.",
-    "acao_usuario": "Criar conta em Supabase Dashboard > Authentication > Users > Add user (projeto de produção qfggetvashdxyuvlhihq)",
-    "acao_assistente_apos": "Atribuir o papel admin em user_roles para o e-mail informado (é só um dado, não uma credencial)"
+  "login_proprio_joaquim": {
+    "status": "resolvido",
+    "resolvido_em": "2026-08-15",
+    "descricao": "Conta pessoal criada pelo próprio Joaquim (ação exclusiva dele) em produção (qfggetvashdxyuvlhihq) e staging (ozvylnaipubrmaadikvk), mesmo e-mail (admin@connectioncyber.com.br), senhas diferentes por ambiente. Papel admin atribuído em user_roles nos dois projetos via script pontual com a service_role key, apagada do disco logo depois.",
+    "producao": { "user_id": "2e277ff7-fdc3-4512-b3fb-f5b819dad664", "tenant_id": "1ac917bf-c5f7-4be9-9d8c-064cd5b8f0f5" },
+    "staging": { "user_id": "080c0f2f-8bcf-42e2-8fe9-9e9be7a402eb", "tenant_id": "71508b8f-2fd9-46fc-9a05-1b7a97fccbd5" }
   }
 }
