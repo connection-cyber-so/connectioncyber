@@ -95,12 +95,15 @@ export default function ContatoPage() {
               <h3>Canais diretos</h3>
               <p>{t('contact.location')}</p>
               <p>
+                <a href={`tel:${t('contact.phone').replace(/[^\d+]/g, '')}`}>{t('contact.phone')}</a>
+              </p>
+              <p>
                 <a href={socialLinks.whatsapp} target="_blank" rel="noreferrer">
                   WhatsApp
                 </a>
               </p>
               <p>
-                <a href="mailto:contato@connectioncyber.com.br">contato@connectioncyber.com.br</a>
+                <a href={`mailto:${t('contact.email')}`}>{t('contact.email')}</a>
               </p>
             </div>
           </div>

@@ -113,7 +113,9 @@
     "formCompany": "Company",
     "formMessage": "Message",
     "formSubmit": "Send message",
-    "location": "Piracicaba – SP, Brazil"
+    "location": "Rua Benedito Nogueira de Barros, 135 – Pq. Das Águas – Piracicaba – SP, Brazil",
+    "phone": "+55 (11) 9 6742-6682",
+    "email": "contatos@connectioncyber.com.br"
   },
   "footer": {
     "rights": "All rights reserved.",
