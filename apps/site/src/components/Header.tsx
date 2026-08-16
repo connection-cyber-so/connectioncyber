@@ -41,8 +41,8 @@ export default function Header() {
 
         <div style={styles.actions}>
           <LanguageSwitcher />
-          <Link href={routes.contato} className="btn btn-primary" style={styles.ctaBtn}>
-            {t('home.ctaPrimary')}
+          <Link href={routes.login} className="btn btn-primary" style={styles.ctaBtn}>
+            {t('nav.loginCta')}
           </Link>
           <button
             className="nav-burger"
@@ -107,6 +107,7 @@ const styles: Record<string, React.CSSProperties> = {
   ctaBtn: {
     padding: '10px 18px',
     fontSize: '0.85rem',
+    border: '1.5px solid var(--cc-orange)',
   },
   burger: {
     display: 'none',

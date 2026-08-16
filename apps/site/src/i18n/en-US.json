@@ -14,7 +14,8 @@
     "system": "System",
     "contact": "Contact",
     "members": "Student Area",
-    "login": "Sign in"
+    "login": "Sign in",
+    "loginCta": "Log In"
   },
   "home": {
     "heroTitle": "Technology, Systems and Training for Modern Companies",

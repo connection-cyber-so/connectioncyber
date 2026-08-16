@@ -77,7 +77,7 @@ export default function LoginPage() {
 
 const inputStyle: React.CSSProperties = {
   padding: '12px 14px',
-  border: '1px solid var(--cc-border)',
+  border: '1px solid var(--cc-teal)',
   borderRadius: 8,
   fontSize: '0.95rem',
   fontFamily: 'inherit',

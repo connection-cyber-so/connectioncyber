@@ -37,8 +37,14 @@ raiz, em `../../supabase/migrations` — não mais dentro deste app.
   dependência exclusiva do guard client-side (`ProtectedRoute.tsx`), que
   travava em "Verificando acesso…" quando o Supabase não estava configurado.
 - **Header, Footer, Layout, rotas protegidas, botões flutuantes de redes
-  sociais** (WhatsApp, Instagram, Facebook, LinkedIn, YouTube, TikTok) com
-  tracking best-effort (gtag + webhook n8n).
+  sociais** (WhatsApp, Instagram, Facebook, LinkedIn, YouTube, TikTok, ícones
+  SVG reais — antes eram letras) com tracking best-effort (gtag + webhook
+  n8n). Header: botão "Fale Conosco" trocado por **"Fazer Login"**
+  (`/login`), mesma cor de fundo, borda `1.5px solid #F6851F`.
+- **Padrão de borda (2026-08-15)**: ícones flutuantes de rede social usam
+  `1.5px solid #F6851F` (laranja); cards (`.card`), campos de formulário
+  (`/login`, `/contato`) e a caixa do Sistema Visual Enterprise
+  (`.enterprise-frame`) usam `1px solid #28A992` (verde-azulado da marca).
 - **Área de Clientes** (`/clientes`) com componente pronto para os 15 clientes
   com contrato de longa data — **dados reais pendentes**, ver seção
   "Ações pendentes" abaixo.
