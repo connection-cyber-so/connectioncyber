@@ -10,6 +10,12 @@
     "cores": { "connection": "#E01F27", "cyber": "#2C9C48" },
     "icone": "public/logo.png — mesmo arquivo de logo/logosf.png (raiz do monorepo) e apps/site/public/logo.png"
   },
+  "borda_padrao": {
+    "resolvido_em": "2026-08-15",
+    "descricao": "Cards de conteúdo, itens do menu, campos de formulário e caixas de estado vazio usam 1.5px solid #F6851F (laranja da marca) no lugar da linha cinza fina (--cc-border). Divisórias estruturais (linha da topbar, rodapé) não mudaram.",
+    "largura": "1.5px",
+    "cor": "#F6851F"
+  },
   "layout_compartilhado": {
     "resolvido_em": "2026-08-15",
     "descricao": "Topbar (ícone + wordmark + boas-vindas + Sair), menu lateral (SidebarNav) e rodapé viraram um único layout.tsx no route group (painel) — navegar entre módulos não recarrega nem perde o menu, eliminando a necessidade de um botão \"voltar\" pedida inicialmente.",
@@ -61,7 +67,8 @@
     "Landing Pages testado com um quarto usuário real de staging, ponta a ponta até o público: criar/publicar pela UI; a página publicada foi acessada em apps/site (/lp/<slug>) em processo separado sem sessão nenhuma, carregou conteúdo real; despublicar faz a mesma URL devolver 404. Detalhe em docs/migracao-diagnostico-digital-cc-commerce-studio",
     "/tenants testado com um quinto usuário real de staging com papel admin em user_roles (criado e removido só para o teste): mostrou o tenant ConnectionCyber com os 4 módulos seed como ativo, confirmando que is_platform_staff() libera a visão cross-tenant; usuário sem esse papel só vê a própria linha (RLS já validada em 0002/0004, não retestada à parte)",
     "Testado em modo produção (next start) — modo dev (next dev) tem HMR instável neste ambiente, mesma observação já registrada para apps/site",
-    "Layout compartilhado testado com um sexto usuário real de staging (criado e apagado só para o teste): login carrega dashboard com topbar (ícone + ConnectionCyber + boas-vindas + Sair), menu lateral com os 6 módulos e rodapé; clicar em outro módulo troca o conteúdo sem perder topbar/menu/rodapé e destaca o item ativo. Sem erros no console nem no servidor."
+    "Layout compartilhado testado com um sexto usuário real de staging (criado e apagado só para o teste): login carrega dashboard com topbar (ícone + ConnectionCyber + boas-vindas + Sair), menu lateral com os 6 módulos e rodapé; clicar em outro módulo troca o conteúdo sem perder topbar/menu/rodapé e destaca o item ativo. Sem erros no console nem no servidor.",
+    "Borda padrão testada com um sétimo usuário real de staging: login, dashboard e módulo Produtos conferidos por captura de tela — card de login, campos, itens do menu, card de boas-vindas e formulário todos com a borda 1.5px solid #F6851F. Sem erros no console nem no servidor."
   ],
   "proximos_passos": [
     { "fase": 1, "descricao": "Esqueleto + login", "status": "concluida" },

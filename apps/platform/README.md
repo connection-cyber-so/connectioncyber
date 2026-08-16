@@ -12,6 +12,10 @@
 > precisa mais de botão "voltar"). Nome do produto corrigido para **ConnectionCyber** em todo o
 > painel (era "ConnectionCyberSO"), com a identidade visual oficial aplicada: "Connection" em
 > vermelho (`#E01F27`), "Cyber" em verde (`#2C9C48`), ícone oficial (`public/logo.png`).
+> **Borda padrão (2026-08-15)**: cards de conteúdo, itens do menu, campos de formulário e
+> caixas de estado vazio usam `1.5px solid #F6851F` (laranja da marca) — linha fina cinza
+> (`--cc-border`) trocada por esse padrão em todo o painel; divisórias estruturais (linha da
+> topbar, rodapé) não mudaram.
 
 Painel interno de gestão de tenants, módulos e clientes da ConnectionCyber — separado do site
 institucional (`apps/site`). Só a equipe entra aqui; clientes finais usam `apps/site` (`/membros`).
@@ -130,6 +134,10 @@ npm run dev   # porta 3011 (apps/site usa a 3000; 3001 é reservada pelo Windows
   + Sair), menu lateral com os 6 módulos e rodapé; clicar em "Diagnóstico Digital" no menu troca
   o conteúdo sem perder topbar/menu/rodapé e destaca o item ativo — confirma que o botão
   "voltar" pedido inicialmente não é mais necessário. Sem erros no console nem no servidor.
+- **Borda padrão testada com um sétimo usuário real de staging**: login, dashboard e módulo
+  Produtos conferidos por captura de tela — card de login, campos de e-mail/senha, itens do
+  menu, card de boas-vindas e formulário de produto todos com a borda `1.5px solid #F6851F`.
+  Sem erros no console nem no servidor.
 
 ## Próximos passos (roteiro)
 
