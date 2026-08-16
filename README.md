@@ -103,6 +103,12 @@ diretório.
   clientes reais e os módulos habilitados de cada um ficam visíveis fora do Supabase Table Editor.
   Testado com um quinto usuário real de staging com papel de equipe (`admin` em `user_roles`).
   Ver `apps/platform/README.md`.
+- [x] **`apps/platform` — layout compartilhado + rename para ConnectionCyber**: topbar + menu
+  lateral + rodapé viraram um único `layout.tsx` (route group `(painel)`) — navegar entre
+  módulos não perde mais o menu. Nome do produto corrigido de "ConnectionCyberSO" para
+  **ConnectionCyber** em todo o painel, com a identidade visual oficial aplicada ("Connection"
+  em vermelho `#E01F27`, "Cyber" em verde `#2C9C48`, ícone oficial). Testado com um sexto
+  usuário real de staging.
 
 ## Documentação do projeto
 

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ConnectionCyberSO — Painel Interno',
+  title: 'ConnectionCyber — Painel Interno',
   description: 'Painel interno de gestão de tenants, módulos e clientes da ConnectionCyber.',
   robots: { index: false, follow: false },
 };

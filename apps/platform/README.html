@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>apps/platform — ConnectionCyberSO (painel interno)</title>
+<title>apps/platform — ConnectionCyber (painel interno)</title>
 <style>
   :root{
     --bg:#ffffff; --bg-alt:#f5f8fa; --ink:#0e2233; --muted:#55677c;
@@ -47,8 +47,8 @@
 <body>
 <div class="page">
   <div class="eyebrow">connectioncyber · apps/platform</div>
-  <h1>apps/platform — ConnectionCyberSO (painel interno)</h1>
-  <div class="callout-green"><b>Fase 1 concluída</b> (esqueleto + login). <b>4 módulos de negócio em produção:</b> Diagnóstico Digital (IA), Catálogo de Produtos e Ofertas (IA), Roteiro de Vídeo (IA) e Landing Pages, todos migrados de <code>cc-commerce-studio</code> — ver <code>docs/migracao-diagnostico-digital-cc-commerce-studio</code>. Landing Pages: gestão aqui, página pública em <code>apps/site</code>. <b>Fase 6 concluída:</b> <code>/tenants</code> lista os clientes reais e os módulos de cada um.</div>
+  <h1>apps/platform — ConnectionCyber (painel interno)</h1>
+  <div class="callout-green"><b>Fase 1 concluída</b> (esqueleto + login). <b>4 módulos de negócio em produção:</b> Diagnóstico Digital (IA), Catálogo de Produtos e Ofertas (IA), Roteiro de Vídeo (IA) e Landing Pages, todos migrados de <code>cc-commerce-studio</code> — ver <code>docs/migracao-diagnostico-digital-cc-commerce-studio</code>. Landing Pages: gestão aqui, página pública em <code>apps/site</code>. <b>Fase 6 concluída:</b> <code>/tenants</code> lista os clientes reais e os módulos de cada um. <b>Layout compartilhado (2026-08-15):</b> topbar + menu lateral + rodapé viraram um único <code>layout.tsx</code> — navegar entre módulos não perde mais o menu. Nome corrigido para <b>ConnectionCyber</b> (era "ConnectionCyberSO"), com a identidade visual oficial: "Connection" em vermelho (<code>#E01F27</code>), "Cyber" em verde (<code>#2C9C48</code>).</div>
   <p style="font-size:.9rem;">Painel interno de gestão de tenants, módulos e clientes — separado do site institucional (<code>apps/site</code>). Só a equipe entra aqui; clientes finais usam <code>apps/site</code> (<code>/membros</code>).</p>
 
   <h2>Decisão de arquitetura</h2>
@@ -56,19 +56,23 @@
 
   <h2>Estrutura</h2>
   <pre>apps/platform/
+├─ public/logo.png          ícone oficial ConnectionCyber
 ├─ src/
 │  ├─ app/
-│  │  ├─ layout.tsx        layout raiz
+│  │  ├─ layout.tsx        layout raiz (html/body, metadata)
 │  │  ├─ globals.css       tokens de marca + shell do painel
-│  │  ├─ page.tsx           dashboard (protegido, link para os módulos)
-│  │  ├─ login/page.tsx     login de equipe
-│  │  ├─ diagnostics/page.tsx  módulo Diagnóstico Digital (IA)
-│  │  ├─ products/page.tsx     módulo Catálogo — produtos
-│  │  ├─ offers/page.tsx       módulo Catálogo — ofertas (IA)
-│  │  ├─ video-scripts/page.tsx  módulo Roteiro de Vídeo (IA)
-│  │  ├─ landing-pages/page.tsx  módulo Landing Pages — gestão (página pública em apps/site)
-│  │  └─ tenants/page.tsx      Fase 6 — lista de clientes + módulos habilitados (só leitura)
+│  │  ├─ login/page.tsx     login de equipe (fora do route group (painel))
+│  │  └─ (painel)/          route group — não afeta a URL, agrupa as rotas autenticadas
+│  │     ├─ layout.tsx      topbar + menu lateral (SidebarNav) + rodapé, compartilhado
+│  │     ├─ page.tsx         dashboard (conteúdo mínimo — navegação é o menu lateral)
+│  │     ├─ diagnostics/page.tsx  módulo Diagnóstico Digital (IA)
+│  │     ├─ products/page.tsx     módulo Catálogo — produtos
+│  │     ├─ offers/page.tsx       módulo Catálogo — ofertas (IA)
+│  │     ├─ video-scripts/page.tsx  módulo Roteiro de Vídeo (IA)
+│  │     ├─ landing-pages/page.tsx  módulo Landing Pages — gestão (página pública em apps/site)
+│  │     └─ tenants/page.tsx      Fase 6 — lista de clientes + módulos habilitados (só leitura)
 │  ├─ components/LogoutButton.tsx
+│  ├─ components/SidebarNav.tsx  Client Component — usePathname() destaca o módulo ativo
 │  ├─ features/{diagnostics,products,offers,video-scripts,landing-pages}/  actions/service/types/validations/components
 │  │                          — migrados de cc-commerce-studio, ver docs/migracao-diagnostico-digital-*
 │  ├─ features/tenants/       types.ts, service.ts, components/TenantCard.tsx — só leitura
@@ -89,7 +93,7 @@
 npm install
 cp .env.local.example .env.local
 # preencha com as chaves do Supabase de STAGING (ozvylnaipubrmaadikvk) — nunca produção
-npm run dev   # porta 3001 (apps/site usa a 3000)</pre>
+npm run dev   # porta 3011 (apps/site usa a 3000; 3001 é reservada pelo Windows)</pre>
 
   <h2>Validado em 2026-08-15</h2>
   <table>
@@ -102,6 +106,7 @@ npm run dev   # porta 3001 (apps/site usa a 3000)</pre>
     <tr><td class="ok">✅</td><td><b>Landing Pages testado com um quarto usuário real, ponta a ponta até o público</b>: publicar pela UI, página acessada em <code>apps/site</code> (<code>/lp/&lt;slug&gt;</code>) em processo separado sem sessão nenhuma, conteúdo real carregado; despublicar faz a URL devolver <code>404</code></td></tr>
     <tr><td class="ok">✅</td><td><b><code>/tenants</code> testado com um quinto usuário real de staging com papel de equipe</b> (<code>admin</code> em <code>user_roles</code>, criado e removido só para o teste): mostrou o tenant ConnectionCyber com os 4 módulos seed como <code>ativo</code>, confirmando que <code>is_platform_staff()</code> libera a visão cross-tenant; usuário sem esse papel só vê a própria linha (RLS já validada em 0002/0004, não retestada à parte)</td></tr>
     <tr><td class="ok">✅</td><td>Testado em modo produção (<code>next start</code>) — modo dev tem HMR instável neste ambiente, mesma observação já registrada para <code>apps/site</code></td></tr>
+    <tr><td class="ok">✅</td><td><b>Layout compartilhado testado com um sexto usuário real de staging</b> (criado e apagado só para o teste): login carrega dashboard com topbar (ícone + "ConnectionCyber" + boas-vindas + Sair), menu lateral com os 6 módulos e rodapé; trocar de módulo pelo menu mantém topbar/menu/rodapé e destaca o item ativo — sem erros no console nem no servidor</td></tr>
   </table>
 
   <h2>Próximos passos</h2>
@@ -121,7 +126,7 @@ npm run dev   # porta 3001 (apps/site usa a 3000)</pre>
   <h2>Login próprio de Joaquim — resolvido em 2026-08-15</h2>
   <p style="font-size:.9rem;">Conta pessoal criada pelo próprio Joaquim (Supabase Dashboard → Authentication → Users → Add user, ação exclusiva dele) em <b>produção</b> (<code>qfggetvashdxyuvlhihq</code>) e em <b>staging</b> (<code>ozvylnaipubrmaadikvk</code>), mesmo e-mail (<code>admin@connectioncyber.com.br</code>), senhas diferentes por ambiente. Em ambos: linha em <code>public.users</code> confirmada (auto-provisionada pelo trigger <code>handle_new_user</code>) e papel <code>admin</code> atribuído em <code>user_roles</code> via script pontual com a <code>service_role</code> key, apagada do disco logo depois de rodar (dado, não credencial). <code>/tenants</code> já testado ao vivo com um usuário descartável; falta só Joaquim rodar <code>npm run build &amp;&amp; npm run start</code> e entrar com a própria conta de staging.</p>
 
-  <footer>connectioncyber · apps/platform/README · atualizado em 2026-08-15 · também disponível em .md e .json</footer>
+  <footer>connectioncyber · apps/platform/README · atualizado em 2026-08-15 (layout compartilhado + rename ConnectionCyber) · também disponível em .md e .json</footer>
 </div>
 </body>
 </html>

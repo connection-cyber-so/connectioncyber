@@ -1,4 +1,4 @@
-# apps/platform — ConnectionCyberSO (painel interno)
+# apps/platform — ConnectionCyber (painel interno)
 
 > **Fase 1 concluída**: esqueleto + login. **4 módulos de negócio em produção**: Diagnóstico
 > Digital (IA), Catálogo de Produtos e Ofertas (IA), Roteiro de Vídeo (IA) e Landing Pages —
@@ -7,6 +7,11 @@
 > com uma peça pública: gestão aqui, página publicada servida por `apps/site`.
 > **Fase 6 concluída**: `/tenants` lista os clientes reais e os módulos habilitados de cada um —
 > primeira vez fora do Supabase Table Editor.
+> **Layout compartilhado (2026-08-15)**: topbar + menu lateral + rodapé viraram um único
+> `layout.tsx` no route group `(painel)` — navegar entre módulos não perde mais o menu (não
+> precisa mais de botão "voltar"). Nome do produto corrigido para **ConnectionCyber** em todo o
+> painel (era "ConnectionCyberSO"), com a identidade visual oficial aplicada: "Connection" em
+> vermelho (`#E01F27`), "Cyber" em verde (`#2C9C48`), ícone oficial (`public/logo.png`).
 
 Painel interno de gestão de tenants, módulos e clientes da ConnectionCyber — separado do site
 institucional (`apps/site`). Só a equipe entra aqui; clientes finais usam `apps/site` (`/membros`).
@@ -27,20 +32,28 @@ convergirem, cada um tem seu próprio `package.json` e build.
 
 ```
 apps/platform/
+├─ public/
+│  └─ logo.png              ícone oficial ConnectionCyber (mesmo arquivo de logo/logosf.png
+│                            na raiz do monorepo e de apps/site/public/logo.png)
 ├─ src/
 │  ├─ app/
-│  │  ├─ layout.tsx        layout raiz
+│  │  ├─ layout.tsx        layout raiz (html/body, metadata)
 │  │  ├─ globals.css       tokens de marca (copiados de apps/site/src/styles/theme.css) + shell
-│  │  ├─ page.tsx           dashboard (protegido, force-dynamic, link para os módulos)
-│  │  ├─ login/page.tsx     login de equipe (Client Component)
-│  │  ├─ diagnostics/page.tsx  módulo Diagnóstico Digital (IA)
-│  │  ├─ products/page.tsx     módulo Catálogo — cadastro de produtos
-│  │  ├─ offers/page.tsx       módulo Catálogo — geração de oferta por IA
-│  │  ├─ video-scripts/page.tsx  módulo Roteiro de Vídeo — geração por IA a partir de oferta
-│  │  ├─ landing-pages/page.tsx  módulo Landing Pages — gestão (página pública é em apps/site)
-│  │  └─ tenants/page.tsx      Fase 6 — lista de clientes + módulos habilitados (só leitura)
+│  │  ├─ login/page.tsx     login de equipe (Client Component, fora do route group (painel))
+│  │  └─ (painel)/          route group — não afeta a URL, só agrupa as rotas autenticadas
+│  │     ├─ layout.tsx      topbar (ícone + "ConnectionCyber" + boas-vindas + Sair) + menu
+│  │     │                  lateral (SidebarNav) + rodapé — compartilhado por todas as rotas
+│  │     │                  abaixo; sozinho decide sessão via createClient().auth.getUser()
+│  │     ├─ page.tsx         dashboard (conteúdo mínimo — navegação já é o menu lateral)
+│  │     ├─ diagnostics/page.tsx  módulo Diagnóstico Digital (IA)
+│  │     ├─ products/page.tsx     módulo Catálogo — cadastro de produtos
+│  │     ├─ offers/page.tsx       módulo Catálogo — geração de oferta por IA
+│  │     ├─ video-scripts/page.tsx  módulo Roteiro de Vídeo — geração por IA a partir de oferta
+│  │     ├─ landing-pages/page.tsx  módulo Landing Pages — gestão (página pública é em apps/site)
+│  │     └─ tenants/page.tsx      Fase 6 — lista de clientes + módulos habilitados (só leitura)
 │  ├─ components/
-│  │  └─ LogoutButton.tsx
+│  │  ├─ LogoutButton.tsx
+│  │  └─ SidebarNav.tsx     Client Component — usePathname() destaca o módulo ativo no menu
 │  ├─ features/
 │  │  ├─ diagnostics/       actions.ts, service.ts, types.ts, validations.ts, components/
 │  │  ├─ products/          idem — mpi_products
@@ -77,7 +90,7 @@ cd apps/platform
 npm install
 cp .env.local.example .env.local
 # preencha com as chaves do Supabase de STAGING (ozvylnaipubrmaadikvk) — nunca produção
-npm run dev   # porta 3001 (apps/site usa a 3000)
+npm run dev   # porta 3011 (apps/site usa a 3000; 3001 é reservada pelo Windows)
 ```
 
 ## Validado em 2026-08-15
@@ -112,6 +125,11 @@ npm run dev   # porta 3001 (apps/site usa a 3000)
   `0002`/`0004`, não retestado à parte por já estar coberto.
 - Testado em modo produção (`next start`) — o modo dev (`next dev`) tem HMR instável neste
   ambiente sandboxed, mesma observação já registrada para `apps/site`.
+- **Layout compartilhado testado com um sexto usuário real de staging** (criado e apagado só
+  para o teste): login carrega o dashboard com topbar (ícone + "ConnectionCyber" + boas-vindas
+  + Sair), menu lateral com os 6 módulos e rodapé; clicar em "Diagnóstico Digital" no menu troca
+  o conteúdo sem perder topbar/menu/rodapé e destaca o item ativo — confirma que o botão
+  "voltar" pedido inicialmente não é mais necessário. Sem erros no console nem no servidor.
 
 ## Próximos passos (roteiro)
 
