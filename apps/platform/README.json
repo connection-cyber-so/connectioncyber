@@ -1,10 +1,20 @@
 {
   "$schema": "connectioncyber-doc-v1",
   "id": "readme-apps-platform",
-  "titulo": "apps/platform — ConnectionCyberSO (painel interno)",
+  "titulo": "apps/platform — ConnectionCyber (painel interno)",
   "descricao": "Painel interno de gestão de tenants, módulos e clientes — separado do site institucional.",
   "atualizado_em": "2026-08-15",
-  "fase_atual": "Fase 1 concluída (esqueleto + login). 4 módulos de negócio em produção (Diagnóstico Digital, Catálogo de Produtos e Ofertas, Roteiro de Vídeo, Landing Pages — migrados de cc-commerce-studio). Fase 6 concluída: /tenants lista os clientes reais e os módulos de cada um.",
+  "fase_atual": "Fase 1 concluída (esqueleto + login). 4 módulos de negócio em produção (Diagnóstico Digital, Catálogo de Produtos e Ofertas, Roteiro de Vídeo, Landing Pages — migrados de cc-commerce-studio). Fase 6 concluída: /tenants lista os clientes reais e os módulos de cada um. Layout compartilhado (topbar + menu lateral + rodapé) e rename para ConnectionCyber concluídos.",
+  "identidade_visual": {
+    "nome_correto": "ConnectionCyber (era exibido como \"ConnectionCyberSO\" — corrigido em todo o painel)",
+    "cores": { "connection": "#E01F27", "cyber": "#2C9C48" },
+    "icone": "public/logo.png — mesmo arquivo de logo/logosf.png (raiz do monorepo) e apps/site/public/logo.png"
+  },
+  "layout_compartilhado": {
+    "resolvido_em": "2026-08-15",
+    "descricao": "Topbar (ícone + wordmark + boas-vindas + Sair), menu lateral (SidebarNav) e rodapé viraram um único layout.tsx no route group (painel) — navegar entre módulos não recarrega nem perde o menu, eliminando a necessidade de um botão \"voltar\" pedida inicialmente.",
+    "arquivos": ["src/app/(painel)/layout.tsx", "src/components/SidebarNav.tsx"]
+  },
   "decisao_arquitetura": {
     "escolha": "Next.js 14 + App Router",
     "diferenca_de": "apps/site (Pages Router) — decisão intencional, sem necessidade de convergência entre os dois apps",
@@ -12,17 +22,20 @@
     "decidido_em": "2026-08-15"
   },
   "estrutura": {
-    "src/app/layout.tsx": "layout raiz",
+    "public/logo.png": "ícone oficial ConnectionCyber",
+    "src/app/layout.tsx": "layout raiz (html/body, metadata)",
     "src/app/globals.css": "tokens de marca (copiados de apps/site) + shell do painel",
-    "src/app/page.tsx": "dashboard, protegido, force-dynamic, link para os módulos",
-    "src/app/login/page.tsx": "login de equipe (Client Component)",
-    "src/app/diagnostics/page.tsx": "módulo Diagnóstico Digital (IA)",
-    "src/app/products/page.tsx": "módulo Catálogo — cadastro de produtos",
-    "src/app/offers/page.tsx": "módulo Catálogo — geração de oferta por IA",
-    "src/app/video-scripts/page.tsx": "módulo Roteiro de Vídeo — geração por IA a partir de oferta",
-    "src/app/landing-pages/page.tsx": "módulo Landing Pages — gestão (página pública é servida por apps/site)",
-    "src/app/tenants/page.tsx": "Fase 6 — lista de clientes + módulos habilitados (só leitura, RLS decide o escopo)",
+    "src/app/login/page.tsx": "login de equipe (Client Component, fora do route group (painel))",
+    "src/app/(painel)/layout.tsx": "topbar + menu lateral + rodapé, compartilhado por todas as rotas autenticadas abaixo",
+    "src/app/(painel)/page.tsx": "dashboard, protegido, force-dynamic — conteúdo mínimo, navegação é o menu lateral",
+    "src/app/(painel)/diagnostics/page.tsx": "módulo Diagnóstico Digital (IA)",
+    "src/app/(painel)/products/page.tsx": "módulo Catálogo — cadastro de produtos",
+    "src/app/(painel)/offers/page.tsx": "módulo Catálogo — geração de oferta por IA",
+    "src/app/(painel)/video-scripts/page.tsx": "módulo Roteiro de Vídeo — geração por IA a partir de oferta",
+    "src/app/(painel)/landing-pages/page.tsx": "módulo Landing Pages — gestão (página pública é servida por apps/site)",
+    "src/app/(painel)/tenants/page.tsx": "Fase 6 — lista de clientes + módulos habilitados (só leitura, RLS decide o escopo)",
     "src/components/LogoutButton.tsx": "botão de logout",
+    "src/components/SidebarNav.tsx": "Client Component — usePathname() destaca o módulo ativo no menu",
     "src/features/diagnostics": "actions.ts, service.ts, types.ts, validations.ts, components/ — migrado de cc-commerce-studio",
     "src/features/products": "idem — mpi_products",
     "src/features/offers": "idem — mpi_offers (referencia products.id)",
@@ -47,7 +60,8 @@
     "Roteiro de Vídeo testado com um terceiro usuário real de staging: encadeando produto->oferta->roteiro, /video-scripts pré-seleciona a oferta recém-criada, 'Gerar roteiro com IA' busca oferta+produto sob RLS, criar roteiro grava em mpi_video_scripts com offer_id correto",
     "Landing Pages testado com um quarto usuário real de staging, ponta a ponta até o público: criar/publicar pela UI; a página publicada foi acessada em apps/site (/lp/<slug>) em processo separado sem sessão nenhuma, carregou conteúdo real; despublicar faz a mesma URL devolver 404. Detalhe em docs/migracao-diagnostico-digital-cc-commerce-studio",
     "/tenants testado com um quinto usuário real de staging com papel admin em user_roles (criado e removido só para o teste): mostrou o tenant ConnectionCyber com os 4 módulos seed como ativo, confirmando que is_platform_staff() libera a visão cross-tenant; usuário sem esse papel só vê a própria linha (RLS já validada em 0002/0004, não retestada à parte)",
-    "Testado em modo produção (next start) — modo dev (next dev) tem HMR instável neste ambiente, mesma observação já registrada para apps/site"
+    "Testado em modo produção (next start) — modo dev (next dev) tem HMR instável neste ambiente, mesma observação já registrada para apps/site",
+    "Layout compartilhado testado com um sexto usuário real de staging (criado e apagado só para o teste): login carrega dashboard com topbar (ícone + ConnectionCyber + boas-vindas + Sair), menu lateral com os 6 módulos e rodapé; clicar em outro módulo troca o conteúdo sem perder topbar/menu/rodapé e destaca o item ativo. Sem erros no console nem no servidor."
   ],
   "proximos_passos": [
     { "fase": 1, "descricao": "Esqueleto + login", "status": "concluida" },

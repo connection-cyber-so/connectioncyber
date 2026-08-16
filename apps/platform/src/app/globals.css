@@ -27,7 +27,9 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 24px;
   border-bottom: 1px solid var(--cc-border);
   background: var(--cc-bg);
 }
@@ -38,6 +40,8 @@ a {
   gap: 10px;
   font-weight: 700;
   font-size: 0.95rem;
+  text-decoration: none;
+  color: inherit;
 }
 
 .pf-brand .dot {
@@ -45,6 +49,122 @@ a {
   height: 8px;
   border-radius: 50%;
   background: var(--cc-teal);
+}
+
+.pf-brand-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Identidade visual oficial: Connection em vermelho, Cyber em verde. */
+.pf-wordmark {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.pf-wordmark-connection {
+  color: var(--cc-red);
+}
+
+.pf-wordmark-cyber {
+  color: var(--cc-green);
+}
+
+.pf-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pf-welcome {
+  text-align: right;
+  line-height: 1.35;
+}
+
+.pf-welcome-eyebrow {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cc-teal);
+  font-weight: 700;
+}
+
+.pf-welcome-session {
+  font-size: 0.82rem;
+  color: var(--cc-text-muted);
+}
+
+.pf-welcome-session strong {
+  color: var(--cc-text);
+}
+
+/* ---- corpo do painel: menu lateral + conteúdo ---- */
+
+.pf-painel {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.pf-painel-body {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.pf-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pf-sidebar-link {
+  display: block;
+  padding: 12px 14px;
+  border-radius: var(--cc-radius-sm);
+  border: 1px solid var(--cc-border);
+  background: var(--cc-bg);
+  color: var(--cc-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pf-sidebar-link:hover {
+  border-color: var(--cc-primary);
+}
+
+.pf-sidebar-link.active {
+  border-color: var(--cc-primary);
+  background: var(--cc-bg-alt);
+  color: var(--cc-primary);
+}
+
+.pf-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 24px;
+  background: var(--cc-blue-900);
+  color: var(--cc-gray-200);
+  font-size: 0.78rem;
+}
+
+.pf-footer-brand {
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .pf-main {
@@ -168,18 +288,10 @@ a {
 
 /* ---- páginas de conteúdo (dashboard, módulos) ---- */
 
-.pf-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
 .pf-content {
   flex: 1;
-  width: 100%;
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 32px 24px 80px;
+  min-width: 0;
+  padding-bottom: 40px;
 }
 
 .pf-page-header {

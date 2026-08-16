@@ -9,7 +9,7 @@ export const env = {
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
   },
   platform: {
-    url: process.env.NEXT_PUBLIC_PLATFORM_URL ?? 'http://localhost:3001',
+    url: process.env.NEXT_PUBLIC_PLATFORM_URL ?? 'http://localhost:3011',
   },
   site: {
     // Domínio público (apps/site) — usado só para montar o link de landing

@@ -35,7 +35,7 @@ function LoginForm() {
     <div className="pf-shell">
       <main className="pf-main">
         <div className="pf-card">
-          <div className="pf-eyebrow">ConnectionCyberSO · Painel Interno</div>
+          <div className="pf-eyebrow">ConnectionCyber · Painel Interno</div>
           <h1 className="pf-title">Entrar</h1>
 
           {!isSupabaseConfigured && (
