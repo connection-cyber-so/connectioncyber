@@ -48,9 +48,10 @@
   }
   #sidebar.collapsed{ transform:translateX(-100%); }
   .brand{ display:flex; align-items:center; gap:10px; }
-  .brand-dot{ width:14px; height:14px; border-radius:50%;
-    background:conic-gradient(var(--orange),var(--red),var(--green),var(--teal),var(--orange)); }
+  .brand-icon{ width:28px; height:28px; object-fit:contain; flex-shrink:0; }
   .brand-title{ font-weight:800; font-size:.95rem; letter-spacing:.02em; }
+  .brand-connection{ color:var(--red); }
+  .brand-cyber{ color:var(--green); }
   .brand-sub{ font-size:.68rem; color:var(--muted); margin-top:2px; }
 
   .panel-section{ border-top:1px solid var(--border); padding-top:14px; }
@@ -66,7 +67,7 @@
   }
   .mode-btn:hover{ transform:translateY(-1px); border-color:var(--teal); }
   .mode-btn.active{ background:linear-gradient(135deg,var(--blue),var(--teal)); border-color:transparent; font-weight:700; }
-  .mode-icon{ font-size:1.05rem; }
+  .mode-icon{ display:flex; align-items:center; justify-content:center; }
 
   .legend-item{ display:flex; align-items:center; gap:8px; font-size:.78rem; padding:5px 0; color:var(--muted); cursor:pointer; }
   .legend-item:hover{ color:var(--text); }
@@ -149,9 +150,9 @@
 
   <aside id="sidebar">
     <div class="brand">
-      <div class="brand-dot"></div>
+      <img class="brand-icon" src="/logo.png" alt="ConnectionCyber" />
       <div>
-        <div class="brand-title">CONNECTIONCYBER</div>
+        <div class="brand-title"><span class="brand-connection">Connection</span><span class="brand-cyber">Cyber</span></div>
         <div class="brand-sub">Mapa Arquitetural Enterprise</div>
       </div>
     </div>
@@ -159,12 +160,24 @@
     <div class="panel-section">
       <div class="panel-title">Modos</div>
       <div class="mode-grid" id="mode-grid">
-        <button class="mode-btn" data-mode="enterprise"><span class="mode-icon">🏢</span>Enterprise</button>
-        <button class="mode-btn" data-mode="heatmap"><span class="mode-icon">🔥</span>Heatmap</button>
-        <button class="mode-btn" data-mode="fisica"><span class="mode-icon">🧲</span>Física</button>
-        <button class="mode-btn" data-mode="orbita"><span class="mode-icon">🪐</span>Órbita</button>
-        <button class="mode-btn" data-mode="ia"><span class="mode-icon">🤖</span>IA</button>
-        <button class="mode-btn" data-mode="seguranca"><span class="mode-icon">🛡️</span>Segurança</button>
+        <button class="mode-btn" data-mode="enterprise"><span class="mode-icon">
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="14" height="16" rx="1"/><rect x="6" y="5" width="2" height="2"/><rect x="11" y="5" width="2" height="2"/><rect x="6" y="9" width="2" height="2"/><rect x="11" y="9" width="2" height="2"/><rect x="6" y="13" width="2" height="2"/><rect x="11" y="13" width="2" height="2"/></svg>
+        </span>Enterprise</button>
+        <button class="mode-btn" data-mode="heatmap"><span class="mode-icon">
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v9"/><circle cx="10" cy="14.5" r="2.5"/><path d="M8 6h4M8 8.5h4"/></svg>
+        </span>Heatmap</button>
+        <button class="mode-btn" data-mode="fisica"><span class="mode-icon">
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="10" cy="10" r="1.6" fill="currentColor" stroke="none"/><ellipse cx="10" cy="10" rx="8" ry="3.2"/><ellipse cx="10" cy="10" rx="8" ry="3.2" transform="rotate(60 10 10)"/><ellipse cx="10" cy="10" rx="8" ry="3.2" transform="rotate(120 10 10)"/></svg>
+        </span>Física</button>
+        <button class="mode-btn" data-mode="orbita"><span class="mode-icon">
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="10" cy="10" r="2" fill="currentColor" stroke="none"/><ellipse cx="10" cy="10" rx="8" ry="4"/><circle cx="17.2" cy="10" r="1.3" fill="currentColor" stroke="none"/></svg>
+        </span>Órbita</button>
+        <button class="mode-btn" data-mode="ia"><span class="mode-icon">
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="6" y="6" width="8" height="8" rx="1"/><line x1="10" y1="1.5" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18.5"/><line x1="1.5" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18.5" y2="10"/><line x1="4" y1="4" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="16" y2="16"/><line x1="16" y1="4" x2="14.4" y2="5.6"/><line x1="5.6" y1="14.4" x2="4" y2="16"/></svg>
+        </span>IA</button>
+        <button class="mode-btn" data-mode="seguranca"><span class="mode-icon">
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2l7 3v5c0 4.5-3 7-7 8-4-1-7-3.5-7-8V5z"/><path d="M7 10l2 2 4-4"/></svg>
+        </span>Segurança</button>
       </div>
     </div>
 
@@ -753,12 +766,25 @@
     camera.x = n.x; camera.y = n.y; camera.scale = 1.4;
   }
 
+  // ===================== CONTROLE EXTERNO (postMessage / query string) =====================
+  // Permite que a página que embute este iframe (apps/site/src/pages/sistema)
+  // troque o modo do mapa sem precisar recarregar o iframe.
+  var VALID_MODES = ['enterprise', 'heatmap', 'fisica', 'orbita', 'ia', 'seguranca'];
+
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'connectioncyber:set-mode' && VALID_MODES.indexOf(e.data.mode) !== -1) {
+      setMode(e.data.mode);
+    }
+  });
+
   // ===================== BOOT =====================
   window.addEventListener('resize', resize);
   resize();
   buildGraph();
   buildLegend();
-  setMode('enterprise');
+  var initialParams = new URLSearchParams(window.location.search);
+  var initialMode = initialParams.get('modo');
+  setMode(VALID_MODES.indexOf(initialMode) !== -1 ? initialMode : 'enterprise');
   requestAnimationFrame(loop);
 })();
 </script>

@@ -56,7 +56,8 @@
     <li>i18n PT-BR/EN-US via Context API (sem biblioteca externa) — i18n nativo do Next.js removido (causava <code>NOT_FOUND</code> na Vercel)</li>
     <li><code>/login</code> funcional + middleware de proteção de rota (<code>src/middleware.ts</code>) — corrige o hang de <code>/membros</code></li>
     <li>Header: botão "Fale Conosco" trocado por <b>"Fazer Login"</b> (<code>/login</code>), mesma cor de fundo, borda <code>1.5px solid #F6851F</code>; ícones flutuantes de rede social agora são SVGs reais (não mais letras), mesma borda laranja</li>
-    <li><b>Padrão de borda (2026-08-15):</b> cards, campos de formulário (<code>/login</code>, <code>/contato</code>) e a caixa do Sistema Visual Enterprise usam <code>1px solid #28A992</code></li>
+    <li><b>Padrão de borda (2026-08-15):</b> todos os botões (Home/Serviços/Treinamentos/Contato) e ícones flutuantes usam <code>1.5px solid #F6851F</code>; cards, campos de formulário (<code>/login</code>, <code>/contato</code>) e a caixa do Sistema Visual Enterprise usam <code>1px solid #28A992</code></li>
+    <li><b>Sistema Visual Enterprise — retoques (2026-08-15):</b> nome corrigido para <b>ConnectionCyber</b> com ícone oficial (era "CONNECTIONCYBER" + ponto colorido); 6 ícones de modo trocados de emoji para SVG técnico; seletor de estilo de mapa fora do iframe em <code>/sistema</code>, via <code>postMessage</code> same-origin</li>
     <li>Autenticação e RBAC via Supabase Auth</li>
     <li>Pagamentos Mercado Pago (create-preference, webhook, checkout)</li>
     <li>Schema Supabase completo — <b>4 migrations aplicadas no projeto real</b></li>
