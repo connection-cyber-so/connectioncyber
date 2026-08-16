@@ -109,6 +109,15 @@ diretório.
   **ConnectionCyber** em todo o painel, com a identidade visual oficial aplicada ("Connection"
   em vermelho `#E01F27`, "Cyber" em verde `#2C9C48`, ícone oficial). Testado com um sexto
   usuário real de staging.
+- [x] **Modelo de acessos definido + correção de segurança** (2026-08-15): confirmado com Joaquim
+  — `admin`/`suporte` (equipe) acessam `apps/platform` (cross-tenant, `is_platform_staff()`) e
+  também `/membros` em `apps/site`, sem precisar de papel extra; `cliente` fica pendente de um
+  portal próprio (fase futura, hoje `/clientes` é só vitrine pública). Achado corrigido no
+  processo: `roles`/`user_roles` nunca tiveram RLS habilitado — combinado com o grant amplo de
+  `SELECT` a `authenticated` (migration `0008`), qualquer usuário logado conseguia ler a tabela
+  `user_roles` inteira. Migration `0013_rls_roles_e_user_roles.sql` corrige (cada um só vê o
+  próprio papel; equipe vê todos) — aplicada em produção e staging, verificada com dois usuários
+  descartáveis (comum via anon key viu 0 linhas; staff viu todas).
 
 ## Documentação do projeto
 

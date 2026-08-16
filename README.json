@@ -60,8 +60,22 @@
     { "item": "4 módulos de negócio migrados de cc-commerce-studio (J:\\BK_connectioncyber): Diagnóstico Digital (IA, 0009), Catálogo de Produtos e Ofertas (IA, 0010), Roteiro de Vídeo (IA, 0011) e Landing Pages (0012, primeira peça pública — gestão em apps/platform, página publicada servida por apps/site). Aplicadas em produção e staging. Testados de ponta a ponta com usuários reais, incluindo acesso público sem sessão.", "feito": true },
     { "item": "GitHub desbloqueado, main sincronizado com origin/main", "feito": true },
     { "item": "apps/platform Fase 6 — Lista de tenants (/tenants, só leitura): clientes reais e módulos habilitados de cada um, primeira vez fora do Supabase Table Editor. Testado com um quinto usuário real de staging com papel de equipe (admin em user_roles).", "feito": true },
-    { "item": "apps/platform — layout compartilhado (topbar + menu lateral + rodapé em layout.tsx único, route group (painel)) e rename para ConnectionCyber com identidade visual oficial (Connection #E01F27, Cyber #2C9C48). Testado com um sexto usuário real de staging.", "feito": true }
+    { "item": "apps/platform — layout compartilhado (topbar + menu lateral + rodapé em layout.tsx único, route group (painel)) e rename para ConnectionCyber com identidade visual oficial (Connection #E01F27, Cyber #2C9C48). Testado com um sexto usuário real de staging.", "feito": true },
+    { "item": "Modelo de acessos definido + correção de segurança (2026-08-15): admin/suporte acessam apps/platform (cross-tenant) e /membros em apps/site sem papel extra; cliente pendente de portal próprio (fase futura). Migration 0013 liga RLS em roles/user_roles (achado: qualquer usuário logado lia a tabela inteira) — aplicada em produção e staging, verificada com usuários descartáveis.", "feito": true }
   ],
+  "modelo_acessos": {
+    "decidido_em": "2026-08-15",
+    "papeis": {
+      "admin": "equipe ConnectionCyber — apps/platform (cross-tenant, is_platform_staff()) e /membros em apps/site, sem papel extra",
+      "suporte": "equipe ConnectionCyber — mesmo acesso de admin via is_platform_staff()",
+      "tecnico": "equipe técnica — escopo mais restrito, pendente (Fase 7 — RBAC por módulo)",
+      "instrutor": "cria/gerencia conteúdo de curso — /membros em apps/site",
+      "aluno": "estudante matriculado — /membros em apps/site",
+      "cliente": "contato principal do tenant — portal próprio pendente (fase futura); /clientes hoje é só vitrine pública, sem login",
+      "visitante": "sem papel / não autenticado — só páginas públicas"
+    },
+    "seguranca": "roles e user_roles nunca tiveram RLS habilitado; combinado com o grant amplo de SELECT a authenticated (migration 0008), qualquer usuário logado lia user_roles inteira. Corrigido pela migration 0013_rls_roles_e_user_roles.sql: cada usuário só lê o próprio papel, equipe (is_platform_staff()) lê todos. Verificado com dois usuários descartáveis via anon key."
+  },
   "alertas": [],
   "documentos_relacionados": [
     { "id": "parecer-tecnico-arquitetura", "descricao": "Decisões de arquitetura (multi-tenant, isolamento, roteiro de implantação)" },
