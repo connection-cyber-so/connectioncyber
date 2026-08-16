@@ -14,7 +14,8 @@
     "system": "Sistema",
     "contact": "Contato",
     "members": "Área de Alunos",
-    "login": "Entrar"
+    "login": "Entrar",
+    "loginCta": "Fazer Login"
   },
   "home": {
     "heroTitle": "Tecnologia, Sistemas e Treinamento para Empresas Modernas",

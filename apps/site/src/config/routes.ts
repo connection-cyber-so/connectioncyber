@@ -10,6 +10,7 @@ export const routes = {
   sistema: '/sistema',
   clientes: '/clientes',
   membros: '/membros',
+  login: '/login',
   contato: '/contato',
   checkout: '/checkout',
   pagamentoSucesso: '/pagamento/sucesso',
