@@ -16,6 +16,11 @@
 > caixas de estado vazio usam `1.5px solid #F6851F` (laranja da marca) — linha fina cinza
 > (`--cc-border`) trocada por esse padrão em todo o painel; divisórias estruturais (linha da
 > topbar, rodapé) não mudaram.
+> **Gate de equipe (2026-08-15)**: validação de acesso com contas reais de admin/aluno/cliente
+> revelou que qualquer usuário autenticado (mesmo aluno/cliente) conseguia abrir o painel inteiro
+> — a RLS multi-tenant sempre isolou os dados certos, mas nada impedia o login em si. Corrigido:
+> `(painel)/layout.tsx` agora chama `is_platform_staff()` e mostra uma tela de "Acesso restrito"
+> para quem não é admin/suporte, antes de renderizar qualquer menu ou módulo.
 
 Painel interno de gestão de tenants, módulos e clientes da ConnectionCyber — separado do site
 institucional (`apps/site`). Só a equipe entra aqui; clientes finais usam `apps/site` (`/membros`).
@@ -70,6 +75,8 @@ apps/platform/
 │  ├─ lib/
 │  │  ├─ tenant.ts          getCurrentTenantId()/requireCurrentTenantId() — deriva o tenant
 │  │  │                      da SESSÃO, nunca de formulário/query string
+│  │  ├─ staff.ts            isPlatformStaff() — chama a função SQL is_platform_staff();
+│  │  │                      usado no layout de (painel) pra bloquear quem não é admin/suporte
 │  │  └─ supabase/
 │  │     ├─ client.ts       Supabase para Client Components (browser, chave anônima)
 │  │     ├─ server.ts       Supabase para Server Components (lê sessão dos cookies)
@@ -138,6 +145,14 @@ npm run dev   # porta 3011 (apps/site usa a 3000; 3001 é reservada pelo Windows
   Produtos conferidos por captura de tela — card de login, campos de e-mail/senha, itens do
   menu, card de boas-vindas e formulário de produto todos com a borda `1.5px solid #F6851F`.
   Sem erros no console nem no servidor.
+- **Gate de equipe testado com três contas reais nomeadas** (`admin@`/`aluno@`/`cliente@`
+  `connectioncyber.com.br`, staging e produção, papéis atribuídos via `user_roles`): sessão
+  obtida pela API administrativa do Supabase (link mágico verificado por API + `setSession()`),
+  sem nunca ler nem alterar a senha real de cada conta. **Antes da correção**: `aluno@` e
+  `cliente@` conseguiam abrir o dashboard do painel inteiro — só `admin@` deveria. **Depois**:
+  `aluno@` e `cliente@` veem a tela "Acesso restrito"; `admin@` continua entrando normalmente e
+  vendo `/tenants` cross-tenant, sem regressão. Mesma bateria confirmou `/membros` em
+  `apps/site`: `admin@`/`aluno@` entram, `cliente@` é redirecionado pra Home.
 
 ## Próximos passos (roteiro)
 

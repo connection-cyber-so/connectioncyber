@@ -21,6 +21,12 @@
     "descricao": "Topbar (ícone + wordmark + boas-vindas + Sair), menu lateral (SidebarNav) e rodapé viraram um único layout.tsx no route group (painel) — navegar entre módulos não recarrega nem perde o menu, eliminando a necessidade de um botão \"voltar\" pedida inicialmente.",
     "arquivos": ["src/app/(painel)/layout.tsx", "src/components/SidebarNav.tsx"]
   },
+  "gate_de_equipe": {
+    "resolvido_em": "2026-08-15",
+    "achado": "Validação de acesso com contas reais admin/aluno/cliente revelou que qualquer usuário autenticado conseguia abrir o painel inteiro — a RLS multi-tenant sempre isolou os dados certos, mas nada impedia o login em si.",
+    "correcao": "(painel)/layout.tsx agora chama is_platform_staff() (via novo helper src/lib/staff.ts) e mostra uma tela de Acesso restrito para quem não é admin/suporte, antes de renderizar menu ou módulo.",
+    "verificacao": "Testado com admin@/aluno@/cliente@connectioncyber.com.br (staging): antes, aluno e cliente entravam no dashboard; depois, só admin entra — aluno/cliente veem Acesso restrito. Sem regressão em admin (dashboard e /tenants cross-tenant OK)."
+  },
   "decisao_arquitetura": {
     "escolha": "Next.js 14 + App Router",
     "diferenca_de": "apps/site (Pages Router) — decisão intencional, sem necessidade de convergência entre os dois apps",
@@ -49,6 +55,7 @@
     "src/features/landing-pages": "idem — mpi_landing_pages (referencia offers.id); ver docs/migracao-diagnostico-digital-cc-commerce-studio",
     "src/features/tenants": "types.ts, service.ts, components/TenantCard.tsx — só leitura",
     "src/lib/tenant.ts": "getCurrentTenantId()/requireCurrentTenantId() — deriva o tenant da sessão, nunca de formulário/query string",
+    "src/lib/staff.ts": "isPlatformStaff() — chama a função SQL is_platform_staff(); usado no layout de (painel) pra bloquear quem não é admin/suporte",
     "src/lib/supabase/client.ts": "Supabase para Client Components (browser, chave anônima)",
     "src/lib/supabase/server.ts": "Supabase para Server Components (lê sessão dos cookies)",
     "src/lib/supabase/middleware.ts": "updateSession() — padrão oficial @supabase/ssr para App Router",
@@ -68,7 +75,8 @@
     "/tenants testado com um quinto usuário real de staging com papel admin em user_roles (criado e removido só para o teste): mostrou o tenant ConnectionCyber com os 4 módulos seed como ativo, confirmando que is_platform_staff() libera a visão cross-tenant; usuário sem esse papel só vê a própria linha (RLS já validada em 0002/0004, não retestada à parte)",
     "Testado em modo produção (next start) — modo dev (next dev) tem HMR instável neste ambiente, mesma observação já registrada para apps/site",
     "Layout compartilhado testado com um sexto usuário real de staging (criado e apagado só para o teste): login carrega dashboard com topbar (ícone + ConnectionCyber + boas-vindas + Sair), menu lateral com os 6 módulos e rodapé; clicar em outro módulo troca o conteúdo sem perder topbar/menu/rodapé e destaca o item ativo. Sem erros no console nem no servidor.",
-    "Borda padrão testada com um sétimo usuário real de staging: login, dashboard e módulo Produtos conferidos por captura de tela — card de login, campos, itens do menu, card de boas-vindas e formulário todos com a borda 1.5px solid #F6851F. Sem erros no console nem no servidor."
+    "Borda padrão testada com um sétimo usuário real de staging: login, dashboard e módulo Produtos conferidos por captura de tela — card de login, campos, itens do menu, card de boas-vindas e formulário todos com a borda 1.5px solid #F6851F. Sem erros no console nem no servidor.",
+    "Gate de equipe testado com três contas reais nomeadas (admin@/aluno@/cliente@connectioncyber.com.br, staging e produção): sessão obtida via API administrativa do Supabase (link mágico verificado por API + setSession()), sem ler nem alterar senha real. Antes: aluno@ e cliente@ abriam o dashboard inteiro. Depois: veem Acesso restrito; admin@ segue normal, sem regressão. Mesma bateria confirmou /membros em apps/site: admin@/aluno@ entram, cliente@ é redirecionado pra Home."
   ],
   "proximos_passos": [
     { "fase": 1, "descricao": "Esqueleto + login", "status": "concluida" },
@@ -88,5 +96,18 @@
     "descricao": "Conta pessoal criada pelo próprio Joaquim (ação exclusiva dele) em produção (qfggetvashdxyuvlhihq) e staging (ozvylnaipubrmaadikvk), mesmo e-mail (admin@connectioncyber.com.br), senhas diferentes por ambiente. Papel admin atribuído em user_roles nos dois projetos via script pontual com a service_role key, apagada do disco logo depois.",
     "producao": { "user_id": "2e277ff7-fdc3-4512-b3fb-f5b819dad664", "tenant_id": "1ac917bf-c5f7-4be9-9d8c-064cd5b8f0f5" },
     "staging": { "user_id": "080c0f2f-8bcf-42e2-8fe9-9e9be7a402eb", "tenant_id": "71508b8f-2fd9-46fc-9a05-1b7a97fccbd5" }
+  },
+  "contas_de_teste_por_papel": {
+    "descricao": "Contas nomeadas persistentes (não descartáveis) criadas por Joaquim em produção e staging para testar o modelo de acessos — reutilizáveis em validações futuras.",
+    "producao": {
+      "admin@connectioncyber.com.br": "2e277ff7-fdc3-4512-b3fb-f5b819dad664",
+      "aluno@connectioncyber.com.br": "9ebc1a42-63db-4cf2-ac53-3356ac380c69",
+      "cliente@connectioncyber.com.br": "5ed56973-17ed-485e-b8ba-373bc5cfec31"
+    },
+    "staging": {
+      "admin@connectioncyber.com.br": "080c0f2f-8bcf-42e2-8fe9-9e9be7a402eb",
+      "aluno@connectioncyber.com.br": "cde1e90c-328b-422c-807a-2062be0e614e",
+      "cliente@connectioncyber.com.br": "dbeca1e6-402b-4545-96be-2e72083fe434"
+    }
   }
 }

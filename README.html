@@ -97,6 +97,7 @@
     <tr><td class="ok">✅</td><td><b>apps/platform Fase 6 — Lista de tenants</b> (<code>/tenants</code>, só leitura): clientes reais e módulos habilitados de cada um, primeira vez fora do Supabase Table Editor. Testado com um quinto usuário real de staging com papel de equipe (<code>admin</code> em <code>user_roles</code>) — <a href="../apps/platform/README.html">ver apps/platform/README</a></td></tr>
     <tr><td class="ok">✅</td><td><b>apps/platform — layout compartilhado + rename para ConnectionCyber</b>: topbar + menu lateral + rodapé em um único <code>layout.tsx</code> (navegar entre módulos não perde mais o menu); nome corrigido de "ConnectionCyberSO" para <b>ConnectionCyber</b>, identidade visual oficial aplicada ("Connection" em vermelho <code>#E01F27</code>, "Cyber" em verde <code>#2C9C48</code>). Testado com um sexto usuário real de staging</td></tr>
     <tr><td class="ok">✅</td><td><b>Modelo de acessos definido + correção de segurança</b> (2026-08-15): <code>admin</code>/<code>suporte</code> acessam <code>apps/platform</code> (cross-tenant) e <code>/membros</code> em <code>apps/site</code> sem papel extra; <code>cliente</code> pendente de portal próprio (fase futura). Achado corrigido: <code>roles</code>/<code>user_roles</code> nunca tiveram RLS — migration <code>0013</code> liga (cada um só vê o próprio papel, equipe vê todos), aplicada em produção e staging, verificada com usuários descartáveis</td></tr>
+    <tr><td class="ok">✅</td><td><b>Validação de acesso admin/aluno/cliente + gate de equipe</b> (2026-08-15): teste com três contas reais nomeadas revelou que <code>aluno@</code>/<code>cliente@</code> conseguiam abrir o <code>apps/platform</code> inteiro (RLS isolava dados, mas não o login em si). Corrigido: layout chama <code>is_platform_staff()</code> e bloqueia quem não é equipe. Reverificado sem regressão; <code>/membros</code> em <code>apps/site</code> também confirmado no mesmo teste</td></tr>
   </table>
 
   <h2>Documentação do projeto</h2>
@@ -112,7 +113,7 @@
     <li><code>docs/prompt geral.txt</code> — briefing original, blueprint técnico enterprise (documento-fonte, sem versão JSON/HTML)</li>
   </ul>
 
-  <footer>connectioncyber · README · atualizado em 2026-08-15 (modelo de acessos + RLS em roles/user_roles) · também disponível em .md e .json</footer>
+  <footer>connectioncyber · README · atualizado em 2026-08-15 (modelo de acessos + RLS + gate de equipe) · também disponível em .md e .json</footer>
 </div>
 </body>
 </html>
