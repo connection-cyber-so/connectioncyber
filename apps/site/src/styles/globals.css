@@ -80,7 +80,7 @@ p {
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 1.5px solid var(--cc-orange);
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
@@ -100,13 +100,11 @@ p {
 
 .btn-outline {
   background: transparent;
-  border-color: var(--cc-white);
   color: var(--cc-white);
 }
 
 .btn-outline-dark {
   background: transparent;
-  border-color: var(--cc-primary);
   color: var(--cc-primary);
 }
 

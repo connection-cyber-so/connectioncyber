@@ -41,10 +41,19 @@ raiz, em `../../supabase/migrations` — não mais dentro deste app.
   SVG reais — antes eram letras) com tracking best-effort (gtag + webhook
   n8n). Header: botão "Fale Conosco" trocado por **"Fazer Login"**
   (`/login`), mesma cor de fundo, borda `1.5px solid #F6851F`.
-- **Padrão de borda (2026-08-15)**: ícones flutuantes de rede social usam
-  `1.5px solid #F6851F` (laranja); cards (`.card`), campos de formulário
-  (`/login`, `/contato`) e a caixa do Sistema Visual Enterprise
-  (`.enterprise-frame`) usam `1px solid #28A992` (verde-azulado da marca).
+- **Padrão de borda (2026-08-15)**: todos os botões (`.btn` — primário,
+  outline, outline-dark, em Home/Serviços/Treinamentos/Contato) e os ícones
+  flutuantes de rede social usam `1.5px solid #F6851F` (laranja); cards
+  (`.card`), campos de formulário (`/login`, `/contato`) e a caixa do
+  Sistema Visual Enterprise (`.enterprise-frame`) usam `1px solid #28A992`
+  (verde-azulado da marca).
+- **Sistema Visual Enterprise — retoques (2026-08-15)**: nome corrigido de
+  "CONNECTIONCYBER" para **ConnectionCyber** (com o ícone oficial, não mais
+  um ponto colorido) no painel lateral; os 6 ícones de modo (emoji) viraram
+  SVGs técnicos (prédio, termômetro, átomo, órbita, chip, escudo); nova
+  troca de estilo de mapa **fora do iframe**, na própria página `/sistema`
+  (`postMessage` same-origin — `connectioncyber:set-mode` — troca o modo ao
+  vivo sem recarregar o iframe nem perder zoom/posição).
 - **Área de Clientes** (`/clientes`) com componente pronto para os 15 clientes
   com contrato de longa data — **dados reais pendentes**, ver seção
   "Ações pendentes" abaixo.
