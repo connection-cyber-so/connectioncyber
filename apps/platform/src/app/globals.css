@@ -132,7 +132,7 @@ a {
   display: block;
   padding: 12px 14px;
   border-radius: var(--cc-radius-sm);
-  border: 1px solid var(--cc-border);
+  border: 1.5px solid var(--cc-orange);
   background: var(--cc-bg);
   color: var(--cc-text);
   font-size: 0.88rem;
@@ -140,12 +140,7 @@ a {
   text-decoration: none;
 }
 
-.pf-sidebar-link:hover {
-  border-color: var(--cc-primary);
-}
-
 .pf-sidebar-link.active {
-  border-color: var(--cc-primary);
   background: var(--cc-bg-alt);
   color: var(--cc-primary);
 }
@@ -179,7 +174,7 @@ a {
   width: 100%;
   max-width: 400px;
   background: var(--cc-bg);
-  border: 1px solid var(--cc-border);
+  border: 1.5px solid var(--cc-orange);
   border-radius: var(--cc-radius-md);
   box-shadow: var(--cc-shadow-md);
   padding: 32px;
@@ -216,7 +211,7 @@ a {
 .pf-field select {
   padding: 10px 12px;
   border-radius: var(--cc-radius-sm);
-  border: 1px solid var(--cc-border);
+  border: 1.5px solid var(--cc-orange);
   background: var(--cc-bg);
   color: var(--cc-text);
   font-size: 0.92rem;
@@ -316,7 +311,7 @@ a {
 
 .pf-content-card {
   background: var(--cc-bg);
-  border: 1px solid var(--cc-border);
+  border: 1.5px solid var(--cc-orange);
   border-radius: var(--cc-radius-md);
   box-shadow: var(--cc-shadow-sm);
   padding: 24px;
@@ -336,7 +331,7 @@ a {
 }
 
 .pf-empty {
-  border: 1px dashed var(--cc-border);
+  border: 1.5px dashed var(--cc-orange);
   border-radius: var(--cc-radius-md);
   padding: 28px;
   text-align: center;
