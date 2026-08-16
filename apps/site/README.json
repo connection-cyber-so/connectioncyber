@@ -51,9 +51,9 @@
     { "item": "Domínio connectioncyber.com.br", "status": "pendente", "detalhe": "apontar DNS para a Vercel" },
     { "item": "Vercel", "status": "concluido", "detalhe": "repositório conectado, deploy de produção validado" },
     { "item": "Carteira de 15 clientes", "status": "pendente", "detalhe": "src/config/clients.ts com placeholders genéricos, dados reais não estavam no briefing" },
-    { "item": "Números de contato reais", "status": "pendente", "detalhe": "src/config/routes.ts (socialLinks) com WhatsApp/redes sociais placeholder" },
+    { "item": "Números de contato reais", "status": "concluido", "detalhe": "WhatsApp real (5511967426682), e-mail contatos@connectioncyber.com.br (corrigido de contato@) e endereço completo em Footer.tsx, /contato e i18n/*.json (2026-08-15). Links de redes sociais nos ícones flutuantes/rodapé ainda são placeholders." },
     { "item": "n8n", "status": "pendente", "detalhe": "URL da instância (N8N_BASE_URL) e token, se/quando a automação for ativada" },
-    { "item": "GitHub", "status": "bloqueado_externamente", "detalhe": "conta connection-cyber-so temporariamente suspensa, desbloqueio já solicitado" }
+    { "item": "GitHub", "status": "concluido", "detalhe": "conta connection-cyber-so desbloqueada, repositório https://github.com/connection-cyber-so/connectioncyber ativo e em uso normal" }
   ],
   "modulos_avancados_roadmap": [
     { "modulo": "Automação n8n", "status": "parcial", "observacao": "webhooks previstos no código (env.n8n), workflows n8n fora deste repo" },

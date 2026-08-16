@@ -34,12 +34,15 @@ export default function Footer() {
           <ul style={styles.list}>
             <li>{t('contact.location')}</li>
             <li>
+              <a href={`tel:${t('contact.phone').replace(/[^\d+]/g, '')}`}>{t('contact.phone')}</a>
+            </li>
+            <li>
               <a href={socialLinks.whatsapp} target="_blank" rel="noreferrer">
                 WhatsApp
               </a>
             </li>
             <li>
-              <a href="mailto:contato@connectioncyber.com.br">contato@connectioncyber.com.br</a>
+              <a href={`mailto:${t('contact.email')}`}>{t('contact.email')}</a>
             </li>
           </ul>
         </div>

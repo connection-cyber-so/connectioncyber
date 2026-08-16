@@ -33,7 +33,7 @@ export const mainNav: { key: RouteKey; labelKey: string }[] = [
 
 /** Redes sociais exibidas nos botões flutuantes e no rodapé. */
 export const socialLinks = {
-  whatsapp: 'https://wa.me/5519000000000',
+  whatsapp: 'https://wa.me/5511967426682',
   instagram: 'https://instagram.com/connectioncyber',
   facebook: 'https://facebook.com/connectioncyber',
   linkedin: 'https://linkedin.com/company/connectioncyber',

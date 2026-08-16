@@ -170,9 +170,13 @@ dados reais ou de uma conta sua em cada serviço:
    placeholders genéricos (`Cliente Corporativo 1..15`) porque os nomes
    reais das empresas não estavam nos documentos de briefing. Substitua
    pelos dados reais (nome, logo, segmento, serviços, anos de parceria).
-6. **Números de contato reais** — `src/config/routes.ts` (`socialLinks`)
-   tem um número de WhatsApp placeholder (`5519000000000`) e links de redes
-   sociais genéricos — trocar pelos reais.
+6. ~~**Números de contato reais**~~ ✅ feito (2026-08-15) — WhatsApp real
+   (`5511967426682`), e-mail `contatos@connectioncyber.com.br` (antes estava
+   errado, no singular) e endereço completo (Rua Benedito Nogueira de
+   Barros, 135 – Pq. Das Águas – Piracicaba – SP) em `Footer.tsx`,
+   `/contato` e `src/i18n/*.json`. Links de redes sociais nos ícones
+   flutuantes/rodapé ainda são placeholders genéricos — trocar quando os
+   perfis reais existirem.
 7. **n8n** — URL da instância (`N8N_BASE_URL`) e token, se/quando a
    automação for ativada.
 8. **GitHub** — conta `connection-cyber-so` está temporariamente suspensa;
