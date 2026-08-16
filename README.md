@@ -118,6 +118,15 @@ diretório.
   `user_roles` inteira. Migration `0013_rls_roles_e_user_roles.sql` corrige (cada um só vê o
   próprio papel; equipe vê todos) — aplicada em produção e staging, verificada com dois usuários
   descartáveis (comum via anon key viu 0 linhas; staff viu todas).
+- [x] **Validação de acesso admin/aluno/cliente + gate de equipe em `apps/platform`** (2026-08-15):
+  teste passo a passo com três contas reais nomeadas (`admin@`/`aluno@`/`cliente@
+  connectioncyber.com.br`, staging e produção) revelou que qualquer usuário autenticado —
+  mesmo `aluno@`/`cliente@` — conseguia abrir o painel interno inteiro (a RLS sempre isolou os
+  dados certos, mas nada impedia o login em si). Corrigido: `apps/platform` agora chama
+  `is_platform_staff()` no layout e bloqueia quem não é equipe com uma tela de acesso restrito.
+  Reverificado com as mesmas três contas: `admin@` normal, `aluno@`/`cliente@` bloqueados, sem
+  regressão. `/membros` em `apps/site` também confirmado no mesmo teste: `admin@`/`aluno@`
+  entram, `cliente@` é barrado.
 
 ## Documentação do projeto
 
