@@ -64,7 +64,7 @@
     { "modulo": "Analytics/observabilidade", "status": "parcial", "observacao": "tabela analytics_events pronta, falta integração externa" },
     { "modulo": "Painel de Acesso Remoto", "status": "parcial", "observacao": "tabelas remote_* prontas, falta interface administrativa" },
     { "modulo": "Clusters Varejo/Food", "status": "nao_iniciado", "observacao": "comentado no SQL, ativar quando contratados" },
-    { "modulo": "CI/CD (GitHub Actions)", "status": "nao_iniciado", "observacao": "depende do repositório estar no GitHub (atualmente suspenso)" },
+    { "modulo": "CI/CD (GitHub Actions)", "status": "nao_iniciado", "observacao": "repositório no GitHub já ativo, falta só configurar os workflows" },
     { "modulo": "Feature flags", "status": "nao_iniciado", "observacao": "pode nascer como linhas em system_settings ou tenant_modules" }
   ],
   "seguranca": [
