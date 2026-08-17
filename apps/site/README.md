@@ -179,8 +179,8 @@ dados reais ou de uma conta sua em cada serviço:
    perfis reais existirem.
 7. **n8n** — URL da instância (`N8N_BASE_URL`) e token, se/quando a
    automação for ativada.
-8. **GitHub** — conta `connection-cyber-so` está temporariamente suspensa;
-   desbloqueio já solicitado. `main` está com commits locais aguardando push.
+8. ~~**GitHub**~~ ✅ feito — conta `connection-cyber-so` desbloqueada, repositório
+   `connection-cyber-so/connectioncyber` ativo e em uso normal.
 
 Nenhuma dessas pendências bloqueia o funcionamento do site — todas têm
 fallback seguro (dados de demonstração, tracking silenciosamente
