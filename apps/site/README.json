@@ -3,7 +3,11 @@
   "id": "readme-apps-site",
   "titulo": "apps/site — Site Corporativo ConnectionCyber",
   "descricao": "Site institucional, portal de pagamentos, área de membros e mapa arquitetural enterprise da ConnectionCyber — Assessoria e Treinamento Tecnológico.",
-  "atualizado_em": "2026-08-15",
+  "atualizado_em": "2026-08-17",
+  "mercado_pago_producao": {
+    "status": "pendente",
+    "descricao": "Rodando em modo teste (conta de teste VendedorCCyber). Quando a conta real estiver verificada: pegar as credenciais de produção na mesma Aplicação do painel de desenvolvedores; colocar nas variáveis de ambiente da Vercel só no ambiente Production (nunca no .env.local); implementar de verdade a validação de assinatura do webhook (isValidWebhookSignature em src/lib/payments.ts hoje é um placeholder que sempre aceita)."
+  },
   "origem": "Unificação de docs/Connection Cyber Site.txt (conteúdo institucional) e docs/prompt geral.txt (blueprint técnico), em apps/site do monorepo connectioncyber",
   "stack": ["Next.js 14", "TypeScript", "Pages Router", "Supabase", "Mercado Pago", "@supabase/ssr (middleware)"] ,
   "pronto_e_funcionando": [
@@ -47,7 +51,7 @@
   },
   "acoes_pendentes": [
     { "item": "Supabase", "status": "concluido", "detalhe": "projeto linkado, 4 migrations aplicadas, Edge Function no ar; falta só ativar custom_access_token_hook (1 clique no Dashboard)" },
-    { "item": "Mercado Pago", "status": "pendente", "detalhe": "conta de vendedor + MERCADOPAGO_ACCESS_TOKEN + NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY" },
+    { "item": "Mercado Pago", "status": "concluido_modo_teste", "detalhe": "Configurado com credenciais de teste (conta VendedorCCyber) em 2026-08-17. Testado ponta a ponta: /checkout cria pedido e redireciona pro Mercado Pago com item/valor corretos. Achado e corrigido no processo: orders.tenant_id (NOT NULL desde a migration 0002) nunca era preenchido no insert do pedido, quebrando qualquer compra em produção com 500 — corrigido em create-preference.ts. Falta trocar pelas credenciais de produção quando a conta estiver verificada (ver seção mercado_pago_producao)." },
     { "item": "Domínio connectioncyber.com.br", "status": "pendente", "detalhe": "apontar DNS para a Vercel" },
     { "item": "Vercel", "status": "concluido", "detalhe": "repositório conectado, deploy de produção validado" },
     { "item": "Carteira de 15 clientes", "status": "pendente", "detalhe": "src/config/clients.ts com placeholders genéricos, dados reais não estavam no briefing" },

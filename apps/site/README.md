@@ -162,8 +162,17 @@ dados reais ou de uma conta sua em cada serviço:
 1. ~~**Supabase**~~ ✅ feito — projeto linkado, 4 migrations aplicadas, Edge Function no ar.
    Falta só ativar o `custom_access_token_hook` em Authentication → Hooks no Dashboard
    (1 clique, não dá pra fazer por CLI em projeto hospedado).
-2. **Mercado Pago** — conta de vendedor + `MERCADOPAGO_ACCESS_TOKEN` +
-   `NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY` (produção ou sandbox).
+2. ~~**Mercado Pago**~~ ✅ configurado em **modo teste** (2026-08-17) — credenciais da conta
+   de teste `VendedorCCyber` (`MERCADOPAGO_ACCESS_TOKEN` + `NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY`)
+   em `.env.local`. Testado ponta a ponta: `/checkout` → `/api/payments/create-preference` →
+   redireciona pro Mercado Pago real mostrando o item/valor corretos. No processo, achado e
+   corrigido um **bug que quebrava qualquer compra em produção**: `orders.tenant_id` é
+   `NOT NULL` desde a migration multi-tenant (`0002`), mas o insert do pedido nunca foi
+   atualizado pra preencher esse campo — todo `POST /api/payments/create-preference` retornava
+   `500`. Corrigido em `create-preference.ts`: pedidos do checkout público sempre pertencem ao
+   tenant `connectioncyber` (é venda do próprio ConnectionCyber, não em nome de um tenant
+   cliente). Falta trocar pelas **credenciais de produção** quando a conta Mercado Pago estiver
+   verificada — ver seção "Como habilitar produção" abaixo.
 3. **Domínio `connectioncyber.com.br`** — apontar DNS para a Vercel.
 4. ~~**Vercel**~~ ✅ feito — repositório conectado, deploy de produção validado.
 5. **Carteira de 15 clientes** — `src/config/clients.ts` está com
@@ -185,6 +194,22 @@ dados reais ou de uma conta sua em cada serviço:
 Nenhuma dessas pendências bloqueia o funcionamento do site — todas têm
 fallback seguro (dados de demonstração, tracking silenciosamente
 desativado, etc.).
+
+---
+
+## 💳 Mercado Pago — como habilitar produção
+
+Hoje rodando em **modo teste** (conta de teste `VendedorCCyber`). Quando a conta real do
+Mercado Pago estiver verificada e pronta pra receber pagamentos de verdade:
+
+1. No [painel de desenvolvedores](https://www.mercadopago.com.br/developers/panel/app), pegue
+   as **credenciais de produção** da mesma Aplicação (aba ao lado das credenciais de teste).
+2. Essas chaves **não vão no `.env.local`** — vão direto nas variáveis de ambiente da Vercel,
+   só no ambiente **Production** (mesma lógica já usada pro Supabase: Production = chave real,
+   Preview/staging continua com a chave de teste).
+3. Antes de aceitar pagamento real, implementar de verdade a validação de assinatura do
+   webhook (`isValidWebhookSignature` em `src/lib/payments.ts` hoje é um placeholder que
+   sempre aceita — funciona pra teste, não é seguro pra dinheiro real).
 
 ---
 
