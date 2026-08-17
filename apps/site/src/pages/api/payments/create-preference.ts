@@ -31,9 +31,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (isSupabaseConfigured) {
       const admin = getSupabaseAdminClient();
+
+      // orders.tenant_id é NOT NULL desde a migration multi-tenant (0002). O
+      // checkout de apps/site vende produtos/cursos do próprio ConnectionCyber
+      // (não é uma compra em nome de um tenant cliente), então o pedido
+      // sempre pertence ao tenant "connectioncyber" — nunca vem do cliente.
+      const { data: tenant, error: tenantError } = await admin
+        .from('tenants')
+        .select('id')
+        .eq('slug', 'connectioncyber')
+        .single();
+      if (tenantError || !tenant) {
+        throw new Error('Tenant connectioncyber não encontrado — não é possível registrar o pedido');
+      }
+
       const { data: order, error: orderError } = await admin
         .from('orders')
-        .insert({ user_id: body.userId ?? null, total, status: 'pendente' })
+        .insert({ user_id: body.userId ?? null, tenant_id: tenant.id, total, status: 'pendente' })
         .select('id')
         .single();
 
