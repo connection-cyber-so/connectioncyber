@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 1.4.0
+**Versão do documento:** 1.4.1
 
 **Produção alterada nesta fase:** não
 
@@ -160,6 +160,10 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - O modelo lógico foi separado das tabelas atuais do site, Mercado Pago, MPI e catálogo comercial de serviços.
 - O contrato do M02 foi fechado para memberships, estabelecimentos, capacidades, perfis, configurações, sequências, auditoria, RLS e testes cross-tenant.
 - Especificação publicada em `ARQUITETURA-CANONICA-MULTISSEGMENTO.md` e `.html`.
+- Checkpoint arquitetural `1feb493` enviado exclusivamente para `origin/staging`.
+- GitHub Actions `Quality gates` `32192279665`: concluído com sucesso.
+- Vercel Preview `dpl_DNFfHanCrdhhGUAvQ7LVxJ3HLj5m`: estado `Ready` e alias staging confirmado.
+- Estado do M01: `Validado em staging`; aguarda aprovação formal para preparar o M02.
 - Nenhuma migration, tabela, dado real, credencial, A1 ou integração de pagamento foi criada ou alterada no M01.
 
 ### 5.5 Estudo D01 — engenharia reversa preservado
@@ -190,7 +194,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | Ordem | Módulo/portão | Estado atual | Entrega principal | Critério para avançar |
 |---:|---|---|---|---|
 | M00 | Segurança e qualidade de staging | Aprovado | Migrations, variáveis, CI, Preview e smoke tests aprovados | Concluído e aceito em 18/08/2026. |
-| M01 | Arquitetura canônica multissegmento | Em validação de staging | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Documento MD/HTML, CI e Preview aprovados; nenhum schema aplicado. |
+| M01 | Arquitetura canônica multissegmento | Validado em staging | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Documento MD/HTML, CI e Preview aprovados; nenhum schema aplicado. |
 | M02 | Fundação ERP multiempresa | Planejado | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | SQL/rollback revisados; testes cross-tenant aprovados antes da aplicação. |
 | M03 | Portal do cliente e subdomínios | Não iniciado | `apps/portal`, autenticação e resolução segura de hostname | Empresa A nunca acessa empresa B; domínio desconhecido é rejeitado. |
 | M04 | Usuários, RBAC e MFA | Não iniciado | Papéis, permissões por ação e convites | Matriz de acesso validada; nenhuma senha legada migrada. |
@@ -263,6 +267,7 @@ Comando de aceite sugerido: `M01 aprovado; apresentar migrations e testes do M02
 | 1.3.0 | 18/08/2026 | M01 | Inventário, análise do legado/stack, matriz preliminar, laboratório seguro, rollback e portões G0–G6 documentados. | M00 aprovado; M01-G0 aprovado e M01 bloqueado em G1 por ausência da cópia do backup; produção não alterada. |
 | 1.3.1 | 18/08/2026 | M01 | Checkpoint documental remoto, Quality Gates e Vercel Preview registrados. | Documentação validada em staging; bloqueio seguro de M01-G1 mantido; produção não alterada. |
 | 1.4.0 | 18/08/2026 | M01 | Escopo corrigido para arquitetura canônica multissegmento; núcleo, capacidades, catálogo, invariantes e contrato M02 documentados. | Engenharia reversa movida para M14; ausência de backup deixa de bloquear; aguarda validação remota do M01. |
+| 1.4.1 | 18/08/2026 | M01 | Checkpoint, Quality Gates e Vercel Preview da arquitetura registrados. | M01 validado em staging; nenhuma migration/schema/dado real alterado; aguarda aceite para preparar M02. |
 
 ## 12. Protocolo de atualização futura
 

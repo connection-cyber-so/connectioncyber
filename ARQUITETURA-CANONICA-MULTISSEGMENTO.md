@@ -6,7 +6,7 @@
 
 **Data:** 18/08/2026
 
-**Versão:** 1.0.0
+**Versão:** 1.0.1
 
 **Produção alterada:** não
 
@@ -324,7 +324,7 @@ flowchart LR
 | M01-D | Segmentos e capacidades | varejo, vestuário/papelaria, oficina, alimentação e serviços cobertos | Concluído |
 | M01-E | Invariantes | tenancy, auditoria, valores, estoque, financeiro e fiscal definidos | Concluído |
 | M01-F | Contrato do M02 | escopo físico inicial e testes de aceite definidos | Concluído |
-| M01-G | Validação remota | commit, CI e Preview verdes | Pendente até publicação |
+| M01-G | Validação remota | commit, CI e Preview verdes | Aprovado |
 
 ## 15. Contrato de execução do M02
 
@@ -363,6 +363,14 @@ Após M01-G ficar verde, o próximo comando determinístico será:
 `M01 aprovado; apresentar migrations e testes do M02 — fundação ERP multiempresa.`
 
 Esse comando autoriza preparar o código e o parecer do M02, mas não aplicar migrations no Supabase até a revisão do SQL, do rollback e dos testes de isolamento.
+
+## 18. Evidências de validação
+
+- checkpoint arquitetural: `1feb493` em `origin/staging`;
+- GitHub Actions `Quality gates` `32192279665`: concluído com sucesso;
+- Vercel Preview `dpl_DNFfHanCrdhhGUAvQ7LVxJ3HLj5m`: target `preview`, estado `Ready` e alias staging confirmado;
+- migrations e aplicações alteradas no M01: nenhuma;
+- produção, dados reais, Mercado Pago, fiscal e A1 alterados: não.
 
 ---
 

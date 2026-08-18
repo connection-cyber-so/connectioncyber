@@ -12,7 +12,7 @@
 <body><main>
   <header>
     <h1>ConnectionCyber — Arquitetura Canônica Multissegmento</h1>
-    <div class="meta"><strong>M01</strong><span>Staging</span><span>18/08/2026</span><span>Versão 1.0.0</span><span>Produção alterada: não</span><span>Schema aplicado: não</span></div>
+    <div class="meta"><strong>M01</strong><span>Staging</span><span>18/08/2026</span><span>Versão 1.0.1</span><span>Produção alterada: não</span><span>Schema aplicado: não</span></div>
     <div class="notice"><strong>Decisão:</strong> o ERP será novo e universal. Segmentos serão combinações de capacidades; backups antigos serão apenas fontes futuras de migração.</div>
   </header>
 
@@ -100,7 +100,7 @@
 
   <h2>12. Portões M01</h2>
   <div class="table-wrap"><table><thead><tr><th>Portão</th><th>Entrega</th><th>Critério</th><th>Estado</th></tr></thead><tbody>
-    <tr><td>M01-A</td><td>Núcleo vs. legado</td><td>Backup não dirige o modelo</td><td><span class="status done">Aprovado</span></td></tr><tr><td>M01-B</td><td>Fronteiras</td><td>Reutilizar/evoluir/não reutilizar</td><td><span class="status done">Concluído</span></td></tr><tr><td>M01-C</td><td>Catálogo lógico</td><td>Domínios e responsabilidades</td><td><span class="status done">Concluído</span></td></tr><tr><td>M01-D</td><td>Segmentos</td><td>Cinco perfis cobertos</td><td><span class="status done">Concluído</span></td></tr><tr><td>M01-E</td><td>Invariantes</td><td>Segurança e livros razão</td><td><span class="status done">Concluído</span></td></tr><tr><td>M01-F</td><td>Contrato M02</td><td>Escopo e testes definidos</td><td><span class="status done">Concluído</span></td></tr><tr><td>M01-G</td><td>Validação remota</td><td>Commit, CI e Preview verdes</td><td><span class="status pending">Pendente</span></td></tr>
+    <tr><td>M01-A</td><td>Núcleo vs. legado</td><td>Backup não dirige o modelo</td><td><span class="status done">Aprovado</span></td></tr><tr><td>M01-B</td><td>Fronteiras</td><td>Reutilizar/evoluir/não reutilizar</td><td><span class="status done">Concluído</span></td></tr><tr><td>M01-C</td><td>Catálogo lógico</td><td>Domínios e responsabilidades</td><td><span class="status done">Concluído</span></td></tr><tr><td>M01-D</td><td>Segmentos</td><td>Cinco perfis cobertos</td><td><span class="status done">Concluído</span></td></tr><tr><td>M01-E</td><td>Invariantes</td><td>Segurança e livros razão</td><td><span class="status done">Concluído</span></td></tr><tr><td>M01-F</td><td>Contrato M02</td><td>Escopo e testes definidos</td><td><span class="status done">Concluído</span></td></tr><tr><td>M01-G</td><td>Validação remota</td><td>Commit, CI e Preview verdes</td><td><span class="status done">Aprovado</span></td></tr>
   </tbody></table></div>
 
   <h2>13. Contrato do M02</h2>
@@ -111,5 +111,7 @@
   <p>M01 será aceito quando os cinco perfis estiverem cobertos sem fork, o catálogo universal e as invariantes estiverem definidos, os documentos MD/HTML forem equivalentes e CI/Preview estiverem verdes.</p>
   <div class="notice"><strong>Próximo comando:</strong> <code>M01 aprovado; apresentar migrations e testes do M02 — fundação ERP multiempresa.</code></div>
   <p>Esse comando autoriza preparar SQL e testes, mas não aplicar migrations antes da revisão do código, rollback e isolamento.</p>
+  <h2>15. Evidências</h2>
+  <ul><li>Checkpoint <code>1feb493</code> em <code>origin/staging</code>.</li><li>Quality Gates <code>32192279665</code>: sucesso.</li><li>Vercel <code>dpl_DNFfHanCrdhhGUAvQ7LVxJ3HLj5m</code>: Preview Ready e alias staging confirmado.</li><li>Nenhuma migration ou aplicação alterada.</li><li>Produção, dados reais, Mercado Pago, fiscal e A1 não alterados.</li></ul>
   <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
 </main></body></html>
