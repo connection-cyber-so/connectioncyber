@@ -3,7 +3,7 @@
 **Documento vivo e obrigatório**  
 **Ambiente de trabalho:** staging  
 **Atualizado em:** 18/08/2026  
-**Versão do documento:** 1.0.0  
+**Versão do documento:** 1.1.0  
 **Produção alterada nesta fase:** não
 
 ## 1. Finalidade
@@ -69,7 +69,8 @@ Não serão criados novos repositórios, bancos ou forks de aplicação por clie
 - Supabase produção: projeto `qfggetvashdxyuvlhihq`.
 - Supabase staging: projeto `ozvylnaipubrmaadikvk`.
 - Os relatórios fornecidos mostram 38 tabelas e o mesmo conteúdo lógico de schema/policies nos dois projetos até a migration `0013`.
-- Migrations `0014` e `0015` existem apenas localmente e ainda não foram aplicadas remotamente.
+- Migrations `0014` e `0015` foram aplicadas exclusivamente no Supabase staging em 18/08/2026.
+- A migration `0006`, que contém povoamento de clientes reais, foi registrada no histórico de staging sem executar seus `INSERTs`.
 - Vercel Production deve apontar exclusivamente para o Supabase de produção.
 - Vercel Preview/branch staging deve apontar exclusivamente para o Supabase de staging.
 
@@ -110,20 +111,29 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - TypeScript, lint e build aprovados para site e painel.
 - Auditoria de dependências de runtime: zero vulnerabilidades reportadas.
 
-### 5.2 Commit local de checkpoint
+### 5.2 Evidências remotas do M00
 
 - Commit: `0caf472 feat: harden staging security and quality gates`.
-- Branch local `staging` está um commit à frente de `origin/staging` no momento deste registro.
-- Nenhum push, deploy ou migration remota foi executado neste gate.
+- Commit documental: `8e8db94 docs: add living development status`.
+- Os dois commits foram enviados para `origin/staging`.
+- Supabase CLI vinculado ao projeto de staging `ozvylnaipubrmaadikvk`.
+- Preflight de `payments`: zero grupos duplicados por `gateway` e `transaction_id`.
+- Dry-run selecionou exclusivamente `0014_payment_webhook_hardening.sql` e `0015_api_rate_limits.sql`.
+- Histórico local/remoto alinhado de `0001` a `0015`.
+- Coluna de auditoria, índice único, tabela com RLS e permissões da função de rate limit foram comprovados remotamente.
+- GitHub Actions `Quality gates`, execução `32184886056`: trabalhos `site` e `platform` concluídos com sucesso.
+- Vercel deployment `dpl_FWKKPeaCBwjqbjcnuRzxV4eYHXEF`: concluído com sucesso.
+- Preview `connectioncyber-git-staging-connectioncyberso.vercel.app`: HTTP 200, Supabase staging presente e referência de produção ausente nos artefatos públicos.
+- Cabeçalhos CSP, `DENY`, `nosniff` e Permissions Policy presentes; `X-Powered-By` ausente.
+- Endpoint de pagamentos no Preview respondeu HTTP 503, mantendo o Mercado Pago desabilitado.
 - Pastas de referência preexistentes `icones/` e `modelo exemplo/` permanecem preservadas e fora do commit técnico.
 
-### 5.3 Pendente antes do ERP
+### 5.3 Bloqueio atual do M00
 
-- Preflight de duplicidades em `payments` no Supabase staging.
-- Aplicação controlada das migrations `0014` e `0015` em staging.
-- Verificação das variáveis Vercel Preview.
-- Push do checkpoint para `origin/staging`.
-- Aprovação da CI e do Preview.
+- O formulário do Preview aceitou a configuração pública do Supabase, mas um payload sintético válido retornou HTTP 500 antes de consumir o rate limit.
+- O banco confirmou zero registros sintéticos e zero chaves recentes de rate limit; não há dado de teste pendente para limpeza.
+- Diagnóstico: revisar no escopo Preview/branch `staging` as variáveis privadas `RATE_LIMIT_SALT` e `SUPABASE_SECRET_KEY` (ou o alias legado suportado), sem exibir seus valores.
+- Após corrigir variáveis, é obrigatório refazer deployment e repetir o smoke test do formulário.
 - Proteção adicional das tabelas auxiliares de suporte remoto.
 - Estratégia de backup e restauração comprovada antes de dados reais de ERP.
 
@@ -143,7 +153,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 
 | Ordem | Módulo/portão | Estado atual | Entrega principal | Critério para avançar |
 |---:|---|---|---|---|
-| M00 | Segurança e qualidade de staging | Validado localmente | Migrations 0014/0015, variáveis, CI e Preview | Preflight vazio, migrations aplicadas, CI verde e smoke test aprovado. |
+| M00 | Segurança e qualidade de staging | Bloqueado | Banco, código, CI e Preview aprovados; variável privada do formulário pendente | Formulário sintético aceito, rate limit consumido e registro removido; novo deployment verde. |
 | M01 | Engenharia reversa do legado | Planejado | Restaurar um backup representativo e gerar dicionário físico | Schema, versão, volumes, dependências e diferenças documentados. |
 | M02 | Fundação ERP multiempresa | Não iniciado | Contratos, estabelecimentos, configurações, auditoria e isolamento | Testes cross-tenant e rollback de migration aprovados. |
 | M03 | Portal do cliente e subdomínios | Não iniciado | `apps/portal`, autenticação e resolução segura de hostname | Empresa A nunca acessa empresa B; domínio desconhecido é rejeitado. |
@@ -193,20 +203,20 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M00 — concluir segurança de staging
+### M00 — corrigir variáveis privadas do Preview
 
-Próxima sequência proposta:
+Próxima sequência permitida:
 
-1. confirmar vínculo do Supabase CLI com `ozvylnaipubrmaadikvk`;
-2. executar preflight somente leitura de duplicidades em `payments`;
-3. interromper se houver duplicidade;
-4. simular/dry-run das migrations pendentes, se suportado;
-5. aplicar `0014` e `0015` somente em staging;
-6. verificar variáveis de Preview mantendo pagamentos desligados;
-7. enviar o commit `0caf472` para a branch `staging`;
-8. aguardar CI e Preview;
-9. executar smoke tests;
-10. atualizar este documento com evidências e estado `Validado em staging`.
+1. autenticar a CLI ou sessão Vercel da conta proprietária;
+2. confirmar que o escopo Preview da branch `staging` possui `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` e `RATE_LIMIT_SALT` próprios de staging;
+3. manter `PAYMENTS_ENABLED=false` no Preview;
+4. não copiar, imprimir ou registrar valores secretos;
+5. refazer o deployment da branch `staging`;
+6. confirmar CI e Vercel verdes;
+7. repetir o formulário sintético e confirmar HTTP 200;
+8. confirmar no staging o consumo do rate limit e remover somente o registro sintético criado;
+9. atualizar os dois formatos deste documento para `Validado em staging`;
+10. solicitar o portão seguinte; M01 não inicia enquanto M00 estiver bloqueado.
 
 Produção e Mercado Pago real permanecem fora deste portão.
 
@@ -215,6 +225,7 @@ Produção e Mercado Pago real permanecem fora deste portão.
 | Versão | Data | Módulo | Alteração | Resultado |
 |---|---|---|---|---|
 | 1.0.0 | 18/08/2026 | Governança | Criação do documento mestre com baseline, riscos, fila e critérios. | Aguardando validação do documento antes do início do M00 remoto. |
+| 1.1.0 | 18/08/2026 | M00 | Banco staging, push, CI, Preview e smoke tests executados; evidências registradas. | Bloqueado na configuração privada do formulário no Vercel Preview; produção não alterada. |
 
 ## 12. Protocolo de atualização futura
 
@@ -230,4 +241,3 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - riscos residuais;
 - decisão: aprovado, reprovado ou bloqueado;
 - próxima ação permitida.
-
