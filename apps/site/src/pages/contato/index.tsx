@@ -44,6 +44,13 @@ export default function ContatoPage() {
           <div className="grid grid-2" style={{ alignItems: 'flex-start' }}>
             <form onSubmit={handleSubmit} className="card" style={{ display: 'grid', gap: 14 }}>
               <input
+                name="website"
+                autoComplete="off"
+                tabIndex={-1}
+                aria-hidden="true"
+                style={{ position: 'absolute', left: '-10000px' }}
+              />
+              <input
                 required
                 placeholder={t('contact.formName')}
                 value={form.nome}

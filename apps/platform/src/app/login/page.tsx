@@ -41,7 +41,7 @@ function LoginForm() {
           {!isSupabaseConfigured && (
             <div className="pf-notice">
               Login ainda não está ativo neste ambiente — o Supabase não está configurado
-              (<code>NEXT_PUBLIC_SUPABASE_URL</code> / <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>{' '}
+              (<code>NEXT_PUBLIC_SUPABASE_URL</code> / <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code>{' '}
               ausentes). Preencha o <code>.env.local</code> apontando para o projeto de staging.
             </div>
           )}

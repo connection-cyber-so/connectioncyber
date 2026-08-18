@@ -41,7 +41,7 @@ export default function LoginPage() {
             >
               <p style={{ margin: 0, fontSize: '0.85rem' }}>
                 Login ainda não está ativo neste ambiente — o Supabase não está configurado
-                (<code>NEXT_PUBLIC_SUPABASE_URL</code> / <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>
+                (<code>NEXT_PUBLIC_SUPABASE_URL</code> / <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code>
                 ausentes). Preencha o <code>.env.local</code> para habilitar a autenticação real.
               </p>
             </div>

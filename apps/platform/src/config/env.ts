@@ -5,8 +5,9 @@
 export const env = {
   supabase: {
     url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
-    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
+    anonKey:
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
+    serviceRoleKey: process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
   },
   platform: {
     url: process.env.NEXT_PUBLIC_PLATFORM_URL ?? 'http://localhost:3011',

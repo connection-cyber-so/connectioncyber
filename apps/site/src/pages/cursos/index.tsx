@@ -101,8 +101,16 @@ export default function CursosPage() {
                 <span className="badge">{c.categoria}</span>
                 <h3 style={{ marginTop: 12 }}>{c.titulo}</h3>
                 <p>{c.descricao}</p>
-                <Link href={routes.contato} className="btn btn-outline-dark" style={{ marginTop: 8 }}>
-                  {t('courses.cta')}
+                <Link
+                  href={
+                    source === 'supabase' && c.preco > 0
+                      ? { pathname: routes.checkout, query: { type: 'course', id: c.id } }
+                      : routes.contato
+                  }
+                  className="btn btn-outline-dark"
+                  style={{ marginTop: 8 }}
+                >
+                  {source === 'supabase' && c.preco > 0 ? 'Comprar curso' : t('courses.cta')}
                 </Link>
               </div>
             ))}

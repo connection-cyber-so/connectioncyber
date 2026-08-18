@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { ClientEntry } from '@/config/clients';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -23,7 +24,7 @@ export default function ClientCard({ client }: { client: ClientEntry }) {
         }}
       >
         {client.logoUrl ? (
-          <img src={client.logoUrl} alt={client.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <Image src={client.logoUrl} alt={client.nome} width={64} height={64} style={{ objectFit: 'cover' }} />
         ) : (
           client.nome.charAt(0)
         )}
