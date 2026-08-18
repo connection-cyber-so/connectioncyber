@@ -6,7 +6,7 @@
 
 **Data:** 18/08/2026
 
-**Versão:** 1.0.0
+**Versão:** 1.0.1
 
 **Situação:** pacote SQL apresentado para revisão; ainda não aplicado
 
@@ -176,11 +176,15 @@ Depois que uma migration for aplicada em ambiente compartilhado ou receber dados
 | Transação da migration | um `BEGIN` e um `COMMIT` | aprovado |
 | Quantidade estrutura/RLS/policies | 14/14/14 | aprovado |
 | Busca por segredos e dados reais conhecidos | nenhuma ocorrência | aprovado |
-| Espaços/erros de patch (`diff --check`) | aprovado após normalização |
-| Aplicação em banco local | não executada; Docker local está parado |
-| Preflight remoto | não executado; depende do próximo aceite |
-| Dry-run remoto | não executado; depende do próximo aceite |
-| Aplicação no Supabase staging | não autorizada/não executada |
+| Espaços/erros de patch | `diff --check` sem achados | aprovado |
+| Aplicação em banco local | Docker local está parado | não executada |
+| Preflight remoto | depende do próximo aceite | não executado |
+| Dry-run remoto | depende do próximo aceite | não executado |
+| Aplicação no Supabase staging | sem autorização neste portão | não executada |
+| Checkpoint Git | `d5f5ce1` enviado exclusivamente para `origin/staging` | aprovado |
+| GitHub Actions | Quality Gates `32194798896` | sucesso |
+| Vercel | status do commit `success`; deployment concluído | sucesso |
+| Alias Preview | HTTP 200 em `connectioncyber-git-staging-connectioncyberso.vercel.app` | sucesso |
 
 Portanto, o resultado correto deste momento é **SQL preparado e estaticamente revisado**, e não “migration validada no banco”.
 

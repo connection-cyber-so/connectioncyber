@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 1.5.0
+**Versão do documento:** 1.5.1
 
 **Produção alterada nesta fase:** não
 
@@ -186,6 +186,9 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Revisão estática confirmou 14 tabelas/14 RLS/14 policies e nenhuma ocorrência conhecida de segredo ou dado real.
 - Docker local está parado; por isso os testes de banco ainda não foram executados e o módulo permanece em desenvolvimento.
 - Parecer detalhado publicado em `PARECER-TECNICO-M02-FUNDACAO-ERP.md` e `.html`.
+- Checkpoint técnico `d5f5ce1` enviado exclusivamente para `origin/staging`.
+- GitHub Actions `Quality gates` `32194798896`: concluído com sucesso.
+- Vercel reportou `success` para o mesmo commit e o alias Preview respondeu HTTP 200.
 - Produção e Supabase staging não foram alterados pelo M02 até este ponto.
 
 ## 6. Achados críticos ainda abertos
@@ -285,6 +288,7 @@ Comando de aceite sugerido: `M02 SQL e testes aprovados; executar preflight, dry
 | 1.4.0 | 18/08/2026 | M01 | Escopo corrigido para arquitetura canônica multissegmento; núcleo, capacidades, catálogo, invariantes e contrato M02 documentados. | Engenharia reversa movida para M14; ausência de backup deixa de bloquear; aguarda validação remota do M01. |
 | 1.4.1 | 18/08/2026 | M01 | Checkpoint, Quality Gates e Vercel Preview da arquitetura registrados. | M01 validado em staging; nenhuma migration/schema/dado real alterado; aguarda aceite para preparar M02. |
 | 1.5.0 | 18/08/2026 | M02 | Migration 0016, preflight, 38 testes pgTAP, rollback de laboratório e parecer técnico apresentados. | Revisão estática concluída; nada aplicado; aguarda aceite para preflight, dry-run e laboratório local. |
+| 1.5.1 | 18/08/2026 | M02 | Checkpoint técnico, Quality Gates e Vercel Preview do pacote M02 registrados. | Código/documentos validados no pipeline; migration continua não aplicada e aguarda o próximo aceite. |
 
 ## 12. Protocolo de atualização futura
 
