@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ConnectionCyber — Parecer técnico M02</title>
+  <style>
+    :root{--orange:#F6851F;--red:#E01F27;--green:#2C9C48;--teal:#1E9680;--ink:#17232d;--muted:#62717b;--line:#d9e1e5;--soft:#f4f7f7;--white:#fff}
+    *{box-sizing:border-box}body{margin:0;background:#eef2f3;color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(1180px,calc(100% - 30px));margin:24px auto;background:var(--white);box-shadow:0 16px 42px #17232d16;padding:clamp(22px,4vw,52px)}h1,h2,h3{line-height:1.2}h1{margin:0;color:var(--red)}h2{margin-top:38px;padding-bottom:8px;border-bottom:2px solid var(--orange)}h3{color:var(--teal);margin-top:25px}.meta,.cards{display:flex;flex-wrap:wrap;gap:10px}.meta{color:var(--muted);margin:12px 0 22px}.pill{border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:var(--soft)}.notice{border-left:5px solid var(--green);padding:15px 17px;background:#eff8f2;margin:20px 0}.warning{border-color:var(--orange);background:#fff7ed}.danger{border-color:var(--red);background:#fff2f2}.card{flex:1 1 180px;border:1px solid var(--line);border-top:4px solid var(--teal);border-radius:9px;padding:15px;background:#fff}.card strong{display:block;font-size:24px;color:var(--red)}.table{overflow:auto;margin:16px 0 24px}table{width:100%;min-width:760px;border-collapse:collapse}th,td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{background:var(--soft)}tr:hover td{background:#fffaf5}code{background:var(--soft);padding:.08rem .32rem;border-radius:4px}.diagram{overflow:auto;border:1px solid var(--line);border-radius:10px;padding:18px;background:linear-gradient(135deg,#fff,#f4f8f7)}.flow{display:flex;align-items:center;gap:8px;min-width:980px}.node{min-width:125px;padding:12px 10px;border:2px solid var(--teal);border-radius:8px;text-align:center;background:#fff;font-weight:650}.node.orange{border-color:var(--orange)}.node.red{border-color:var(--red)}.arrow{font-size:24px;color:var(--orange)}.branches{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;min-width:680px}.gate{border:1px solid var(--line);border-left:5px solid var(--teal);padding:10px;background:#fff}.gate.pending{border-left-color:var(--orange)}ol,ul{padding-left:24px}li+li{margin-top:5px}footer{margin-top:42px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted)}@media(max-width:720px){main{width:100%;margin:0;padding:20px}.cards{display:grid;grid-template-columns:1fr 1fr}}@media print{body{background:#fff}main{width:100%;margin:0;box-shadow:none;padding:0}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <h1>Parecer técnico M02</h1>
+    <p style="font-size:1.25rem;margin:.35rem 0">Fundação ERP multiempresa e multissegmento</p>
+    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.0.0</span><span class="pill">Produção: intocada</span></div>
+  </header>
+
+  <div class="notice"><strong>Parecer favorável com portões.</strong> O pacote pode seguir para preflight, dry-run e laboratório somente após aprovação. A migration ainda não foi aplicada em nenhum Supabase.</div>
+
+  <div class="cards">
+    <div class="card"><strong>14</strong>tabelas com RLS</div>
+    <div class="card"><strong>14</strong>policies de leitura</div>
+    <div class="card"><strong>38</strong>asserções pgTAP</div>
+    <div class="card"><strong>0</strong>dados reais</div>
+    <div class="card"><strong>0</strong>escritas do navegador</div>
+  </div>
+
+  <h2>1. Visão da fundação</h2>
+  <div class="diagram" aria-label="Fluxo da arquitetura multiempresa">
+    <div class="flow">
+      <div class="node">Usuário</div><div class="arrow">→</div>
+      <div class="node">Membership</div><div class="arrow">→</div>
+      <div class="node orange">Empresa<br><small>tenant</small></div><div class="arrow">→</div>
+      <div class="branches">
+        <div class="node">Papéis e permissões</div><div class="node">Estabelecimentos</div><div class="node">Capacidades</div>
+        <div class="node">Perfis de segmento</div><div class="node">Configurações</div><div class="node red">Auditoria</div>
+      </div>
+    </div>
+  </div>
+  <p>O mesmo núcleo atende papelaria, vestuário, varejo geral, oficinas, restaurantes, lanchonetes e serviços. O perfil sugere recursos; <code>erp_tenant_capabilities</code> registra o que está realmente habilitado para cada empresa.</p>
+
+  <h2>2. Migration apresentada</h2>
+  <p><code>supabase/migrations/0016_erp_foundation.sql</code> é aditiva. Não altera pagamentos, produtos ou pedidos do site e mantém <code>users.tenant_id</code> durante a transição.</p>
+  <div class="table"><table><thead><tr><th>Grupo</th><th>Objetos</th><th>Resultado</th></tr></thead><tbody>
+    <tr><td>Membership/RBAC</td><td><code>erp_tenant_memberships</code>, <code>erp_roles</code>, <code>erp_permissions</code>, <code>erp_role_permissions</code>, <code>erp_membership_roles</code></td><td>Usuário pode participar de várias empresas; papéis não cruzam tenant.</td></tr>
+    <tr><td>Organização</td><td><code>erp_establishments</code></td><td>Matriz, filial, oficina ou unidade operacional.</td></tr>
+    <tr><td>Capacidades</td><td><code>erp_capability_catalog</code>, <code>erp_tenant_capabilities</code></td><td>Catálogo técnico separado dos serviços comerciais.</td></tr>
+    <tr><td>Segmentos</td><td><code>erp_segment_profiles</code>, <code>erp_segment_profile_capabilities</code>, <code>erp_tenant_segment_profiles</code></td><td>Cinco templates combináveis, sem forks.</td></tr>
+    <tr><td>Configuração</td><td><code>erp_tenant_settings</code></td><td>JSON versionado, sem chaves de senha/token/A1.</td></tr>
+    <tr><td>Operação</td><td><code>erp_number_sequences</code></td><td>Numeração transacional com bloqueio de linha.</td></tr>
+    <tr><td>Auditoria</td><td><code>erp_audit_events</code></td><td>Append-only: update/delete recusados.</td></tr>
+  </tbody></table></div>
+
+  <h3>Catálogos técnicos, não dados de cliente</h3>
+  <div class="cards"><div class="card"><strong>8</strong>permissões iniciais</div><div class="card"><strong>23</strong>capacidades</div><div class="card"><strong>5</strong>perfis multissegmento</div></div>
+
+  <h2>3. Segurança aplicada ao desenho</h2>
+  <ul>
+    <li>Schema <code>erp_security</code> fora do Data API.</li>
+    <li>Helpers privilegiados com caminho de busca vazio e referências qualificadas.</li>
+    <li><code>anon</code> sem acesso; <code>authenticated</code> somente leitura sob RLS.</li>
+    <li>Escritas server-only até os fluxos de autorização do M04.</li>
+    <li>FKs compostas bloqueiam vínculos entre tenants diferentes.</li>
+    <li>Auditoria preserva membership histórica e rejeita mutação.</li>
+    <li>Chaves com <code>secret</code>, <code>password</code>, <code>token</code>, <code>credential</code>, <code>certificate</code> ou <code>pfx</code> são proibidas nas configurações comuns.</li>
+    <li>Sequência transacional não pode ser chamada diretamente pelo usuário autenticado.</li>
+  </ul>
+
+  <h2>4. Testes apresentados</h2>
+  <div class="table"><table><thead><tr><th>Arquivo</th><th>Papel</th><th>Estado</th></tr></thead><tbody>
+    <tr><td><code>supabase/preflight/0016_erp_foundation_preflight.sql</code></td><td>Somente leitura: versão, dependências, colisões e histórico.</td><td>Preparado; não executado.</td></tr>
+    <tr><td><code>supabase/tests/0016_erp_foundation.test.sql</code></td><td>38 asserções de estrutura, grants, RLS, isolamento, integridade, sequência e auditoria.</td><td>Preparado; Docker local está parado.</td></tr>
+    <tr><td><code>supabase/rollback/0016_erp_foundation.rollback.sql</code></td><td>Limpeza apenas de laboratório local vazio, com duas confirmações.</td><td>Bloqueado por padrão.</td></tr>
+  </tbody></table></div>
+  <div class="warning notice">O rollback não é a estratégia de ambiente compartilhado. Depois de aplicar ou receber dados, qualquer correção será uma migration forward-fix <code>0017+</code>.</div>
+
+  <h2>5. Cobertura das 38 asserções</h2>
+  <div class="table"><table><thead><tr><th>Bloco</th><th>O que precisa provar</th></tr></thead><tbody>
+    <tr><td>Estrutura/RLS</td><td>Schema privado, 14 tabelas e RLS ativa em todas.</td></tr>
+    <tr><td>Seeds</td><td>23 capacidades e cinco perfis.</td></tr>
+    <tr><td>Grants</td><td>Sem DML para authenticated e sem acesso para anon.</td></tr>
+    <tr><td>Isolamento</td><td>Usuário A não lê memberships, unidades, capacidades, configurações, perfis ou papéis de B.</td></tr>
+    <tr><td>Integridade</td><td>FKs cross-tenant, chave de segredo e ator incompatível falham.</td></tr>
+    <tr><td>Numeração</td><td><code>A-0001</code> seguido de <code>A-0002</code>.</td></tr>
+    <tr><td>Auditoria</td><td>Ator enxerga seu evento; update/delete falham.</td></tr>
+  </tbody></table></div>
+
+  <h2>6. Evidência disponível agora</h2>
+  <div class="table"><table><thead><tr><th>Verificação</th><th>Resultado</th></tr></thead><tbody>
+    <tr><td>Escopo</td><td>Somente staging; produção intocada.</td></tr>
+    <tr><td>Estrutura estática</td><td>14 tabelas, 14 RLS e 14 policies.</td></tr>
+    <tr><td>Transação</td><td>Um BEGIN e um COMMIT.</td></tr>
+    <tr><td>Dados/segredos conhecidos</td><td>Nenhuma ocorrência encontrada no pacote.</td></tr>
+    <tr><td>Banco local</td><td>Não executado: Docker local parado.</td></tr>
+    <tr><td>Preflight/dry-run remoto</td><td>Não executados: aguardam aceite.</td></tr>
+    <tr><td>Supabase staging</td><td>Migration não aplicada.</td></tr>
+  </tbody></table></div>
+
+  <h2>7. Riscos controlados e residuais</h2>
+  <div class="table"><table><thead><tr><th>Risco</th><th>Nível</th><th>Controle</th><th>Próxima prova</th></tr></thead><tbody>
+    <tr><td>Vazamento entre empresas</td><td>Crítico</td><td>RLS + membership + FKs compostas</td><td>38 testes local/staging.</td></tr>
+    <tr><td>Escrita pelo navegador</td><td>Crítico</td><td>Authenticated sem DML</td><td>Serviços autorizados no M04.</td></tr>
+    <tr><td>Segredo em configuração</td><td>Crítico</td><td>Constraint e separação do A1</td><td>Cofre fiscal no M13.</td></tr>
+    <tr><td>Número duplicado</td><td>Alto</td><td>Unicidade + lock</td><td>Concorrência ampliada no módulo transacional.</td></tr>
+    <tr><td>Perda de auditoria</td><td>Alto</td><td>Append-only + delete restrito</td><td>Retenção e backup.</td></tr>
+    <tr><td>Administração cross-tenant</td><td>Alto</td><td>Escrita server-only</td><td>Rotas auditadas no M03/M04.</td></tr>
+  </tbody></table></div>
+
+  <h2>8. Processo determinístico</h2>
+  <div class="diagram"><div class="flow">
+    <div class="node">1. Revisar pacote</div><div class="arrow">→</div>
+    <div class="node pending">2. Preflight</div><div class="arrow">→</div>
+    <div class="node pending">3. Dry-run</div><div class="arrow">→</div>
+    <div class="node pending">4. Laboratório 38/38</div><div class="arrow">→</div>
+    <div class="node red">5. Novo aceite</div><div class="arrow">→</div>
+    <div class="node pending">6. Aplicar staging</div>
+  </div></div>
+  <p>Se qualquer portão falhar, o processo volta para correção. Não se avança por aproximação.</p>
+
+  <h2>9. Próximo aceite</h2>
+  <div class="notice"><strong>M02 SQL e testes aprovados; executar preflight, dry-run e laboratório local.</strong></div>
+  <p>Esse aceite ainda não autoriza aplicar <code>0016</code> no Supabase staging. A aplicação remota terá um novo portão depois das evidências.</p>
+
+  <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
+</main></body></html>

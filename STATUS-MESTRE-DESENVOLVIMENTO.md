@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 1.4.1
+**Versão do documento:** 1.5.0
 
 **Produção alterada nesta fase:** não
 
@@ -163,7 +163,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Checkpoint arquitetural `1feb493` enviado exclusivamente para `origin/staging`.
 - GitHub Actions `Quality gates` `32192279665`: concluído com sucesso.
 - Vercel Preview `dpl_DNFfHanCrdhhGUAvQ7LVxJ3HLj5m`: estado `Ready` e alias staging confirmado.
-- Estado do M01: `Validado em staging`; aguarda aprovação formal para preparar o M02.
+- Estado do M01: `Aprovado`; aceite formal recebido em 18/08/2026 para apresentar o M02.
 - Nenhuma migration, tabela, dado real, credencial, A1 ou integração de pagamento foi criada ou alterada no M01.
 
 ### 5.5 Estudo D01 — engenharia reversa preservado
@@ -172,6 +172,21 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - `PARECER-TECNICO-M01-ENGENHARIA-REVERSA.*` foi reclassificado como estudo D01 vinculado ao M14.
 - A ausência de backup não bloqueia o desenvolvimento do ERP.
 - No M14, uma cópia representativa será restaurada isoladamente e convertida por adaptador para o modelo canônico; o legado não determinará nossa estrutura.
+
+### 5.6 M02 — pacote SQL da fundação apresentado
+
+- Migration aditiva `0016_erp_foundation.sql` preparada, mas ainda não aplicada.
+- 14 tabelas `erp_*`, 14 policies e RLS nas 14 tabelas.
+- Memberships multiempresa, RBAC por tenant, estabelecimentos, capacidades, perfis, configurações sem segredos, sequências e auditoria append-only.
+- Catálogos globais com 8 permissões, 23 capacidades e 5 perfis, sem dados de cliente.
+- `anon` sem privilégio; `authenticated` apenas com leitura protegida por RLS; escrita reservada ao servidor.
+- Preflight somente leitura preparado para verificar versão, dependências, colisões e histórico.
+- Suíte pgTAP com 38 asserções preparada para estrutura, grants, RLS, isolamento cross-tenant, integridade, numeração e auditoria.
+- Rollback restrito a laboratório local vazio e bloqueado por duas confirmações; em ambiente compartilhado será usado forward-fix.
+- Revisão estática confirmou 14 tabelas/14 RLS/14 policies e nenhuma ocorrência conhecida de segredo ou dado real.
+- Docker local está parado; por isso os testes de banco ainda não foram executados e o módulo permanece em desenvolvimento.
+- Parecer detalhado publicado em `PARECER-TECNICO-M02-FUNDACAO-ERP.md` e `.html`.
+- Produção e Supabase staging não foram alterados pelo M02 até este ponto.
 
 ## 6. Achados críticos ainda abertos
 
@@ -188,14 +203,15 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | R-009 | O schema atual possui colisão semântica com nomes do futuro ERP e 16 tabelas públicas observadas sem RLS. | Crítica | Criar modelo `erp_*` isolado no M02; não carregar legado em tabelas do site, Mercado Pago ou suporte remoto. |
 | R-010 | O modelo atual assume predominantemente um tenant por usuário em `users.tenant_id`. | Alta | Introduzir memberships aditivas no M02/M04 e resolver tenant ativo no servidor. |
 | R-011 | `module_catalog` mistura o conceito de serviço contratado com o de capacidade técnica do ERP. | Alta | Criar catálogo ERP próprio; manter o catálogo comercial existente sem reutilização semântica. |
+| R-012 | Acesso administrativo cross-tenant ainda depende do papel de equipe existente e não possui fluxo ERP auditado próprio. | Alta | Manter escrita server-only no M02 e implementar rotas administrativas auditadas no M03/M04. |
 
 ## 7. Programa de módulos e portões
 
 | Ordem | Módulo/portão | Estado atual | Entrega principal | Critério para avançar |
 |---:|---|---|---|---|
 | M00 | Segurança e qualidade de staging | Aprovado | Migrations, variáveis, CI, Preview e smoke tests aprovados | Concluído e aceito em 18/08/2026. |
-| M01 | Arquitetura canônica multissegmento | Validado em staging | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Documento MD/HTML, CI e Preview aprovados; nenhum schema aplicado. |
-| M02 | Fundação ERP multiempresa | Planejado | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | SQL/rollback revisados; testes cross-tenant aprovados antes da aplicação. |
+| M01 | Arquitetura canônica multissegmento | Aprovado | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Concluído e aceito em 18/08/2026; nenhum schema aplicado. |
+| M02 | Fundação ERP multiempresa | Em desenvolvimento | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | Pacote SQL apresentado; preflight, dry-run e 38 testes devem ser aprovados antes da aplicação. |
 | M03 | Portal do cliente e subdomínios | Não iniciado | `apps/portal`, autenticação e resolução segura de hostname | Empresa A nunca acessa empresa B; domínio desconhecido é rejeitado. |
 | M04 | Usuários, RBAC e MFA | Não iniciado | Papéis, permissões por ação e convites | Matriz de acesso validada; nenhuma senha legada migrada. |
 | M05 | Cadastros e catálogo universal | Não iniciado | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | Cinco segmentos representados sem fork ou dado real. |
@@ -243,19 +259,19 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Encerramento M01 e preparação do M02
+### Validação controlada do pacote M02
 
 Próxima sequência permitida:
 
-1. validar os documentos canônicos em Markdown e HTML;
-2. confirmar o checkpoint, Quality Gates e Preview de staging;
-3. aprovar formalmente o M01;
-4. no M02, preparar migrations aditivas da fundação, sem aplicá-las imediatamente;
-5. apresentar SQL, constraints, RLS, grants, testes cross-tenant e rollback/forward-fix;
-6. somente após novo aceite aplicar as migrations no Supabase staging;
+1. revisar o parecer M02 e os quatro arquivos SQL apresentados;
+2. após aceite, executar preflight somente leitura no Supabase staging;
+3. executar dry-run e confirmar que somente a migration `0016` seria selecionada;
+4. iniciar um banco local descartável, aplicar as migrations e executar 38 testes pgTAP;
+5. registrar resultados no Markdown e HTML;
+6. pedir uma autorização específica antes de aplicar `0016` no Supabase staging;
 7. manter produção, dados reais, backup legado, fiscal, A1 e Mercado Pago fora do M02.
 
-Comando de aceite sugerido: `M01 aprovado; apresentar migrations e testes do M02 — fundação ERP multiempresa.`
+Comando de aceite sugerido: `M02 SQL e testes aprovados; executar preflight, dry-run e laboratório local.`
 
 ## 11. Histórico do documento
 
@@ -268,6 +284,7 @@ Comando de aceite sugerido: `M01 aprovado; apresentar migrations e testes do M02
 | 1.3.1 | 18/08/2026 | M01 | Checkpoint documental remoto, Quality Gates e Vercel Preview registrados. | Documentação validada em staging; bloqueio seguro de M01-G1 mantido; produção não alterada. |
 | 1.4.0 | 18/08/2026 | M01 | Escopo corrigido para arquitetura canônica multissegmento; núcleo, capacidades, catálogo, invariantes e contrato M02 documentados. | Engenharia reversa movida para M14; ausência de backup deixa de bloquear; aguarda validação remota do M01. |
 | 1.4.1 | 18/08/2026 | M01 | Checkpoint, Quality Gates e Vercel Preview da arquitetura registrados. | M01 validado em staging; nenhuma migration/schema/dado real alterado; aguarda aceite para preparar M02. |
+| 1.5.0 | 18/08/2026 | M02 | Migration 0016, preflight, 38 testes pgTAP, rollback de laboratório e parecer técnico apresentados. | Revisão estática concluída; nada aplicado; aguarda aceite para preflight, dry-run e laboratório local. |
 
 ## 12. Protocolo de atualização futura
 
