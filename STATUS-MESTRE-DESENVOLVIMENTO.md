@@ -3,7 +3,7 @@
 **Documento vivo e obrigatório**  
 **Ambiente de trabalho:** staging  
 **Atualizado em:** 18/08/2026  
-**Versão do documento:** 1.1.0  
+**Versão do documento:** 1.2.0  
 **Produção alterada nesta fase:** não
 
 ## 1. Finalidade
@@ -126,16 +126,19 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Preview `connectioncyber-git-staging-connectioncyberso.vercel.app`: HTTP 200, Supabase staging presente e referência de produção ausente nos artefatos públicos.
 - Cabeçalhos CSP, `DENY`, `nosniff` e Permissions Policy presentes; `X-Powered-By` ausente.
 - Endpoint de pagamentos no Preview respondeu HTTP 503, mantendo o Mercado Pago desabilitado.
+- `RATE_LIMIT_SALT` criada como variável sensível e limitada a `Preview (staging)`, sem revelar ou persistir seu valor no repositório.
+- Redeploy `dpl_34HEEiQXwbaAJR6w79DdRZKaLU2S`: target `preview`, estado `Ready` e alias da branch staging confirmado.
+- Smoke test final do formulário: HTTP 200 e `ok=true`; exatamente uma chave recente de rate limit comprovou a execução da proteção.
+- Exatamente uma mensagem sintética foi criada e removida; a verificação final confirmou zero mensagens sintéticas remanescentes.
 - Pastas de referência preexistentes `icones/` e `modelo exemplo/` permanecem preservadas e fora do commit técnico.
 
-### 5.3 Bloqueio atual do M00
+### 5.3 Resultado do M00
 
-- O formulário do Preview aceitou a configuração pública do Supabase, mas um payload sintético válido retornou HTTP 500 antes de consumir o rate limit.
-- O banco confirmou zero registros sintéticos e zero chaves recentes de rate limit; não há dado de teste pendente para limpeza.
-- Diagnóstico: revisar no escopo Preview/branch `staging` as variáveis privadas `RATE_LIMIT_SALT` e `SUPABASE_SECRET_KEY` (ou o alias legado suportado), sem exibir seus valores.
-- Após corrigir variáveis, é obrigatório refazer deployment e repetir o smoke test do formulário.
-- Proteção adicional das tabelas auxiliares de suporte remoto.
-- Estratégia de backup e restauração comprovada antes de dados reais de ERP.
+- Estado: `Validado em staging`.
+- O bloqueio da variável privada foi corrigido sem reduzir as proteções do código.
+- Banco, CI, Vercel Preview, vínculo de ambiente, cabeçalhos, kill switch, formulário e rate limit foram aprovados.
+- Produção, domínio público e Mercado Pago real não foram alterados.
+- A proteção das tabelas auxiliares e a estratégia de backup/restauração continuam como riscos abertos dos próximos portões, antes de receber dados ERP sensíveis.
 
 ## 6. Achados críticos ainda abertos
 
@@ -153,7 +156,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 
 | Ordem | Módulo/portão | Estado atual | Entrega principal | Critério para avançar |
 |---:|---|---|---|---|
-| M00 | Segurança e qualidade de staging | Bloqueado | Banco, código, CI e Preview aprovados; variável privada do formulário pendente | Formulário sintético aceito, rate limit consumido e registro removido; novo deployment verde. |
+| M00 | Segurança e qualidade de staging | Validado em staging | Migrations, variáveis, CI, Preview e smoke tests aprovados | Concluído; aguarda aceite do portão antes de iniciar M01. |
 | M01 | Engenharia reversa do legado | Planejado | Restaurar um backup representativo e gerar dicionário físico | Schema, versão, volumes, dependências e diferenças documentados. |
 | M02 | Fundação ERP multiempresa | Não iniciado | Contratos, estabelecimentos, configurações, auditoria e isolamento | Testes cross-tenant e rollback de migration aprovados. |
 | M03 | Portal do cliente e subdomínios | Não iniciado | `apps/portal`, autenticação e resolução segura de hostname | Empresa A nunca acessa empresa B; domínio desconhecido é rejeitado. |
@@ -203,20 +206,19 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M00 — corrigir variáveis privadas do Preview
+### Aceite do M00 e preparação do M01
 
 Próxima sequência permitida:
 
-1. autenticar a CLI ou sessão Vercel da conta proprietária;
-2. confirmar que o escopo Preview da branch `staging` possui `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` e `RATE_LIMIT_SALT` próprios de staging;
-3. manter `PAYMENTS_ENABLED=false` no Preview;
-4. não copiar, imprimir ou registrar valores secretos;
-5. refazer o deployment da branch `staging`;
-6. confirmar CI e Vercel verdes;
-7. repetir o formulário sintético e confirmar HTTP 200;
-8. confirmar no staging o consumo do rate limit e remover somente o registro sintético criado;
-9. atualizar os dois formatos deste documento para `Validado em staging`;
-10. solicitar o portão seguinte; M01 não inicia enquanto M00 estiver bloqueado.
+1. revisar as evidências e aprovar formalmente o M00;
+2. manter produção e Mercado Pago fora da próxima análise;
+3. selecionar uma cópia representativa de backup legado, sem alterar o original;
+4. registrar hash, versão estimada, empresa de origem e cadeia de custódia;
+5. elaborar o plano técnico de restauração isolada e rollback do laboratório;
+6. apresentar o parecer e o fluxo gráfico do M01 antes de restaurar qualquer dado;
+7. somente após novo aceite iniciar a engenharia reversa do backup.
+
+Comando de aceite sugerido: `M00 aprovado; executar análise M01.`
 
 Produção e Mercado Pago real permanecem fora deste portão.
 
@@ -226,6 +228,7 @@ Produção e Mercado Pago real permanecem fora deste portão.
 |---|---|---|---|---|
 | 1.0.0 | 18/08/2026 | Governança | Criação do documento mestre com baseline, riscos, fila e critérios. | Aguardando validação do documento antes do início do M00 remoto. |
 | 1.1.0 | 18/08/2026 | M00 | Banco staging, push, CI, Preview e smoke tests executados; evidências registradas. | Bloqueado na configuração privada do formulário no Vercel Preview; produção não alterada. |
+| 1.2.0 | 18/08/2026 | M00 | Variável sensível corrigida, redeploy de Preview e smoke test completo com limpeza do dado sintético. | Validado em staging; aguarda aceite explícito para iniciar a análise do M01. |
 
 ## 12. Protocolo de atualização futura
 

@@ -32,7 +32,7 @@
 <main>
   <header>
     <h1>ConnectionCyber — Status Mestre de Desenvolvimento</h1>
-    <div class="meta"><strong>Documento vivo e obrigatório</strong><span>Ambiente: staging</span><span>Atualizado: 18/08/2026</span><span>Versão: 1.1.0</span><span>Produção alterada: não</span></div>
+    <div class="meta"><strong>Documento vivo e obrigatório</strong><span>Ambiente: staging</span><span>Atualizado: 18/08/2026</span><span>Versão: 1.2.0</span><span>Produção alterada: não</span></div>
     <div class="notice">Os arquivos Markdown e HTML deste status devem permanecer equivalentes e ser atualizados no mesmo commit de cada módulo validado.</div>
   </header>
 
@@ -61,10 +61,10 @@
   <h3>Validado localmente</h3>
   <ul><li>Site e painel existentes.</li><li>Gate de equipe e arquitetura multi-tenant.</li><li>Lista de tenants somente leitura.</li><li>Diagnóstico, Produtos/Ofertas, Roteiros e Landing Pages.</li><li>Kill switch e endurecimento do Mercado Pago.</li><li>Rate limit e headers de segurança preparados.</li><li>Next.js 15.5.21.</li><li>Testes críticos 5/5; type-check, lint e builds aprovados.</li><li>Audit de runtime com zero vulnerabilidades reportadas.</li></ul>
   <h3>Evidências remotas do M00</h3>
-  <ul><li>Commits <code>0caf472</code> e <code>8e8db94</code> enviados para <code>origin/staging</code>.</li><li>Supabase staging vinculado; preflight com zero duplicidades.</li><li>Dry-run limitado a 0014/0015; migrations aplicadas e histórico 0001–0015 alinhado.</li><li>Coluna, índice único, RLS e permissões do rate limit comprovados.</li><li>GitHub Actions <code>32184886056</code>: site e platform aprovados.</li><li>Vercel <code>dpl_FWKKPeaCBwjqbjcnuRzxV4eYHXEF</code>: sucesso.</li><li>Preview HTTP 200, vinculado ao Supabase staging sem referência pública de produção.</li><li>CSP, DENY, nosniff e Permissions Policy presentes; X-Powered-By ausente.</li><li>Pagamentos recusados com HTTP 503 no Preview.</li><li><code>icones/</code> e <code>modelo exemplo/</code> preservados fora do commit técnico.</li></ul>
-  <h3>Bloqueio atual do M00</h3>
-  <div class="notice warning">O formulário sintético retornou HTTP 500 antes do rate limit. O banco confirmou zero mensagens sintéticas e zero chaves recentes, portanto não há resíduo para limpeza. É necessário revisar <code>RATE_LIMIT_SALT</code> e <code>SUPABASE_SECRET_KEY</code> no escopo Preview da branch staging.</div>
-  <ul><li>Autenticar a conta proprietária do Vercel e corrigir variáveis sem exibir valores.</li><li>Refazer deployment e smoke test do formulário.</li><li>Proteger tabelas remotas antes de usá-las.</li><li>Comprovar backup e restauração antes de dados ERP.</li></ul>
+  <ul><li>Commits <code>0caf472</code> e <code>8e8db94</code> enviados para <code>origin/staging</code>.</li><li>Supabase staging vinculado; preflight com zero duplicidades.</li><li>Dry-run limitado a 0014/0015; migrations aplicadas e histórico 0001–0015 alinhado.</li><li>Coluna, índice único, RLS e permissões do rate limit comprovados.</li><li>GitHub Actions <code>32184886056</code>: site e platform aprovados.</li><li>Vercel inicial <code>dpl_FWKKPeaCBwjqbjcnuRzxV4eYHXEF</code>: sucesso.</li><li>Preview HTTP 200, vinculado ao Supabase staging sem referência pública de produção.</li><li>CSP, DENY, nosniff e Permissions Policy presentes; X-Powered-By ausente.</li><li>Pagamentos recusados com HTTP 503 no Preview.</li><li><code>RATE_LIMIT_SALT</code> sensível e limitada a Preview/staging.</li><li>Redeploy final <code>dpl_34HEEiQXwbaAJR6w79DdRZKaLU2S</code>: Preview Ready.</li><li>Formulário HTTP 200; uma chave de rate limit comprovada.</li><li>Uma mensagem sintética criada e removida; zero remanescentes.</li><li><code>icones/</code> e <code>modelo exemplo/</code> preservados fora do commit técnico.</li></ul>
+  <h3>Resultado do M00</h3>
+  <div class="notice">M00 validado em staging. O bloqueio foi corrigido sem reduzir segurança; banco, CI, Preview, vínculo, cabeçalhos, pagamentos desligados, formulário e rate limit foram aprovados.</div>
+  <ul><li>Produção, domínio público e Mercado Pago real não foram alterados.</li><li>Proteção das tabelas auxiliares e backup/restauração permanecem riscos abertos dos próximos portões.</li></ul>
 
   <h2>6. Achados críticos</h2>
   <div class="table-wrap"><table><thead><tr><th>ID</th><th>Achado</th><th>Severidade</th><th>Tratamento</th></tr></thead><tbody>
@@ -79,7 +79,7 @@
 
   <h2>7. Programa de módulos</h2>
   <div class="table-wrap"><table><thead><tr><th>Ordem</th><th>Módulo</th><th>Estado</th><th>Entrega</th><th>Critério</th></tr></thead><tbody>
-    <tr><td>M00</td><td>Segurança staging</td><td>Bloqueado</td><td>Banco, código, CI e Preview aprovados; variável privada pendente</td><td>Formulário aceito, rate limit consumido, dado sintético removido e deployment verde.</td></tr>
+    <tr><td>M00</td><td>Segurança staging</td><td>Validado em staging</td><td>Migrations, variáveis, CI, Preview e smoke tests aprovados</td><td>Concluído; aguarda aceite antes do M01.</td></tr>
     <tr><td>M01</td><td>Engenharia reversa</td><td>Planejado</td><td>Backup e dicionário físico</td><td>Schema, versão, volumes e diferenças documentados.</td></tr>
     <tr><td>M02</td><td>Fundação ERP</td><td>Não iniciado</td><td>Contratos, configurações e auditoria</td><td>Testes cross-tenant e rollback.</td></tr>
     <tr><td>M03</td><td>Portal/subdomínios</td><td>Não iniciado</td><td>Portal, login e hostname</td><td>Isolamento comprovado.</td></tr>
@@ -103,12 +103,13 @@
   <h2>9. Processo por cliente</h2>
   <ol><li>Preservar backup original.</li><li>Calcular hash.</li><li>Restaurar cópia isolada.</li><li>Inventariar schema e integridade.</li><li>Extrair em área protegida.</li><li>Transformar com tenant no servidor.</li><li>Carregar por job idempotente.</li><li>Reconciliar entidades e saldos.</li><li>Obter aceite.</li><li>Cortar com rollback.</li><li>Repetir individualmente.</li></ol>
 
-  <h2>10. Próxima ação autorizável — M00</h2>
-  <ol><li>Autenticar a CLI ou sessão Vercel proprietária.</li><li>Confirmar no Preview/staging as variáveis públicas e privadas do Supabase e <code>RATE_LIMIT_SALT</code>.</li><li>Manter <code>PAYMENTS_ENABLED=false</code>.</li><li>Não imprimir valores secretos.</li><li>Refazer deployment de staging.</li><li>Confirmar CI e Vercel verdes.</li><li>Repetir formulário sintético e obter HTTP 200.</li><li>Confirmar rate limit e remover somente o dado sintético.</li><li>Atualizar os documentos para “Validado em staging”.</li><li>Somente então solicitar M01.</li></ol>
+  <h2>10. Próxima ação autorizável — aceite M00 / análise M01</h2>
+  <ol><li>Revisar e aprovar formalmente o M00.</li><li>Manter produção e Mercado Pago fora da análise.</li><li>Selecionar cópia representativa do backup legado.</li><li>Registrar hash, origem e cadeia de custódia.</li><li>Planejar restauração isolada e rollback.</li><li>Apresentar parecer e fluxo gráfico antes de restaurar dados.</li><li>Somente após novo aceite iniciar engenharia reversa.</li></ol>
+  <p>Comando sugerido: <code>M00 aprovado; executar análise M01.</code></p>
   <p><strong>Produção e Mercado Pago real permanecem fora deste portão.</strong></p>
 
   <h2>11. Histórico</h2>
-  <div class="table-wrap"><table><thead><tr><th>Versão</th><th>Data</th><th>Módulo</th><th>Alteração</th><th>Resultado</th></tr></thead><tbody><tr><td>1.0.0</td><td>18/08/2026</td><td>Governança</td><td>Baseline, riscos, fila e critérios.</td><td>Aguardando validação antes do M00 remoto.</td></tr><tr><td>1.1.0</td><td>18/08/2026</td><td>M00</td><td>Banco staging, push, CI, Preview e smoke tests executados.</td><td>Bloqueado na configuração privada do formulário; produção não alterada.</td></tr></tbody></table></div>
+  <div class="table-wrap"><table><thead><tr><th>Versão</th><th>Data</th><th>Módulo</th><th>Alteração</th><th>Resultado</th></tr></thead><tbody><tr><td>1.0.0</td><td>18/08/2026</td><td>Governança</td><td>Baseline, riscos, fila e critérios.</td><td>Aguardando validação antes do M00 remoto.</td></tr><tr><td>1.1.0</td><td>18/08/2026</td><td>M00</td><td>Banco staging, push, CI, Preview e smoke tests executados.</td><td>Bloqueado na configuração privada do formulário; produção não alterada.</td></tr><tr><td>1.2.0</td><td>18/08/2026</td><td>M00</td><td>Variável sensível, redeploy e smoke test completo.</td><td>Validado em staging; aguarda aceite para análise M01.</td></tr></tbody></table></div>
 
   <h2>12. Protocolo de atualização</h2>
   <p>Cada conclusão registra versão, data, módulo, commit, migrations, testes, ambiente, evidências, riscos residuais, decisão e próxima ação permitida.</p>
