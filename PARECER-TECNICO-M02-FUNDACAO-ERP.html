@@ -13,10 +13,10 @@
   <header>
     <h1>Parecer técnico M02</h1>
     <p style="font-size:1.25rem;margin:.35rem 0">Fundação ERP multiempresa e multissegmento</p>
-    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.1.0</span><span class="pill">Produção: intocada</span></div>
+    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.2.0</span><span class="pill">Produção: intocada</span></div>
   </header>
 
-  <div class="notice"><strong>Preflight, dry-run e laboratório aprovados.</strong> A migration passou duas vezes em 38/38 testes locais e no ciclo de rollback/reconstrução. Ela ainda não foi aplicada no Supabase staging.</div>
+  <div class="notice"><strong>M02 validado no Supabase staging.</strong> A migration 0016 foi aplicada exclusivamente no projeto de staging, passou 38/38 testes remotos e não deixou fixtures nem extensão pgTAP persistida.</div>
 
   <div class="cards">
     <div class="card"><strong>14</strong>tabelas com RLS</div>
@@ -70,9 +70,10 @@
   <h2>4. Testes apresentados</h2>
   <div class="table"><table><thead><tr><th>Arquivo</th><th>Papel</th><th>Estado</th></tr></thead><tbody>
     <tr><td><code>supabase/preflight/0016_erp_foundation_preflight.sql</code></td><td>Somente leitura: versão, dependências, colisões e histórico.</td><td>Aprovado no staging.</td></tr>
-    <tr><td><code>supabase/tests/0016_erp_foundation.test.sql</code></td><td>38 asserções de estrutura, grants, RLS, isolamento, integridade, sequência e auditoria.</td><td>38/38 em duas passagens locais.</td></tr>
+    <tr><td><code>supabase/tests/0016_erp_foundation.test.sql</code></td><td>38 asserções de estrutura, grants, RLS, isolamento, integridade, sequência e auditoria.</td><td>38/38 em duas passagens locais e uma remota.</td></tr>
     <tr><td><code>supabase/rollback/0016_erp_foundation.rollback.sql</code></td><td>Limpeza apenas de laboratório local vazio, com duas confirmações.</td><td>Aprovado localmente; bloqueado por padrão.</td></tr>
   </tbody></table></div>
+  <p>Na primeira tentativa remota, a suíte parou antes das asserções porque o papel da CLI não possuía <code>USAGE</code> no schema <code>extensions</code>; nenhum fixture havia sido criado. O harness passou a elevar localmente para <code>postgres</code> somente dentro da transação, mantendo o papel <code>authenticated</code> nos testes de RLS e o rollback integral. A execução seguinte passou 38/38.</p>
   <div class="warning notice">O rollback não é a estratégia de ambiente compartilhado. Depois de aplicar ou receber dados, qualquer correção será uma migration forward-fix <code>0017+</code>.</div>
 
   <h2>5. Cobertura das 38 asserções</h2>
@@ -98,15 +99,19 @@
     <tr><td>Testes locais</td><td>Primeira passagem 38/38; após rollback/reconstrução, nova passagem 38/38.</td></tr>
     <tr><td>Rollback local</td><td>14 tabelas e schema privado removidos; contagens zero.</td></tr>
     <tr><td>Encerramento local</td><td>Contêineres encerrados e volumes descartados sem backup.</td></tr>
-    <tr><td>Supabase staging</td><td>Histórico 0016=false e tabelas ERP=0; migration não aplicada.</td></tr>
-    <tr><td>Git</td><td>Checkpoint <code>d5f5ce1</code> enviado somente para <code>origin/staging</code>.</td></tr>
-    <tr><td>Quality Gates</td><td>Execução <code>32194798896</code> concluída com sucesso.</td></tr>
-    <tr><td>Vercel</td><td>Status do commit success; deployment concluído e alias Preview HTTP 200.</td></tr>
+    <tr><td>Supabase staging</td><td>0016 aplicada; 14 tabelas, 14 RLS e 14 policies.</td></tr>
+    <tr><td>Catálogos/grants</td><td>8 permissões, 23 capacidades, 5 perfis e 60 associações; anon=0; authenticated sem DML.</td></tr>
+    <tr><td>Testes remotos</td><td><code>Files=1, Tests=38, Result: PASS</code>.</td></tr>
+    <tr><td>Resíduo</td><td>Zero dados sintéticos, zero linhas tenant-owned e zero extensão pgTAP persistida.</td></tr>
+    <tr><td>Lint remoto</td><td>Schemas <code>public,erp_security</code>: nenhum erro no nível warning.</td></tr>
+    <tr><td>Git</td><td>Checkpoint técnico <code>1a0c47f</code> enviado somente para <code>origin/staging</code>.</td></tr>
+    <tr><td>Quality Gates</td><td>Execução <code>32197876637</code> concluída com sucesso.</td></tr>
+    <tr><td>Vercel</td><td>Status do checkpoint success; deployment concluído e alias Preview HTTP 200.</td></tr>
   </tbody></table></div>
 
   <h2>7. Riscos controlados e residuais</h2>
   <div class="table"><table><thead><tr><th>Risco</th><th>Nível</th><th>Controle</th><th>Próxima prova</th></tr></thead><tbody>
-    <tr><td>Vazamento entre empresas</td><td>Crítico</td><td>RLS + membership + FKs compostas</td><td>38 testes local/staging.</td></tr>
+    <tr><td>Vazamento entre empresas</td><td>Crítico</td><td>RLS + membership + FKs compostas; 38/38 local/remoto</td><td>Ampliar nos fluxos M03/M04.</td></tr>
     <tr><td>Escrita pelo navegador</td><td>Crítico</td><td>Authenticated sem DML</td><td>Serviços autorizados no M04.</td></tr>
     <tr><td>Segredo em configuração</td><td>Crítico</td><td>Constraint e separação do A1</td><td>Cofre fiscal no M13.</td></tr>
     <tr><td>Número duplicado</td><td>Alto</td><td>Unicidade + lock</td><td>Concorrência ampliada no módulo transacional.</td></tr>
@@ -120,14 +125,14 @@
     <div class="node">2. Preflight ✓</div><div class="arrow">→</div>
     <div class="node">3. Dry-run ✓</div><div class="arrow">→</div>
     <div class="node">4. Laboratório 38/38 ✓</div><div class="arrow">→</div>
-    <div class="node red">5. Novo aceite</div><div class="arrow">→</div>
-    <div class="node pending">6. Aplicar staging</div>
+    <div class="node">5. Aceite aplicação ✓</div><div class="arrow">→</div>
+    <div class="node">6. Staging 38/38 ✓</div>
   </div></div>
   <p>Se qualquer portão falhar, o processo volta para correção. Não se avança por aproximação.</p>
 
   <h2>9. Próximo aceite</h2>
-  <div class="notice"><strong>M02 laboratório aprovado; aplicar 0016 exclusivamente no Supabase staging e executar validação remota.</strong></div>
-  <p>Produção, dados reais, fiscal, A1 e Mercado Pago continuam fora deste portão.</p>
+  <div class="notice"><strong>M02 staging aprovado; iniciar análise M03 — portal do cliente e subdomínios.</strong></div>
+  <p>O próximo portão autoriza somente análise, arquitetura e desenho visual do portal. Produção, dados reais, fiscal, A1 e Mercado Pago continuam fora do escopo.</p>
 
   <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
 </main></body></html>

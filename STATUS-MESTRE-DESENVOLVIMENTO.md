@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 1.6.0
+**Versão do documento:** 1.7.0
 
 **Produção alterada nesta fase:** não
 
@@ -74,6 +74,7 @@ Não serão criados novos repositórios, bancos ou forks de aplicação por clie
 - Supabase staging: projeto `ozvylnaipubrmaadikvk`.
 - Os relatórios fornecidos mostram 38 tabelas e o mesmo conteúdo lógico de schema/policies nos dois projetos até a migration `0013`.
 - Migrations `0014` e `0015` foram aplicadas exclusivamente no Supabase staging em 18/08/2026.
+- A migration `0016_erp_foundation.sql` foi aplicada exclusivamente no Supabase staging em 18/08/2026 e validada por 38 asserções remotas.
 - A migration `0006`, que contém povoamento de clientes reais, foi registrada no histórico de staging sem executar seus `INSERTs`.
 - Vercel Production deve apontar exclusivamente para o Supabase de produção.
 - Vercel Preview/branch staging deve apontar exclusivamente para o Supabase de staging.
@@ -173,9 +174,9 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - A ausência de backup não bloqueia o desenvolvimento do ERP.
 - No M14, uma cópia representativa será restaurada isoladamente e convertida por adaptador para o modelo canônico; o legado não determinará nossa estrutura.
 
-### 5.6 M02 — fundação validada localmente
+### 5.6 M02 — fundação validada em staging
 
-- Migration aditiva `0016_erp_foundation.sql` preparada, mas ainda não aplicada.
+- Migration aditiva `0016_erp_foundation.sql` aplicada exclusivamente no projeto staging `ozvylnaipubrmaadikvk`.
 - 14 tabelas `erp_*`, 14 policies e RLS nas 14 tabelas.
 - Memberships multiempresa, RBAC por tenant, estabelecimentos, capacidades, perfis, configurações sem segredos, sequências e auditoria append-only.
 - Catálogos globais com 8 permissões, 23 capacidades e 5 perfis, sem dados de cliente.
@@ -194,10 +195,18 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Suíte pgTAP executada antes e depois do rollback/rebuild: 38/38 nas duas passagens.
 - Rollback de laboratório: aprovado, com zero tabelas ERP e zero schema `erp_security` remanescentes.
 - Laboratório encerrado com `--no-backup`; contêineres e volume de dados locais foram descartados.
-- Verificação remota final: migration 0016 ausente e zero tabelas ERP no Supabase staging.
+- Verificação remota final: migration 0016 presente; 14 tabelas ERP, 14 RLS e 14 policies.
+- Catálogos remotos: 8 permissões, 23 capacidades, 5 perfis e 60 associações perfil-capacidade.
+- Grants remotos: `anon` sem privilégios; `authenticated` sem DML, com SELECT nas 14 tabelas protegido por RLS; helpers de numeração não executáveis pelo navegador.
+- A primeira tentativa remota da suíte parou antes das asserções porque o papel da CLI não possuía `USAGE` em `extensions`; nenhum fixture havia sido criado.
+- O harness pgTAP foi tornado portável com elevação local e transitória para `postgres`, preservando a alternância para `authenticated` nas provas de RLS e o rollback integral.
+- Suíte pgTAP remota: `Files=1, Tests=38, Result: PASS`.
+- Conferência pós-rollback: zero tenants, usuários, profiles e eventos sintéticos; zero linhas nas tabelas tenant-owned e zero extensão pgTAP persistida.
+- Lint remoto dos schemas `public` e `erp_security`: nenhum erro de schema no nível warning.
+- Checkpoint técnico `1a0c47f` enviado exclusivamente para `origin/staging`; Quality Gates `32197876637` concluído com sucesso, Vercel `success` e Preview HTTP 200.
 - A pilha local completa teve timeout do serviço auxiliar `postgres-meta`; o laboratório mínimo somente PostgreSQL funcionou e é suficiente para este portão.
 - A migration histórica `0006` repovoa cadastros em resets locais; ficou isolada, não foi selecionada pelo dry-run remoto e seu volume local foi removido ao final.
-- Produção e Supabase staging não foram alterados pelo M02 até este ponto.
+- Produção não foi alterada. O staging contém apenas a fundação e seus catálogos técnicos; não recebeu empresas, dados fiscais, A1, Mercado Pago ou backup legado pelo M02.
 
 ## 6. Achados críticos ainda abertos
 
@@ -223,7 +232,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 |---:|---|---|---|---|
 | M00 | Segurança e qualidade de staging | Aprovado | Migrations, variáveis, CI, Preview e smoke tests aprovados | Concluído e aceito em 18/08/2026. |
 | M01 | Arquitetura canônica multissegmento | Aprovado | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Concluído e aceito em 18/08/2026; nenhum schema aplicado. |
-| M02 | Fundação ERP multiempresa | Validado localmente | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | Preflight, dry-run, rollback e duas passagens 38/38 aprovados; aguarda autorização para aplicar em staging. |
+| M02 | Fundação ERP multiempresa | Validado em staging | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | 0016 aplicada somente em staging; estrutura, lint, grants, resíduos e pgTAP 38/38 aprovados; aguarda aceite formal. |
 | M03 | Portal do cliente e subdomínios | Não iniciado | `apps/portal`, autenticação e resolução segura de hostname | Empresa A nunca acessa empresa B; domínio desconhecido é rejeitado. |
 | M04 | Usuários, RBAC e MFA | Não iniciado | Papéis, permissões por ação e convites | Matriz de acesso validada; nenhuma senha legada migrada. |
 | M05 | Cadastros e catálogo universal | Não iniciado | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | Cinco segmentos representados sem fork ou dado real. |
@@ -271,19 +280,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Aplicação controlada do M02 no Supabase staging
+### Análise do M03 — portal do cliente e subdomínios
 
 Próxima sequência permitida:
 
-1. confirmar novamente o vínculo com `ozvylnaipubrmaadikvk`;
-2. aplicar exclusivamente `0016_erp_foundation.sql` no Supabase staging;
-3. verificar histórico, 14 tabelas, RLS, policies, grants, catálogos e helpers;
-4. executar as 38 asserções no staging dentro de transação com rollback;
-5. comprovar ausência de fixtures sintéticas remanescentes;
-6. atualizar Markdown/HTML e criar checkpoint;
-7. manter produção, dados reais, backup legado, fiscal, A1 e Mercado Pago fora do M02.
+1. consolidar requisitos de autenticação, hostname, subdomínio e empresa ativa;
+2. apresentar a arquitetura de `apps/portal`, seus fluxos e um desenho visual antes de codificar;
+3. definir resolução server-side do tenant, recusando tenant fornecido pelo navegador como autoridade;
+4. especificar testes positivos e negativos de isolamento entre empresas e domínio desconhecido;
+5. manter produção, dados reais, backup legado, fiscal, A1 e Mercado Pago fora deste portão.
 
-Comando de aceite sugerido: `M02 laboratório aprovado; aplicar 0016 exclusivamente no Supabase staging e executar validação remota.`
+Comando de aceite sugerido: `M02 staging aprovado; iniciar análise M03 — portal do cliente e subdomínios.`
 
 ## 11. Histórico do documento
 
@@ -299,6 +306,7 @@ Comando de aceite sugerido: `M02 laboratório aprovado; aplicar 0016 exclusivame
 | 1.5.0 | 18/08/2026 | M02 | Migration 0016, preflight, 38 testes pgTAP, rollback de laboratório e parecer técnico apresentados. | Revisão estática concluída; nada aplicado; aguarda aceite para preflight, dry-run e laboratório local. |
 | 1.5.1 | 18/08/2026 | M02 | Checkpoint técnico, Quality Gates e Vercel Preview do pacote M02 registrados. | Código/documentos validados no pipeline; migration continua não aplicada e aguarda o próximo aceite. |
 | 1.6.0 | 18/08/2026 | M02 | Preflight, dry-run, aplicação local, 38 testes, rollback, reconstrução e nova passagem 38/38 executados. | Validado localmente; staging comprovadamente inalterado; aguarda autorização específica para aplicação remota. |
+| 1.7.0 | 18/08/2026 | M02 | Migration 0016 aplicada somente em staging; estrutura, catálogos, grants, lint, resíduos e suíte pgTAP remota verificados. | Validado em staging com 38/38; produção intocada; aguarda aceite formal para iniciar a análise M03. |
 
 ## 12. Protocolo de atualização futura
 

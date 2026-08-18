@@ -6,15 +6,15 @@
 
 **Data:** 18/08/2026
 
-**Versão:** 1.1.0
+**Versão:** 1.2.0
 
-**Situação:** preflight, dry-run e laboratório local aprovados; ainda não aplicado no Supabase staging
+**Situação:** migration aplicada e validada no Supabase staging; aguarda aceite do portão M02
 
 **Produção alterada:** não
 
 ## 1. Parecer executivo
 
-O desenho físico do M02 é **tecnicamente favorável para validação em laboratório e, depois, no Supabase staging**, desde que os portões descritos neste documento sejam respeitados.
+O desenho físico do M02 foi **validado no laboratório e no Supabase staging**. A migration foi aplicada exclusivamente no projeto `ozvylnaipubrmaadikvk`, passou pelas verificações estruturais e de segurança e não deixou dados sintéticos após os testes.
 
 A migration `0016_erp_foundation.sql` é aditiva e cria uma fundação independente do sistema legado. Ela não cria produtos, vendas, estoque, fiscal, Mercado Pago, certificado A1 nem importa dados de clientes. Seu objetivo é estabelecer as fronteiras que todos os módulos futuros deverão obedecer:
 
@@ -28,7 +28,7 @@ A migration `0016_erp_foundation.sql` é aditiva e cria uma fundação independe
 - auditoria é append-only;
 - navegador autenticado começa com leitura protegida por RLS e sem escrita direta.
 
-**Conclusão deste portão:** o SQL pode ser revisado. Ainda não há autorização para `db push`, aplicação remota ou povoamento.
+**Conclusão deste portão:** o M02 está tecnicamente validado em staging. Nenhum povoamento de empresa, dado fiscal, certificado A1, Mercado Pago ou alteração de produção foi realizado. O avanço para M03 depende de aceite explícito.
 
 ## 2. Como a fundação ficará
 
@@ -159,6 +159,8 @@ Foram especificadas **38 asserções**:
 
 Os fixtures usam domínios `.invalid`, UUIDs sintéticos e transação com `ROLLBACK`; não são dados de cliente.
 
+Na execução remota, a CLI conecta como `cli_login_postgres`, que não herda `USAGE` do schema `extensions`. O harness passou a elevar temporariamente para `postgres` apenas dentro da transação pgTAP, alternar para `authenticated` nos testes de RLS e retornar ao papel de teste antes das provas administrativas. O `ROLLBACK` desfaz papéis locais, fixtures e a criação transitória da extensão.
+
 ### 4.3 Rollback e forward-fix
 
 **Arquivo:** `supabase/rollback/0016_erp_foundation.rollback.sql`
@@ -185,26 +187,33 @@ Depois que uma migration for aplicada em ambiente compartilhado ou receber dados
 | Reconstrução local | reset `--local --no-seed`, migrations `0001`–`0016` | aprovado |
 | Segunda suíte pgTAP | `Files=1, Tests=38, Result: PASS` | 38/38 |
 | Encerramento do laboratório | `stop --project-id connectioncyber --no-backup` | volumes descartados |
-| Supabase staging após o laboratório | histórico 0016=`false`; tabelas ERP=`0` | inalterado |
-| Aplicação no Supabase staging | depende de novo aceite específico | não executada |
-| Checkpoint Git | `d5f5ce1` enviado exclusivamente para `origin/staging` | aprovado |
-| GitHub Actions | Quality Gates `32194798896` | sucesso |
-| Vercel | status do commit `success`; deployment concluído | sucesso |
+| Aplicação no Supabase staging | `db push --linked`: exclusivamente `0016_erp_foundation.sql` | aprovada |
+| Histórico/estrutura remotos | 0016 presente; 14 tabelas, 14 RLS e 14 policies | aprovado |
+| Catálogos remotos | 8 permissões, 23 capacidades, 5 perfis e 60 associações | aprovado |
+| Grants/helpers remotos | `anon`=0; `authenticated` sem DML; 14 tabelas com SELECT por RLS; numeração negada | aprovado |
+| Suíte pgTAP remota | `Files=1, Tests=38, Result: PASS` | 38/38 |
+| Resíduo após testes | zero tenants/usuários/profiles/eventos sintéticos; zero linhas tenant-owned; pgTAP transitório=0 | aprovado |
+| Lint remoto | schemas `public,erp_security`, nível warning | nenhum erro de schema |
+| Checkpoint técnico Git | `1a0c47f` enviado exclusivamente para `origin/staging` | aprovado |
+| GitHub Actions | Quality Gates `32197876637` | sucesso |
+| Vercel | status do checkpoint `success`; deployment concluído | sucesso |
 | Alias Preview | HTTP 200 em `connectioncyber-git-staging-connectioncyberso.vercel.app` | sucesso |
 
-Portanto, o resultado correto deste momento é **migration validada localmente e pronta para um portão separado de aplicação em staging**. Ela ainda não foi aplicada remotamente.
+Portanto, o resultado correto deste momento é **M02 validado em staging e aguardando aceite formal**. A migration permanece aplicada no staging, como esperado; qualquer correção futura será feita por forward-fix `0017+`.
 
 ### 5.1 Ocorrências controladas do laboratório
 
 - A primeira inicialização da pilha local completa parou porque o serviço auxiliar `postgres-meta` não ficou saudável dentro do tempo. O banco foi reiniciado no modo mínimo, somente PostgreSQL, que é suficiente para migrations e pgTAP.
 - A migration histórica `0006_povoamento_tenants_reais.sql` faz parte da cadeia local e é executada durante resets. Esses cadastros ficaram confinados ao banco descartável; o dry-run remoto comprovou que `0006` não seria reenviada, e o volume local foi removido ao final com `--no-backup`.
 - A primeira tentativa de chamar o rollback pela interface preparada da CLI executou apenas o primeiro comando. Nenhum objeto foi removido. A execução foi refeita na mesma sessão pelo cliente PostgreSQL local e terminou com `COMMIT`, seguida de contagens zero.
+- A primeira chamada remota da suíte terminou antes de executar asserções porque `plan(integer)` não estava visível para o papel da CLI. O diagnóstico qualificado confirmou ausência de `USAGE` em `extensions`. Nenhum fixture havia sido criado. O harness foi corrigido de forma transacional e a suíte completa passou 38/38.
+- A criação de pgTAP usada pelo teste remoto foi transitória: a conferência pós-rollback comprovou zero extensão pgTAP persistida e zero dado sintético remanescente.
 
 ## 6. Riscos e controles
 
 | ID | Risco | Nível | Controle deste M02 | Condição residual |
 |---|---|---:|---|---|
-| M02-R1 | vazamento entre empresas | crítico | RLS, memberships e FKs compostas | executar 38 testes em banco descartável e staging |
+| M02-R1 | vazamento entre empresas | crítico | RLS, memberships, FKs compostas e 38/38 local/remoto | ampliar testes nos fluxos do portal e RBAC em M03/M04 |
 | M02-R2 | escrita direta pelo navegador | crítico | grants somente leitura | comandos de escrita entram apenas com serviços do M04 |
 | M02-R3 | segredo em configuração comum | crítico | bloqueio por chave e regra documental | A1 terá cofre/serviço específico no M13 |
 | M02-R4 | números duplicados sob concorrência | alto | unicidade de escopo + lock de linha | teste concorrente ampliado no módulo transacional |
@@ -231,8 +240,8 @@ flowchart LR
   H --> I{38/38?}
   I -- não --> C
   I -- sim --> J[Novo aceite para aplicar em staging]
-  J --> K[Aplicar 0016 em staging]
-  K --> L[Reexecutar 38 testes e inspeções]
+  J --> K[Aplicar 0016 em staging ✓]
+  K --> L[Reexecutar 38 testes e inspeções ✓]
   L --> M{Tudo aprovado?}
   M -- não --> N[Forward-fix 0017+]
   M -- sim --> O[Checkpoint M02 e atualização MD/HTML]
@@ -242,16 +251,14 @@ Cada caixa é um portão. Nenhuma falha autoriza pular para a seguinte.
 
 ## 8. Próximo aceite solicitado
 
-O próximo passo é um novo portão e autoriza somente o Supabase staging:
+O próximo passo abre somente a **análise do M03 — portal do cliente e subdomínios**:
 
-1. repetir a confirmação de projeto vinculado `ozvylnaipubrmaadikvk`;
-2. executar `db push` selecionando exclusivamente `0016`;
-3. consultar o histórico e os 14 objetos criados;
-4. executar as 38 asserções contra o Supabase staging dentro de transação com rollback;
-5. verificar grants, RLS e ausência de dados sintéticos remanescentes;
-6. atualizar MD/HTML e criar checkpoint;
-7. não alterar produção, dados reais, fiscal, A1 ou Mercado Pago.
+1. consolidar requisitos de autenticação, hostname e seleção segura de empresa ativa;
+2. apresentar arquitetura, telas propostas, riscos e critérios de isolamento;
+3. definir como `apps/portal` consumirá a fundação sem confiar em `tenant_id` do navegador;
+4. não criar tabelas, promover produção ou iniciar dados reais antes do parecer M03;
+5. manter fiscal, A1, Mercado Pago e migração de backups fora deste portão.
 
 Frase de aceite sugerida:
 
-> **M02 laboratório aprovado; aplicar 0016 exclusivamente no Supabase staging e executar validação remota.**
+> **M02 staging aprovado; iniciar análise M03 — portal do cliente e subdomínios.**
