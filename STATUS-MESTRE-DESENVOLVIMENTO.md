@@ -3,7 +3,7 @@
 **Documento vivo e obrigatório**  
 **Ambiente de trabalho:** staging  
 **Atualizado em:** 18/08/2026  
-**Versão do documento:** 1.2.0  
+**Versão do documento:** 1.3.0
 **Produção alterada nesta fase:** não
 
 ## 1. Finalidade
@@ -140,6 +140,19 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Produção, domínio público e Mercado Pago real não foram alterados.
 - A proteção das tabelas auxiliares e a estratégia de backup/restauração continuam como riscos abertos dos próximos portões, antes de receber dados ERP sensíveis.
 
+### 5.4 Análise M01 executada
+
+- M00 foi aprovado pelo responsável do projeto em 18/08/2026.
+- O acervo `modelo exemplo` foi inventariado somente para leitura: 68 arquivos, 5.495.739 bytes, sendo 64 PNG, dois DOCX e dois TXT.
+- Impressão digital agregada do manifesto: `ab936514fef1d21106217b9c7ff677a0db608d1435035cfbedcb3e9cbee8f459`.
+- Nenhum backup ou banco físico foi localizado no staging (`.bak`, `.mdf`, `.ldf`, compactados ou formatos de banco conhecidos).
+- As telas comprovam as funções do ERP e a conexão legada `LocalHost\SQLEXPRESS` / banco `CONNECTIONCYBER`, mas não comprovam nomes físicos de tabelas, chaves ou código armazenado.
+- O ambiente local contém SQL Server 2022 Express; ele não será usado para restore de cliente. O laboratório preferencial é isolado em SQL Server 2022 Developer, sem porta pública, com cópia somente leitura e sem `WITH REPLACE`.
+- O Supabase atual ainda não possui modelo ERP canônico. Tabelas do site/Mercado Pago não serão reutilizadas para produtos, vendas ou pagamentos legados.
+- A lista documental tem 14 empresas, a configuração do site tem 15 posições, uma migration histórica menciona 10 e staging possui somente o tenant ConnectionCyber. O cadastro mestre deverá ser validado antes do provisionamento.
+- Parecer e matriz preliminar emitidos em `PARECER-TECNICO-M01-ENGENHARIA-REVERSA.md` e `.html`.
+- Estado do M01: `Bloqueado em M01-G1`, aguardando uma cópia controlada do backup representativo. Nenhuma restauração, migration, carga ou alteração de produção foi realizada.
+
 ## 6. Achados críticos ainda abertos
 
 | ID | Achado | Severidade | Tratamento obrigatório |
@@ -151,13 +164,15 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | R-005 | Continuidade do PDV sem internet ainda não foi definida. | Crítica | Decidir contingência/offline antes do módulo de vendas. |
 | R-006 | A lista documental de clientes possui divergências de quantidade, e-mail e subdomínio. | Alta | Criar cadastro mestre validado antes de provisionamento em massa. |
 | R-007 | Existe repositório histórico específico de cliente, divergente do padrão multi-tenant aprovado. | Média | Auditar e incorporar somente ativos necessários; não criar novos forks. |
+| R-008 | Não há arquivo de backup no acervo analisado. | Bloqueante | Receber cópia protegida, fora do Git, registrar metadados e SHA-256 antes de inspecionar a mídia. |
+| R-009 | O schema atual possui colisão semântica com nomes do futuro ERP e 16 tabelas públicas observadas sem RLS. | Crítica | Criar modelo `erp_*` isolado no M02; não carregar legado em tabelas do site, Mercado Pago ou suporte remoto. |
 
 ## 7. Programa de módulos e portões
 
 | Ordem | Módulo/portão | Estado atual | Entrega principal | Critério para avançar |
 |---:|---|---|---|---|
-| M00 | Segurança e qualidade de staging | Validado em staging | Migrations, variáveis, CI, Preview e smoke tests aprovados | Concluído; aguarda aceite do portão antes de iniciar M01. |
-| M01 | Engenharia reversa do legado | Planejado | Restaurar um backup representativo e gerar dicionário físico | Schema, versão, volumes, dependências e diferenças documentados. |
+| M00 | Segurança e qualidade de staging | Aprovado | Migrations, variáveis, CI, Preview e smoke tests aprovados | Concluído e aceito em 18/08/2026. |
+| M01 | Engenharia reversa do legado | Bloqueado em M01-G1 | Restaurar um backup representativo e gerar dicionário físico | G0 aprovado; aguarda cópia do backup para hash e custódia em G1. |
 | M02 | Fundação ERP multiempresa | Não iniciado | Contratos, estabelecimentos, configurações, auditoria e isolamento | Testes cross-tenant e rollback de migration aprovados. |
 | M03 | Portal do cliente e subdomínios | Não iniciado | `apps/portal`, autenticação e resolução segura de hostname | Empresa A nunca acessa empresa B; domínio desconhecido é rejeitado. |
 | M04 | Usuários, RBAC e MFA | Não iniciado | Papéis, permissões por ação e convites | Matriz de acesso validada; nenhuma senha legada migrada. |
@@ -206,21 +221,21 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Aceite do M00 e preparação do M01
+### M01-G1 — recepção e custódia da cópia
 
 Próxima sequência permitida:
 
-1. revisar as evidências e aprovar formalmente o M00;
-2. manter produção e Mercado Pago fora da próxima análise;
-3. selecionar uma cópia representativa de backup legado, sem alterar o original;
-4. registrar hash, versão estimada, empresa de origem e cadeia de custódia;
-5. elaborar o plano técnico de restauração isolada e rollback do laboratório;
-6. apresentar o parecer e o fluxo gráfico do M01 antes de restaurar qualquer dado;
-7. somente após novo aceite iniciar a engenharia reversa do backup.
+1. revisar e aprovar o parecer técnico M01;
+2. escolher o backup representativo — provisoriamente, Maria dos Remédios/Mania de Moda;
+3. preservar o backup original sem alteração;
+4. disponibilizar uma cópia em diretório protegido e fora do repositório Git;
+5. informar empresa, data, origem, extensão, tamanho e caminho exato da cópia;
+6. calcular e registrar SHA-256 sem abrir ou restaurar o arquivo;
+7. validar o M01-G1 antes de executar `HEADERONLY`, `FILELISTONLY` ou `VERIFYONLY` no M01-G2.
 
-Comando de aceite sugerido: `M00 aprovado; executar análise M01.`
+Comando de aceite sugerido: `Parecer M01 aprovado; disponibilizar cópia do backup da Mania de Moda em [caminho] e executar M01-G1.`
 
-Produção e Mercado Pago real permanecem fora deste portão.
+Não enviar a única cópia original, senha de certificado A1 ou credenciais em mensagem. Produção e Mercado Pago real permanecem fora deste portão.
 
 ## 11. Histórico do documento
 
@@ -229,6 +244,7 @@ Produção e Mercado Pago real permanecem fora deste portão.
 | 1.0.0 | 18/08/2026 | Governança | Criação do documento mestre com baseline, riscos, fila e critérios. | Aguardando validação do documento antes do início do M00 remoto. |
 | 1.1.0 | 18/08/2026 | M00 | Banco staging, push, CI, Preview e smoke tests executados; evidências registradas. | Bloqueado na configuração privada do formulário no Vercel Preview; produção não alterada. |
 | 1.2.0 | 18/08/2026 | M00 | Variável sensível corrigida, redeploy de Preview e smoke test completo com limpeza do dado sintético. | Validado em staging; aguarda aceite explícito para iniciar a análise do M01. |
+| 1.3.0 | 18/08/2026 | M01 | Inventário, análise do legado/stack, matriz preliminar, laboratório seguro, rollback e portões G0–G6 documentados. | M00 aprovado; M01-G0 aprovado e M01 bloqueado em G1 por ausência da cópia do backup; produção não alterada. |
 
 ## 12. Protocolo de atualização futura
 

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ConnectionCyber — Parecer Técnico M01</title>
+  <style>
+    :root{--orange:#F6851F;--red:#E01F27;--green:#2C9C48;--teal:#1E9680;--ink:#17232d;--muted:#5d6a73;--line:#d9e0e4;--soft:#f5f7f8;--paper:#fff}
+    *{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(1280px,calc(100% - 32px));margin:24px auto;background:var(--paper);padding:clamp(22px,4vw,52px);box-shadow:0 12px 34px #17232d14}h1,h2,h3{line-height:1.2}h1{margin:0 0 10px;color:var(--red)}h2{margin-top:38px;padding-bottom:8px;border-bottom:2px solid var(--orange)}h3{margin-top:24px;color:var(--teal)}code{background:var(--soft);padding:.08rem .3rem;border-radius:4px}.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);margin-bottom:24px}.notice{border-left:5px solid var(--green);background:#f1f8f3;padding:14px 16px;margin:18px 0}.warning{border-left-color:var(--red);background:#fff4f4}.table-wrap{overflow-x:auto;margin:14px 0 22px}table{width:100%;border-collapse:collapse;min-width:860px}th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--soft)}tr:hover td{background:#fffaf5}ol,ul{padding-left:24px}li+li{margin-top:5px}.flow{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:24px 34px;align-items:stretch;margin:22px 0}.node{position:relative;border:2px solid var(--teal);border-radius:10px;padding:16px;background:#f3fbf9;text-align:center;font-weight:650;min-height:78px;display:flex;align-items:center;justify-content:center}.node:after{content:"→";position:absolute;right:-27px;top:50%;transform:translateY(-50%);color:var(--orange);font-size:26px}.node:nth-child(4n):after,.node:last-child:after{display:none}.node.decision{border-color:var(--orange);background:#fff9f1}.node.stop{border-color:var(--red);background:#fff4f4}.node.go{border-color:var(--green);background:#f1f8f3}.status{display:inline-block;padding:3px 9px;border-radius:99px;font-size:13px;font-weight:700}.ok{background:#e7f6eb;color:#1e7136}.blocked{background:#ffe5e5;color:#a3151a}.pending{background:#fff2dc;color:#8d5700}footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted)}@media(max-width:850px){.flow{grid-template-columns:1fr}.node:after{content:"↓";right:auto;left:50%;top:auto;bottom:-31px;transform:translateX(-50%)}.node:nth-child(4n):after{display:block}.node:last-child:after{display:none}}@media print{body{background:#fff}main{width:100%;margin:0;box-shadow:none;padding:0}.flow{grid-template-columns:repeat(4,1fr)}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <h1>ConnectionCyber — Parecer Técnico M01: Engenharia Reversa do Legado</h1>
+    <div class="meta"><strong>Staging</strong><span>18/08/2026</span><span>Somente leitura</span><span>Produção alterada: não</span><span>Backup restaurado: não</span></div>
+    <div class="notice warning"><strong>Decisão:</strong> análise M01 concluída; execução física bloqueada no M01-G1 até a entrega de uma cópia controlada do backup.</div>
+  </header>
+
+  <h2>1. Parecer executivo</h2>
+  <p>É tecnicamente viável evoluir o legado para um ERP web multiempresa, mas a migração não deve começar por importação direta. As telas comprovam funções, porém não revelam tabelas físicas, chaves, relacionamentos, triggers, procedures, versão original ou volumes. Esses nomes somente serão preenchidos depois de uma restauração isolada e validada.</p>
+  <p>O acervo contém 68 arquivos e 5.495.739 bytes: 64 PNG, dois DOCX e dois TXT. Não existe arquivo <code>.bak</code>, <code>.mdf</code>, <code>.ldf</code>, arquivo compactado ou outro banco conhecido no staging. Nenhuma restauração foi tentada. O próximo ato seguro é receber uma <strong>cópia</strong> representativa, registrar custódia e validar a mídia antes do restore.</p>
+
+  <h2>2. Escopo e limites</h2>
+  <h3>Executado</h3><ul><li>Inventário somente leitura.</li><li>Extração textual dos dois documentos Word.</li><li>Classificação funcional das 38 telas legadas.</li><li>Comparação conceitual com o Supabase atual.</li><li>Inspeção somente leitura das ferramentas locais.</li><li>Matriz preliminar e desenho do laboratório/rollback.</li></ul>
+  <h3>Não executado</h3><ul><li>Restore, criação ou alteração de banco.</li><li>Migration, carga de cliente ou código ERP.</li><li>Alteração de produção, Vercel Production ou Mercado Pago.</li><li>Movimentação de senhas, A1 ou dados pessoais para Git.</li><li>Instalação/reconfiguração de SQL Server ou Docker.</li></ul>
+
+  <h2>3. Evidências</h2>
+  <div class="table-wrap"><table><thead><tr><th>Evidência</th><th>Resultado</th></tr></thead><tbody>
+    <tr><td>Acervo</td><td>68 arquivos; 5.495.739 bytes; 64 PNG, 2 DOCX, 2 TXT</td></tr>
+    <tr><td>Backup físico</td><td>Nenhum localizado</td></tr>
+    <tr><td>Hash agregado do manifesto</td><td><code>ab936514fef1d21106217b9c7ff677a0db608d1435035cfbedcb3e9cbee8f459</code></td></tr>
+    <tr><td>Legado observado</td><td>Aplicação Windows; <code>LocalHost\SQLEXPRESS</code>; banco <code>CONNECTIONCYBER</code>; autenticação integrada</td></tr>
+    <tr><td>Servidor local</td><td>SQL Server 2022 Express, instância <code>MSSQL16.SQLEXPRESS</code></td></tr>
+    <tr><td>Ferramentas</td><td><code>sqlcmd</code> e Docker CLI; daemon Docker não comprovado em execução</td></tr>
+  </tbody></table></div>
+  <p>O hash acima identifica o manifesto documental; o backup futuro terá SHA-256 individual.</p>
+
+  <h2>4. Domínios do legado</h2>
+  <p>Cadastros; produtos/código de barras; estoque/compras; preços/orçamentos; vendas/PDV; cartões/TEF; receber/pagar/caixa/cheques/boletos; atendimento; NF-e/NFC-e/A1; relatórios/logs/backup/importação/exportação e suporte.</p>
+  <div class="notice">A1 é credencial fiscal, não login. Senhas antigas não serão migradas; a nova identidade usará Supabase Auth, MFA, convite e menor privilégio.</div>
+
+  <h2>5. Divergências de cadastro</h2>
+  <ul><li>Word: 14 empresas; configuração do site: 15 posições; migration histórica: 10 tenants.</li><li>Staging tem apenas um tenant ativo, a ConnectionCyber, sem CNPJ/domínio de cliente.</li><li>Há e-mails administrativos repetidos entre empresas.</li></ul>
+  <p>Provisionamento automático permanece proibido até existir cadastro mestre validado.</p>
+
+  <h2>6. Modelo de destino</h2>
+  <p>O Supabase atual tem tenancy e autenticação, mas não um ERP canônico. <code>products</code>, <code>orders</code>, <code>order_items</code> e <code>payments</code> pertencem ao site/Mercado Pago e não devem receber o legado. Dezesseis de 39 tabelas públicas observadas estão sem RLS. O M02 deverá criar tabelas <code>erp_*</code> com <code>tenant_id</code>, RLS, auditoria e mapa de IDs.</p>
+
+  <h2>7. Matriz preliminar</h2>
+  <p><strong>Regra:</strong> a origem permanece “a identificar no backup”; destinos são propostas ainda não implementadas.</p>
+  <div class="table-wrap"><table><thead><tr><th>Função antiga</th><th>Função nova</th><th>Tabela de origem</th><th>Destino proposto</th><th>Prioridade</th><th>Risco</th><th>Critério</th></tr></thead><tbody>
+    <tr><td>Empresa/configurações</td><td>Tenant/estabelecimento</td><td>A identificar</td><td><code>tenants</code>, <code>erp_establishments</code>, <code>erp_settings</code></td><td>P0</td><td>Crítico</td><td>CNPJ, regime e parâmetros reconciliados; segredos excluídos</td></tr>
+    <tr><td>Usuários/permissões</td><td>Identidade, RBAC e MFA</td><td>A identificar</td><td><code>users</code>, <code>erp_user_roles</code>, <code>erp_permissions</code></td><td>P0</td><td>Crítico</td><td>Perfis, sem senhas; convites e menor privilégio</td></tr>
+    <tr><td>Clientes</td><td>Pessoas/clientes</td><td>A identificar</td><td><code>erp_parties</code>, <code>erp_customers</code></td><td>P0</td><td>Alto</td><td>Contagem, documentos, contatos e duplicidades</td></tr>
+    <tr><td>Fornecedores/transportadoras</td><td>Papéis comerciais</td><td>A identificar</td><td><code>erp_suppliers</code>, <code>erp_carriers</code></td><td>P1</td><td>Alto</td><td>Documentos e vínculos sem duplicação</td></tr>
+    <tr><td>Funcionários/vendedores</td><td>Equipe/representantes</td><td>A identificar</td><td><code>erp_employees</code>, <code>erp_sales_reps</code></td><td>P1</td><td>Alto</td><td>Situação, comissão e vínculos</td></tr>
+    <tr><td>Produtos/código de barras</td><td>Produto/SKU/EAN</td><td>A identificar</td><td><code>erp_products</code>, <code>erp_skus</code>, <code>erp_barcodes</code></td><td>P0</td><td>Crítico</td><td>Código legado, EAN, unidade/NCM e contagem</td></tr>
+    <tr><td>Tabelas de preços</td><td>Listas/itens de preço</td><td>A identificar</td><td><code>erp_price_lists</code>, <code>erp_price_items</code></td><td>P1</td><td>Alto</td><td>Vigência, custo/venda e arredondamento</td></tr>
+    <tr><td>Setores/tipos de saída</td><td>Depósitos/motivos</td><td>A identificar</td><td><code>erp_warehouses</code>, <code>erp_stock_reasons</code></td><td>P0</td><td>Alto</td><td>Todos os códigos mapeados</td></tr>
+    <tr><td>Estoque/inventário</td><td>Livro razão de estoque</td><td>A identificar</td><td><code>erp_stock_movements</code>, <code>erp_inventory_counts</code></td><td>P0</td><td>Crítico</td><td>Saldo reconstruído coincide por produto/deposito/data</td></tr>
+    <tr><td>Pedidos de compra</td><td>Compras/itens</td><td>A identificar</td><td><code>erp_purchase_orders</code>, <code>erp_purchase_items</code></td><td>P1</td><td>Alto</td><td>Totais, status, fornecedor e recebimento</td></tr>
+    <tr><td>Orçamentos</td><td>Cotações</td><td>A identificar</td><td><code>erp_quotes</code>, <code>erp_quote_items</code></td><td>P1</td><td>Alto</td><td>Totais, validade e conversão</td></tr>
+    <tr><td>Vendas/PDV</td><td>Vendas/itens/recebimentos</td><td>A identificar</td><td><code>erp_sales</code>, <code>erp_sale_items</code>, <code>erp_receipts</code></td><td>P0</td><td>Crítico</td><td>Totais e cancelamentos reconciliados</td></tr>
+    <tr><td>Cartões/TEF</td><td>Meios/eventos</td><td>A identificar</td><td><code>erp_payment_methods</code>, <code>erp_sale_payments</code>, <code>erp_tef_events</code></td><td>P1</td><td>Crítico</td><td>Valor, NSU, parcelas e estornos</td></tr>
+    <tr><td>Receber/pagar</td><td>Títulos/parcelas/liquidações</td><td>A identificar</td><td><code>erp_financial_entries</code>, <code>erp_installments</code>, <code>erp_settlements</code></td><td>P0</td><td>Crítico</td><td>Saldos, juros e datas fecham</td></tr>
+    <tr><td>Caixa/cheques</td><td>Sessões/movimentos</td><td>A identificar</td><td><code>erp_cash_sessions</code>, <code>erp_cash_movements</code>, <code>erp_cheques</code></td><td>P0</td><td>Crítico</td><td>Abertura/fechamento e saldos</td></tr>
+    <tr><td>Boletos</td><td>Contas/títulos/arquivos</td><td>A identificar</td><td><code>erp_bank_accounts</code>, <code>erp_billing_titles</code>, <code>erp_bank_files</code></td><td>P1</td><td>Crítico</td><td>Nosso número, remessa/retorno e liquidação</td></tr>
+    <tr><td>Atendimento</td><td>Tickets/SLA</td><td>A identificar</td><td><code>erp_tickets</code>, <code>erp_ticket_events</code>, <code>erp_slas</code></td><td>P1</td><td>Alto</td><td>Abertos, sequência, responsáveis e anexos</td></tr>
+    <tr><td>NF-e/NFC-e/A1</td><td>Documentos/eventos fiscais</td><td>A identificar</td><td><code>erp_fiscal_documents</code>, <code>erp_fiscal_events</code>, <code>erp_certificate_refs</code></td><td>P0</td><td>Crítico</td><td>XML/chave/status; PFX fora de tabela comum</td></tr>
+    <tr><td>Logs/backups</td><td>Auditoria/importações</td><td>A identificar</td><td><code>erp_audit_events</code>, <code>erp_import_jobs</code></td><td>P0</td><td>Crítico</td><td>Ações auditáveis e backup imutável</td></tr>
+    <tr><td>Importar/exportar/manter</td><td>Pipeline idempotente</td><td>A identificar</td><td><code>erp_import_batches</code>, <code>erp_legacy_id_map</code>, <code>erp_reconciliation_results</code></td><td>P0</td><td>Crítico</td><td>Reexecução sem duplicar; 100% classificados</td></tr>
+    <tr><td>Acesso remoto</td><td>Dispositivos/consentimentos/sessões</td><td>A identificar</td><td><code>erp_managed_devices</code>, <code>erp_remote_sessions</code>, <code>erp_support_consents</code></td><td>P1</td><td>Crítico</td><td>MFA, consentimento, expiração e revogação</td></tr>
+    <tr><td>Relatórios</td><td>Views canônicas</td><td>A identificar</td><td>views sobre <code>erp_*</code></td><td>P2</td><td>Médio</td><td>Totais aprovados após módulos fonte</td></tr>
+  </tbody></table></div>
+  <p>P0: fundação/reconciliação obrigatória; P1: depende do núcleo; P2: derivado.</p>
+
+  <h2>8. Candidato e laboratório</h2>
+  <p>Maria dos Remédios/Mania de Moda é a candidata provisória, pois suas telas demonstram maior cobertura. A escolha só se torna definitiva após receber metadados da cópia.</p>
+  <p>O <code>SQLEXPRESS</code> atual não deve ser usado. Preferência: container SQL Server 2022 Developer dedicado, volume exclusivo, sem porta pública e backup somente leitura. Alternativa: instância Windows Developer dedicada <code>CCLAB</code>. Nunca executar <code>WITH REPLACE</code>.</p>
+
+  <h2>9. Fluxo gráfico</h2>
+  <div class="flow" aria-label="Fluxo do laboratório M01">
+    <div class="node">Backup original<br>não alterar</div><div class="node">Cópia controlada</div><div class="node">SHA-256, origem<br>e custódia</div><div class="node decision">HEADERONLY<br>FILELISTONLY<br>VERIFYONLY</div>
+    <div class="node stop">Falha: quarentena<br>sem restore</div><div class="node">SQL isolado<br>sem acesso público</div><div class="node">RESTORE com MOVE<br>nunca REPLACE</div><div class="node">DBCC CHECKDB<br>código e triggers</div>
+    <div class="node">Dicionário físico<br>e volumes</div><div class="node">Matriz legado<br>→ canônico</div><div class="node decision">Aceite M01</div><div class="node go">M02 autorizado<br>sem carga ainda</div>
+  </div>
+
+  <h2>10. Portões determinísticos</h2>
+  <div class="table-wrap"><table><thead><tr><th>Portão</th><th>Ação</th><th>Validação</th><th>Estado</th></tr></thead><tbody>
+    <tr><td>M01-G0</td><td>Inventário documental</td><td>Lista, tipos, tamanho e hash</td><td><span class="status ok">Aprovado</span></td></tr>
+    <tr><td>M01-G1</td><td>Recepção da cópia</td><td>Fora do Git, metadados, SHA-256 e original preservado</td><td><span class="status blocked">Bloqueado: cópia ausente</span></td></tr>
+    <tr><td>M01-G2</td><td>Inspeção da mídia</td><td>HEADERONLY, FILELISTONLY, VERIFYONLY</td><td><span class="status pending">Não iniciado</span></td></tr>
+    <tr><td>M01-G3</td><td>Restore isolado</td><td>Versão compatível, MOVE, nome exclusivo, zero REPLACE</td><td><span class="status pending">Não iniciado</span></td></tr>
+    <tr><td>M01-G4</td><td>Integridade/segurança</td><td>CHECKDB, usuários, código, triggers, integrações</td><td><span class="status pending">Não iniciado</span></td></tr>
+    <tr><td>M01-G5</td><td>Dicionário/reconciliação</td><td>Schema, chaves, volumes e origem física</td><td><span class="status pending">Não iniciado</span></td></tr>
+    <tr><td>M01-G6</td><td>Encerramento</td><td>Relatório aprovado e laboratório removido</td><td><span class="status pending">Não iniciado</span></td></tr>
+  </tbody></table></div>
+
+  <h2>11. Aceite e próxima ação</h2>
+  <p>O M01 requer hash/custódia, propriedades reais, restore isolado, CHECKDB, dicionário físico, volumes, dependências, matriz comprovada, plano de extração/rollback e remoção controlada do laboratório.</p>
+  <div class="notice"><strong>Comando sugerido:</strong> <code>Parecer M01 aprovado; disponibilizar cópia do backup da Mania de Moda em [caminho] e executar M01-G1.</code></div>
+  <p>Se outro cliente for escolhido, substituir o nome. Não enviar a única cópia original, senha A1 ou credenciais em mensagem.</p>
+
+  <h2>12. Referências</h2>
+  <ul><li><a href="https://learn.microsoft.com/en-us/sql/t-sql/statements/restore-statements-transact-sql?view=sql-server-ver17">RESTORE (Transact-SQL)</a></li><li><a href="https://learn.microsoft.com/en-us/sql/relational-databases/backup-restore/restore-database-general-page?view=sql-server-2016">Restore Database</a></li><li><a href="https://learn.microsoft.com/en-us/sql/relational-databases/backup-restore/restore-a-database-backup-under-the-simple-recovery-model-transact-sql?view=sql-server-2017">Restore sob modelo simples</a></li><li><a href="https://learn.microsoft.com/en-us/sql/database-engine/install-windows/supported-version-and-edition-upgrades-2022?view=sql-server-ver17">Upgrades SQL Server 2022</a></li><li><a href="https://learn.microsoft.com/en-us/sql/linux/migrate/tutorial-restore-backup-sql-server-container?view=sql-server-ver15">Restore em container</a></li><li><a href="https://learn.microsoft.com/en-us/sql/sql-server/editions-and-components-of-sql-server-2022?view=sql-server-ver17">Edições SQL Server 2022</a></li></ul>
+  <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
+</main></body></html>
