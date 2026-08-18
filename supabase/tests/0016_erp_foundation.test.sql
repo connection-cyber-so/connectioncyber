@@ -5,8 +5,15 @@
 
 begin;
 
+-- A CLI remota conecta como cli_login_postgres (membro de postgres), mas esse
+-- login não herda USAGE do schema extensions. O papel elevado existe somente
+-- dentro desta transação de teste e é revertido junto com todos os fixtures.
+set local role postgres;
+
 create extension if not exists pgtap with schema extensions;
-set local search_path = public, extensions;
+-- O Supabase local instala pgTAP em extensions; o executor remoto pode
+-- materializá-lo em pgtap durante a transação. Ambos precisam ser portáveis.
+set local search_path = public, extensions, pgtap;
 
 select plan(38);
 
@@ -203,7 +210,7 @@ select throws_ok(
   'authenticated não pode gravar diretamente na fundação'
 );
 
-reset role;
+set local role postgres;
 
 select throws_ok(
   $$insert into public.erp_membership_roles (tenant_id, membership_id, role_id)
