@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ConnectionCyber — Status Mestre de Desenvolvimento</title>
+  <style>
+    :root { --orange:#F6851F; --red:#E01F27; --green:#2C9C48; --teal:#1E9680; --ink:#17232d; --muted:#5d6a73; --line:#d9e0e4; --paper:#ffffff; --soft:#f5f7f8; }
+    * { box-sizing: border-box; }
+    body { margin:0; color:var(--ink); background:var(--soft); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { width:min(1180px,calc(100% - 32px)); margin:24px auto; background:var(--paper); padding:clamp(22px,4vw,52px); box-shadow:0 12px 34px rgba(23,35,45,.08); }
+    h1,h2,h3 { line-height:1.2; }
+    h1 { margin:0 0 10px; color:var(--red); }
+    h2 { margin-top:38px; padding-bottom:8px; border-bottom:2px solid var(--orange); }
+    h3 { margin-top:24px; color:var(--teal); }
+    code { background:var(--soft); padding:.08rem .3rem; border-radius:4px; }
+    .meta { display:flex; flex-wrap:wrap; gap:8px 18px; color:var(--muted); margin-bottom:24px; }
+    .notice { border-left:5px solid var(--green); background:#f1f8f3; padding:14px 16px; margin:18px 0; }
+    .warning { border-left-color:var(--red); background:#fff4f4; }
+    .table-wrap { overflow-x:auto; margin:14px 0 22px; }
+    table { width:100%; border-collapse:collapse; min-width:760px; }
+    th,td { padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { background:var(--soft); color:var(--ink); position:sticky; top:0; }
+    tr:hover td { background:#fffaf5; }
+    ol,ul { padding-left:24px; }
+    li + li { margin-top:5px; }
+    footer { margin-top:40px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); }
+    @media print { body{background:#fff} main{width:100%;margin:0;box-shadow:none;padding:0} th{position:static} }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>ConnectionCyber — Status Mestre de Desenvolvimento</h1>
+    <div class="meta"><strong>Documento vivo e obrigatório</strong><span>Ambiente: staging</span><span>Atualizado: 18/08/2026</span><span>Versão: 1.0.0</span><span>Produção alterada: não</span></div>
+    <div class="notice">Os arquivos Markdown e HTML deste status devem permanecer equivalentes e ser atualizados no mesmo commit de cada módulo validado.</div>
+  </header>
+
+  <h2>1. Finalidade</h2>
+  <p>Esta é a fonte operacional do desenvolvimento controlado. Registra o estado comprovado, entregas pendentes, ordem dos módulos, riscos, critérios de aceite e histórico de validação antes de qualquer promoção.</p>
+
+  <h2>2. Regra determinística</h2>
+  <ol><li>Registrar objetivo, escopo, riscos e aceite.</li><li>Verificar dependências, dados e rollback.</li><li>Implementar somente em staging.</li><li>Executar testes, análise estática, build e segurança.</li><li>Validar staging/Preview.</li><li>Atualizar Markdown e HTML com evidências.</li><li>Criar commit de checkpoint.</li><li>Avaliar o próximo portão.</li><li>Produção exige autorização e checklist próprios.</li></ol>
+  <div class="notice warning">Falha mantém o projeto no mesmo portão. Não é permitido excluir dados automaticamente, reduzir segurança ou alterar produção silenciosamente.</div>
+
+  <h2>3. Estados oficiais</h2>
+  <div class="table-wrap"><table><thead><tr><th>Estado</th><th>Significado</th></tr></thead><tbody>
+    <tr><td>Não iniciado</td><td>Apenas na fila.</td></tr><tr><td>Em análise</td><td>Requisitos sendo levantados.</td></tr><tr><td>Planejado</td><td>Escopo definido.</td></tr><tr><td>Em desenvolvimento</td><td>Alterações locais em staging.</td></tr><tr><td>Validado localmente</td><td>Testes e build locais aprovados.</td></tr><tr><td>Validado em staging</td><td>Banco, CI e Preview aprovados.</td></tr><tr><td>Aprovado para promoção</td><td>Portão concluído.</td></tr><tr><td>Em produção</td><td>Promoção e smoke test aprovados.</td></tr><tr><td>Bloqueado</td><td>Dependência ou risco impede avanço.</td></tr>
+  </tbody></table></div>
+
+  <h2>4. Arquitetura aprovada</h2>
+  <h3>Repositório e aplicações</h3>
+  <ul><li>Monorepo <code>connection-cyber-so/connectioncyber</code>.</li><li><code>main</code>: produção; <code>staging</code>: desenvolvimento.</li><li><code>apps/site</code>: institucional/público.</li><li><code>apps/platform</code>: painel interno.</li><li><code>apps/portal</code>: portal/ERP proposto, ainda não criado.</li><li><code>packages/core</code>: regras compartilhadas, ainda sem núcleo ERP.</li></ul>
+  <p>Não serão criados novos repositórios, bancos ou forks por cliente como padrão. A plataforma é comum; migração e corte são individuais por tenant.</p>
+  <h3>Ambientes e dados</h3>
+  <ul><li>Produção Supabase: <code>qfggetvashdxyuvlhihq</code>.</li><li>Staging Supabase: <code>ozvylnaipubrmaadikvk</code>.</li><li>Snapshots fornecidos: 38 tabelas e conteúdo lógico equivalente até a migration 0013.</li><li>Migrations 0014/0015 ainda são locais.</li><li>Vercel Production deve usar produção; Preview/staging deve usar staging.</li></ul>
+  <h3>Multiempresa e identidade</h3>
+  <p>Cliente é uma linha em <code>tenants</code>, isolada por <code>tenant_id</code> e RLS. O tenant nunca vem do navegador como autoridade. Certificado A1, autenticação de usuários e autenticação SQL Server são domínios distintos. Arquivos PFX, senhas, backups e credenciais não entram no Git, navegador ou tabelas comuns.</p>
+
+  <h2>5. Estado atual comprovado</h2>
+  <h3>Validado localmente</h3>
+  <ul><li>Site e painel existentes.</li><li>Gate de equipe e arquitetura multi-tenant.</li><li>Lista de tenants somente leitura.</li><li>Diagnóstico, Produtos/Ofertas, Roteiros e Landing Pages.</li><li>Kill switch e endurecimento do Mercado Pago.</li><li>Rate limit e headers de segurança preparados.</li><li>Next.js 15.5.21.</li><li>Testes críticos 5/5; type-check, lint e builds aprovados.</li><li>Audit de runtime com zero vulnerabilidades reportadas.</li></ul>
+  <h3>Checkpoint</h3>
+  <ul><li><code>0caf472 feat: harden staging security and quality gates</code>.</li><li>Branch staging local um commit à frente de origin/staging no registro.</li><li>Sem push, deploy ou migration remota.</li><li><code>icones/</code> e <code>modelo exemplo/</code> preservados fora do commit técnico.</li></ul>
+  <h3>Pendente antes do ERP</h3>
+  <ul><li>Preflight de pagamentos em staging.</li><li>Aplicar 0014/0015 em staging.</li><li>Verificar variáveis Preview.</li><li>Push, CI, Preview e smoke test.</li><li>Proteger tabelas remotas.</li><li>Comprovar backup e restauração.</li></ul>
+
+  <h2>6. Achados críticos</h2>
+  <div class="table-wrap"><table><thead><tr><th>ID</th><th>Achado</th><th>Severidade</th><th>Tratamento</th></tr></thead><tbody>
+    <tr><td>R-001</td><td>Tabelas auxiliares remotas sem isolamento adequado para dados sensíveis.</td><td>Crítica</td><td>RLS, revogação e remodelagem por tenant.</td></tr>
+    <tr><td>R-002</td><td>Telas não revelam schema físico SQL Server.</td><td>Alta</td><td>Restaurar backup isolado e gerar dicionário.</td></tr>
+    <tr><td>R-003</td><td>Backup/restauração gerenciados não comprovados.</td><td>Crítica</td><td>Definir RPO/RTO e testar restauração.</td></tr>
+    <tr><td>R-004</td><td>Periféricos, TEF e A1 podem exigir agente local.</td><td>Crítica</td><td>Prova técnica e inventário por cliente.</td></tr>
+    <tr><td>R-005</td><td>Contingência do PDV sem internet indefinida.</td><td>Crítica</td><td>Decisão anterior ao módulo de vendas.</td></tr>
+    <tr><td>R-006</td><td>Lista de clientes contém divergências.</td><td>Alta</td><td>Cadastro mestre validado.</td></tr>
+    <tr><td>R-007</td><td>Repositório histórico por cliente diverge do padrão.</td><td>Média</td><td>Auditar; não criar novos forks.</td></tr>
+  </tbody></table></div>
+
+  <h2>7. Programa de módulos</h2>
+  <div class="table-wrap"><table><thead><tr><th>Ordem</th><th>Módulo</th><th>Estado</th><th>Entrega</th><th>Critério</th></tr></thead><tbody>
+    <tr><td>M00</td><td>Segurança staging</td><td>Validado localmente</td><td>0014/0015, variáveis, CI e Preview</td><td>Preflight vazio, CI e smoke test aprovados.</td></tr>
+    <tr><td>M01</td><td>Engenharia reversa</td><td>Planejado</td><td>Backup e dicionário físico</td><td>Schema, versão, volumes e diferenças documentados.</td></tr>
+    <tr><td>M02</td><td>Fundação ERP</td><td>Não iniciado</td><td>Contratos, configurações e auditoria</td><td>Testes cross-tenant e rollback.</td></tr>
+    <tr><td>M03</td><td>Portal/subdomínios</td><td>Não iniciado</td><td>Portal, login e hostname</td><td>Isolamento comprovado.</td></tr>
+    <tr><td>M04</td><td>RBAC/MFA</td><td>Não iniciado</td><td>Papéis e permissões</td><td>Matriz aprovada; sem senhas legadas.</td></tr>
+    <tr><td>M05</td><td>Cadastros</td><td>Não iniciado</td><td>Entidades mestres</td><td>Contagens e vínculos reconciliados.</td></tr>
+    <tr><td>M06</td><td>Estoque/compras</td><td>Não iniciado</td><td>Movimentos, inventário e pedidos</td><td>Saldo reconstruído fecha com legado.</td></tr>
+    <tr><td>M07</td><td>Vendas/PDV</td><td>Não iniciado</td><td>Orçamentos, vendas e caixa</td><td>Totais, estoque e caixa reconciliados.</td></tr>
+    <tr><td>M08</td><td>Financeiro</td><td>Não iniciado</td><td>Receber, pagar e bancos</td><td>Saldos e liquidações conferidos.</td></tr>
+    <tr><td>M09</td><td>Atendimento</td><td>Não iniciado</td><td>Chamados e SLA</td><td>Histórico auditável.</td></tr>
+    <tr><td>M10</td><td>Acesso remoto</td><td>Não iniciado</td><td>Dispositivos e sessões</td><td>MFA, consentimento e revogação.</td></tr>
+    <tr><td>M11</td><td>Agente local</td><td>Não iniciado</td><td>Periféricos e integrações locais</td><td>Testes físicos sem segredo exposto.</td></tr>
+    <tr><td>M12</td><td>Fiscal/A1</td><td>Não iniciado</td><td>XML e DF-e</td><td>Homologação e contingência.</td></tr>
+    <tr><td>M13</td><td>Importador</td><td>Não iniciado</td><td>Pipeline idempotente</td><td>Reexecução sem duplicação.</td></tr>
+    <tr><td>M14</td><td>Cliente piloto</td><td>Não iniciado</td><td>Migração e corte controlado</td><td>Aceite e rollback testados.</td></tr>
+    <tr><td>M15</td><td>Ondas por cliente</td><td>Não iniciado</td><td>Implantações individuais</td><td>Aceite por tenant.</td></tr>
+  </tbody></table></div>
+
+  <h2>8. Critérios globais</h2>
+  <ul><li>Isolamento cross-tenant positivo e negativo.</li><li>Migrations revisáveis e rollback/forward-fix.</li><li>Validação no servidor.</li><li>Zero credenciais/dados de cliente no Git, logs ou navegador.</li><li>Testes, type-check, lint e build.</li><li>Auditoria de dependências.</li><li>Logs com tenant, ator, ação, objeto, horário e resultado.</li><li>Idempotência e reconciliação.</li><li>Backup/restauração antes do corte.</li><li>Atualização simultânea dos dois documentos.</li></ul>
+
+  <h2>9. Processo por cliente</h2>
+  <ol><li>Preservar backup original.</li><li>Calcular hash.</li><li>Restaurar cópia isolada.</li><li>Inventariar schema e integridade.</li><li>Extrair em área protegida.</li><li>Transformar com tenant no servidor.</li><li>Carregar por job idempotente.</li><li>Reconciliar entidades e saldos.</li><li>Obter aceite.</li><li>Cortar com rollback.</li><li>Repetir individualmente.</li></ol>
+
+  <h2>10. Próxima ação autorizável — M00</h2>
+  <ol><li>Confirmar vínculo CLI com staging.</li><li>Preflight somente leitura em payments.</li><li>Parar se houver duplicidade.</li><li>Dry-run das migrations, se suportado.</li><li>Aplicar 0014/0015 somente em staging.</li><li>Verificar Preview com pagamentos desligados.</li><li>Push do checkpoint para staging.</li><li>Aguardar CI/Preview.</li><li>Smoke tests.</li><li>Atualizar este status para “Validado em staging”.</li></ol>
+  <p><strong>Produção e Mercado Pago real permanecem fora deste portão.</strong></p>
+
+  <h2>11. Histórico</h2>
+  <div class="table-wrap"><table><thead><tr><th>Versão</th><th>Data</th><th>Módulo</th><th>Alteração</th><th>Resultado</th></tr></thead><tbody><tr><td>1.0.0</td><td>18/08/2026</td><td>Governança</td><td>Baseline, riscos, fila e critérios.</td><td>Aguardando validação antes do M00 remoto.</td></tr></tbody></table></div>
+
+  <h2>12. Protocolo de atualização</h2>
+  <p>Cada conclusão registra versão, data, módulo, commit, migrations, testes, ambiente, evidências, riscos residuais, decisão e próxima ação permitida.</p>
+  <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
+</main>
+</body>
+</html>
