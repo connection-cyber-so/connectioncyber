@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 1.5.1
+**Versão do documento:** 1.6.0
 
 **Produção alterada nesta fase:** não
 
@@ -173,22 +173,30 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - A ausência de backup não bloqueia o desenvolvimento do ERP.
 - No M14, uma cópia representativa será restaurada isoladamente e convertida por adaptador para o modelo canônico; o legado não determinará nossa estrutura.
 
-### 5.6 M02 — pacote SQL da fundação apresentado
+### 5.6 M02 — fundação validada localmente
 
 - Migration aditiva `0016_erp_foundation.sql` preparada, mas ainda não aplicada.
 - 14 tabelas `erp_*`, 14 policies e RLS nas 14 tabelas.
 - Memberships multiempresa, RBAC por tenant, estabelecimentos, capacidades, perfis, configurações sem segredos, sequências e auditoria append-only.
 - Catálogos globais com 8 permissões, 23 capacidades e 5 perfis, sem dados de cliente.
 - `anon` sem privilégio; `authenticated` apenas com leitura protegida por RLS; escrita reservada ao servidor.
-- Preflight somente leitura preparado para verificar versão, dependências, colisões e histórico.
-- Suíte pgTAP com 38 asserções preparada para estrutura, grants, RLS, isolamento cross-tenant, integridade, numeração e auditoria.
-- Rollback restrito a laboratório local vazio e bloqueado por duas confirmações; em ambiente compartilhado será usado forward-fix.
+- Preflight somente leitura preparado e aprovado para versão, dependências, colisões e histórico.
+- Suíte pgTAP com 38 asserções aprovada em duas passagens para estrutura, grants, RLS, isolamento cross-tenant, integridade, numeração e auditoria.
+- Rollback restrito a laboratório local vazio aprovado; em ambiente compartilhado será usado forward-fix.
 - Revisão estática confirmou 14 tabelas/14 RLS/14 policies e nenhuma ocorrência conhecida de segredo ou dado real.
-- Docker local está parado; por isso os testes de banco ainda não foram executados e o módulo permanece em desenvolvimento.
 - Parecer detalhado publicado em `PARECER-TECNICO-M02-FUNDACAO-ERP.md` e `.html`.
 - Checkpoint técnico `d5f5ce1` enviado exclusivamente para `origin/staging`.
 - GitHub Actions `Quality gates` `32194798896`: concluído com sucesso.
 - Vercel reportou `success` para o mesmo commit e o alias Preview respondeu HTTP 200.
+- Preflight remoto somente leitura: `M02_PREFLIGHT_OK` no Supabase staging, PostgreSQL 17.6.
+- Dry-run remoto: exclusivamente `0016_erp_foundation.sql`, sem seeds ou roles.
+- Aplicação local completa das migrations `0001`–`0016`: aprovada.
+- Suíte pgTAP executada antes e depois do rollback/rebuild: 38/38 nas duas passagens.
+- Rollback de laboratório: aprovado, com zero tabelas ERP e zero schema `erp_security` remanescentes.
+- Laboratório encerrado com `--no-backup`; contêineres e volume de dados locais foram descartados.
+- Verificação remota final: migration 0016 ausente e zero tabelas ERP no Supabase staging.
+- A pilha local completa teve timeout do serviço auxiliar `postgres-meta`; o laboratório mínimo somente PostgreSQL funcionou e é suficiente para este portão.
+- A migration histórica `0006` repovoa cadastros em resets locais; ficou isolada, não foi selecionada pelo dry-run remoto e seu volume local foi removido ao final.
 - Produção e Supabase staging não foram alterados pelo M02 até este ponto.
 
 ## 6. Achados críticos ainda abertos
@@ -207,6 +215,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | R-010 | O modelo atual assume predominantemente um tenant por usuário em `users.tenant_id`. | Alta | Introduzir memberships aditivas no M02/M04 e resolver tenant ativo no servidor. |
 | R-011 | `module_catalog` mistura o conceito de serviço contratado com o de capacidade técnica do ERP. | Alta | Criar catálogo ERP próprio; manter o catálogo comercial existente sem reutilização semântica. |
 | R-012 | Acesso administrativo cross-tenant ainda depende do papel de equipe existente e não possui fluxo ERP auditado próprio. | Alta | Manter escrita server-only no M02 e implementar rotas administrativas auditadas no M03/M04. |
+| R-013 | A migration histórica `0006` contém povoamento e é reaplicada em resets locais. | Alta | Manter laboratório isolado; revisar política de fixtures históricas antes do M14/piloto; dry-run remoto deve continuar selecionando apenas migrations novas. |
 
 ## 7. Programa de módulos e portões
 
@@ -214,7 +223,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 |---:|---|---|---|---|
 | M00 | Segurança e qualidade de staging | Aprovado | Migrations, variáveis, CI, Preview e smoke tests aprovados | Concluído e aceito em 18/08/2026. |
 | M01 | Arquitetura canônica multissegmento | Aprovado | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Concluído e aceito em 18/08/2026; nenhum schema aplicado. |
-| M02 | Fundação ERP multiempresa | Em desenvolvimento | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | Pacote SQL apresentado; preflight, dry-run e 38 testes devem ser aprovados antes da aplicação. |
+| M02 | Fundação ERP multiempresa | Validado localmente | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | Preflight, dry-run, rollback e duas passagens 38/38 aprovados; aguarda autorização para aplicar em staging. |
 | M03 | Portal do cliente e subdomínios | Não iniciado | `apps/portal`, autenticação e resolução segura de hostname | Empresa A nunca acessa empresa B; domínio desconhecido é rejeitado. |
 | M04 | Usuários, RBAC e MFA | Não iniciado | Papéis, permissões por ação e convites | Matriz de acesso validada; nenhuma senha legada migrada. |
 | M05 | Cadastros e catálogo universal | Não iniciado | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | Cinco segmentos representados sem fork ou dado real. |
@@ -262,19 +271,19 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Validação controlada do pacote M02
+### Aplicação controlada do M02 no Supabase staging
 
 Próxima sequência permitida:
 
-1. revisar o parecer M02 e os quatro arquivos SQL apresentados;
-2. após aceite, executar preflight somente leitura no Supabase staging;
-3. executar dry-run e confirmar que somente a migration `0016` seria selecionada;
-4. iniciar um banco local descartável, aplicar as migrations e executar 38 testes pgTAP;
-5. registrar resultados no Markdown e HTML;
-6. pedir uma autorização específica antes de aplicar `0016` no Supabase staging;
+1. confirmar novamente o vínculo com `ozvylnaipubrmaadikvk`;
+2. aplicar exclusivamente `0016_erp_foundation.sql` no Supabase staging;
+3. verificar histórico, 14 tabelas, RLS, policies, grants, catálogos e helpers;
+4. executar as 38 asserções no staging dentro de transação com rollback;
+5. comprovar ausência de fixtures sintéticas remanescentes;
+6. atualizar Markdown/HTML e criar checkpoint;
 7. manter produção, dados reais, backup legado, fiscal, A1 e Mercado Pago fora do M02.
 
-Comando de aceite sugerido: `M02 SQL e testes aprovados; executar preflight, dry-run e laboratório local.`
+Comando de aceite sugerido: `M02 laboratório aprovado; aplicar 0016 exclusivamente no Supabase staging e executar validação remota.`
 
 ## 11. Histórico do documento
 
@@ -289,6 +298,7 @@ Comando de aceite sugerido: `M02 SQL e testes aprovados; executar preflight, dry
 | 1.4.1 | 18/08/2026 | M01 | Checkpoint, Quality Gates e Vercel Preview da arquitetura registrados. | M01 validado em staging; nenhuma migration/schema/dado real alterado; aguarda aceite para preparar M02. |
 | 1.5.0 | 18/08/2026 | M02 | Migration 0016, preflight, 38 testes pgTAP, rollback de laboratório e parecer técnico apresentados. | Revisão estática concluída; nada aplicado; aguarda aceite para preflight, dry-run e laboratório local. |
 | 1.5.1 | 18/08/2026 | M02 | Checkpoint técnico, Quality Gates e Vercel Preview do pacote M02 registrados. | Código/documentos validados no pipeline; migration continua não aplicada e aguarda o próximo aceite. |
+| 1.6.0 | 18/08/2026 | M02 | Preflight, dry-run, aplicação local, 38 testes, rollback, reconstrução e nova passagem 38/38 executados. | Validado localmente; staging comprovadamente inalterado; aguarda autorização específica para aplicação remota. |
 
 ## 12. Protocolo de atualização futura
 

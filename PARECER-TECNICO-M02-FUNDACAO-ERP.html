@@ -13,10 +13,10 @@
   <header>
     <h1>Parecer técnico M02</h1>
     <p style="font-size:1.25rem;margin:.35rem 0">Fundação ERP multiempresa e multissegmento</p>
-    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.0.1</span><span class="pill">Produção: intocada</span></div>
+    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.1.0</span><span class="pill">Produção: intocada</span></div>
   </header>
 
-  <div class="notice"><strong>Parecer favorável com portões.</strong> O pacote pode seguir para preflight, dry-run e laboratório somente após aprovação. A migration ainda não foi aplicada em nenhum Supabase.</div>
+  <div class="notice"><strong>Preflight, dry-run e laboratório aprovados.</strong> A migration passou duas vezes em 38/38 testes locais e no ciclo de rollback/reconstrução. Ela ainda não foi aplicada no Supabase staging.</div>
 
   <div class="cards">
     <div class="card"><strong>14</strong>tabelas com RLS</div>
@@ -69,9 +69,9 @@
 
   <h2>4. Testes apresentados</h2>
   <div class="table"><table><thead><tr><th>Arquivo</th><th>Papel</th><th>Estado</th></tr></thead><tbody>
-    <tr><td><code>supabase/preflight/0016_erp_foundation_preflight.sql</code></td><td>Somente leitura: versão, dependências, colisões e histórico.</td><td>Preparado; não executado.</td></tr>
-    <tr><td><code>supabase/tests/0016_erp_foundation.test.sql</code></td><td>38 asserções de estrutura, grants, RLS, isolamento, integridade, sequência e auditoria.</td><td>Preparado; Docker local está parado.</td></tr>
-    <tr><td><code>supabase/rollback/0016_erp_foundation.rollback.sql</code></td><td>Limpeza apenas de laboratório local vazio, com duas confirmações.</td><td>Bloqueado por padrão.</td></tr>
+    <tr><td><code>supabase/preflight/0016_erp_foundation_preflight.sql</code></td><td>Somente leitura: versão, dependências, colisões e histórico.</td><td>Aprovado no staging.</td></tr>
+    <tr><td><code>supabase/tests/0016_erp_foundation.test.sql</code></td><td>38 asserções de estrutura, grants, RLS, isolamento, integridade, sequência e auditoria.</td><td>38/38 em duas passagens locais.</td></tr>
+    <tr><td><code>supabase/rollback/0016_erp_foundation.rollback.sql</code></td><td>Limpeza apenas de laboratório local vazio, com duas confirmações.</td><td>Aprovado localmente; bloqueado por padrão.</td></tr>
   </tbody></table></div>
   <div class="warning notice">O rollback não é a estratégia de ambiente compartilhado. Depois de aplicar ou receber dados, qualquer correção será uma migration forward-fix <code>0017+</code>.</div>
 
@@ -92,9 +92,13 @@
     <tr><td>Estrutura estática</td><td>14 tabelas, 14 RLS e 14 policies.</td></tr>
     <tr><td>Transação</td><td>Um BEGIN e um COMMIT.</td></tr>
     <tr><td>Dados/segredos conhecidos</td><td>Nenhuma ocorrência encontrada no pacote.</td></tr>
-    <tr><td>Banco local</td><td>Não executado: Docker local parado.</td></tr>
-    <tr><td>Preflight/dry-run remoto</td><td>Não executados: aguardam aceite.</td></tr>
-    <tr><td>Supabase staging</td><td>Migration não aplicada.</td></tr>
+    <tr><td>Preflight staging</td><td><code>M02_PREFLIGHT_OK</code>, PostgreSQL 17.6.</td></tr>
+    <tr><td>Dry-run staging</td><td>Somente <code>0016_erp_foundation.sql</code>; zero seeds e roles.</td></tr>
+    <tr><td>Aplicação local</td><td>Migrations 0001–0016 concluídas sem erro.</td></tr>
+    <tr><td>Testes locais</td><td>Primeira passagem 38/38; após rollback/reconstrução, nova passagem 38/38.</td></tr>
+    <tr><td>Rollback local</td><td>14 tabelas e schema privado removidos; contagens zero.</td></tr>
+    <tr><td>Encerramento local</td><td>Contêineres encerrados e volumes descartados sem backup.</td></tr>
+    <tr><td>Supabase staging</td><td>Histórico 0016=false e tabelas ERP=0; migration não aplicada.</td></tr>
     <tr><td>Git</td><td>Checkpoint <code>d5f5ce1</code> enviado somente para <code>origin/staging</code>.</td></tr>
     <tr><td>Quality Gates</td><td>Execução <code>32194798896</code> concluída com sucesso.</td></tr>
     <tr><td>Vercel</td><td>Status do commit success; deployment concluído e alias Preview HTTP 200.</td></tr>
@@ -112,18 +116,18 @@
 
   <h2>8. Processo determinístico</h2>
   <div class="diagram"><div class="flow">
-    <div class="node">1. Revisar pacote</div><div class="arrow">→</div>
-    <div class="node pending">2. Preflight</div><div class="arrow">→</div>
-    <div class="node pending">3. Dry-run</div><div class="arrow">→</div>
-    <div class="node pending">4. Laboratório 38/38</div><div class="arrow">→</div>
+    <div class="node">1. Revisão ✓</div><div class="arrow">→</div>
+    <div class="node">2. Preflight ✓</div><div class="arrow">→</div>
+    <div class="node">3. Dry-run ✓</div><div class="arrow">→</div>
+    <div class="node">4. Laboratório 38/38 ✓</div><div class="arrow">→</div>
     <div class="node red">5. Novo aceite</div><div class="arrow">→</div>
     <div class="node pending">6. Aplicar staging</div>
   </div></div>
   <p>Se qualquer portão falhar, o processo volta para correção. Não se avança por aproximação.</p>
 
   <h2>9. Próximo aceite</h2>
-  <div class="notice"><strong>M02 SQL e testes aprovados; executar preflight, dry-run e laboratório local.</strong></div>
-  <p>Esse aceite ainda não autoriza aplicar <code>0016</code> no Supabase staging. A aplicação remota terá um novo portão depois das evidências.</p>
+  <div class="notice"><strong>M02 laboratório aprovado; aplicar 0016 exclusivamente no Supabase staging e executar validação remota.</strong></div>
+  <p>Produção, dados reais, fiscal, A1 e Mercado Pago continuam fora deste portão.</p>
 
   <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
 </main></body></html>

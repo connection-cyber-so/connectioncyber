@@ -6,9 +6,9 @@
 
 **Data:** 18/08/2026
 
-**Versão:** 1.0.1
+**Versão:** 1.1.0
 
-**Situação:** pacote SQL apresentado para revisão; ainda não aplicado
+**Situação:** preflight, dry-run e laboratório local aprovados; ainda não aplicado no Supabase staging
 
 **Produção alterada:** não
 
@@ -177,16 +177,28 @@ Depois que uma migration for aplicada em ambiente compartilhado ou receber dados
 | Quantidade estrutura/RLS/policies | 14/14/14 | aprovado |
 | Busca por segredos e dados reais conhecidos | nenhuma ocorrência | aprovado |
 | Espaços/erros de patch | `diff --check` sem achados | aprovado |
-| Aplicação em banco local | Docker local está parado | não executada |
-| Preflight remoto | depende do próximo aceite | não executado |
-| Dry-run remoto | depende do próximo aceite | não executado |
-| Aplicação no Supabase staging | sem autorização neste portão | não executada |
+| Preflight remoto | `M02_PREFLIGHT_OK`, PostgreSQL 17.6 | aprovado |
+| Dry-run remoto | somente `0016_erp_foundation.sql`; zero seeds/roles | aprovado |
+| Primeira aplicação local | migrations `0001`–`0016` sem erro | aprovado |
+| Primeira suíte pgTAP | `Files=1, Tests=38, Result: PASS` | 38/38 |
+| Rollback local protegido | 14 tabelas e schema privado removidos | aprovado |
+| Reconstrução local | reset `--local --no-seed`, migrations `0001`–`0016` | aprovado |
+| Segunda suíte pgTAP | `Files=1, Tests=38, Result: PASS` | 38/38 |
+| Encerramento do laboratório | `stop --project-id connectioncyber --no-backup` | volumes descartados |
+| Supabase staging após o laboratório | histórico 0016=`false`; tabelas ERP=`0` | inalterado |
+| Aplicação no Supabase staging | depende de novo aceite específico | não executada |
 | Checkpoint Git | `d5f5ce1` enviado exclusivamente para `origin/staging` | aprovado |
 | GitHub Actions | Quality Gates `32194798896` | sucesso |
 | Vercel | status do commit `success`; deployment concluído | sucesso |
 | Alias Preview | HTTP 200 em `connectioncyber-git-staging-connectioncyberso.vercel.app` | sucesso |
 
-Portanto, o resultado correto deste momento é **SQL preparado e estaticamente revisado**, e não “migration validada no banco”.
+Portanto, o resultado correto deste momento é **migration validada localmente e pronta para um portão separado de aplicação em staging**. Ela ainda não foi aplicada remotamente.
+
+### 5.1 Ocorrências controladas do laboratório
+
+- A primeira inicialização da pilha local completa parou porque o serviço auxiliar `postgres-meta` não ficou saudável dentro do tempo. O banco foi reiniciado no modo mínimo, somente PostgreSQL, que é suficiente para migrations e pgTAP.
+- A migration histórica `0006_povoamento_tenants_reais.sql` faz parte da cadeia local e é executada durante resets. Esses cadastros ficaram confinados ao banco descartável; o dry-run remoto comprovou que `0006` não seria reenviada, e o volume local foi removido ao final com `--no-backup`.
+- A primeira tentativa de chamar o rollback pela interface preparada da CLI executou apenas o primeiro comando. Nenhum objeto foi removido. A execução foi refeita na mesma sessão pelo cliente PostgreSQL local e terminou com `COMMIT`, seguida de contagens zero.
 
 ## 6. Riscos e controles
 
@@ -200,6 +212,7 @@ Portanto, o resultado correto deste momento é **SQL preparado e estaticamente r
 | M02-R6 | acesso administrativo amplo | alto | somente papel de equipe existente e RLS | rotas administrativas auditadas serão exigidas no M03/M04 |
 | M02-R7 | rollback após dados | crítico | script recusa se houver linhas de tenant | usar sempre forward-fix em ambiente compartilhado |
 | M02-R8 | incompatibilidade com login atual | alto | memberships aditivas; `users.tenant_id` preservado | resolver empresa ativa somente no M03/M04 |
+| M02-R9 | migration histórica `0006` repovoa cadastros em resets locais | alto | laboratório isolado; dry-run remoto seleciona apenas 0016 | revisar a política de fixtures históricas antes do M14/piloto |
 
 ## 7. Processo determinístico de execução
 
@@ -229,15 +242,16 @@ Cada caixa é um portão. Nenhuma falha autoriza pular para a seguinte.
 
 ## 8. Próximo aceite solicitado
 
-O próximo passo ainda não aplica a migration. Ele autoriza somente:
+O próximo passo é um novo portão e autoriza somente o Supabase staging:
 
-1. executar o preflight somente leitura no Supabase staging;
-2. executar o dry-run da migration;
-3. preparar/ativar o banco local descartável;
-4. aplicar `0016` apenas nesse banco local;
-5. executar as 38 asserções pgTAP;
-6. apresentar as evidências e pedir uma nova autorização antes do `db push` em staging.
+1. repetir a confirmação de projeto vinculado `ozvylnaipubrmaadikvk`;
+2. executar `db push` selecionando exclusivamente `0016`;
+3. consultar o histórico e os 14 objetos criados;
+4. executar as 38 asserções contra o Supabase staging dentro de transação com rollback;
+5. verificar grants, RLS e ausência de dados sintéticos remanescentes;
+6. atualizar MD/HTML e criar checkpoint;
+7. não alterar produção, dados reais, fiscal, A1 ou Mercado Pago.
 
 Frase de aceite sugerida:
 
-> **M02 SQL e testes aprovados; executar preflight, dry-run e laboratório local.**
+> **M02 laboratório aprovado; aplicar 0016 exclusivamente no Supabase staging e executar validação remota.**
