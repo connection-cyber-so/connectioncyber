@@ -32,7 +32,7 @@
 <main>
   <header>
     <h1>ConnectionCyber — Status Mestre de Desenvolvimento</h1>
-    <div class="meta"><strong>Documento vivo e obrigatório</strong><span>Ambiente: staging</span><span>Atualizado: 18/08/2026</span><span>Versão: 1.3.1</span><span>Produção alterada: não</span></div>
+    <div class="meta"><strong>Documento vivo e obrigatório</strong><span>Ambiente: staging</span><span>Atualizado: 18/08/2026</span><span>Versão: 1.4.0</span><span>Produção alterada: não</span></div>
     <div class="notice">Os arquivos Markdown e HTML deste status devem permanecer equivalentes e ser atualizados no mesmo commit de cada módulo validado.</div>
   </header>
 
@@ -55,7 +55,7 @@
   <h3>Ambientes e dados</h3>
   <ul><li>Produção Supabase: <code>qfggetvashdxyuvlhihq</code>.</li><li>Staging Supabase: <code>ozvylnaipubrmaadikvk</code>.</li><li>Snapshots fornecidos: 38 tabelas e conteúdo lógico equivalente até a migration 0013.</li><li>Migrations 0014/0015 aplicadas exclusivamente em staging em 18/08/2026.</li><li>A migration 0006 de clientes reais foi registrada no histórico de staging sem executar seus INSERTs.</li><li>Vercel Production deve usar produção; Preview/staging deve usar staging.</li></ul>
   <h3>Multiempresa e identidade</h3>
-  <p>Cliente é uma linha em <code>tenants</code>, isolada por <code>tenant_id</code> e RLS. O tenant nunca vem do navegador como autoridade. Certificado A1, autenticação de usuários e autenticação SQL Server são domínios distintos. Arquivos PFX, senhas, backups e credenciais não entram no Git, navegador ou tabelas comuns.</p>
+  <p>Cliente é uma linha em <code>tenants</code>, isolada por <code>tenant_id</code> e RLS. O tenant nunca vem do navegador como autoridade. Memberships permitirão múltiplas empresas por usuário. Segmentos serão perfis, capacidades ERP terão catálogo próprio e tabelas <code>erp_*</code> evitarão colisão com site, Mercado Pago e MPI. Certificado A1, identidade de usuários e autenticação SQL Server são domínios distintos. PFX, senhas, backups e credenciais não entram no Git, navegador ou tabelas comuns.</p>
 
   <h2>5. Estado atual comprovado</h2>
   <h3>Validado localmente</h3>
@@ -65,9 +65,10 @@
   <h3>Resultado do M00</h3>
   <div class="notice">M00 validado em staging. O bloqueio foi corrigido sem reduzir segurança; banco, CI, Preview, vínculo, cabeçalhos, pagamentos desligados, formulário e rate limit foram aprovados.</div>
   <ul><li>Produção, domínio público e Mercado Pago real não foram alterados.</li><li>Proteção das tabelas auxiliares e backup/restauração permanecem riscos abertos dos próximos portões.</li></ul>
-  <h3>Análise M01 executada</h3>
-  <ul><li>M00 aprovado pelo responsável do projeto em 18/08/2026.</li><li>Acervo inventariado em somente leitura: 68 arquivos, 5.495.739 bytes, 64 PNG, 2 DOCX e 2 TXT.</li><li>Manifesto: <code>ab936514fef1d21106217b9c7ff677a0db608d1435035cfbedcb3e9cbee8f459</code>.</li><li>Nenhum backup ou banco físico localizado no staging.</li><li>As telas comprovam o ERP e <code>LocalHost\SQLEXPRESS</code>/<code>CONNECTIONCYBER</code>, mas não nomes físicos, chaves ou código armazenado.</li><li>O SQL Server 2022 Express local não será usado; laboratório proposto em SQL Server 2022 Developer isolado, sem porta pública e sem <code>WITH REPLACE</code>.</li><li>O Supabase atual ainda não tem modelo ERP canônico; tabelas do site/Mercado Pago não receberão o legado.</li><li>Lista documental: 14 empresas; site: 15 posições; migration histórica: 10; staging: somente ConnectionCyber.</li><li>Parecer completo emitido em Markdown e HTML.</li><li>Checkpoint <code>932968d</code> enviado para <code>origin/staging</code>; Quality Gates <code>32188947101</code> concluído com sucesso.</li><li>Vercel <code>dpl_AXQBnUkESivU14m7BFLj53ERf1XX</code>: Preview Ready e alias staging confirmado.</li></ul>
-  <div class="notice warning"><strong>M01 bloqueado em M01-G1:</strong> aguarda cópia controlada do backup. Nenhuma restauração, migration, carga ou alteração de produção foi realizada.</div>
+  <h3>M01 — arquitetura canônica multissegmento</h3>
+  <ul><li>ERP novo e independente do schema legado.</li><li>Mesmo núcleo para varejo, vestuário/papelaria, artesanato, oficinas, restaurantes/lanchonetes e serviços.</li><li>Perfis sugerem capacidades; habilitação efetiva ocorre por tenant.</li><li>Catálogo universal representa produtos, serviços, peças, ingredientes, preparados, kits, insumos, taxas e vales.</li><li>Memberships permitem múltiplas empresas; estabelecimentos separam estoque, caixa, emissão e numeração.</li><li>Livros razão e estornos protegem estoque, caixa, financeiro e fiscal.</li><li>Modelo lógico separado do site, Mercado Pago, MPI e catálogo comercial.</li><li>Contrato M02 fechado para fundação, RLS, auditoria e testes cross-tenant.</li><li>Especificação em <code>ARQUITETURA-CANONICA-MULTISSEGMENTO.md/.html</code>.</li><li>Nenhuma migration, tabela ou dado real foi criado.</li></ul>
+  <h3>Estudo D01 — engenharia reversa preservado</h3>
+  <div class="notice">O inventário anterior continua válido, mas foi movido para o M14. A ausência de backup não bloqueia o ERP; o legado será convertido por adaptador para o modelo canônico.</div>
 
   <h2>6. Achados críticos</h2>
   <div class="table-wrap"><table><thead><tr><th>ID</th><th>Achado</th><th>Severidade</th><th>Tratamento</th></tr></thead><tbody>
@@ -78,28 +79,30 @@
     <tr><td>R-005</td><td>Contingência do PDV sem internet indefinida.</td><td>Crítica</td><td>Decisão anterior ao módulo de vendas.</td></tr>
     <tr><td>R-006</td><td>Lista de clientes contém divergências.</td><td>Alta</td><td>Cadastro mestre validado.</td></tr>
     <tr><td>R-007</td><td>Repositório histórico por cliente diverge do padrão.</td><td>Média</td><td>Auditar; não criar novos forks.</td></tr>
-    <tr><td>R-008</td><td>Não há backup físico no acervo.</td><td>Bloqueante</td><td>Receber cópia fora do Git, registrar metadados e SHA-256.</td></tr>
+    <tr><td>R-008</td><td>Não há backup físico no acervo.</td><td>Planejado</td><td>Não bloqueia o ERP; tratar antes do M14 com cópia e SHA-256.</td></tr>
     <tr><td>R-009</td><td>Colisão semântica com o futuro ERP e 16 tabelas públicas observadas sem RLS.</td><td>Crítica</td><td>Modelo <code>erp_*</code> no M02; não carregar legado nas tabelas atuais.</td></tr>
+    <tr><td>R-010</td><td>Modelo atual assume principalmente um tenant por usuário.</td><td>Alta</td><td>Memberships aditivas e tenant ativo resolvido no servidor.</td></tr>
+    <tr><td>R-011</td><td>Catálogo comercial e capacidades técnicas são conceitos diferentes.</td><td>Alta</td><td>Criar catálogo ERP próprio e preservar o comercial.</td></tr>
   </tbody></table></div>
 
   <h2>7. Programa de módulos</h2>
   <div class="table-wrap"><table><thead><tr><th>Ordem</th><th>Módulo</th><th>Estado</th><th>Entrega</th><th>Critério</th></tr></thead><tbody>
     <tr><td>M00</td><td>Segurança staging</td><td>Aprovado</td><td>Migrations, variáveis, CI, Preview e smoke tests aprovados</td><td>Concluído e aceito em 18/08/2026.</td></tr>
-    <tr><td>M01</td><td>Engenharia reversa</td><td>Bloqueado em M01-G1</td><td>Backup e dicionário físico</td><td>G0 aprovado; aguarda cópia para hash e custódia.</td></tr>
-    <tr><td>M02</td><td>Fundação ERP</td><td>Não iniciado</td><td>Contratos, configurações e auditoria</td><td>Testes cross-tenant e rollback.</td></tr>
+    <tr><td>M01</td><td>Arquitetura canônica multissegmento</td><td>Em validação de staging</td><td>Núcleo, capacidades, catálogo e invariantes</td><td>MD/HTML, CI e Preview; nenhum schema.</td></tr>
+    <tr><td>M02</td><td>Fundação ERP</td><td>Planejado</td><td>Memberships, estabelecimentos, capacidades, sequências e auditoria</td><td>SQL/rollback revisados e testes cross-tenant antes da aplicação.</td></tr>
     <tr><td>M03</td><td>Portal/subdomínios</td><td>Não iniciado</td><td>Portal, login e hostname</td><td>Isolamento comprovado.</td></tr>
     <tr><td>M04</td><td>RBAC/MFA</td><td>Não iniciado</td><td>Papéis e permissões</td><td>Matriz aprovada; sem senhas legadas.</td></tr>
-    <tr><td>M05</td><td>Cadastros</td><td>Não iniciado</td><td>Entidades mestres</td><td>Contagens e vínculos reconciliados.</td></tr>
-    <tr><td>M06</td><td>Estoque/compras</td><td>Não iniciado</td><td>Movimentos, inventário e pedidos</td><td>Saldo reconstruído fecha com legado.</td></tr>
+    <tr><td>M05</td><td>Cadastros/catálogo</td><td>Não iniciado</td><td>Pessoas, itens, serviços, peças, ingredientes e variações</td><td>Cinco segmentos sem fork.</td></tr>
+    <tr><td>M06</td><td>Preços/estoque/compras</td><td>Não iniciado</td><td>Livro de movimentos, inventário, lotes e pedidos</td><td>Saldo derivado e concorrência testada.</td></tr>
     <tr><td>M07</td><td>Vendas/PDV</td><td>Não iniciado</td><td>Orçamentos, vendas e caixa</td><td>Totais, estoque e caixa reconciliados.</td></tr>
     <tr><td>M08</td><td>Financeiro</td><td>Não iniciado</td><td>Receber, pagar e bancos</td><td>Saldos e liquidações conferidos.</td></tr>
-    <tr><td>M09</td><td>Atendimento</td><td>Não iniciado</td><td>Chamados e SLA</td><td>Histórico auditável.</td></tr>
-    <tr><td>M10</td><td>Acesso remoto</td><td>Não iniciado</td><td>Dispositivos e sessões</td><td>MFA, consentimento e revogação.</td></tr>
-    <tr><td>M11</td><td>Agente local</td><td>Não iniciado</td><td>Periféricos e integrações locais</td><td>Testes físicos sem segredo exposto.</td></tr>
-    <tr><td>M12</td><td>Fiscal/A1</td><td>Não iniciado</td><td>XML e DF-e</td><td>Homologação e contingência.</td></tr>
-    <tr><td>M13</td><td>Importador</td><td>Não iniciado</td><td>Pipeline idempotente</td><td>Reexecução sem duplicação.</td></tr>
-    <tr><td>M14</td><td>Cliente piloto</td><td>Não iniciado</td><td>Migração e corte controlado</td><td>Aceite e rollback testados.</td></tr>
-    <tr><td>M15</td><td>Ondas por cliente</td><td>Não iniciado</td><td>Implantações individuais</td><td>Aceite por tenant.</td></tr>
+    <tr><td>M09</td><td>Serviços/oficinas</td><td>Não iniciado</td><td>Ativos, veículos, agenda e OS</td><td>Materiais, serviços, estoque e financeiro fecham.</td></tr>
+    <tr><td>M10</td><td>Restaurantes/lanchonetes</td><td>Não iniciado</td><td>Receitas, adicionais, mesas, comandas e cozinha</td><td>Comanda fecha venda, insumos, caixa e fiscal.</td></tr>
+    <tr><td>M11</td><td>Atendimento/remoto</td><td>Não iniciado</td><td>Tickets, dispositivos, consentimentos e sessões</td><td>MFA, consentimento e revogação.</td></tr>
+    <tr><td>M12</td><td>Agente local/periféricos</td><td>Não iniciado</td><td>Impressão, balança, TEF e contingência</td><td>Testes físicos sem segredo.</td></tr>
+    <tr><td>M13</td><td>Fiscal/A1</td><td>Não iniciado</td><td>Perfis, XML, DF-e e eventos</td><td>Homologação e contingência.</td></tr>
+    <tr><td>M14</td><td>Engenharia reversa/importador</td><td>Não iniciado</td><td>Laboratório, adaptadores, lotes e reconciliação</td><td>Reexecução sem duplicidade e totais fechados.</td></tr>
+    <tr><td>M15</td><td>Piloto/implantações</td><td>Não iniciado</td><td>Corte e ondas por tenant</td><td>Aceite e rollback individual.</td></tr>
   </tbody></table></div>
 
   <h2>8. Critérios globais</h2>
@@ -108,13 +111,12 @@
   <h2>9. Processo por cliente</h2>
   <ol><li>Preservar backup original.</li><li>Calcular hash.</li><li>Restaurar cópia isolada.</li><li>Inventariar schema e integridade.</li><li>Extrair em área protegida.</li><li>Transformar com tenant no servidor.</li><li>Carregar por job idempotente.</li><li>Reconciliar entidades e saldos.</li><li>Obter aceite.</li><li>Cortar com rollback.</li><li>Repetir individualmente.</li></ol>
 
-  <h2>10. Próxima ação autorizável — M01-G1</h2>
-  <ol><li>Revisar e aprovar o parecer M01.</li><li>Escolher o backup representativo, provisoriamente Maria dos Remédios/Mania de Moda.</li><li>Preservar o original.</li><li>Disponibilizar cópia protegida e fora do Git.</li><li>Informar empresa, data, origem, extensão, tamanho e caminho exato.</li><li>Calcular SHA-256 sem abrir/restaurar.</li><li>Validar G1 antes das inspeções de mídia em G2.</li></ol>
-  <p>Comando sugerido: <code>Parecer M01 aprovado; disponibilizar cópia do backup da Mania de Moda em [caminho] e executar M01-G1.</code></p>
-  <p><strong>Não enviar original único, senha A1 ou credenciais. Produção e Mercado Pago real permanecem fora deste portão.</strong></p>
+  <h2>10. Próxima ação autorizável — encerramento M01 / preparação M02</h2>
+  <ol><li>Validar os documentos MD/HTML.</li><li>Confirmar checkpoint, Quality Gates e Preview staging.</li><li>Aprovar formalmente M01.</li><li>Preparar migrations aditivas M02 sem aplicar.</li><li>Apresentar SQL, RLS, grants, testes e rollback/forward-fix.</li><li>Aplicar no Supabase staging somente após novo aceite.</li><li>Manter produção, dados reais, backup, fiscal, A1 e Mercado Pago fora.</li></ol>
+  <p>Comando sugerido: <code>M01 aprovado; apresentar migrations e testes do M02 — fundação ERP multiempresa.</code></p>
 
   <h2>11. Histórico</h2>
-  <div class="table-wrap"><table><thead><tr><th>Versão</th><th>Data</th><th>Módulo</th><th>Alteração</th><th>Resultado</th></tr></thead><tbody><tr><td>1.0.0</td><td>18/08/2026</td><td>Governança</td><td>Baseline, riscos, fila e critérios.</td><td>Aguardando validação antes do M00 remoto.</td></tr><tr><td>1.1.0</td><td>18/08/2026</td><td>M00</td><td>Banco staging, push, CI, Preview e smoke tests executados.</td><td>Bloqueado na configuração privada do formulário; produção não alterada.</td></tr><tr><td>1.2.0</td><td>18/08/2026</td><td>M00</td><td>Variável sensível, redeploy e smoke test completo.</td><td>Validado em staging; aguarda aceite para análise M01.</td></tr><tr><td>1.3.0</td><td>18/08/2026</td><td>M01</td><td>Inventário, matriz, laboratório seguro, rollback e portões G0–G6.</td><td>M00 aprovado; G0 aprovado; G1 bloqueado pela ausência da cópia; produção não alterada.</td></tr><tr><td>1.3.1</td><td>18/08/2026</td><td>M01</td><td>Checkpoint, Quality Gates e Preview registrados.</td><td>Documentação validada em staging; G1 segue bloqueado; produção não alterada.</td></tr></tbody></table></div>
+  <div class="table-wrap"><table><thead><tr><th>Versão</th><th>Data</th><th>Módulo</th><th>Alteração</th><th>Resultado</th></tr></thead><tbody><tr><td>1.0.0</td><td>18/08/2026</td><td>Governança</td><td>Baseline, riscos, fila e critérios.</td><td>Aguardando validação antes do M00 remoto.</td></tr><tr><td>1.1.0</td><td>18/08/2026</td><td>M00</td><td>Banco staging, push, CI, Preview e smoke tests executados.</td><td>Bloqueado na configuração privada do formulário; produção não alterada.</td></tr><tr><td>1.2.0</td><td>18/08/2026</td><td>M00</td><td>Variável sensível, redeploy e smoke test completo.</td><td>Validado em staging; aguarda aceite para análise M01.</td></tr><tr><td>1.3.0</td><td>18/08/2026</td><td>M01</td><td>Inventário, matriz, laboratório e portões antigos.</td><td>Estudo preservado e posteriormente reclassificado.</td></tr><tr><td>1.3.1</td><td>18/08/2026</td><td>M01</td><td>Checkpoint, Quality Gates e Preview registrados.</td><td>Documentação anterior validada.</td></tr><tr><td>1.4.0</td><td>18/08/2026</td><td>M01</td><td>Arquitetura multissegmento, capacidades, catálogo, invariantes e contrato M02.</td><td>Engenharia reversa movida para M14; aguarda validação remota.</td></tr></tbody></table></div>
 
   <h2>12. Protocolo de atualização</h2>
   <p>Cada conclusão registra versão, data, módulo, commit, migrations, testes, ambiente, evidências, riscos residuais, decisão e próxima ação permitida.</p>

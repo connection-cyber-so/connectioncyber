@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ConnectionCyber — Parecer Técnico M01</title>
+  <title>ConnectionCyber — Estudo D01 de Engenharia Reversa</title>
   <style>
     :root{--orange:#F6851F;--red:#E01F27;--green:#2C9C48;--teal:#1E9680;--ink:#17232d;--muted:#5d6a73;--line:#d9e0e4;--soft:#f5f7f8;--paper:#fff}
     *{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(1280px,calc(100% - 32px));margin:24px auto;background:var(--paper);padding:clamp(22px,4vw,52px);box-shadow:0 12px 34px #17232d14}h1,h2,h3{line-height:1.2}h1{margin:0 0 10px;color:var(--red)}h2{margin-top:38px;padding-bottom:8px;border-bottom:2px solid var(--orange)}h3{margin-top:24px;color:var(--teal)}code{background:var(--soft);padding:.08rem .3rem;border-radius:4px}.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);margin-bottom:24px}.notice{border-left:5px solid var(--green);background:#f1f8f3;padding:14px 16px;margin:18px 0}.warning{border-left-color:var(--red);background:#fff4f4}.table-wrap{overflow-x:auto;margin:14px 0 22px}table{width:100%;border-collapse:collapse;min-width:860px}th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--soft)}tr:hover td{background:#fffaf5}ol,ul{padding-left:24px}li+li{margin-top:5px}.flow{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:24px 34px;align-items:stretch;margin:22px 0}.node{position:relative;border:2px solid var(--teal);border-radius:10px;padding:16px;background:#f3fbf9;text-align:center;font-weight:650;min-height:78px;display:flex;align-items:center;justify-content:center}.node:after{content:"→";position:absolute;right:-27px;top:50%;transform:translateY(-50%);color:var(--orange);font-size:26px}.node:nth-child(4n):after,.node:last-child:after{display:none}.node.decision{border-color:var(--orange);background:#fff9f1}.node.stop{border-color:var(--red);background:#fff4f4}.node.go{border-color:var(--green);background:#f1f8f3}.status{display:inline-block;padding:3px 9px;border-radius:99px;font-size:13px;font-weight:700}.ok{background:#e7f6eb;color:#1e7136}.blocked{background:#ffe5e5;color:#a3151a}.pending{background:#fff2dc;color:#8d5700}footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted)}@media(max-width:850px){.flow{grid-template-columns:1fr}.node:after{content:"↓";right:auto;left:50%;top:auto;bottom:-31px;transform:translateX(-50%)}.node:nth-child(4n):after{display:block}.node:last-child:after{display:none}}@media print{body{background:#fff}main{width:100%;margin:0;box-shadow:none;padding:0}.flow{grid-template-columns:repeat(4,1fr)}}
@@ -11,14 +11,15 @@
 </head>
 <body><main>
   <header>
-    <h1>ConnectionCyber — Parecer Técnico M01: Engenharia Reversa do Legado</h1>
+    <h1>ConnectionCyber — Estudo D01: Engenharia Reversa do Legado</h1>
     <div class="meta"><strong>Staging</strong><span>18/08/2026</span><span>Somente leitura</span><span>Produção alterada: não</span><span>Backup restaurado: não</span></div>
-    <div class="notice warning"><strong>Decisão:</strong> análise M01 concluída; execução física bloqueada no M01-G1 até a entrega de uma cópia controlada do backup.</div>
+    <div class="notice"><strong>Reclassificado em 18/08/2026:</strong> estudo futuro de migração vinculado ao M14. Não bloqueia o ERP nem define a arquitetura canônica. Consulte <code>ARQUITETURA-CANONICA-MULTISSEGMENTO.html</code>.</div>
+    <div class="notice warning"><strong>Decisão vigente:</strong> backup será necessário para migração/povoamento, não para construir o novo ERP.</div>
   </header>
 
   <h2>1. Parecer executivo</h2>
   <p>É tecnicamente viável evoluir o legado para um ERP web multiempresa, mas a migração não deve começar por importação direta. As telas comprovam funções, porém não revelam tabelas físicas, chaves, relacionamentos, triggers, procedures, versão original ou volumes. Esses nomes somente serão preenchidos depois de uma restauração isolada e validada.</p>
-  <p>O acervo contém 68 arquivos e 5.495.739 bytes: 64 PNG, dois DOCX e dois TXT. Não existe arquivo <code>.bak</code>, <code>.mdf</code>, <code>.ldf</code>, arquivo compactado ou outro banco conhecido no staging. Nenhuma restauração foi tentada. O próximo ato seguro é receber uma <strong>cópia</strong> representativa, registrar custódia e validar a mídia antes do restore.</p>
+  <p>O acervo contém 68 arquivos e 5.495.739 bytes: 64 PNG, dois DOCX e dois TXT. Não existe arquivo <code>.bak</code>, <code>.mdf</code>, <code>.ldf</code>, arquivo compactado ou outro banco conhecido no staging. Nenhuma restauração foi tentada. Quando o M14 começar, o primeiro ato seguro será receber uma <strong>cópia</strong> representativa, registrar custódia e validar a mídia antes do restore.</p>
 
   <h2>2. Escopo e limites</h2>
   <h3>Executado</h3><ul><li>Inventário somente leitura.</li><li>Extração textual dos dois documentos Word.</li><li>Classificação funcional das 38 telas legadas.</li><li>Comparação conceitual com o Supabase atual.</li><li>Inspeção somente leitura das ferramentas locais.</li><li>Matriz preliminar e desenho do laboratório/rollback.</li></ul>
@@ -79,26 +80,27 @@
   <p>O <code>SQLEXPRESS</code> atual não deve ser usado. Preferência: container SQL Server 2022 Developer dedicado, volume exclusivo, sem porta pública e backup somente leitura. Alternativa: instância Windows Developer dedicada <code>CCLAB</code>. Nunca executar <code>WITH REPLACE</code>.</p>
 
   <h2>9. Fluxo gráfico</h2>
-  <div class="flow" aria-label="Fluxo do laboratório M01">
+  <div class="flow" aria-label="Fluxo futuro do laboratório M14">
     <div class="node">Backup original<br>não alterar</div><div class="node">Cópia controlada</div><div class="node">SHA-256, origem<br>e custódia</div><div class="node decision">HEADERONLY<br>FILELISTONLY<br>VERIFYONLY</div>
     <div class="node stop">Falha: quarentena<br>sem restore</div><div class="node">SQL isolado<br>sem acesso público</div><div class="node">RESTORE com MOVE<br>nunca REPLACE</div><div class="node">DBCC CHECKDB<br>código e triggers</div>
-    <div class="node">Dicionário físico<br>e volumes</div><div class="node">Matriz legado<br>→ canônico</div><div class="node decision">Aceite M01</div><div class="node go">M02 autorizado<br>sem carga ainda</div>
+    <div class="node">Dicionário físico<br>e volumes</div><div class="node">Matriz legado<br>→ canônico</div><div class="node decision">Aceite no M14</div><div class="node go">Importador autorizado<br>sem carga direta</div>
   </div>
 
   <h2>10. Portões determinísticos</h2>
   <div class="table-wrap"><table><thead><tr><th>Portão</th><th>Ação</th><th>Validação</th><th>Estado</th></tr></thead><tbody>
-    <tr><td>M01-G0</td><td>Inventário documental</td><td>Lista, tipos, tamanho e hash</td><td><span class="status ok">Aprovado</span></td></tr>
-    <tr><td>M01-G1</td><td>Recepção da cópia</td><td>Fora do Git, metadados, SHA-256 e original preservado</td><td><span class="status blocked">Bloqueado: cópia ausente</span></td></tr>
-    <tr><td>M01-G2</td><td>Inspeção da mídia</td><td>HEADERONLY, FILELISTONLY, VERIFYONLY</td><td><span class="status pending">Não iniciado</span></td></tr>
-    <tr><td>M01-G3</td><td>Restore isolado</td><td>Versão compatível, MOVE, nome exclusivo, zero REPLACE</td><td><span class="status pending">Não iniciado</span></td></tr>
-    <tr><td>M01-G4</td><td>Integridade/segurança</td><td>CHECKDB, usuários, código, triggers, integrações</td><td><span class="status pending">Não iniciado</span></td></tr>
-    <tr><td>M01-G5</td><td>Dicionário/reconciliação</td><td>Schema, chaves, volumes e origem física</td><td><span class="status pending">Não iniciado</span></td></tr>
-    <tr><td>M01-G6</td><td>Encerramento</td><td>Relatório aprovado e laboratório removido</td><td><span class="status pending">Não iniciado</span></td></tr>
+    <tr><td>M14-D0</td><td>Inventário documental</td><td>Lista, tipos, tamanho e hash</td><td><span class="status ok">Aprovado</span></td></tr>
+    <tr><td>M14-D1</td><td>Recepção da cópia</td><td>Fora do Git, metadados, SHA-256 e original preservado</td><td><span class="status pending">Aguarda M14</span></td></tr>
+    <tr><td>M14-D2</td><td>Inspeção da mídia</td><td>HEADERONLY, FILELISTONLY, VERIFYONLY</td><td><span class="status pending">Não iniciado</span></td></tr>
+    <tr><td>M14-D3</td><td>Restore isolado</td><td>Versão compatível, MOVE, nome exclusivo, zero REPLACE</td><td><span class="status pending">Não iniciado</span></td></tr>
+    <tr><td>M14-D4</td><td>Integridade/segurança</td><td>CHECKDB, usuários, código, triggers, integrações</td><td><span class="status pending">Não iniciado</span></td></tr>
+    <tr><td>M14-D5</td><td>Dicionário/reconciliação</td><td>Schema, chaves, volumes e origem física</td><td><span class="status pending">Não iniciado</span></td></tr>
+    <tr><td>M14-D6</td><td>Encerramento</td><td>Relatório aprovado e laboratório removido</td><td><span class="status pending">Não iniciado</span></td></tr>
   </tbody></table></div>
 
   <h2>11. Aceite e próxima ação</h2>
-  <p>O M01 requer hash/custódia, propriedades reais, restore isolado, CHECKDB, dicionário físico, volumes, dependências, matriz comprovada, plano de extração/rollback e remoção controlada do laboratório.</p>
-  <div class="notice"><strong>Comando sugerido:</strong> <code>Parecer M01 aprovado; disponibilizar cópia do backup da Mania de Moda em [caminho] e executar M01-G1.</code></div>
+  <p>A engenharia reversa no M14 exigirá hash/custódia, propriedades reais, restore isolado, CHECKDB, dicionário físico, volumes, dependências, matriz comprovada, plano de extração/rollback e remoção controlada do laboratório.</p>
+  <div class="notice"><strong>Comando futuro:</strong> <code>M14 autorizado; disponibilizar cópia do backup da Mania de Moda em [caminho] e executar M14-D1.</code></div>
+  <p>Este não é o próximo portão atual do projeto.</p>
   <p>Se outro cliente for escolhido, substituir o nome. Não enviar a única cópia original, senha A1 ou credenciais em mensagem.</p>
 
   <h2>12. Referências</h2>

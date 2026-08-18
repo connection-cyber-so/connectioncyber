@@ -1,9 +1,13 @@
 # ConnectionCyber — Status Mestre de Desenvolvimento
 
-**Documento vivo e obrigatório**  
-**Ambiente de trabalho:** staging  
-**Atualizado em:** 18/08/2026  
-**Versão do documento:** 1.3.1
+**Documento vivo e obrigatório**
+
+**Ambiente de trabalho:** staging
+
+**Atualizado em:** 18/08/2026
+
+**Versão do documento:** 1.4.0
+
 **Produção alterada nesta fase:** não
 
 ## 1. Finalidade
@@ -81,6 +85,10 @@ Não serão criados novos repositórios, bancos ou forks de aplicação por clie
 - O tenant nunca pode ser aceito de formulário, query string ou payload do navegador como autoridade de acesso.
 - A equipe ConnectionCyber usa papéis administrativos controlados e auditados.
 - Configurações, módulos, temas, contratos e migrações são vinculados ao tenant.
+- Um usuário poderá participar de múltiplos tenants por `erp_tenant_memberships`; o atual `users.tenant_id` será mantido apenas durante a transição.
+- Segmentos são perfis de configuração, não versões do sistema nem fronteiras de autorização.
+- Capacidades ERP serão separadas do `module_catalog` atual, que representa serviços comerciais da ConnectionCyber.
+- O modelo ERP usará tabelas `erp_*` para evitar colisão com o site, Mercado Pago e módulos MPI.
 
 ### 4.4 Certificado A1 e autenticação
 
@@ -140,21 +148,26 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Produção, domínio público e Mercado Pago real não foram alterados.
 - A proteção das tabelas auxiliares e a estratégia de backup/restauração continuam como riscos abertos dos próximos portões, antes de receber dados ERP sensíveis.
 
-### 5.4 Análise M01 executada
+### 5.4 M01 — arquitetura canônica multissegmento
 
-- M00 foi aprovado pelo responsável do projeto em 18/08/2026.
-- O acervo `modelo exemplo` foi inventariado somente para leitura: 68 arquivos, 5.495.739 bytes, sendo 64 PNG, dois DOCX e dois TXT.
-- Impressão digital agregada do manifesto: `ab936514fef1d21106217b9c7ff677a0db608d1435035cfbedcb3e9cbee8f459`.
-- Nenhum backup ou banco físico foi localizado no staging (`.bak`, `.mdf`, `.ldf`, compactados ou formatos de banco conhecidos).
-- As telas comprovam as funções do ERP e a conexão legada `LocalHost\SQLEXPRESS` / banco `CONNECTIONCYBER`, mas não comprovam nomes físicos de tabelas, chaves ou código armazenado.
-- O ambiente local contém SQL Server 2022 Express; ele não será usado para restore de cliente. O laboratório preferencial é isolado em SQL Server 2022 Developer, sem porta pública, com cópia somente leitura e sem `WITH REPLACE`.
-- O Supabase atual ainda não possui modelo ERP canônico. Tabelas do site/Mercado Pago não serão reutilizadas para produtos, vendas ou pagamentos legados.
-- A lista documental tem 14 empresas, a configuração do site tem 15 posições, uma migration histórica menciona 10 e staging possui somente o tenant ConnectionCyber. O cadastro mestre deverá ser validado antes do provisionamento.
-- Parecer e matriz preliminar emitidos em `PARECER-TECNICO-M01-ENGENHARIA-REVERSA.md` e `.html`.
-- Checkpoint documental `932968d` enviado exclusivamente para `origin/staging`.
-- GitHub Actions `Quality gates`, execução `32188947101`: concluída com sucesso.
-- Vercel deployment `dpl_AXQBnUkESivU14m7BFLj53ERf1XX`: target `preview`, estado `Ready`, alias da branch staging confirmado.
-- Estado do M01: `Bloqueado em M01-G1`, aguardando uma cópia controlada do backup representativo. Nenhuma restauração, migration, carga ou alteração de produção foi realizada.
+- O responsável aprovou que o ERP seja projetado novo e independente do schema legado.
+- Papelaria, vestuário, artesanato, varejo geral, oficinas, restaurantes, lanchonetes e prestadores utilizarão o mesmo núcleo.
+- Segment profiles somente sugerem capacidades; `erp_tenant_capabilities` registra o que cada tenant efetivamente utiliza.
+- O catálogo universal representa produtos, serviços, peças, ingredientes, preparados, kits, insumos, taxas e vales.
+- Memberships permitirão que o mesmo usuário participe de mais de uma empresa com papéis diferentes.
+- Estabelecimentos serão a fronteira operacional para estoque, caixa, emissão, numeração e calendário.
+- Estoque, caixa, financeiro e fiscal usarão livros razão e correções por estorno/contrapartida.
+- O modelo lógico foi separado das tabelas atuais do site, Mercado Pago, MPI e catálogo comercial de serviços.
+- O contrato do M02 foi fechado para memberships, estabelecimentos, capacidades, perfis, configurações, sequências, auditoria, RLS e testes cross-tenant.
+- Especificação publicada em `ARQUITETURA-CANONICA-MULTISSEGMENTO.md` e `.html`.
+- Nenhuma migration, tabela, dado real, credencial, A1 ou integração de pagamento foi criada ou alterada no M01.
+
+### 5.5 Estudo D01 — engenharia reversa preservado
+
+- O inventário anterior de 68 arquivos e seu manifesto permanecem válidos como evidência.
+- `PARECER-TECNICO-M01-ENGENHARIA-REVERSA.*` foi reclassificado como estudo D01 vinculado ao M14.
+- A ausência de backup não bloqueia o desenvolvimento do ERP.
+- No M14, uma cópia representativa será restaurada isoladamente e convertida por adaptador para o modelo canônico; o legado não determinará nossa estrutura.
 
 ## 6. Achados críticos ainda abertos
 
@@ -167,29 +180,31 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | R-005 | Continuidade do PDV sem internet ainda não foi definida. | Crítica | Decidir contingência/offline antes do módulo de vendas. |
 | R-006 | A lista documental de clientes possui divergências de quantidade, e-mail e subdomínio. | Alta | Criar cadastro mestre validado antes de provisionamento em massa. |
 | R-007 | Existe repositório histórico específico de cliente, divergente do padrão multi-tenant aprovado. | Média | Auditar e incorporar somente ativos necessários; não criar novos forks. |
-| R-008 | Não há arquivo de backup no acervo analisado. | Bloqueante | Receber cópia protegida, fora do Git, registrar metadados e SHA-256 antes de inspecionar a mídia. |
+| R-008 | Não há arquivo de backup no acervo analisado. | Planejado | Não bloqueia o ERP; antes do M14, receber cópia protegida fora do Git, registrar metadados e SHA-256. |
 | R-009 | O schema atual possui colisão semântica com nomes do futuro ERP e 16 tabelas públicas observadas sem RLS. | Crítica | Criar modelo `erp_*` isolado no M02; não carregar legado em tabelas do site, Mercado Pago ou suporte remoto. |
+| R-010 | O modelo atual assume predominantemente um tenant por usuário em `users.tenant_id`. | Alta | Introduzir memberships aditivas no M02/M04 e resolver tenant ativo no servidor. |
+| R-011 | `module_catalog` mistura o conceito de serviço contratado com o de capacidade técnica do ERP. | Alta | Criar catálogo ERP próprio; manter o catálogo comercial existente sem reutilização semântica. |
 
 ## 7. Programa de módulos e portões
 
 | Ordem | Módulo/portão | Estado atual | Entrega principal | Critério para avançar |
 |---:|---|---|---|---|
 | M00 | Segurança e qualidade de staging | Aprovado | Migrations, variáveis, CI, Preview e smoke tests aprovados | Concluído e aceito em 18/08/2026. |
-| M01 | Engenharia reversa do legado | Bloqueado em M01-G1 | Restaurar um backup representativo e gerar dicionário físico | G0 aprovado; aguarda cópia do backup para hash e custódia em G1. |
-| M02 | Fundação ERP multiempresa | Não iniciado | Contratos, estabelecimentos, configurações, auditoria e isolamento | Testes cross-tenant e rollback de migration aprovados. |
+| M01 | Arquitetura canônica multissegmento | Em validação de staging | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Documento MD/HTML, CI e Preview aprovados; nenhum schema aplicado. |
+| M02 | Fundação ERP multiempresa | Planejado | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | SQL/rollback revisados; testes cross-tenant aprovados antes da aplicação. |
 | M03 | Portal do cliente e subdomínios | Não iniciado | `apps/portal`, autenticação e resolução segura de hostname | Empresa A nunca acessa empresa B; domínio desconhecido é rejeitado. |
 | M04 | Usuários, RBAC e MFA | Não iniciado | Papéis, permissões por ação e convites | Matriz de acesso validada; nenhuma senha legada migrada. |
-| M05 | Cadastros mestres | Não iniciado | Clientes, fornecedores, colaboradores, vendedores, transportadoras e produtos | Contagens, documentos e vínculos reconciliados. |
-| M06 | Estoque e compras | Não iniciado | Depósitos, movimentos, inventário, lotes, preços e pedidos | Saldo reconstruído por movimentos coincide com o legado. |
+| M05 | Cadastros e catálogo universal | Não iniciado | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | Cinco segmentos representados sem fork ou dado real. |
+| M06 | Preços, estoque e compras | Não iniciado | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | Saldo sempre derivado do livro de movimentos; testes de concorrência aprovados. |
 | M07 | Vendas, orçamento e PDV | Não iniciado | Orçamentos, vendas, pagamentos, caixa e comprovantes | Totais por dia/item/pagamento e estoque/caixa reconciliados. |
 | M08 | Financeiro e bancário | Não iniciado | Receber, pagar, fluxo de caixa, cartões, cheques e boletos | Saldos em aberto e liquidações coincidem com o legado. |
-| M09 | Atendimento e suporte | Não iniciado | Chamados, SLA, ordens de serviço e histórico | Chamados abertos e eventos preservados e auditáveis. |
-| M10 | Acesso remoto | Não iniciado | Dispositivos, autorização, sessões e auditoria | MFA, consentimento, expiração e revogação comprovados. |
-| M11 | Agente local e periféricos | Não iniciado | Impressão, etiqueta, balança, TEF e certificado quando necessário | Testes físicos no ambiente piloto sem segredo exposto. |
-| M12 | Fiscal e certificado A1 | Não iniciado | Perfil tributário, XML, NF-e/NFC-e e eventos | Homologação fiscal, contingência e ciclo do certificado aprovados. |
-| M13 | Importador de dados | Não iniciado | Pipeline idempotente, mapa de IDs e reconciliação | Reexecução não duplica dados; relatório fecha todos os totais. |
-| M14 | Cliente piloto | Não iniciado | Migração simulada e corte controlado de uma empresa | Aceite funcional, reconciliação e rollback testado. |
-| M15 | Implantação por cliente | Não iniciado | Ondas individuais de migração | Checklist e aceite executados separadamente por tenant. |
+| M09 | Serviços e oficinas | Não iniciado | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | OS fecha materiais, serviços, estoque e financeiro transacionalmente. |
+| M10 | Restaurantes e lanchonetes | Não iniciado | Receitas, adicionais, mesas, comandas e cozinha | Comanda fecha venda, insumos, caixa e fiscal sem duplicidade. |
+| M11 | Atendimento e acesso remoto | Não iniciado | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | MFA, consentimento, expiração e revogação comprovados. |
+| M12 | Agente local e periféricos | Não iniciado | Impressão, etiqueta, balança, TEF e contingência/offline | Testes físicos no piloto sem segredo exposto. |
+| M13 | Fiscal e certificado A1 | Não iniciado | Perfis tributários, XML, NF-e/NFC-e e eventos | Homologação, contingência e ciclo do certificado aprovados. |
+| M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
+| M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
 ## 8. Critérios globais de validação
 
@@ -224,21 +239,19 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M01-G1 — recepção e custódia da cópia
+### Encerramento M01 e preparação do M02
 
 Próxima sequência permitida:
 
-1. revisar e aprovar o parecer técnico M01;
-2. escolher o backup representativo — provisoriamente, Maria dos Remédios/Mania de Moda;
-3. preservar o backup original sem alteração;
-4. disponibilizar uma cópia em diretório protegido e fora do repositório Git;
-5. informar empresa, data, origem, extensão, tamanho e caminho exato da cópia;
-6. calcular e registrar SHA-256 sem abrir ou restaurar o arquivo;
-7. validar o M01-G1 antes de executar `HEADERONLY`, `FILELISTONLY` ou `VERIFYONLY` no M01-G2.
+1. validar os documentos canônicos em Markdown e HTML;
+2. confirmar o checkpoint, Quality Gates e Preview de staging;
+3. aprovar formalmente o M01;
+4. no M02, preparar migrations aditivas da fundação, sem aplicá-las imediatamente;
+5. apresentar SQL, constraints, RLS, grants, testes cross-tenant e rollback/forward-fix;
+6. somente após novo aceite aplicar as migrations no Supabase staging;
+7. manter produção, dados reais, backup legado, fiscal, A1 e Mercado Pago fora do M02.
 
-Comando de aceite sugerido: `Parecer M01 aprovado; disponibilizar cópia do backup da Mania de Moda em [caminho] e executar M01-G1.`
-
-Não enviar a única cópia original, senha de certificado A1 ou credenciais em mensagem. Produção e Mercado Pago real permanecem fora deste portão.
+Comando de aceite sugerido: `M01 aprovado; apresentar migrations e testes do M02 — fundação ERP multiempresa.`
 
 ## 11. Histórico do documento
 
@@ -249,6 +262,7 @@ Não enviar a única cópia original, senha de certificado A1 ou credenciais em 
 | 1.2.0 | 18/08/2026 | M00 | Variável sensível corrigida, redeploy de Preview e smoke test completo com limpeza do dado sintético. | Validado em staging; aguarda aceite explícito para iniciar a análise do M01. |
 | 1.3.0 | 18/08/2026 | M01 | Inventário, análise do legado/stack, matriz preliminar, laboratório seguro, rollback e portões G0–G6 documentados. | M00 aprovado; M01-G0 aprovado e M01 bloqueado em G1 por ausência da cópia do backup; produção não alterada. |
 | 1.3.1 | 18/08/2026 | M01 | Checkpoint documental remoto, Quality Gates e Vercel Preview registrados. | Documentação validada em staging; bloqueio seguro de M01-G1 mantido; produção não alterada. |
+| 1.4.0 | 18/08/2026 | M01 | Escopo corrigido para arquitetura canônica multissegmento; núcleo, capacidades, catálogo, invariantes e contrato M02 documentados. | Engenharia reversa movida para M14; ausência de backup deixa de bloquear; aguarda validação remota do M01. |
 
 ## 12. Protocolo de atualização futura
 

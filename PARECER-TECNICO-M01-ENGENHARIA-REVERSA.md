@@ -1,4 +1,6 @@
-# ConnectionCyber — Parecer Técnico M01: Engenharia Reversa do Legado
+# ConnectionCyber — Estudo D01: Engenharia Reversa do Legado
+
+> **Reclassificado em 18/08/2026:** este documento é um estudo futuro de migração, vinculado ao M14. Ele não bloqueia o desenvolvimento do ERP e não define a arquitetura canônica. A decisão vigente está em `ARQUITETURA-CANONICA-MULTISSEGMENTO.md`.
 
 **Ambiente analisado:** staging
 
@@ -10,7 +12,7 @@
 
 **Backup restaurado:** não
 
-**Decisão do portão:** M01 analisado; execução física bloqueada no M01-G1 até a entrega de uma cópia controlada do backup
+**Decisão vigente:** estudo preservado e adiado para M14; backup será necessário para migração/povoamento, não para construir o novo ERP
 
 ## 1. Parecer executivo
 
@@ -18,7 +20,7 @@ O projeto pode avançar tecnicamente para uma plataforma ERP web multiempresa, m
 
 O acervo analisado não contém arquivo de banco ou backup. Foram encontrados 68 arquivos de referência, totalizando 5.495.739 bytes: 64 imagens PNG, dois documentos DOCX e dois relatórios TXT. Não foi localizado arquivo `.bak`, `.mdf`, `.ldf`, `.zip`, `.rar`, `.7z`, `.fbk`, `.fdb`, `.mdb`, `.accdb`, `.db` ou `.sqlite` no repositório staging. Portanto, nenhuma restauração foi tentada.
 
-O parecer é favorável à continuidade por portões. O próximo ato seguro é receber uma **cópia** representativa de backup, registrar sua cadeia de custódia e submetê-la a verificações de mídia antes de qualquer restauração. O backup original deve permanecer imutável e fora do Git.
+O parecer permanece válido como protocolo de migração futura. Quando o M14 for iniciado, o próximo ato seguro será receber uma **cópia** representativa de backup, registrar sua cadeia de custódia e submetê-la a verificações de mídia antes de qualquer restauração. O backup original deve permanecer imutável e fora do Git.
 
 ## 2. Escopo executado e limites
 
@@ -151,28 +153,28 @@ flowchart TD
     F --> G[DBCC CHECKDB<br/>e inspeção de código/triggers]
     G --> H[Dicionário físico,<br/>volumes e dependências]
     H --> I[Matriz legado<br/>para modelo canônico]
-    I --> J{Aceite do M01}
+    I --> J{Aceite do estudo no M14}
     J -->|Reprovado| K[Eliminar laboratório<br/>preservar só evidências]
     J -->|Aprovado| L[Autorizar análise M02<br/>sem carga de cliente]
 ```
 
-## 10. Portões determinísticos do M01
+## 10. Portões determinísticos futuros do M14
 
 | Portão | Ação | Validação obrigatória | Estado atual |
 |---|---|---|---|
-| M01-G0 | Inventário documental | lista, tipos, tamanho e hash do manifesto | Aprovado |
-| M01-G1 | Recepção da cópia | caminho fora do Git, metadados, SHA-256 e prova de original preservado | Bloqueado: cópia ausente |
-| M01-G2 | Inspeção da mídia | `RESTORE HEADERONLY`, `FILELISTONLY` e `VERIFYONLY` sem erro | Não iniciado |
-| M01-G3 | Restauração isolada | versão compatível, `MOVE`, nome exclusivo e zero `REPLACE` | Não iniciado |
-| M01-G4 | Integridade e segurança | `DBCC CHECKDB`; inventário de usuários, código, triggers e integrações | Não iniciado |
-| M01-G5 | Dicionário e reconciliação | tabelas/chaves/volumes/dependências e matriz com origem física | Não iniciado |
-| M01-G6 | Encerramento | relatório aprovado e laboratório removido com evidências preservadas | Não iniciado |
+| M14-D0 | Inventário documental | lista, tipos, tamanho e hash do manifesto | Aprovado |
+| M14-D1 | Recepção da cópia | caminho fora do Git, metadados, SHA-256 e prova de original preservado | Aguardando o início do M14 |
+| M14-D2 | Inspeção da mídia | `RESTORE HEADERONLY`, `FILELISTONLY` e `VERIFYONLY` sem erro | Não iniciado |
+| M14-D3 | Restauração isolada | versão compatível, `MOVE`, nome exclusivo e zero `REPLACE` | Não iniciado |
+| M14-D4 | Integridade e segurança | `DBCC CHECKDB`; inventário de usuários, código, triggers e integrações | Não iniciado |
+| M14-D5 | Dicionário e reconciliação | tabelas/chaves/volumes/dependências e matriz com origem física | Não iniciado |
+| M14-D6 | Encerramento | relatório aprovado e laboratório removido com evidências preservadas | Não iniciado |
 
 Cada portão será validado antes do próximo. Falha em G2, G3 ou G4 encerra a tentativa sem contornar controles.
 
-## 11. Critérios de aceite do M01
+## 11. Critérios de aceite do estudo no M14
 
-O M01 só será considerado validado quando houver:
+O estágio de engenharia reversa do M14 só será considerado validado quando houver:
 
 - SHA-256 e cadeia de custódia da cópia analisada;
 - versão e propriedades reais do backup;
@@ -186,15 +188,15 @@ O M01 só será considerado validado quando houver:
 - plano de extração e rollback do importador;
 - remoção controlada do laboratório ao final.
 
-## 12. Próxima ação autorizável
+## 12. Ação futura autorizável no M14
 
 Disponibilizar uma **cópia** do backup representativo em diretório protegido e fora do repositório Git, informando o caminho exato. Não enviar a única cópia original, senha de A1 ou credenciais em mensagem.
 
 Comando de aceite sugerido:
 
-`Parecer M01 aprovado; disponibilizar cópia do backup da Mania de Moda em [caminho] e executar M01-G1.`
+`M14 autorizado; disponibilizar cópia do backup da Mania de Moda em [caminho] e executar M14-D1.`
 
-Se outro cliente for escolhido, substitua o nome no comando. Nenhuma restauração ocorrerá antes da validação explícita do M01-G1.
+Se outro cliente for escolhido, substitua o nome no comando. Nenhuma restauração ocorrerá antes da validação explícita do M14-D1. Este comando não é o próximo portão atual do projeto.
 
 ## 13. Referências técnicas
 
