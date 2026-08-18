@@ -3,7 +3,7 @@
 **Documento vivo e obrigatório**  
 **Ambiente de trabalho:** staging  
 **Atualizado em:** 18/08/2026  
-**Versão do documento:** 1.3.0
+**Versão do documento:** 1.3.1
 **Produção alterada nesta fase:** não
 
 ## 1. Finalidade
@@ -151,6 +151,9 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - O Supabase atual ainda não possui modelo ERP canônico. Tabelas do site/Mercado Pago não serão reutilizadas para produtos, vendas ou pagamentos legados.
 - A lista documental tem 14 empresas, a configuração do site tem 15 posições, uma migration histórica menciona 10 e staging possui somente o tenant ConnectionCyber. O cadastro mestre deverá ser validado antes do provisionamento.
 - Parecer e matriz preliminar emitidos em `PARECER-TECNICO-M01-ENGENHARIA-REVERSA.md` e `.html`.
+- Checkpoint documental `932968d` enviado exclusivamente para `origin/staging`.
+- GitHub Actions `Quality gates`, execução `32188947101`: concluída com sucesso.
+- Vercel deployment `dpl_AXQBnUkESivU14m7BFLj53ERf1XX`: target `preview`, estado `Ready`, alias da branch staging confirmado.
 - Estado do M01: `Bloqueado em M01-G1`, aguardando uma cópia controlada do backup representativo. Nenhuma restauração, migration, carga ou alteração de produção foi realizada.
 
 ## 6. Achados críticos ainda abertos
@@ -245,6 +248,7 @@ Não enviar a única cópia original, senha de certificado A1 ou credenciais em 
 | 1.1.0 | 18/08/2026 | M00 | Banco staging, push, CI, Preview e smoke tests executados; evidências registradas. | Bloqueado na configuração privada do formulário no Vercel Preview; produção não alterada. |
 | 1.2.0 | 18/08/2026 | M00 | Variável sensível corrigida, redeploy de Preview e smoke test completo com limpeza do dado sintético. | Validado em staging; aguarda aceite explícito para iniciar a análise do M01. |
 | 1.3.0 | 18/08/2026 | M01 | Inventário, análise do legado/stack, matriz preliminar, laboratório seguro, rollback e portões G0–G6 documentados. | M00 aprovado; M01-G0 aprovado e M01 bloqueado em G1 por ausência da cópia do backup; produção não alterada. |
+| 1.3.1 | 18/08/2026 | M01 | Checkpoint documental remoto, Quality Gates e Vercel Preview registrados. | Documentação validada em staging; bloqueio seguro de M01-G1 mantido; produção não alterada. |
 
 ## 12. Protocolo de atualização futura
 
