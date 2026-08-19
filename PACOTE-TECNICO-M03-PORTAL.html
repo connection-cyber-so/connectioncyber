@@ -12,10 +12,10 @@
   <header>
     <h1>Pacote técnico M03</h1>
     <p style="font-size:1.2rem">Portal do cliente, subdomínios e isolamento multiempresa</p>
-    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.1.0</span><span class="pill">Laboratório aprovado</span><span class="pill">Produção intocada</span></div>
+    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.2.0</span><span class="pill">Validado em staging</span><span class="pill">Produção intocada</span></div>
   </header>
-  <div class="notice"><strong>Laboratório aprovado.</strong> Preflight, dry-run exclusivo, rollback protegido, reconstrução e duas passagens 35/35 foram concluídos. A 0017 não foi aplicada remotamente.</div>
-  <div class="cards"><div class="card"><strong>19/19</strong>testes unitários</div><div class="card"><strong>35/35 × 2</strong>provas pgTAP</div><div class="card"><strong>2/2</strong>bloqueios do rollback</div><div class="card"><strong>0</strong>resíduos locais</div></div>
+  <div class="notice"><strong>M03 validado em staging.</strong> A migration 0017 foi aplicada exclusivamente no projeto <code>ozvylnaipubrmaadikvk</code> após preflight e dry-run exclusivo. A suíte remota terminou 35/35 com rollback e zero fixtures.</div>
+  <div class="cards"><div class="card"><strong>19/19</strong>testes unitários</div><div class="card"><strong>35/35 × 3</strong>duas passagens locais + uma remota</div><div class="card"><strong>0</strong>erros no lint remoto</div><div class="card"><strong>0</strong>fixtures remotas</div></div>
 
   <h2>1. Autorização implementada</h2>
   <div class="flow"><div class="node">Hostname exato</div><div class="arrow">→</div><div class="node">Tenant ativo</div><div class="arrow">→</div><div class="node">Sessão getUser()</div><div class="arrow">→</div><div class="node">Membership própria</div><div class="arrow">→</div><div class="node">RLS</div><div class="arrow">→</div><div class="node">Portal ERP</div></div>
@@ -25,8 +25,8 @@
   <div class="table"><table><thead><tr><th>Entrega</th><th>Conteúdo</th><th>Estado</th></tr></thead><tbody>
     <tr><td><code>apps/portal</code></td><td>Login, logout, seletor multiempresa, 403, 404, sem vínculo e shell somente leitura.</td><td>Aprovado localmente</td></tr>
     <tr><td>Guards</td><td>Hostname, redirect, same-origin, vigência, tenant e membership do próprio usuário.</td><td>19/19</td></tr>
-    <tr><td>Migration 0017</td><td>Domínios canônicos, resolver mínimo e policy multiempresa em tenants.</td><td>Validada localmente; não aplicada remotamente</td></tr>
-    <tr><td>SQL de controle</td><td>Preflight somente leitura, rollback local bloqueado e 35 pgTAP.</td><td>Preflight × 2; pgTAP 35/35 × 2</td></tr>
+    <tr><td>Migration 0017</td><td>Domínios canônicos, resolver mínimo e policy multiempresa em tenants.</td><td>Aplicada somente no Supabase staging</td></tr>
+    <tr><td>SQL de controle</td><td>Preflight somente leitura, rollback local bloqueado e 35 pgTAP.</td><td>Preflight remoto aprovado; pgTAP remoto 35/35</td></tr>
     <tr><td>CI</td><td><code>npm ci</code>, teste, type-check, lint e build.</td><td>Execução 32204837889 aprovada</td></tr>
   </tbody></table></div>
 
@@ -39,15 +39,15 @@
     <tr><td>Multiempresa</td><td>Nova policy em tenants remove a dependência exclusiva do <code>users.tenant_id</code> legado.</td></tr>
   </tbody></table></div>
 
-  <h2>4. Evidências locais</h2>
-  <ul><li>19/19 testes unitários.</li><li>TypeScript, ESLint e build Next.js aprovados.</li><li>Preflight <code>M03_PREFLIGHT_OK</code> em duas construções PostgreSQL 17.6.</li><li>Dry-run aplicou somente 0017, hash <code>ac08fb…90c79</code>.</li><li>35/35 pgTAP em duas passagens independentes.</li><li>Rollback bloqueado sem confirmações e com domínio existente.</li><li>Rollback vazio removeu somente M03 e preservou M02.</li><li>Contêiner, rede, fixtures e banco dry-run: zero resíduos.</li><li>Checkpoint <code>563a669</code>; Quality Gates <code>32204837889</code> aprovados; Preview existente HTTP 200.</li></ul>
-  <div class="notice warning">A 0017 continua ausente no Supabase remoto. Aplicação em staging exige novo aceite e será seguida por 35 provas transacionais e verificação de zero fixtures.</div>
+  <h2>4. Evidências locais e remotas</h2>
+  <ul><li>19/19 testes unitários; TypeScript, ESLint e build Next.js aprovados.</li><li>Preflight local em duas construções e preflight remoto <code>M03_PREFLIGHT_OK</code> no PostgreSQL 17.6.</li><li>Dry-run remoto selecionou somente 0017, sem seeds ou roles; hash <code>ac08fb…90c79</code>.</li><li>Histórico remoto 0001–0017 alinhado após a aplicação exclusiva em staging.</li><li>Tabela, RLS, 2 policies, 12 constraints, 6 índices, trigger, funções e grants comprovados.</li><li>Lint remoto de <code>public</code> e <code>erp_security</code>: zero erros.</li><li>35/35 pgTAP em duas passagens locais e uma remota transacional.</li><li>Zero fixtures e zero linhas em <code>erp_tenant_domains</code> após o rollback remoto.</li><li>Checkpoint local <code>563a669</code>; Quality Gates <code>32204837889</code> aprovados; Preview existente HTTP 200.</li></ul>
+  <div class="notice">A 0017 existe somente no Supabase staging. Correções remotas, se necessárias, serão forward-fix com novo número e novo aceite; rollback destrutivo remoto permanece proibido.</div>
 
   <h2>5. Limites preservados</h2>
-  <ul><li>Nenhum Supabase remoto ou produção alterado.</li><li>O Preview existente foi atualizado automaticamente pela branch staging; nenhum projeto/domínio do portal foi criado.</li><li>Nenhum DNS ou wildcard configurado.</li><li>Nenhum cliente, membership real, dado fiscal, A1, Mercado Pago ou backup inserido.</li><li>Rollback destrutivo bloqueado fora de laboratório local descartável.</li></ul>
+  <ul><li>Supabase de produção e aplicação de produção não foram acessados nem alterados.</li><li>O Preview existente foi atualizado automaticamente pela branch staging; nenhum projeto/domínio do portal foi criado.</li><li>Nenhum DNS ou wildcard configurado.</li><li>Nenhum cliente, membership real, dado fiscal, A1, Mercado Pago ou backup inserido.</li><li>Rollback destrutivo remoto permanece proibido.</li></ul>
 
   <h2>6. Próximo portão</h2>
-  <div class="gate"><strong>M03 laboratório aprovado; aplicar 0017 exclusivamente no Supabase staging e executar validação remota.</strong><p>Esse aceite autoriza somente o projeto staging: preflight, dry-run exclusivo, aplicação 0017, 35/35 transacional e verificação de zero fixtures. Produção, Vercel e DNS permanecem fora.</p></div>
+  <div class="gate"><strong>M03 staging aprovado; iniciar análise M04 — usuários, RBAC e MFA.</strong><p>Esse aceite autoriza somente inventário, matriz de acesso, fluxos de convite/recuperação/MFA, telas, riscos e critérios. SQL, Supabase remoto, Vercel, DNS e produção permanecem fora.</p></div>
   <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
 </main></body>
 </html>
