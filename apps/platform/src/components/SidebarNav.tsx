@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 
 const ITEMS = [
   { href: '/tenants', label: 'Tenants' },
+  { href: '/identidades', label: 'Identidades e acessos' },
   { href: '/diagnostics', label: 'Diagnóstico Digital' },
   { href: '/products', label: 'Produtos' },
   { href: '/offers', label: 'Ofertas' },

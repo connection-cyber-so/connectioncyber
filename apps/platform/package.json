@@ -11,7 +11,9 @@
     "build": "next build",
     "start": "next start -p 3011",
     "lint": "next lint",
-    "type-check": "tsc --noEmit --incremental false"
+    "type-check": "tsc --noEmit --incremental false",
+    "test": "node --test tests/*.test.mjs",
+    "provision:dry-run": "node scripts/identity-provisioning.mjs --dry-run --manifest fixtures/identity-provisioning.example.json"
   },
   "dependencies": {
     "@google/genai": "^2.11.0",

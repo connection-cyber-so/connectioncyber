@@ -106,20 +106,20 @@ values
   ('10000000-0000-4000-8000-000000000002', 'M02 Tenant B', 'm02-test-b', 'oficina', true);
 
 insert into auth.users (
-  id, aud, role, email, encrypted_password, email_confirmed_at,
+  id, aud, role, email, encrypted_password,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at
 )
 values
   (
     '20000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated',
-    'm02-a@example.invalid', '', now(),
+    'm02-a@example.invalid', '',
     '{"provider":"email","providers":["email"]}'::jsonb,
     '{"nome":"M02 User A","tenant_id":"10000000-0000-4000-8000-000000000001"}'::jsonb,
     now(), now()
   ),
   (
     '20000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated',
-    'm02-b@example.invalid', '', now(),
+    'm02-b@example.invalid', '',
     '{"provider":"email","providers":["email"]}'::jsonb,
     '{"nome":"M02 User B","tenant_id":"10000000-0000-4000-8000-000000000002"}'::jsonb,
     now(), now()
@@ -182,6 +182,12 @@ values (
 );
 
 set local role authenticated;
+select set_config(
+  'request.jwt.claim.sub',
+  '20000000-0000-4000-8000-000000000001',
+  true
+);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 select set_config(
   'request.jwt.claims',
   '{"sub":"20000000-0000-4000-8000-000000000001","role":"authenticated"}',

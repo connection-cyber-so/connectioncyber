@@ -41,6 +41,7 @@ jobs:
           cache: npm
           cache-dependency-path: apps/platform/package-lock.json
       - run: npm ci
+      - run: npm test
       - run: npm run type-check
       - run: npm run lint -- --no-cache
       - run: npm run build

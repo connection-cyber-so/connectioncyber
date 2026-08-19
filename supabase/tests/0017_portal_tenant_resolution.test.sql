@@ -128,6 +128,20 @@ values
     now(), now()
   );
 
+-- A partir da 0018, metadata de signup não define tenant. Este teste do M03
+-- prepara explicitamente a ponte legada para provar que ela não autoriza o portal.
+update public.users profile
+set tenant_id = case profile.id
+  when '21000000-0000-4000-8000-000000000001'::uuid then '11000000-0000-4000-8000-000000000002'::uuid
+  when '21000000-0000-4000-8000-000000000002'::uuid then '11000000-0000-4000-8000-000000000002'::uuid
+  when '21000000-0000-4000-8000-000000000003'::uuid then '11000000-0000-4000-8000-000000000003'::uuid
+end
+where profile.id in (
+  '21000000-0000-4000-8000-000000000001',
+  '21000000-0000-4000-8000-000000000002',
+  '21000000-0000-4000-8000-000000000003'
+);
+
 insert into public.erp_tenant_memberships (id, tenant_id, user_id, status, is_default)
 values
   ('31000000-0000-4000-8000-000000000001', '11000000-0000-4000-8000-000000000001', '21000000-0000-4000-8000-000000000001', 'active', true),

@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 2.2.1
+**Versão do documento:** 2.3.0
 
 **Produção alterada nesta fase:** não
 
@@ -265,6 +265,25 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Checkpoint `bbdc6cc` publicado somente em `origin/staging`; Quality Gates `32210191254` aprovados em `site`, `platform` e `portal`, Vercel `success` e Preview HTTP 200.
 - Branch `main` preservada em `59a3924`; pastas de referência permaneceram fora do commit.
 
+### 5.9 M04-G1 — migration, dry-run, telas e testes validados localmente
+
+- Migration `0018_identity_rbac_mfa_hardening.sql` apresentada sem aplicação remota; SHA-256 `e8bf56d6…91e659`.
+- `users.tenant_id` passa a compatibilidade nullable; metadata/fallback/JWT deixam de conceder tenant; memberships permanecem autoridade ERP.
+- Policies do profile limitam authenticated a leitura própria e atualização somente de nome/idioma.
+- Lifecycle de membership, roles com `requires_mfa`, cinco permissões M04 e helpers AAL1/AAL2 foram especificados.
+- Ledgers `erp_identity_provisioning_runs/steps` são server-only, idempotentes, retomáveis e recusam chaves de segredo em JSON.
+- Provisionador entregue sem modo apply: `executable=false`, `networkCalls=0`, `databaseWrites=0`, sete personas `.invalid` e chave idempotente determinística.
+- Tela interna `/identidades` apresenta convite, usuários/memberships, cinco papéis e fluxo AAL1 → TOTP → AAL2; controles de escrita permanecem desabilitados.
+- Testes do provisionador: 9/9; TypeScript, ESLint e build Next.js aprovados; rota `/identidades` presente no build.
+- Laboratório PostgreSQL 17.6: M02 38/38, M03 35/35 e M04 49/49; segunda passagem M04 após rollback/rebuild também 49/49.
+- Rollback recusou execução sem confirmações, removeu somente M04 no laboratório vazio e preservou M03; preflight retornou `M04_PREFLIGHT_OK`.
+- Primeira compilação local detectou `auth.jwt()` indisponível; a transação reverteu, o helper passou a usar claims portáveis e toda a suíte foi repetida.
+- Fixtures M02/M03 foram tornadas compatíveis com o hardening sem reduzir isolamento ou critérios anteriores.
+- Pós-testes: zero runs, steps, identidades, memberships ou roles sintéticas; contêiner descartável removido.
+- Inspeção visual automatizada ao vivo não foi concluída por falha interna do recurso de navegador; nenhuma aprovação visual foi presumida.
+- Pacote detalhado em `PACOTE-TECNICO-M04-G1-IDENTIDADE-RBAC-MFA.md` e `.html`.
+- Supabase remoto, Auth, Vercel, DNS, produção e dados reais permaneceram inalterados; zero contas, convites, roles ou fatores MFA criados.
+
 ## 6. Achados críticos ainda abertos
 
 | ID | Achado | Severidade | Tratamento obrigatório |
@@ -294,7 +313,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M01 | Arquitetura canônica multissegmento | Aprovado | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Concluído e aceito em 18/08/2026; nenhum schema aplicado. |
 | M02 | Fundação ERP multiempresa | Aprovado | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | Concluído e aceito em 18/08/2026; 0016 permanece somente em staging. |
 | M03 | Portal do cliente e subdomínios | Aprovado | `apps/portal`, autenticação e resolução segura de hostname | Concluído e aceito em 18/08/2026; 0017 permanece somente em staging. |
-| M04 | Usuários, RBAC e MFA | Em análise | Identidade, memberships, papéis, convites, recuperação e MFA | G0 apresentado sem criar contas; aguarda aceite para 0018, dry-run, telas e testes. |
+| M04 | Usuários, RBAC e MFA | Validado localmente | Identidade, memberships, papéis, convites, recuperação e MFA | G1 aprovado no laboratório; 0018 não aplicada remotamente e zero contas criadas; aguarda aceite para staging. |
 | M05 | Cadastros e catálogo universal | Não iniciado | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | Cinco segmentos representados sem fork ou dado real. |
 | M06 | Preços, estoque e compras | Não iniciado | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | Saldo sempre derivado do livro de movimentos; testes de concorrência aprovados. |
 | M07 | Vendas, orçamento e PDV | Não iniciado | Orçamentos, vendas, pagamentos, caixa e comprovantes | Totais por dia/item/pagamento e estoque/caixa reconciliados. |
@@ -340,18 +359,18 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Aceite do M04-G0 e apresentação controlada do M04-G1
+### Aceite do pacote M04-G1 e aplicação exclusiva da 0018 em staging
 
 Próxima sequência permitida:
 
-1. revisar e aprovar a arquitetura, as personas e os controles do parecer M04-G0;
-2. apresentar a migration `0018` para endurecimento de identidade e RBAC, sem aplicá-la;
-3. apresentar provisionador server-only em modo `dry-run`, sem chamar APIs administrativas;
-4. apresentar telas de convite, ativação, recuperação, membership, papéis e MFA;
-5. apresentar testes negativos cross-tenant, AAL1/AAL2, suspensão, expiração e idempotência;
-6. manter contas Auth, Supabase remoto, Vercel, DNS, produção e dados reais inalterados.
+1. revisar e aprovar migration, provisionador, telas, testes e riscos residuais do M04-G1;
+2. executar preflight somente leitura no Supabase staging;
+3. confirmar SHA-256 e selecionar exclusivamente a migration `0018`;
+4. aplicar a 0018 somente no projeto staging `ozvylnaipubrmaadikvk`;
+5. validar estrutura, grants, RLS, policies, helpers, lint, resíduos e 49 pgTAP em transação com rollback;
+6. manter criação de contas, convites, memberships, roles por tenant, fatores MFA, Vercel, DNS e produção proibidos.
 
-Comando de aceite sugerido: `M04-G0 aprovado; apresentar migration 0018, provisionador dry-run, telas e testes, sem criar usuários ou aplicar remotamente.`
+Comando de aceite sugerido: `M04-G1 pacote e laboratório aprovados; aplicar 0018 exclusivamente no Supabase staging e executar validação remota, sem criar contas, convites, memberships, roles ou fatores MFA.`
 
 ## 11. Histórico do documento
 
@@ -377,6 +396,7 @@ Comando de aceite sugerido: `M04-G0 aprovado; apresentar migration 0018, provisi
 | 2.1.1 | 18/08/2026 | M03 | Checkpoint `0111056`, Quality Gates `32206753538`, status Vercel e Preview HTTP 200 registrados. | `site`, `platform` e `portal` aprovados; `main` permaneceu em `59a3924`; M03 aguarda aceite formal. |
 | 2.2.0 | 18/08/2026 | M04-G0 | M03 aprovado; identidade, sete personas, papéis, MFA, manifesto, provisionamento idempotente, riscos e testes do M04 especificados. | Parecer apresentado sem criar contas, convites, memberships, roles ou fatores MFA e sem alterar Supabase remoto, Vercel, DNS ou produção. |
 | 2.2.1 | 18/08/2026 | M04-G0 | Checkpoint `bbdc6cc`, Quality Gates `32210191254`, Vercel e Preview registrados. | `site`, `platform` e `portal` aprovados; HTTP 200; `main` preservada; nenhuma conta ou migration remota criada. |
+| 2.3.0 | 19/08/2026 | M04-G1 | Migration 0018, preflight, rollback, dry-run, sete personas, quatro telas, 9 testes Node e 49 pgTAP apresentados. | M02 38/38, M03 35/35, M04 49/49 e rebuild 49/49; build aprovado; zero resíduos; remoto inalterado. |
 
 ## 12. Protocolo de atualização futura
 
