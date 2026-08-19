@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 2.0.0
+**Versão do documento:** 2.0.1
 
 **Produção alterada nesta fase:** não
 
@@ -226,7 +226,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Testes unitários locais: 19/19; TypeScript, lint e build Next.js aprovados.
 - Inspeção visual local em 1440 px e 360 px: HTTP 200, sem overflow horizontal ou erro de navegador; formulário corretamente bloqueado sem variáveis staging.
 - Job `portal` adicionado ao Quality Gates com `npm ci`, testes, type-check, lint e build.
-- Checkpoint `285d103` publicado em `origin/staging`; Quality Gates `32203034263` concluído com `site`, `platform` e `portal` aprovados.
+- Checkpoint de código `285d103` e checkpoint de laboratório `563a669` publicados em `origin/staging`; Quality Gates `32204837889` concluído com `site`, `platform` e `portal` aprovados.
 - A integração Vercel existente concluiu o Preview de staging com sucesso e HTTP 200; o aplicativo `apps/portal` não foi provisionado nem recebeu domínio ou variáveis.
 - Relatório do pacote em `PACOTE-TECNICO-M03-PORTAL.md` e `.html`.
 - Suíte pgTAP aprovada 35/35 antes e depois da destruição e reconstrução completa do laboratório.
@@ -341,6 +341,7 @@ Comando de aceite sugerido: `M03 laboratório aprovado; aplicar 0017 exclusivame
 | 1.9.0 | 18/08/2026 | M03 | Parecer aprovado; `apps/portal`, migration 0017, preflight, rollback, 19 testes unitários, 35 asserções pgTAP e job CI apresentados. | Aplicação compilada e inspecionada localmente; SQL ainda não executado; aguarda aceite para laboratório local descartável. |
 | 1.9.1 | 18/08/2026 | M03 | Checkpoint `285d103`, Quality Gates `32203034263` e Preview staging registrados. | `site`, `platform` e `portal` aprovados; HTTP 200; 0017 permanece não executada. |
 | 2.0.0 | 18/08/2026 | M03 | Preflight, dry-run exclusivo, 0017 local, rollback protegido, reconstrução e duas passagens 35/35. | Validado localmente com zero resíduos; Supabase remoto e produção inalterados. |
+| 2.0.1 | 18/08/2026 | M03 | Checkpoint `563a669`, Quality Gates `32204837889`, Vercel success e Preview HTTP 200 registrados. | Evidências publicadas em staging; 0017 continua ausente no Supabase remoto. |
 
 ## 12. Protocolo de atualização futura
 

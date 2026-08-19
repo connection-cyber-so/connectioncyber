@@ -158,7 +158,7 @@ executadas dentro de transação com rollback e deixaram zero resíduos.
 | overflow horizontal | ausente |
 | erros de navegador | zero |
 | ambiente sem variáveis | formulário bloqueado e nenhum acesso a banco |
-| Quality Gates GitHub | execução 32203034263: site, platform e portal aprovados |
+| Quality Gates GitHub | execução 32204837889: site, platform e portal aprovados |
 | Preview staging existente | integração Vercel aprovada e HTTP 200 |
 | preflight local | `M03_PREFLIGHT_OK` em duas construções PostgreSQL 17.6 |
 | dry-run | somente `0017_portal_tenant_resolution.sql`; hash SHA-256 `ac08fb…90c79` |
@@ -192,7 +192,8 @@ Correções remotas serão migrations forward-fix com novo número e novo aceite
 | usuário real não existir | esperado | M04 provisionará convites/RBAC/MFA |
 | escrita ERP | fora de escopo | módulos M04+ com comandos auditados |
 
-O checkpoint `285d103` foi publicado somente na branch `staging`. A integração
+O checkpoint de laboratório `563a669` foi publicado somente na branch `staging`.
+O Quality Gate `32204837889` aprovou `site`, `platform` e `portal`. A integração
 Vercel já existente atualizou o Preview do site institucional automaticamente;
 nenhum projeto do portal, subdomínio, DNS, variável do portal ou banco foi
 criado ou reconfigurado.

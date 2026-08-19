@@ -27,7 +27,7 @@
     <tr><td>Guards</td><td>Hostname, redirect, same-origin, vigência, tenant e membership do próprio usuário.</td><td>19/19</td></tr>
     <tr><td>Migration 0017</td><td>Domínios canônicos, resolver mínimo e policy multiempresa em tenants.</td><td>Validada localmente; não aplicada remotamente</td></tr>
     <tr><td>SQL de controle</td><td>Preflight somente leitura, rollback local bloqueado e 35 pgTAP.</td><td>Preflight × 2; pgTAP 35/35 × 2</td></tr>
-    <tr><td>CI</td><td><code>npm ci</code>, teste, type-check, lint e build.</td><td>Execução 32203034263 aprovada</td></tr>
+    <tr><td>CI</td><td><code>npm ci</code>, teste, type-check, lint e build.</td><td>Execução 32204837889 aprovada</td></tr>
   </tbody></table></div>
 
   <h2>3. Migration 0017</h2>
@@ -40,7 +40,7 @@
   </tbody></table></div>
 
   <h2>4. Evidências locais</h2>
-  <ul><li>19/19 testes unitários.</li><li>TypeScript, ESLint e build Next.js aprovados.</li><li>Preflight <code>M03_PREFLIGHT_OK</code> em duas construções PostgreSQL 17.6.</li><li>Dry-run aplicou somente 0017, hash <code>ac08fb…90c79</code>.</li><li>35/35 pgTAP em duas passagens independentes.</li><li>Rollback bloqueado sem confirmações e com domínio existente.</li><li>Rollback vazio removeu somente M03 e preservou M02.</li><li>Contêiner, rede, fixtures e banco dry-run: zero resíduos.</li><li>Quality Gates 32203034263 aprovados; Preview existente HTTP 200.</li></ul>
+  <ul><li>19/19 testes unitários.</li><li>TypeScript, ESLint e build Next.js aprovados.</li><li>Preflight <code>M03_PREFLIGHT_OK</code> em duas construções PostgreSQL 17.6.</li><li>Dry-run aplicou somente 0017, hash <code>ac08fb…90c79</code>.</li><li>35/35 pgTAP em duas passagens independentes.</li><li>Rollback bloqueado sem confirmações e com domínio existente.</li><li>Rollback vazio removeu somente M03 e preservou M02.</li><li>Contêiner, rede, fixtures e banco dry-run: zero resíduos.</li><li>Checkpoint <code>563a669</code>; Quality Gates <code>32204837889</code> aprovados; Preview existente HTTP 200.</li></ul>
   <div class="notice warning">A 0017 continua ausente no Supabase remoto. Aplicação em staging exige novo aceite e será seguida por 35 provas transacionais e verificação de zero fixtures.</div>
 
   <h2>5. Limites preservados</h2>
