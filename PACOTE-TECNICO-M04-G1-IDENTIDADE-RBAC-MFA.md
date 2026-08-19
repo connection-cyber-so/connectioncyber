@@ -6,9 +6,9 @@
 
 **Data:** 19/08/2026
 
-**Versão:** 1.0.0
+**Versão:** 1.0.1
 
-**Estado:** código e laboratório local aprovados; nada aplicado remotamente
+**Estado:** código, laboratório, CI e Preview aprovados; Supabase remoto inalterado
 
 **Contas, convites, memberships, roles ou MFA criados:** zero
 
@@ -18,8 +18,9 @@ O M04-G1 está implementado como pacote revisável e deny-by-default. A migratio
 `0018` foi aplicada apenas em PostgreSQL 17.6 descartável, o provisionador aceita
 somente `--dry-run`, e a tela interna permanece desabilitada para escrita.
 
-Nenhuma chamada ao Supabase Admin API foi implementada. O Supabase staging,
-Vercel, DNS e produção não foram alterados por esta etapa.
+Nenhuma chamada ao Supabase Admin API foi implementada. Supabase staging, Auth,
+configurações Vercel, DNS e produção não foram alterados por esta etapa. A
+integração existente gerou somente um Preview da branch `staging`.
 
 ## 2. Entregas
 
@@ -28,7 +29,7 @@ Vercel, DNS e produção não foram alterados por esta etapa.
 | banco | `supabase/migrations/0018_identity_rbac_mfa_hardening.sql` | hardening de profile/JWT, lifecycle, MFA/AAL e ledger server-only |
 | preflight | `supabase/preflight/0018_identity_rbac_mfa_hardening_preflight.sql` | somente leitura; recusa colisão, lacuna de profile e histórico 0018 existente |
 | rollback | `supabase/rollback/0018_identity_rbac_mfa_hardening.rollback.sql` | apenas laboratório vazio com duas confirmações explícitas |
-| pgTAP | `supabase/tests/0018_identity_rbac_mfa_hardening.test.sql` | 48 asserções transacionais |
+| pgTAP | `supabase/tests/0018_identity_rbac_mfa_hardening.test.sql` | 49 asserções transacionais |
 | manifesto | `apps/platform/fixtures/identity-provisioning.example.json` | sete personas sintéticas em `.invalid` |
 | provisionador | `apps/platform/scripts/identity-provisioning.mjs` | validação e plano determinístico sem rede ou escrita |
 | testes | `apps/platform/tests/identity-provisioning.test.mjs` | 9 casos unitários |
@@ -139,6 +140,11 @@ base usada. A transação reverteu integralmente. O helper foi tornado portátil
 com `request.jwt.claims`, seguido de preflight, reconstrução e 49/49 testes.
 
 ## 8. Limites e riscos residuais
+
+Checkpoint `72b1e0a` publicado exclusivamente em `origin/staging`. O Quality
+Gate `32212844513` aprovou `site`, `platform` e `portal`; o deployment Vercel
+`dpl_DKNCxPwYHidoC1mmdYNcwjP3YEB4` ficou `Ready` e o alias de staging respondeu
+HTTP 200. A branch `main` permaneceu em `59a3924`.
 
 - a migration 0018 não está no Supabase staging;
 - configuração Auth continua com política anterior até portão remoto específico;

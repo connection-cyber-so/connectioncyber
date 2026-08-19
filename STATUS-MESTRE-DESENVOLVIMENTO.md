@@ -4,9 +4,9 @@
 
 **Ambiente de trabalho:** staging
 
-**Atualizado em:** 18/08/2026
+**Atualizado em:** 19/08/2026
 
-**Versão do documento:** 2.3.0
+**Versão do documento:** 2.3.1
 
 **Produção alterada nesta fase:** não
 
@@ -282,7 +282,9 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Pós-testes: zero runs, steps, identidades, memberships ou roles sintéticas; contêiner descartável removido.
 - Inspeção visual automatizada ao vivo não foi concluída por falha interna do recurso de navegador; nenhuma aprovação visual foi presumida.
 - Pacote detalhado em `PACOTE-TECNICO-M04-G1-IDENTIDADE-RBAC-MFA.md` e `.html`.
-- Supabase remoto, Auth, Vercel, DNS, produção e dados reais permaneceram inalterados; zero contas, convites, roles ou fatores MFA criados.
+- Checkpoint `72b1e0a` publicado somente em `origin/staging`; Quality Gates `32212844513` concluídos com `site`, `platform` e `portal` aprovados.
+- Vercel Preview `dpl_DKNCxPwYHidoC1mmdYNcwjP3YEB4` em estado `Ready`; alias staging HTTP 200; configurações Vercel e DNS inalteradas.
+- Branch `main` preservada em `59a3924`; Supabase remoto, Auth, produção e dados reais permaneceram inalterados; zero contas, convites, roles ou fatores MFA criados.
 
 ## 6. Achados críticos ainda abertos
 
@@ -397,6 +399,7 @@ Comando de aceite sugerido: `M04-G1 pacote e laboratório aprovados; aplicar 001
 | 2.2.0 | 18/08/2026 | M04-G0 | M03 aprovado; identidade, sete personas, papéis, MFA, manifesto, provisionamento idempotente, riscos e testes do M04 especificados. | Parecer apresentado sem criar contas, convites, memberships, roles ou fatores MFA e sem alterar Supabase remoto, Vercel, DNS ou produção. |
 | 2.2.1 | 18/08/2026 | M04-G0 | Checkpoint `bbdc6cc`, Quality Gates `32210191254`, Vercel e Preview registrados. | `site`, `platform` e `portal` aprovados; HTTP 200; `main` preservada; nenhuma conta ou migration remota criada. |
 | 2.3.0 | 19/08/2026 | M04-G1 | Migration 0018, preflight, rollback, dry-run, sete personas, quatro telas, 9 testes Node e 49 pgTAP apresentados. | M02 38/38, M03 35/35, M04 49/49 e rebuild 49/49; build aprovado; zero resíduos; remoto inalterado. |
+| 2.3.1 | 19/08/2026 | M04-G1 | Checkpoint `72b1e0a`, Quality Gates `32212844513`, deployment Vercel e Preview HTTP 200 registrados. | `site`, `platform` e `portal` aprovados; `main` preservada; 0018 não aplicada e zero identidades criadas. |
 
 ## 12. Protocolo de atualização futura
 
