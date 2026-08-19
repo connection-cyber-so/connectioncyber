@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 1.8.0
+**Versão do documento:** 1.9.0
 
 **Produção alterada nesta fase:** não
 
@@ -209,22 +209,24 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Produção não foi alterada. O staging contém apenas a fundação e seus catálogos técnicos; não recebeu empresas, dados fiscais, A1, Mercado Pago ou backup legado pelo M02.
 - Aceite formal do M02 recebido em 18/08/2026; módulo promovido para `Aprovado` e análise M03 autorizada.
 
-### 5.7 M03 — portal e subdomínios em análise
+### 5.7 M03 — pacote de portal e subdomínios em revisão
 
-- O repositório ainda não possui `apps/portal`; nenhum código funcional M03 foi criado.
-- `apps/site` permanecerá institucional/alunos/pagamentos e `apps/platform` continuará exclusivo da equipe.
-- Arquitetura recomenda uma terceira aplicação Next.js App Router no mesmo monorepo e um projeto Vercel próprio com Root Directory `apps/portal`.
-- O contexto autorizado será a interseção de hostname ativo, tenant ativo, sessão validada e membership ativa.
-- `tenant_id` vindo do navegador, URL, formulário, query string ou armazenamento local não será autoridade.
-- O portal não usará `users.tenant_id`; a fonte será `erp_tenant_memberships`.
-- O modelo proposto adiciona `erp_tenant_domains` e um resolver público mínimo, sem SELECT anônimo direto na tabela.
-- Entrada central proposta: `portal.connectioncyber.com.br`; subdomínios piloto serão explícitos e cadastrados individualmente.
-- DNS atual usa `ns1.dns-parking.com`/`ns2.dns-parking.com`; wildcard Vercel exige nameservers, portanto nenhuma migração DNS ou wildcard está autorizada no M03 inicial.
-- Cookies serão host-only; não haverá compartilhamento amplo com `www` ou todos os subdomínios.
-- Staff não receberá bypass automático no portal: o guard exigirá membership ativa do próprio `auth.uid()`.
-- M03 entregará shell, hostname, sessão e isolamento; convites, usuários, RBAC e MFA permanecem no M04.
-- Parecer e desenho publicados em `PARECER-TECNICO-M03-PORTAL-SUBDOMINIOS.md` e `.html`.
-- Produção, Supabase remoto, Vercel, DNS, dados reais, fiscal, A1, Mercado Pago e backups não foram alterados nesta análise.
+- Parecer M03 aprovado formalmente em 18/08/2026; autorização limitada a apresentar código, SQL e testes sem aplicação remota.
+- Criado `apps/portal` em Next.js 15 App Router, separado de `apps/site` e `apps/platform`, com 36 arquivos de código/configuração e lock reproduzível.
+- Implementados login, logout, seleção multiempresa, troca de empresa, 403, 404, estado sem membership e shell ERP somente leitura.
+- Middleware renova a sessão com `getUser()`, sobrescreve o hostname interno da requisição e aplica `private, no-store`.
+- Guards puros exigem hostname resolvido, tenant ativo, usuário autenticado e membership ativa/vigente do próprio usuário.
+- Todos os formulários POST aplicam validação same-origin antes de processar autenticação ou sessão.
+- O portal ignora `tenant_id` enviado pelo navegador e não usa `users.tenant_id` como autoridade; staff sem membership não recebe bypass.
+- Cookie `cc_portal_membership` é opaco, host-only, `HttpOnly`, `SameSite=Lax`, `Secure` em produção e revalidado contra usuário/tenant.
+- Migration `0017_portal_tenant_resolution.sql` apresentada com `erp_tenant_domains`, normalização estrita, resolver público mínimo e policy multiempresa em `tenants`.
+- Preflight somente leitura, rollback bloqueado para laboratório e suíte pgTAP de 35 asserções foram apresentados.
+- Testes unitários locais: 19/19; TypeScript, lint e build Next.js aprovados.
+- Inspeção visual local em 1440 px e 360 px: HTTP 200, sem overflow horizontal ou erro de navegador; formulário corretamente bloqueado sem variáveis staging.
+- Job `portal` adicionado ao Quality Gates com `npm ci`, testes, type-check, lint e build.
+- Relatório do pacote em `PACOTE-TECNICO-M03-PORTAL.md` e `.html`.
+- A migration 0017, o preflight e os 35 testes pgTAP **não foram executados** neste portão; aguardam aceite para laboratório local descartável.
+- Nenhum Supabase remoto, projeto/domínio Vercel, DNS, dado real, produção, fiscal, A1, Mercado Pago ou backup foi alterado.
 
 ## 6. Achados críticos ainda abertos
 
@@ -251,7 +253,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M00 | Segurança e qualidade de staging | Aprovado | Migrations, variáveis, CI, Preview e smoke tests aprovados | Concluído e aceito em 18/08/2026. |
 | M01 | Arquitetura canônica multissegmento | Aprovado | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Concluído e aceito em 18/08/2026; nenhum schema aplicado. |
 | M02 | Fundação ERP multiempresa | Aprovado | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | Concluído e aceito em 18/08/2026; 0016 permanece somente em staging. |
-| M03 | Portal do cliente e subdomínios | Em análise | `apps/portal`, autenticação e resolução segura de hostname | Parecer/visual apresentados; aguarda aceite para preparar código, migration 0017 e testes sem aplicação remota. |
+| M03 | Portal do cliente e subdomínios | Pacote em revisão | `apps/portal`, autenticação e resolução segura de hostname | Código, 0017 e testes apresentados; aguarda aceite para preflight e laboratório local sem aplicação remota. |
 | M04 | Usuários, RBAC e MFA | Não iniciado | Papéis, permissões por ação e convites | Matriz de acesso validada; nenhuma senha legada migrada. |
 | M05 | Cadastros e catálogo universal | Não iniciado | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | Cinco segmentos representados sem fork ou dado real. |
 | M06 | Preços, estoque e compras | Não iniciado | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | Saldo sempre derivado do livro de movimentos; testes de concorrência aprovados. |
@@ -298,19 +300,19 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Apresentação do pacote implementável M03
+### Preflight e laboratório local da migration 0017
 
 Próxima sequência permitida:
 
-1. criar o esqueleto revisável de `apps/portal` somente na branch staging;
-2. apresentar middleware/guards, telas de login, seleção, 403, 404 e shell inicial;
-3. apresentar migration `0017_portal_tenant_resolution.sql`, preflight e rollback/forward-fix;
-4. apresentar testes unitários, pgTAP e matriz E2E, sem aplicação remota;
-5. adicionar o job `portal` ao CI e executar validações locais;
-6. não criar projeto/domínio Vercel nem alterar DNS neste portão;
-7. manter produção, dados reais, backup legado, fiscal, A1 e Mercado Pago fora.
+1. executar o preflight 0017 somente contra o laboratório local descartável;
+2. confirmar dry-run selecionando exclusivamente a migration 0017;
+3. aplicar 0017 localmente, nunca no Supabase remoto;
+4. executar as 35 asserções pgTAP e provas negativas de RLS;
+5. testar o rollback bloqueado, liberar com confirmações locais, reconstruir e repetir 35/35;
+6. demonstrar zero fixtures e zero resíduos depois do rollback;
+7. manter projeto/domínio Vercel, DNS, produção, dados reais, fiscal, A1, Mercado Pago e backup fora.
 
-Comando de aceite sugerido: `Parecer M03 aprovado; apresentar código, migration 0017 e testes do portal, sem aplicar remotamente.`
+Comando de aceite sugerido: `M03 código, SQL e testes aprovados; executar preflight, dry-run e laboratório local da 0017, sem aplicar remotamente.`
 
 ## 11. Histórico do documento
 
@@ -328,6 +330,7 @@ Comando de aceite sugerido: `Parecer M03 aprovado; apresentar código, migration
 | 1.6.0 | 18/08/2026 | M02 | Preflight, dry-run, aplicação local, 38 testes, rollback, reconstrução e nova passagem 38/38 executados. | Validado localmente; staging comprovadamente inalterado; aguarda autorização específica para aplicação remota. |
 | 1.7.0 | 18/08/2026 | M02 | Migration 0016 aplicada somente em staging; estrutura, catálogos, grants, lint, resíduos e suíte pgTAP remota verificados. | Validado em staging com 38/38; produção intocada; aguarda aceite formal para iniciar a análise M03. |
 | 1.8.0 | 18/08/2026 | M03 | M02 formalmente aprovado; inventário do portal, autenticação, Vercel e DNS; arquitetura, telas, modelo de domínio, riscos e portões M03 apresentados. | M03 em análise; nenhum código funcional, migration, Vercel, DNS, Supabase remoto ou produção alterado; aguarda aceite do parecer. |
+| 1.9.0 | 18/08/2026 | M03 | Parecer aprovado; `apps/portal`, migration 0017, preflight, rollback, 19 testes unitários, 35 asserções pgTAP e job CI apresentados. | Aplicação compilada e inspecionada localmente; SQL ainda não executado; aguarda aceite para laboratório local descartável. |
 
 ## 12. Protocolo de atualização futura
 
