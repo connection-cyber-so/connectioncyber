@@ -6,9 +6,9 @@
 
 **Data:** 18/08/2026
 
-**Versão:** 1.0.0
+**Versão:** 1.1.0
 
-**Estado:** código, migration e testes apresentados; SQL não executado
+**Estado:** preflight, dry-run, rollback e laboratório local aprovados; SQL remoto não executado
 
 **Produção alterada:** não
 
@@ -29,8 +29,9 @@ O pacote implementável do M03 foi criado somente na branch `staging`:
 - 19 testes unitários e 35 asserções pgTAP;
 - job `portal` no Quality Gates.
 
-Nenhuma parte da migration 0017 foi executada. Nenhum projeto Vercel, domínio,
-DNS, Supabase remoto, dado real ou produção foi modificado.
+A migration 0017 foi executada somente em bancos descartáveis de dois
+contêineres do laboratório, removidos ao final. Nenhum projeto Vercel, domínio, DNS,
+Supabase remoto, dado real ou produção foi modificado.
 
 ## 2. Fluxo de autorização implementado
 
@@ -124,7 +125,7 @@ Resultado: **19/19 aprovados**.
 - allowlist de redirect interno;
 - bloqueio same-origin em todos os formulários POST.
 
-### 5.2 pgTAP — apresentado, ainda não executado
+### 5.2 pgTAP — executado em duas passagens
 
 Arquivo: `supabase/tests/0017_portal_tenant_resolution.test.sql`.
 
@@ -139,8 +140,9 @@ Total: **35 asserções**, incluindo:
 - recusa de DML autenticado, domínio não verificado, hostname não canônico,
   domínio duplicado, primário pendente e segundo primário.
 
-A suíte somente será executada depois de aceite explícito para o laboratório
-local descartável.
+Resultado: **35/35 aprovados em duas passagens independentes**, antes e depois
+da destruição e reconstrução completa do laboratório. As fixtures foram
+executadas dentro de transação com rollback e deixaram zero resíduos.
 
 ## 6. Validações locais executadas
 
@@ -158,15 +160,23 @@ local descartável.
 | ambiente sem variáveis | formulário bloqueado e nenhum acesso a banco |
 | Quality Gates GitHub | execução 32203034263: site, platform e portal aprovados |
 | Preview staging existente | integração Vercel aprovada e HTTP 200 |
+| preflight local | `M03_PREFLIGHT_OK` em duas construções PostgreSQL 17.6 |
+| dry-run | somente `0017_portal_tenant_resolution.sql`; hash SHA-256 `ac08fb…90c79` |
+| primeira suíte pgTAP | 35/35 |
+| rollback sem confirmações | bloqueado, objetos preservados |
+| rollback com um domínio | bloqueado, dado e objetos preservados |
+| rollback confirmado e vazio | aprovado; somente objetos M03 removidos |
+| reconstrução completa | novo contêiner, migrations 0001–0017 e nova passagem 35/35 |
+| encerramento | contêiner e rede M03 removidos; zero fixtures e resíduos |
 
 ## 7. Arquivos SQL e política de correção
 
 | Arquivo | Estado |
 |---|---|
-| `supabase/migrations/0017_portal_tenant_resolution.sql` | apresentado, não aplicado |
-| `supabase/preflight/0017_portal_tenant_resolution_preflight.sql` | somente leitura, não executado |
-| `supabase/tests/0017_portal_tenant_resolution.test.sql` | 35 asserções, não executadas |
-| `supabase/rollback/0017_portal_tenant_resolution.rollback.sql` | destrutivo, bloqueado para uso exclusivamente local |
+| `supabase/migrations/0017_portal_tenant_resolution.sql` | validado localmente; não aplicado remotamente |
+| `supabase/preflight/0017_portal_tenant_resolution_preflight.sql` | somente leitura; aprovado duas vezes |
+| `supabase/tests/0017_portal_tenant_resolution.test.sql` | 35/35 em duas passagens |
+| `supabase/rollback/0017_portal_tenant_resolution.rollback.sql` | bloqueios e liberação local aprovados |
 
 Depois de qualquer futura aplicação remota, não será usado rollback destrutivo.
 Correções remotas serão migrations forward-fix com novo número e novo aceite.
@@ -175,8 +185,8 @@ Correções remotas serão migrations forward-fix com novo número e novo aceite
 
 | Risco | Estado | Próximo controle |
 |---|---|---|
-| erro sintático ou comportamento SQL | ainda não provado em banco | preflight + laboratório local + 35/35 |
-| migrations históricas criarem fixtures | conhecido | dry-run exclusivo 0017 e laboratório isolado |
+| erro sintático ou comportamento SQL | provado localmente | repetir preflight e 35/35 no staging após novo aceite |
+| migrations históricas criarem fixtures | controlado no laboratório | dry-run remoto deve selecionar exclusivamente 0017 |
 | variáveis de Preview apontarem para produção | não configuradas | portão próprio antes do projeto Vercel |
 | DNS/wildcard afetar site/e-mail | evitado | nenhum DNS neste portão |
 | usuário real não existir | esperado | M04 provisionará convites/RBAC/MFA |
@@ -187,19 +197,32 @@ Vercel já existente atualizou o Preview do site institucional automaticamente;
 nenhum projeto do portal, subdomínio, DNS, variável do portal ou banco foi
 criado ou reconfigurado.
 
+### 8.1 Ocorrências controladas do laboratório
+
+- A clonagem física inicial do baseline foi recusada por duas sessões internas
+  do PostgreSQL. Nenhum objeto foi criado; o dry-run aprovado usou snapshot
+  lógico, sem encerrar sessões.
+- Um banco vazio de `template0` não possuía o schema Supabase `auth` e foi
+  descartado antes da 0017.
+- A fixture referenciava a coluna instável `auth.users.email_confirmed_at`.
+  Ela foi tornada portátil usando apenas colunas essenciais.
+- A imagem local implementa `auth.uid()` pelo GUC `request.jwt.claim.sub`.
+  O harness passou a configurar esse valor e o JSON de claims, mantendo
+  compatibilidade com staging.
+- Após esses ajustes do teste, as duas passagens completas terminaram 35/35.
+
 ## 9. Próximo portão determinístico
 
 O próximo aceite permite somente:
 
-1. preflight no laboratório local descartável;
-2. dry-run contendo apenas 0017;
-3. aplicação local da 0017;
-4. execução 35/35;
-5. teste do bloqueio e da liberação consciente do rollback;
-6. reconstrução e repetição 35/35;
-7. comprovação de zero resíduos;
-8. nenhuma aplicação remota, Vercel, DNS ou produção.
+1. confirmar o vínculo com o projeto Supabase staging `ozvylnaipubrmaadikvk`;
+2. executar preflight remoto somente leitura;
+3. confirmar dry-run selecionando exclusivamente a 0017;
+4. aplicar 0017 somente no Supabase staging;
+5. executar as 35 provas remotamente dentro de transação com rollback;
+6. verificar histórico, grants, RLS, policies e zero fixtures;
+7. não criar projeto/domínio Vercel, DNS ou alterar produção.
 
 Frase sugerida:
 
-> **M03 código, SQL e testes aprovados; executar preflight, dry-run e laboratório local da 0017, sem aplicar remotamente.**
+> **M03 laboratório aprovado; aplicar 0017 exclusivamente no Supabase staging e executar validação remota.**

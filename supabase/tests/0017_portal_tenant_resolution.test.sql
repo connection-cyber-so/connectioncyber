@@ -102,27 +102,27 @@ values
   ('11000000-0000-4000-8000-000000000003', 'M03 Staff Home', 'm03-staff', 'assessoria', true);
 
 insert into auth.users (
-  id, aud, role, email, encrypted_password, email_confirmed_at,
+  id, aud, role, email, encrypted_password,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at
 )
 values
   (
     '21000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated',
-    'm03-a@example.invalid', '', now(),
+    'm03-a@example.invalid', '',
     '{"provider":"email","providers":["email"]}'::jsonb,
     '{"nome":"M03 User A","tenant_id":"11000000-0000-4000-8000-000000000002"}'::jsonb,
     now(), now()
   ),
   (
     '21000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated',
-    'm03-b@example.invalid', '', now(),
+    'm03-b@example.invalid', '',
     '{"provider":"email","providers":["email"]}'::jsonb,
     '{"nome":"M03 User B","tenant_id":"11000000-0000-4000-8000-000000000002"}'::jsonb,
     now(), now()
   ),
   (
     '21000000-0000-4000-8000-000000000003', 'authenticated', 'authenticated',
-    'm03-staff@example.invalid', '', now(),
+    'm03-staff@example.invalid', '',
     '{"provider":"email","providers":["email"]}'::jsonb,
     '{"nome":"M03 Staff","tenant_id":"11000000-0000-4000-8000-000000000003"}'::jsonb,
     now(), now()
@@ -193,6 +193,12 @@ select is(
 
 set local role authenticated;
 select set_config(
+  'request.jwt.claim.sub',
+  '21000000-0000-4000-8000-000000000001',
+  true
+);
+select set_config('request.jwt.claim.role', 'authenticated', true);
+select set_config(
   'request.jwt.claims',
   '{"sub":"21000000-0000-4000-8000-000000000001","role":"authenticated"}',
   true
@@ -220,6 +226,12 @@ select throws_ok(
 
 set local role postgres;
 set local role authenticated;
+select set_config(
+  'request.jwt.claim.sub',
+  '21000000-0000-4000-8000-000000000003',
+  true
+);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 select set_config(
   'request.jwt.claims',
   '{"sub":"21000000-0000-4000-8000-000000000003","role":"authenticated"}',

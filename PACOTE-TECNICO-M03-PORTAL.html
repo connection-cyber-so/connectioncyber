@@ -12,10 +12,10 @@
   <header>
     <h1>Pacote técnico M03</h1>
     <p style="font-size:1.2rem">Portal do cliente, subdomínios e isolamento multiempresa</p>
-    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.0.0</span><span class="pill">SQL não executado</span><span class="pill">Produção intocada</span></div>
+    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.1.0</span><span class="pill">Laboratório aprovado</span><span class="pill">Produção intocada</span></div>
   </header>
-  <div class="notice"><strong>Pacote apresentado.</strong> Aplicação, migration, preflight, rollback, testes e CI foram preparados. A 0017 não foi aplicada em banco local ou remoto.</div>
-  <div class="cards"><div class="card"><strong>19/19</strong>testes unitários</div><div class="card"><strong>35</strong>asserções pgTAP apresentadas</div><div class="card"><strong>36</strong>arquivos do portal</div><div class="card"><strong>0</strong>migrations aplicadas</div></div>
+  <div class="notice"><strong>Laboratório aprovado.</strong> Preflight, dry-run exclusivo, rollback protegido, reconstrução e duas passagens 35/35 foram concluídos. A 0017 não foi aplicada remotamente.</div>
+  <div class="cards"><div class="card"><strong>19/19</strong>testes unitários</div><div class="card"><strong>35/35 × 2</strong>provas pgTAP</div><div class="card"><strong>2/2</strong>bloqueios do rollback</div><div class="card"><strong>0</strong>resíduos locais</div></div>
 
   <h2>1. Autorização implementada</h2>
   <div class="flow"><div class="node">Hostname exato</div><div class="arrow">→</div><div class="node">Tenant ativo</div><div class="arrow">→</div><div class="node">Sessão getUser()</div><div class="arrow">→</div><div class="node">Membership própria</div><div class="arrow">→</div><div class="node">RLS</div><div class="arrow">→</div><div class="node">Portal ERP</div></div>
@@ -25,8 +25,8 @@
   <div class="table"><table><thead><tr><th>Entrega</th><th>Conteúdo</th><th>Estado</th></tr></thead><tbody>
     <tr><td><code>apps/portal</code></td><td>Login, logout, seletor multiempresa, 403, 404, sem vínculo e shell somente leitura.</td><td>Aprovado localmente</td></tr>
     <tr><td>Guards</td><td>Hostname, redirect, same-origin, vigência, tenant e membership do próprio usuário.</td><td>19/19</td></tr>
-    <tr><td>Migration 0017</td><td>Domínios canônicos, resolver mínimo e policy multiempresa em tenants.</td><td>Apresentada; não aplicada</td></tr>
-    <tr><td>SQL de controle</td><td>Preflight somente leitura, rollback local bloqueado e 35 pgTAP.</td><td>Apresentado; não executado</td></tr>
+    <tr><td>Migration 0017</td><td>Domínios canônicos, resolver mínimo e policy multiempresa em tenants.</td><td>Validada localmente; não aplicada remotamente</td></tr>
+    <tr><td>SQL de controle</td><td>Preflight somente leitura, rollback local bloqueado e 35 pgTAP.</td><td>Preflight × 2; pgTAP 35/35 × 2</td></tr>
     <tr><td>CI</td><td><code>npm ci</code>, teste, type-check, lint e build.</td><td>Execução 32203034263 aprovada</td></tr>
   </tbody></table></div>
 
@@ -40,14 +40,14 @@
   </tbody></table></div>
 
   <h2>4. Evidências locais</h2>
-  <ul><li>19/19 testes unitários.</li><li>TypeScript aprovado.</li><li>ESLint sem warning ou erro.</li><li>Build Next.js aprovado com 11 rotas e middleware.</li><li>Quality Gates 32203034263: site, platform e portal aprovados.</li><li>Preview staging existente: integração Vercel aprovada e HTTP 200.</li><li>Render desktop 1440 px e celular 360 px sem overflow.</li><li>Zero erro de navegador.</li><li>Sem variáveis, formulário bloqueado e nenhum banco acessado.</li></ul>
-  <div class="notice warning">As 35 asserções pgTAP ainda são especificação executável. Rodá-las exige aplicar a 0017 no laboratório local e depende do próximo aceite.</div>
+  <ul><li>19/19 testes unitários.</li><li>TypeScript, ESLint e build Next.js aprovados.</li><li>Preflight <code>M03_PREFLIGHT_OK</code> em duas construções PostgreSQL 17.6.</li><li>Dry-run aplicou somente 0017, hash <code>ac08fb…90c79</code>.</li><li>35/35 pgTAP em duas passagens independentes.</li><li>Rollback bloqueado sem confirmações e com domínio existente.</li><li>Rollback vazio removeu somente M03 e preservou M02.</li><li>Contêiner, rede, fixtures e banco dry-run: zero resíduos.</li><li>Quality Gates 32203034263 aprovados; Preview existente HTTP 200.</li></ul>
+  <div class="notice warning">A 0017 continua ausente no Supabase remoto. Aplicação em staging exige novo aceite e será seguida por 35 provas transacionais e verificação de zero fixtures.</div>
 
   <h2>5. Limites preservados</h2>
   <ul><li>Nenhum Supabase remoto ou produção alterado.</li><li>O Preview existente foi atualizado automaticamente pela branch staging; nenhum projeto/domínio do portal foi criado.</li><li>Nenhum DNS ou wildcard configurado.</li><li>Nenhum cliente, membership real, dado fiscal, A1, Mercado Pago ou backup inserido.</li><li>Rollback destrutivo bloqueado fora de laboratório local descartável.</li></ul>
 
   <h2>6. Próximo portão</h2>
-  <div class="gate"><strong>M03 código, SQL e testes aprovados; executar preflight, dry-run e laboratório local da 0017, sem aplicar remotamente.</strong><p>Esse aceite autoriza somente a prova local: preflight, 0017, 35/35, rollback, reconstrução, nova passagem 35/35 e limpeza de resíduos.</p></div>
+  <div class="gate"><strong>M03 laboratório aprovado; aplicar 0017 exclusivamente no Supabase staging e executar validação remota.</strong><p>Esse aceite autoriza somente o projeto staging: preflight, dry-run exclusivo, aplicação 0017, 35/35 transacional e verificação de zero fixtures. Produção, Vercel e DNS permanecem fora.</p></div>
   <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
 </main></body>
 </html>

@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 1.9.0
+**Versão do documento:** 2.0.0
 
 **Produção alterada nesta fase:** não
 
@@ -209,7 +209,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Produção não foi alterada. O staging contém apenas a fundação e seus catálogos técnicos; não recebeu empresas, dados fiscais, A1, Mercado Pago ou backup legado pelo M02.
 - Aceite formal do M02 recebido em 18/08/2026; módulo promovido para `Aprovado` e análise M03 autorizada.
 
-### 5.7 M03 — pacote de portal e subdomínios em revisão
+### 5.7 M03 — portal e subdomínios validados localmente
 
 - Parecer M03 aprovado formalmente em 18/08/2026; autorização limitada a apresentar código, SQL e testes sem aplicação remota.
 - Criado `apps/portal` em Next.js 15 App Router, separado de `apps/site` e `apps/platform`, com 36 arquivos de código/configuração e lock reproduzível.
@@ -220,14 +220,20 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - O portal ignora `tenant_id` enviado pelo navegador e não usa `users.tenant_id` como autoridade; staff sem membership não recebe bypass.
 - Cookie `cc_portal_membership` é opaco, host-only, `HttpOnly`, `SameSite=Lax`, `Secure` em produção e revalidado contra usuário/tenant.
 - Migration `0017_portal_tenant_resolution.sql` apresentada com `erp_tenant_domains`, normalização estrita, resolver público mínimo e policy multiempresa em `tenants`.
-- Preflight somente leitura, rollback bloqueado para laboratório e suíte pgTAP de 35 asserções foram apresentados.
+- Preflight `M03_PREFLIGHT_OK` aprovado em duas construções locais PostgreSQL 17.6.
+- Dry-run aplicou somente `0017_portal_tenant_resolution.sql` em snapshot lógico descartável; SHA-256 `ac08fb…90c79`.
+- Migration 0017 aplicada somente no laboratório Docker, com tabela, RLS, duas policies e funções comprovadas.
 - Testes unitários locais: 19/19; TypeScript, lint e build Next.js aprovados.
 - Inspeção visual local em 1440 px e 360 px: HTTP 200, sem overflow horizontal ou erro de navegador; formulário corretamente bloqueado sem variáveis staging.
 - Job `portal` adicionado ao Quality Gates com `npm ci`, testes, type-check, lint e build.
 - Checkpoint `285d103` publicado em `origin/staging`; Quality Gates `32203034263` concluído com `site`, `platform` e `portal` aprovados.
 - A integração Vercel existente concluiu o Preview de staging com sucesso e HTTP 200; o aplicativo `apps/portal` não foi provisionado nem recebeu domínio ou variáveis.
 - Relatório do pacote em `PACOTE-TECNICO-M03-PORTAL.md` e `.html`.
-- A migration 0017, o preflight e os 35 testes pgTAP **não foram executados** neste portão; aguardam aceite para laboratório local descartável.
+- Suíte pgTAP aprovada 35/35 antes e depois da destruição e reconstrução completa do laboratório.
+- Fixture pgTAP tornou-se portátil: removeu dependência de `email_confirmed_at` e configura claims no GUC local e no JSON Supabase.
+- Rollback recusou execução sem confirmações e com um domínio existente; após limpeza consciente, removeu somente objetos M03 e preservou M02.
+- Fixtures, banco dry-run, contêiner e rede M03 terminaram com zero resíduos; os demais contêineres locais permaneceram ativos.
+- A migration 0017 permanece **não aplicada no Supabase remoto** e aguarda novo aceite específico.
 - Nenhum Supabase remoto, projeto/domínio do portal, DNS, dado real, produção, fiscal, A1, Mercado Pago ou backup foi alterado.
 
 ## 6. Achados críticos ainda abertos
@@ -255,7 +261,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M00 | Segurança e qualidade de staging | Aprovado | Migrations, variáveis, CI, Preview e smoke tests aprovados | Concluído e aceito em 18/08/2026. |
 | M01 | Arquitetura canônica multissegmento | Aprovado | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Concluído e aceito em 18/08/2026; nenhum schema aplicado. |
 | M02 | Fundação ERP multiempresa | Aprovado | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | Concluído e aceito em 18/08/2026; 0016 permanece somente em staging. |
-| M03 | Portal do cliente e subdomínios | Pacote em revisão | `apps/portal`, autenticação e resolução segura de hostname | Código, 0017 e testes apresentados; aguarda aceite para preflight e laboratório local sem aplicação remota. |
+| M03 | Portal do cliente e subdomínios | Validado localmente | `apps/portal`, autenticação e resolução segura de hostname | Preflight, dry-run, rollback e duas passagens 35/35 aprovados; aguarda aplicação em staging. |
 | M04 | Usuários, RBAC e MFA | Não iniciado | Papéis, permissões por ação e convites | Matriz de acesso validada; nenhuma senha legada migrada. |
 | M05 | Cadastros e catálogo universal | Não iniciado | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | Cinco segmentos representados sem fork ou dado real. |
 | M06 | Preços, estoque e compras | Não iniciado | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | Saldo sempre derivado do livro de movimentos; testes de concorrência aprovados. |
@@ -302,19 +308,19 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Preflight e laboratório local da migration 0017
+### Aplicação controlada da migration 0017 no Supabase staging
 
 Próxima sequência permitida:
 
-1. executar o preflight 0017 somente contra o laboratório local descartável;
-2. confirmar dry-run selecionando exclusivamente a migration 0017;
-3. aplicar 0017 localmente, nunca no Supabase remoto;
-4. executar as 35 asserções pgTAP e provas negativas de RLS;
-5. testar o rollback bloqueado, liberar com confirmações locais, reconstruir e repetir 35/35;
-6. demonstrar zero fixtures e zero resíduos depois do rollback;
+1. confirmar o vínculo com o projeto staging `ozvylnaipubrmaadikvk`;
+2. repetir o preflight somente leitura no Supabase staging;
+3. confirmar dry-run selecionando exclusivamente a migration 0017;
+4. aplicar 0017 somente no Supabase staging;
+5. executar as 35 asserções remotamente dentro de transação com rollback;
+6. verificar histórico, grants, RLS, policies e zero fixtures sintéticas;
 7. manter projeto/domínio Vercel, DNS, produção, dados reais, fiscal, A1, Mercado Pago e backup fora.
 
-Comando de aceite sugerido: `M03 código, SQL e testes aprovados; executar preflight, dry-run e laboratório local da 0017, sem aplicar remotamente.`
+Comando de aceite sugerido: `M03 laboratório aprovado; aplicar 0017 exclusivamente no Supabase staging e executar validação remota.`
 
 ## 11. Histórico do documento
 
@@ -334,6 +340,7 @@ Comando de aceite sugerido: `M03 código, SQL e testes aprovados; executar prefl
 | 1.8.0 | 18/08/2026 | M03 | M02 formalmente aprovado; inventário do portal, autenticação, Vercel e DNS; arquitetura, telas, modelo de domínio, riscos e portões M03 apresentados. | M03 em análise; nenhum código funcional, migration, Vercel, DNS, Supabase remoto ou produção alterado; aguarda aceite do parecer. |
 | 1.9.0 | 18/08/2026 | M03 | Parecer aprovado; `apps/portal`, migration 0017, preflight, rollback, 19 testes unitários, 35 asserções pgTAP e job CI apresentados. | Aplicação compilada e inspecionada localmente; SQL ainda não executado; aguarda aceite para laboratório local descartável. |
 | 1.9.1 | 18/08/2026 | M03 | Checkpoint `285d103`, Quality Gates `32203034263` e Preview staging registrados. | `site`, `platform` e `portal` aprovados; HTTP 200; 0017 permanece não executada. |
+| 2.0.0 | 18/08/2026 | M03 | Preflight, dry-run exclusivo, 0017 local, rollback protegido, reconstrução e duas passagens 35/35. | Validado localmente com zero resíduos; Supabase remoto e produção inalterados. |
 
 ## 12. Protocolo de atualização futura
 
