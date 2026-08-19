@@ -12,7 +12,7 @@
   <header>
     <h1>Pacote técnico M03</h1>
     <p style="font-size:1.2rem">Portal do cliente, subdomínios e isolamento multiempresa</p>
-    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.2.0</span><span class="pill">Validado em staging</span><span class="pill">Produção intocada</span></div>
+    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.2.1</span><span class="pill">Validado em staging</span><span class="pill">Produção intocada</span></div>
   </header>
   <div class="notice"><strong>M03 validado em staging.</strong> A migration 0017 foi aplicada exclusivamente no projeto <code>ozvylnaipubrmaadikvk</code> após preflight e dry-run exclusivo. A suíte remota terminou 35/35 com rollback e zero fixtures.</div>
   <div class="cards"><div class="card"><strong>19/19</strong>testes unitários</div><div class="card"><strong>35/35 × 3</strong>duas passagens locais + uma remota</div><div class="card"><strong>0</strong>erros no lint remoto</div><div class="card"><strong>0</strong>fixtures remotas</div></div>
@@ -40,7 +40,7 @@
   </tbody></table></div>
 
   <h2>4. Evidências locais e remotas</h2>
-  <ul><li>19/19 testes unitários; TypeScript, ESLint e build Next.js aprovados.</li><li>Preflight local em duas construções e preflight remoto <code>M03_PREFLIGHT_OK</code> no PostgreSQL 17.6.</li><li>Dry-run remoto selecionou somente 0017, sem seeds ou roles; hash <code>ac08fb…90c79</code>.</li><li>Histórico remoto 0001–0017 alinhado após a aplicação exclusiva em staging.</li><li>Tabela, RLS, 2 policies, 12 constraints, 6 índices, trigger, funções e grants comprovados.</li><li>Lint remoto de <code>public</code> e <code>erp_security</code>: zero erros.</li><li>35/35 pgTAP em duas passagens locais e uma remota transacional.</li><li>Zero fixtures e zero linhas em <code>erp_tenant_domains</code> após o rollback remoto.</li><li>Checkpoint local <code>563a669</code>; Quality Gates <code>32204837889</code> aprovados; Preview existente HTTP 200.</li></ul>
+  <ul><li>19/19 testes unitários; TypeScript, ESLint e build Next.js aprovados.</li><li>Preflight local em duas construções e preflight remoto <code>M03_PREFLIGHT_OK</code> no PostgreSQL 17.6.</li><li>Dry-run remoto selecionou somente 0017, sem seeds ou roles; hash <code>ac08fb…90c79</code>.</li><li>Histórico remoto 0001–0017 alinhado após a aplicação exclusiva em staging.</li><li>Tabela, RLS, 2 policies, 12 constraints, 6 índices, trigger, funções e grants comprovados.</li><li>Lint remoto de <code>public</code> e <code>erp_security</code>: zero erros.</li><li>35/35 pgTAP em duas passagens locais e uma remota transacional.</li><li>Zero fixtures e zero linhas em <code>erp_tenant_domains</code> após o rollback remoto.</li><li>Checkpoint <code>0111056</code>; Quality Gates <code>32206753538</code> com site, platform e portal aprovados.</li><li>Vercel <code>success</code>, alias staging HTTP 200 e <code>main</code> preservada em <code>59a3924</code>.</li></ul>
   <div class="notice">A 0017 existe somente no Supabase staging. Correções remotas, se necessárias, serão forward-fix com novo número e novo aceite; rollback destrutivo remoto permanece proibido.</div>
 
   <h2>5. Limites preservados</h2>

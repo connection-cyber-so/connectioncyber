@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 2.1.0
+**Versão do documento:** 2.1.1
 
 **Produção alterada nesta fase:** não
 
@@ -243,6 +243,8 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Grants remotos comprovados: `anon` executa somente o resolver público; `authenticated` lê sob RLS e não possui DML; normalizador privado limitado ao `service_role`.
 - Suíte pgTAP remota: 35/35 dentro de transação com rollback; zero fixtures de tenants, usuários, memberships, papéis e domínios depois da execução.
 - Lint remoto dos schemas `public` e `erp_security`: zero erros; `erp_tenant_domains` permanece com zero linhas.
+- Checkpoint remoto `0111056` publicado somente em `origin/staging`; Quality Gates `32206753538` com `site`, `platform` e `portal` aprovados.
+- Integração Vercel concluída com status `success`; alias de staging HTTP 200. A branch `main` permaneceu em `59a3924`.
 - Nenhum projeto/domínio do portal, Vercel, DNS, dado real, produção, fiscal, A1, Mercado Pago ou backup foi alterado.
 
 ## 6. Achados críticos ainda abertos
@@ -351,6 +353,7 @@ Comando de aceite sugerido: `M03 staging aprovado; iniciar análise M04 — usu�
 | 2.0.0 | 18/08/2026 | M03 | Preflight, dry-run exclusivo, 0017 local, rollback protegido, reconstrução e duas passagens 35/35. | Validado localmente com zero resíduos; Supabase remoto e produção inalterados. |
 | 2.0.1 | 18/08/2026 | M03 | Checkpoint `563a669`, Quality Gates `32204837889`, Vercel success e Preview HTTP 200 registrados. | Evidências publicadas em staging; 0017 continua ausente no Supabase remoto. |
 | 2.1.0 | 18/08/2026 | M03 | Preflight e dry-run remotos, aplicação exclusiva da 0017 em staging, histórico, estrutura, grants, RLS, policies, lint, 35 pgTAP e resíduos verificados. | Validado em staging com 35/35 e zero fixtures; produção, Vercel, DNS e dados reais intocados; aguarda aceite formal do M03. |
+| 2.1.1 | 18/08/2026 | M03 | Checkpoint `0111056`, Quality Gates `32206753538`, status Vercel e Preview HTTP 200 registrados. | `site`, `platform` e `portal` aprovados; `main` permaneceu em `59a3924`; M03 aguarda aceite formal. |
 
 ## 12. Protocolo de atualização futura
 

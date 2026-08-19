@@ -6,7 +6,7 @@
 
 **Data:** 18/08/2026
 
-**Versão:** 1.2.0
+**Versão:** 1.2.1
 
 **Estado:** validado no Supabase staging; aguarda aceite formal do M03
 
@@ -180,6 +180,9 @@ domínios sintéticos remanescentes.
 | lint remoto | zero erros nos schemas `public` e `erp_security` |
 | suíte pgTAP remota | 35/35 dentro de transação com rollback |
 | resíduos remotos | zero fixtures e zero linhas em `erp_tenant_domains` |
+| checkpoint remoto | `0111056` publicado somente em `origin/staging` |
+| Quality Gates final | execução `32206753538`: `site`, `platform` e `portal` aprovados |
+| Vercel/Preview final | status `success`; alias staging HTTP 200 |
 
 ## 7. Arquivos SQL e política de correção
 
@@ -209,6 +212,11 @@ O Quality Gate `32204837889` aprovou `site`, `platform` e `portal`. A integraç�
 Vercel já existente atualizou o Preview do site institucional automaticamente;
 nenhum projeto do portal, subdomínio, DNS, variável do portal ou banco foi
 criado ou reconfigurado.
+
+O checkpoint remoto `0111056` registrou a validação da 0017 e foi publicado
+somente em `origin/staging`. O Quality Gate `32206753538` aprovou novamente
+`site`, `platform` e `portal`; o status Vercel concluiu com sucesso e o alias de
+staging respondeu HTTP 200. A branch `main` permaneceu em `59a3924`.
 
 ### 8.1 Ocorrências controladas do laboratório
 
