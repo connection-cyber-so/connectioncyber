@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 2.2.0
+**Versão do documento:** 2.2.1
 
 **Produção alterada nesta fase:** não
 
@@ -262,6 +262,8 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Produção exigirá convite para endereço real, recuperação funcional e MFA para funções privilegiadas; nenhuma senha legada será migrada.
 - Riscos críticos identificados: confiança em `raw_user_meta_data`, fallback automático para o tenant ConnectionCyber, JWT de tenant único, política de senha fraca, TOTP desligado, `search_path` mutável e policies de profiles concedidas ao pseudo-papel `public`.
 - Próxima etapa permanece somente de código e especificação: migration 0018, provisionador em dry-run, telas e testes; Supabase remoto continuará inalterado até novo aceite.
+- Checkpoint `bbdc6cc` publicado somente em `origin/staging`; Quality Gates `32210191254` aprovados em `site`, `platform` e `portal`, Vercel `success` e Preview HTTP 200.
+- Branch `main` preservada em `59a3924`; pastas de referência permaneceram fora do commit.
 
 ## 6. Achados críticos ainda abertos
 
@@ -374,6 +376,7 @@ Comando de aceite sugerido: `M04-G0 aprovado; apresentar migration 0018, provisi
 | 2.1.0 | 18/08/2026 | M03 | Preflight e dry-run remotos, aplicação exclusiva da 0017 em staging, histórico, estrutura, grants, RLS, policies, lint, 35 pgTAP e resíduos verificados. | Validado em staging com 35/35 e zero fixtures; produção, Vercel, DNS e dados reais intocados; aguarda aceite formal do M03. |
 | 2.1.1 | 18/08/2026 | M03 | Checkpoint `0111056`, Quality Gates `32206753538`, status Vercel e Preview HTTP 200 registrados. | `site`, `platform` e `portal` aprovados; `main` permaneceu em `59a3924`; M03 aguarda aceite formal. |
 | 2.2.0 | 18/08/2026 | M04-G0 | M03 aprovado; identidade, sete personas, papéis, MFA, manifesto, provisionamento idempotente, riscos e testes do M04 especificados. | Parecer apresentado sem criar contas, convites, memberships, roles ou fatores MFA e sem alterar Supabase remoto, Vercel, DNS ou produção. |
+| 2.2.1 | 18/08/2026 | M04-G0 | Checkpoint `bbdc6cc`, Quality Gates `32210191254`, Vercel e Preview registrados. | `site`, `platform` e `portal` aprovados; HTTP 200; `main` preservada; nenhuma conta ou migration remota criada. |
 
 ## 12. Protocolo de atualização futura
 

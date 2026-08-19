@@ -6,7 +6,7 @@
 
 **Data:** 18/08/2026
 
-**Versão:** 1.0.0
+**Versão:** 1.0.1
 
 **Estado:** arquitetura e critérios definidos; nenhuma conta criada
 
@@ -237,7 +237,16 @@ Referências oficiais:
 | auditoria | ator, tenant, ação, correlação, resultado e horário presentes |
 | limpeza | remove somente contas sintéticas vencidas e sem vínculo real |
 
-## 13. Critérios do próximo portão
+## 13. Checkpoint técnico
+
+- Commit documental `bbdc6cc` publicado exclusivamente em `origin/staging`.
+- Quality Gates `32210191254`: `site`, `platform` e `portal` concluídos com sucesso.
+- Integração Vercel concluída com estado `success`; Preview de staging respondeu HTTP 200.
+- Branch `main` permaneceu em `59a3924abe853af355c92ff19cc72766c5a907a6`.
+- Pastas locais `icones/` e `modelo exemplo/` continuaram fora do commit.
+- Zero contas, convites, memberships, roles, fatores MFA ou migrations remotas criados.
+
+## 14. Critérios do próximo portão
 
 O M04-G1 poderá apresentar código, migration e testes, mas continuará sem criar
 usuários ou aplicar SQL remotamente. Para avançar, deverá entregar:

@@ -12,7 +12,7 @@
   <header>
     <h1>Parecer M04-G0</h1>
     <p style="font-size:1.2rem">Identidade de teste, RBAC, MFA e provisionamento seguro</p>
-    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.0.0</span><span class="pill">Somente análise</span><span class="pill">Zero contas criadas</span></div>
+    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.0.1</span><span class="pill">Somente análise</span><span class="pill">Zero contas criadas</span></div>
   </header>
 
   <div class="notice"><strong>Decisão:</strong> e-mail autentica a pessoa, mas não concede empresa ou privilégio. O acesso exige sessão válida, membership ativa, papel por tenant, permissão explícita e MFA quando a ação for sensível.</div>
@@ -63,7 +63,10 @@
   <div class="flow"><div class="node">Preflight</div><div class="arrow">→</div><div class="node">Dry-run</div><div class="arrow">→</div><div class="node">Auth server-only</div><div class="arrow">→</div><div class="node">Perfil</div><div class="arrow">→</div><div class="node">Membership + papel</div><div class="arrow">→</div><div class="node">Auditoria</div></div>
   <ul><li>Manifesto versionado sem senha ou segredo.</li><li>Chave idempotente impede duplicidade.</li><li>Auth e SQL usam workflow retomável com compensação explícita.</li><li>Senha aleatória e exclusiva; nenhum segredo no Git ou log.</li><li>Limpeza limitada a contas sintéticas marcadas e sem dado real.</li></ul>
 
-  <h2>7. Próximo portão</h2>
+  <h2>7. Checkpoint técnico</h2>
+  <ul><li>Commit <code>bbdc6cc</code> publicado somente em <code>origin/staging</code>.</li><li>Quality Gates <code>32210191254</code>: site, platform e portal aprovados.</li><li>Vercel <code>success</code> e Preview de staging HTTP 200.</li><li><code>main</code> preservada em <code>59a3924abe853af355c92ff19cc72766c5a907a6</code>.</li><li>Pastas de referência fora do commit.</li><li>Zero contas, vínculos, papéis, MFA ou migrations remotas criados.</li></ul>
+
+  <h2>8. Próximo portão</h2>
   <div class="gate"><strong>M04-G0 aprovado; apresentar migration 0018, provisionador dry-run, telas e testes, sem criar usuários ou aplicar remotamente.</strong><p>O próximo aceite permite código e especificação somente em staging. Nenhuma conta, convite, fator MFA, migration remota, DNS, Vercel ou produção será alterada.</p></div>
 
   <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
