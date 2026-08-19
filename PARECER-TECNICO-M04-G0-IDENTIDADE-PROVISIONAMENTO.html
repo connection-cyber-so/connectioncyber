@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ConnectionCyber — Parecer M04-G0</title>
+  <style>
+    :root{--o:#F6851F;--r:#E01F27;--g:#2C9C48;--t:#1E9680;--ink:#14222d;--muted:#62717b;--line:#d9e2e6;--soft:#f4f7f8;--paper:#fff}*{box-sizing:border-box}body{margin:0;background:#edf2f3;color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(1200px,calc(100% - 28px));margin:24px auto;padding:clamp(24px,5vw,58px);background:var(--paper);box-shadow:0 16px 44px #10253218}h1,h2,h3{line-height:1.18}h1{margin:0;color:var(--r);font-size:clamp(2rem,5vw,3.1rem)}h2{margin-top:38px;border-bottom:2px solid var(--o);padding-bottom:8px}h3{color:var(--t)}.meta,.cards{display:flex;flex-wrap:wrap;gap:9px}.meta{margin:14px 0 24px}.pill{border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:var(--soft);color:var(--muted)}.notice{margin:20px 0;border-left:5px solid var(--g);padding:15px 17px;background:#edf8f0}.warning{border-color:var(--r);background:#fff2f2}.cards{margin:20px 0}.card{min-width:0;flex:1 1 190px;border:1px solid var(--line);border-top:4px solid var(--t);border-radius:9px;padding:16px}.card strong{display:block;color:var(--r);font-size:1.45rem}.flow{display:flex;gap:7px;align-items:center;margin:18px 0;border:1px solid var(--line);border-radius:10px;padding:18px;background:linear-gradient(135deg,#fff,var(--soft))}.node{min-width:0;flex:1;border:2px solid var(--t);border-radius:8px;padding:12px 7px;text-align:center;font-weight:750}.arrow{flex:0 0 auto;color:var(--o);font-size:1.4rem}.table{max-width:100%;overflow:auto;margin:16px 0 24px}table{width:100%;min-width:760px;border-collapse:collapse}th,td{border-bottom:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}th{background:var(--soft)}code{border-radius:4px;padding:.08rem .3rem;background:var(--soft);overflow-wrap:anywhere}.gate{border:1px solid var(--line);border-left:5px solid var(--o);border-radius:9px;padding:18px;background:#fffaf5}li+li{margin-top:5px}footer{margin-top:40px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted)}@media(max-width:800px){main{width:100%;margin:0;padding:22px}.flow{display:grid;grid-template-columns:1fr}.arrow{transform:rotate(90deg);text-align:center}.cards{display:grid;grid-template-columns:1fr}}@media print{body{background:#fff}main{width:100%;margin:0;padding:0;box-shadow:none}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <h1>Parecer M04-G0</h1>
+    <p style="font-size:1.2rem">Identidade de teste, RBAC, MFA e provisionamento seguro</p>
+    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.0.0</span><span class="pill">Somente análise</span><span class="pill">Zero contas criadas</span></div>
+  </header>
+
+  <div class="notice"><strong>Decisão:</strong> e-mail autentica a pessoa, mas não concede empresa ou privilégio. O acesso exige sessão válida, membership ativa, papel por tenant, permissão explícita e MFA quando a ação for sensível.</div>
+  <div class="cards"><div class="card"><strong>3</strong>usuários/perfis atuais</div><div class="card"><strong>0</strong>memberships ERP</div><div class="card"><strong>0</strong>fatores MFA</div><div class="card"><strong>8</strong>permissões-base</div></div>
+
+  <h2>1. Como a autorização funcionará</h2>
+  <div class="flow"><div class="node">Supabase Auth</div><div class="arrow">→</div><div class="node">Usuário ativo</div><div class="arrow">→</div><div class="node">Membership</div><div class="arrow">→</div><div class="node">Papel do tenant</div><div class="arrow">→</div><div class="node">Permissão</div><div class="arrow">→</div><div class="node">MFA + auditoria</div></div>
+  <div class="notice warning"><strong>Deny-by-default:</strong> hostname, e-mail, <code>users.tenant_id</code>, metadata do navegador e papel global não autorizam dados ERP isoladamente.</div>
+
+  <h2>2. Fontes canônicas</h2>
+  <div class="table"><table><thead><tr><th>Camada</th><th>Fonte</th><th>Responsabilidade</th></tr></thead><tbody>
+    <tr><td>Identidade</td><td><code>auth.users</code></td><td>Sessão, principal e fatores MFA.</td></tr>
+    <tr><td>Perfil</td><td><code>public.users</code></td><td>Nome e estado; tenant legado não autoriza.</td></tr>
+    <tr><td>Equipe</td><td><code>roles/user_roles</code></td><td>Papéis globais da ConnectionCyber.</td></tr>
+    <tr><td>Empresa</td><td><code>erp_tenant_memberships</code></td><td>Participação ativa e vigente no tenant.</td></tr>
+    <tr><td>RBAC ERP</td><td><code>erp_roles/*permissions</code></td><td>Papel e ação permitida por tenant.</td></tr>
+    <tr><td>Auditoria</td><td><code>erp_audit_events</code></td><td>Ator, tenant, ação, resultado e correlação.</td></tr>
+  </tbody></table></div>
+
+  <h2>3. Riscos que o M04 deve corrigir</h2>
+  <div class="table"><table><thead><tr><th>Risco</th><th>Severidade</th><th>Tratamento</th></tr></thead><tbody>
+    <tr><td><code>tenant_id</code> aceito de <code>raw_user_meta_data</code></td><td>Crítica</td><td>Tenant somente por comando administrativo server-only.</td></tr>
+    <tr><td>Fallback automático para ConnectionCyber</td><td>Alta</td><td>Perfil sem tenant autoritativo; membership separada.</td></tr>
+    <tr><td>JWT legado com um único tenant</td><td>Alta</td><td>Autorizar por membership e RLS; não fixar tenant ativo no token.</td></tr>
+    <tr><td>Signup aberto, senha local fraca e confirmação desligada</td><td>Alta</td><td>Política explícita por ambiente e signup do portal fechado.</td></tr>
+    <tr><td>TOTP desligado</td><td>Alta</td><td>Provar AAL2 para owner, admin e equipe.</td></tr>
+    <tr><td>RBAC global confundido com RBAC empresarial</td><td>Alta</td><td>Separação rígida entre <code>user_roles</code> e <code>erp_*</code>.</td></tr>
+  </tbody></table></div>
+
+  <h2>4. Identidades de teste</h2>
+  <div class="table"><table><thead><tr><th>Uso</th><th>Padrão</th><th>Regra</th></tr></thead><tbody>
+    <tr><td>Automação descartável</td><td><code>owner-a@example.invalid</code></td><td>Transação ou laboratório com limpeza total.</td></tr>
+    <tr><td>UAT persistente staging</td><td><code>qa+cliente@connectioncyber.com.br</code></td><td>Alias controlado e recebimento previamente testado.</td></tr>
+    <tr><td>Produção futura</td><td>E-mail real do responsável</td><td>Convite, recuperação funcional e MFA.</td></tr>
+  </tbody></table></div>
+  <p>Antes das 14 contas, serão usadas sete personas: proprietários A/B, multiempresa, staff sem membership, suspenso, convidado e privilegiado AAL1/AAL2.</p>
+
+  <h2>5. RBAC proposto</h2>
+  <div class="table"><table><thead><tr><th>Papel</th><th>Escopo</th><th>Controle</th></tr></thead><tbody>
+    <tr><td><code>owner</code></td><td>Responsável máximo do tenant</td><td>MFA obrigatório; concede administradores.</td></tr>
+    <tr><td><code>admin</code></td><td>Gestão operacional e usuários</td><td>MFA obrigatório; não transfere propriedade.</td></tr>
+    <tr><td><code>manager</code></td><td>Operação e relatórios</td><td>Sem identidade sensível.</td></tr>
+    <tr><td><code>operator</code></td><td>Rotina diária</td><td>Sem RBAC ou configuração global.</td></tr>
+    <tr><td><code>viewer</code></td><td>Leitura controlada</td><td>Nenhuma escrita.</td></tr>
+  </tbody></table></div>
+
+  <h2>6. Provisionamento idempotente</h2>
+  <div class="flow"><div class="node">Preflight</div><div class="arrow">→</div><div class="node">Dry-run</div><div class="arrow">→</div><div class="node">Auth server-only</div><div class="arrow">→</div><div class="node">Perfil</div><div class="arrow">→</div><div class="node">Membership + papel</div><div class="arrow">→</div><div class="node">Auditoria</div></div>
+  <ul><li>Manifesto versionado sem senha ou segredo.</li><li>Chave idempotente impede duplicidade.</li><li>Auth e SQL usam workflow retomável com compensação explícita.</li><li>Senha aleatória e exclusiva; nenhum segredo no Git ou log.</li><li>Limpeza limitada a contas sintéticas marcadas e sem dado real.</li></ul>
+
+  <h2>7. Próximo portão</h2>
+  <div class="gate"><strong>M04-G0 aprovado; apresentar migration 0018, provisionador dry-run, telas e testes, sem criar usuários ou aplicar remotamente.</strong><p>O próximo aceite permite código e especificação somente em staging. Nenhuma conta, convite, fator MFA, migration remota, DNS, Vercel ou produção será alterada.</p></div>
+
+  <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
+</main></body>
+</html>

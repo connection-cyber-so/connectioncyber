@@ -6,7 +6,7 @@
 
 **Atualizado em:** 18/08/2026
 
-**Versão do documento:** 2.1.1
+**Versão do documento:** 2.2.0
 
 **Produção alterada nesta fase:** não
 
@@ -246,6 +246,22 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Checkpoint remoto `0111056` publicado somente em `origin/staging`; Quality Gates `32206753538` com `site`, `platform` e `portal` aprovados.
 - Integração Vercel concluída com status `success`; alias de staging HTTP 200. A branch `main` permaneceu em `59a3924`.
 - Nenhum projeto/domínio do portal, Vercel, DNS, dado real, produção, fiscal, A1, Mercado Pago ou backup foi alterado.
+- Aceite formal do M03 recebido em 18/08/2026; módulo promovido para `Aprovado` e M04-G0 autorizado.
+
+### 5.8 M04-G0 — identidade de teste e provisionamento seguro especificados
+
+- Parecer de arquitetura publicado em `PARECER-TECNICO-M04-G0-IDENTIDADE-PROVISIONAMENTO.md` e `.html`.
+- Auditoria remota somente leitura executada no Supabase staging `ozvylnaipubrmaadikvk`; nenhuma conta, convite, membership, role ou fator MFA foi criado.
+- Baseline remoto comprovado: 3 identidades Auth, 3 profiles, zero profiles ausentes, zero fatores MFA, zero memberships ERP, zero roles ERP e 8 permissões ERP.
+- As 7 roles legadas, 3 vínculos legados e 1 atribuição de equipe de plataforma foram preservados; `user_roles` e `erp_membership_roles` permanecem domínios distintos.
+- Arquitetura canônica definida como identidade única em `auth.users`, profile em `public.users`, participação multiempresa em `erp_tenant_memberships`, autorização em `erp_membership_roles` e MFA no Supabase Auth.
+- Definidas sete personas mínimas: owner de A, owner de B, usuário multiempresa, staff sem membership, usuário suspenso, convidado pendente e privilegiado em AAL1/AAL2.
+- Papéis iniciais propostos: `owner`, `admin`, `manager`, `operator` e `viewer`, sempre vinculados à membership do tenant.
+- Provisionamento futuro especificado como workflow server-only, idempotente, retomável e dirigido por manifesto; nenhum `service_role` poderá chegar ao navegador.
+- E-mails sintéticos em domínios de clientes foram proibidos. Automação efêmera usará `.invalid`; UAT persistente exigirá alias controlado e alcançável da ConnectionCyber.
+- Produção exigirá convite para endereço real, recuperação funcional e MFA para funções privilegiadas; nenhuma senha legada será migrada.
+- Riscos críticos identificados: confiança em `raw_user_meta_data`, fallback automático para o tenant ConnectionCyber, JWT de tenant único, política de senha fraca, TOTP desligado, `search_path` mutável e policies de profiles concedidas ao pseudo-papel `public`.
+- Próxima etapa permanece somente de código e especificação: migration 0018, provisionador em dry-run, telas e testes; Supabase remoto continuará inalterado até novo aceite.
 
 ## 6. Achados críticos ainda abertos
 
@@ -264,6 +280,9 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | R-011 | `module_catalog` mistura o conceito de serviço contratado com o de capacidade técnica do ERP. | Alta | Criar catálogo ERP próprio; manter o catálogo comercial existente sem reutilização semântica. |
 | R-012 | Acesso administrativo cross-tenant ainda depende do papel de equipe existente e não possui fluxo ERP auditado próprio. | Alta | Manter escrita server-only no M02 e implementar rotas administrativas auditadas no M03/M04. |
 | R-013 | A migration histórica `0006` contém povoamento e é reaplicada em resets locais. | Alta | Manter laboratório isolado; revisar política de fixtures históricas antes do M14/piloto; dry-run remoto deve continuar selecionando apenas migrations novas. |
+| R-014 | O trigger atual aceita `tenant_id` de `raw_user_meta_data` e usa o tenant ConnectionCyber como fallback. | Crítica | Remover autoridade de metadados do usuário; provisionar membership somente por workflow server-only e recusar contexto ausente. |
+| R-015 | Auth staging aceita senha mínima de 6 caracteres, não exige confirmação e está com TOTP desabilitado. | Crítica | Endurecer política, ativação, recuperação e MFA privilegiado por portões testáveis antes de qualquer UAT persistente. |
+| R-016 | Endereços sintéticos nos domínios dos clientes podem ser inalcançáveis ou futuramente pertencer a terceiros. | Alta | Usar `.invalid` em automação efêmera e aliases controlados ConnectionCyber em UAT; produção somente com e-mail real confirmado. |
 
 ## 7. Programa de módulos e portões
 
@@ -272,8 +291,8 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M00 | Segurança e qualidade de staging | Aprovado | Migrations, variáveis, CI, Preview e smoke tests aprovados | Concluído e aceito em 18/08/2026. |
 | M01 | Arquitetura canônica multissegmento | Aprovado | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Concluído e aceito em 18/08/2026; nenhum schema aplicado. |
 | M02 | Fundação ERP multiempresa | Aprovado | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | Concluído e aceito em 18/08/2026; 0016 permanece somente em staging. |
-| M03 | Portal do cliente e subdomínios | Validado em staging | `apps/portal`, autenticação e resolução segura de hostname | 0017 somente em staging, 35/35 remoto, lint e zero resíduos aprovados; aguarda aceite formal do M03. |
-| M04 | Usuários, RBAC e MFA | Não iniciado | Papéis, permissões por ação e convites | Matriz de acesso validada; nenhuma senha legada migrada. |
+| M03 | Portal do cliente e subdomínios | Aprovado | `apps/portal`, autenticação e resolução segura de hostname | Concluído e aceito em 18/08/2026; 0017 permanece somente em staging. |
+| M04 | Usuários, RBAC e MFA | Em análise | Identidade, memberships, papéis, convites, recuperação e MFA | G0 apresentado sem criar contas; aguarda aceite para 0018, dry-run, telas e testes. |
 | M05 | Cadastros e catálogo universal | Não iniciado | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | Cinco segmentos representados sem fork ou dado real. |
 | M06 | Preços, estoque e compras | Não iniciado | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | Saldo sempre derivado do livro de movimentos; testes de concorrência aprovados. |
 | M07 | Vendas, orçamento e PDV | Não iniciado | Orçamentos, vendas, pagamentos, caixa e comprovantes | Totais por dia/item/pagamento e estoque/caixa reconciliados. |
@@ -319,18 +338,18 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Aceite formal do M03 e análise do M04 — usuários, RBAC e MFA
+### Aceite do M04-G0 e apresentação controlada do M04-G1
 
 Próxima sequência permitida:
 
-1. revisar as evidências remotas e aprovar formalmente o M03;
-2. inventariar usuários, roles, memberships e fluxos de autenticação existentes;
-3. apresentar matriz RBAC por ação e tenant;
-4. definir convites, ativação, recuperação, MFA e trilha de auditoria;
-5. apresentar parecer, telas e critérios do M04 antes de escrever migration;
-6. manter Supabase remoto, Vercel, DNS, produção e dados reais inalterados.
+1. revisar e aprovar a arquitetura, as personas e os controles do parecer M04-G0;
+2. apresentar a migration `0018` para endurecimento de identidade e RBAC, sem aplicá-la;
+3. apresentar provisionador server-only em modo `dry-run`, sem chamar APIs administrativas;
+4. apresentar telas de convite, ativação, recuperação, membership, papéis e MFA;
+5. apresentar testes negativos cross-tenant, AAL1/AAL2, suspensão, expiração e idempotência;
+6. manter contas Auth, Supabase remoto, Vercel, DNS, produção e dados reais inalterados.
 
-Comando de aceite sugerido: `M03 staging aprovado; iniciar análise M04 — usuários, RBAC e MFA.`
+Comando de aceite sugerido: `M04-G0 aprovado; apresentar migration 0018, provisionador dry-run, telas e testes, sem criar usuários ou aplicar remotamente.`
 
 ## 11. Histórico do documento
 
@@ -354,6 +373,7 @@ Comando de aceite sugerido: `M03 staging aprovado; iniciar análise M04 — usu�
 | 2.0.1 | 18/08/2026 | M03 | Checkpoint `563a669`, Quality Gates `32204837889`, Vercel success e Preview HTTP 200 registrados. | Evidências publicadas em staging; 0017 continua ausente no Supabase remoto. |
 | 2.1.0 | 18/08/2026 | M03 | Preflight e dry-run remotos, aplicação exclusiva da 0017 em staging, histórico, estrutura, grants, RLS, policies, lint, 35 pgTAP e resíduos verificados. | Validado em staging com 35/35 e zero fixtures; produção, Vercel, DNS e dados reais intocados; aguarda aceite formal do M03. |
 | 2.1.1 | 18/08/2026 | M03 | Checkpoint `0111056`, Quality Gates `32206753538`, status Vercel e Preview HTTP 200 registrados. | `site`, `platform` e `portal` aprovados; `main` permaneceu em `59a3924`; M03 aguarda aceite formal. |
+| 2.2.0 | 18/08/2026 | M04-G0 | M03 aprovado; identidade, sete personas, papéis, MFA, manifesto, provisionamento idempotente, riscos e testes do M04 especificados. | Parecer apresentado sem criar contas, convites, memberships, roles ou fatores MFA e sem alterar Supabase remoto, Vercel, DNS ou produção. |
 
 ## 12. Protocolo de atualização futura
 
