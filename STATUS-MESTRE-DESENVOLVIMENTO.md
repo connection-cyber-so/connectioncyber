@@ -224,9 +224,11 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Testes unitários locais: 19/19; TypeScript, lint e build Next.js aprovados.
 - Inspeção visual local em 1440 px e 360 px: HTTP 200, sem overflow horizontal ou erro de navegador; formulário corretamente bloqueado sem variáveis staging.
 - Job `portal` adicionado ao Quality Gates com `npm ci`, testes, type-check, lint e build.
+- Checkpoint `285d103` publicado em `origin/staging`; Quality Gates `32203034263` concluído com `site`, `platform` e `portal` aprovados.
+- A integração Vercel existente concluiu o Preview de staging com sucesso e HTTP 200; o aplicativo `apps/portal` não foi provisionado nem recebeu domínio ou variáveis.
 - Relatório do pacote em `PACOTE-TECNICO-M03-PORTAL.md` e `.html`.
 - A migration 0017, o preflight e os 35 testes pgTAP **não foram executados** neste portão; aguardam aceite para laboratório local descartável.
-- Nenhum Supabase remoto, projeto/domínio Vercel, DNS, dado real, produção, fiscal, A1, Mercado Pago ou backup foi alterado.
+- Nenhum Supabase remoto, projeto/domínio do portal, DNS, dado real, produção, fiscal, A1, Mercado Pago ou backup foi alterado.
 
 ## 6. Achados críticos ainda abertos
 
@@ -331,6 +333,7 @@ Comando de aceite sugerido: `M03 código, SQL e testes aprovados; executar prefl
 | 1.7.0 | 18/08/2026 | M02 | Migration 0016 aplicada somente em staging; estrutura, catálogos, grants, lint, resíduos e suíte pgTAP remota verificados. | Validado em staging com 38/38; produção intocada; aguarda aceite formal para iniciar a análise M03. |
 | 1.8.0 | 18/08/2026 | M03 | M02 formalmente aprovado; inventário do portal, autenticação, Vercel e DNS; arquitetura, telas, modelo de domínio, riscos e portões M03 apresentados. | M03 em análise; nenhum código funcional, migration, Vercel, DNS, Supabase remoto ou produção alterado; aguarda aceite do parecer. |
 | 1.9.0 | 18/08/2026 | M03 | Parecer aprovado; `apps/portal`, migration 0017, preflight, rollback, 19 testes unitários, 35 asserções pgTAP e job CI apresentados. | Aplicação compilada e inspecionada localmente; SQL ainda não executado; aguarda aceite para laboratório local descartável. |
+| 1.9.1 | 18/08/2026 | M03 | Checkpoint `285d103`, Quality Gates `32203034263` e Preview staging registrados. | `site`, `platform` e `portal` aprovados; HTTP 200; 0017 permanece não executada. |
 
 ## 12. Protocolo de atualização futura
 

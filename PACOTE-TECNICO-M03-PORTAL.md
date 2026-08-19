@@ -121,7 +121,8 @@ Resultado: **19/19 aprovados**.
 - entrada direta com uma empresa;
 - seletor ordenado com várias empresas;
 - cookie adulterado ou pertencente a outro usuário;
-- allowlist de redirect interno.
+- allowlist de redirect interno;
+- bloqueio same-origin em todos os formulários POST.
 
 ### 5.2 pgTAP — apresentado, ainda não executado
 
@@ -155,6 +156,8 @@ local descartável.
 | overflow horizontal | ausente |
 | erros de navegador | zero |
 | ambiente sem variáveis | formulário bloqueado e nenhum acesso a banco |
+| Quality Gates GitHub | execução 32203034263: site, platform e portal aprovados |
+| Preview staging existente | integração Vercel aprovada e HTTP 200 |
 
 ## 7. Arquivos SQL e política de correção
 
@@ -178,6 +181,11 @@ Correções remotas serão migrations forward-fix com novo número e novo aceite
 | DNS/wildcard afetar site/e-mail | evitado | nenhum DNS neste portão |
 | usuário real não existir | esperado | M04 provisionará convites/RBAC/MFA |
 | escrita ERP | fora de escopo | módulos M04+ com comandos auditados |
+
+O checkpoint `285d103` foi publicado somente na branch `staging`. A integração
+Vercel já existente atualizou o Preview do site institucional automaticamente;
+nenhum projeto do portal, subdomínio, DNS, variável do portal ou banco foi
+criado ou reconfigurado.
 
 ## 9. Próximo portão determinístico
 
