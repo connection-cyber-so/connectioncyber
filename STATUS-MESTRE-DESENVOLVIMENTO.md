@@ -304,6 +304,9 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Autorização da 0020 recebida; preflight e dry-run selecionaram exclusivamente a migration; aplicação concluída no staging.
 - Pós-validação da 0020: `search_path` vazio, `anon` sem EXECUTE em `is_platform_staff()`, authenticated/service_role preservados e histórico `0001–0020` sincronizado.
 - Advisor final: zero erros de RLS, zero `search_path` mutável e zero acesso anônimo indevido ao painel; proteção contra senhas vazadas permanece como portão manual do Auth staging.
+- Dashboard Supabase acessado via GitHub; proteção contra senhas vazadas confirmada como recurso exclusivo do plano Pro+, indisponível no staging Free; nenhum upgrade realizado.
+- Limitação aceita somente para desenvolvimento; plano compatível ou controle compensatório permanece obrigatório antes do piloto/produção.
+- Vercel `connectioncyberso/connectioncyber` acessada via GitHub; produção `Ready` em `connectioncyber.com.br`; nenhuma configuração ou deployment alterado.
 
 ## 6. Achados críticos ainda abertos
 

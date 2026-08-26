@@ -66,6 +66,15 @@ autenticados do painel e a resolução pública de hostname do portal são inten
 
 ## Portão manual restante
 
-Ativar a proteção contra senhas vazadas no Auth do Supabase staging. Os outros quatro
-avisos de funções `SECURITY DEFINER` correspondem a RPCs intencionais do portal/painel e
-devem permanecer documentados e cobertos por testes de autorização.
+Acesso ao Dashboard confirmado via GitHub em 26/08/2026. O controle “Prevent use of
+leaked passwords” está disponível somente no plano Supabase Pro ou superior; a organização
+staging usa o plano Free. Nenhum upgrade ou compra foi realizado.
+
+O aviso fica aceito exclusivamente no staging gratuito. Antes do piloto/produção, o projeto
+deverá usar plano compatível ou implementar controle compensatório aprovado. Os outros
+quatro avisos de funções `SECURITY DEFINER` correspondem a RPCs intencionais do
+portal/painel e permanecem documentados e cobertos por testes de autorização.
+
+O acesso à Vercel também foi confirmado via GitHub: projeto
+`connectioncyberso/connectioncyber`, produção `Ready`, domínio
+`connectioncyber.com.br`. Nenhuma configuração ou deployment foi alterado.
