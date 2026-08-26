@@ -286,6 +286,25 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 - Vercel Preview `dpl_DKNCxPwYHidoC1mmdYNcwjP3YEB4` em estado `Ready`; alias staging HTTP 200; configurações Vercel e DNS inalteradas.
 - Branch `main` preservada em `59a3924`; Supabase remoto, Auth, produção e dados reais permaneceram inalterados; zero contas, convites, roles ou fatores MFA criados.
 
+### 5.10 M04-G2 — 0018 aplicada em staging; hardening RLS preparado
+
+- Em 26/08/2026, autorização explícita recebida para aplicar somente a migration `0018` no Supabase staging `ozvylnaipubrmaadikvk`, sem criar contas reais.
+- Preflight remoto retornou `M04_PREFLIGHT_OK`; o dry-run selecionou exclusivamente `0018_identity_rbac_mfa_hardening.sql`.
+- Migration 0018 aplicada com sucesso; histórico remoto sincronizado de `0001` a `0018`.
+- Pós-validação: 3 identidades Auth, 3 profiles, zero memberships, zero roles e zero registros nos ledgers de provisionamento; helpers AAL presentes.
+- Plataforma: 9/9 testes; site: 5/5 testes; type-check, lint e builds aprovados; produção permaneceu intocada.
+- Advisor de segurança revelou dívida crítica anterior: 16 tabelas legadas públicas sem RLS.
+- Migration `0019_harden_legacy_public_rls.sql`, preflight, rollback protegido e 21 testes pgTAP preparados somente no clone staging.
+- Dry-run remoto da 0019 confirmou que ela é a única migration pendente; aplicação remota permanece bloqueada até autorização específica.
+- Evidência detalhada: `EVIDENCIA-M04-G2-HARDENING-RLS.md`.
+- Autorização da 0019 recebida; primeira tentativa falhou de forma transacional por referência à coluna inexistente `products.ativo`, sem efeito parcial.
+- Política corrigida para `products.status = 'ativo'`; preflight e dry-run repetidos; migration 0019 aplicada com sucesso.
+- Pós-validação da 0019: 16/16 tabelas protegidas, zero alertas `rls_disabled_in_public`, seis políticas esperadas e nenhuma identidade/dado criado.
+- Migration `0020_harden_legacy_functions.sql` preparada para corrigir `search_path` de trigger e retirar acesso anônimo de `is_platform_staff()`; aplicação remota pendente.
+- Autorização da 0020 recebida; preflight e dry-run selecionaram exclusivamente a migration; aplicação concluída no staging.
+- Pós-validação da 0020: `search_path` vazio, `anon` sem EXECUTE em `is_platform_staff()`, authenticated/service_role preservados e histórico `0001–0020` sincronizado.
+- Advisor final: zero erros de RLS, zero `search_path` mutável e zero acesso anônimo indevido ao painel; proteção contra senhas vazadas permanece como portão manual do Auth staging.
+
 ## 6. Achados críticos ainda abertos
 
 | ID | Achado | Severidade | Tratamento obrigatório |
@@ -315,7 +334,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M01 | Arquitetura canônica multissegmento | Aprovado | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Concluído e aceito em 18/08/2026; nenhum schema aplicado. |
 | M02 | Fundação ERP multiempresa | Aprovado | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | Concluído e aceito em 18/08/2026; 0016 permanece somente em staging. |
 | M03 | Portal do cliente e subdomínios | Aprovado | `apps/portal`, autenticação e resolução segura de hostname | Concluído e aceito em 18/08/2026; 0017 permanece somente em staging. |
-| M04 | Usuários, RBAC e MFA | Validado localmente | Identidade, memberships, papéis, convites, recuperação e MFA | G1 aprovado no laboratório; 0018 não aplicada remotamente e zero contas criadas; aguarda aceite para staging. |
+| M04 | Usuários, RBAC e MFA | Staging aplicado; hardening pendente | Identidade, memberships, papéis, convites, recuperação e MFA | 0018 aplicada e validada em staging; 0019 corrige RLS legado antes do avanço para M05. |
 | M05 | Cadastros e catálogo universal | Não iniciado | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | Cinco segmentos representados sem fork ou dado real. |
 | M06 | Preços, estoque e compras | Não iniciado | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | Saldo sempre derivado do livro de movimentos; testes de concorrência aprovados. |
 | M07 | Vendas, orçamento e PDV | Não iniciado | Orçamentos, vendas, pagamentos, caixa e comprovantes | Totais por dia/item/pagamento e estoque/caixa reconciliados. |
@@ -361,18 +380,18 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Aceite do pacote M04-G1 e aplicação exclusiva da 0018 em staging
+### Aceite do hardening M04-G2 e aplicação exclusiva da 0019 em staging
 
 Próxima sequência permitida:
 
-1. revisar e aprovar migration, provisionador, telas, testes e riscos residuais do M04-G1;
+1. revisar a migration 0019, seu preflight, rollback e 21 testes pgTAP;
 2. executar preflight somente leitura no Supabase staging;
-3. confirmar SHA-256 e selecionar exclusivamente a migration `0018`;
-4. aplicar a 0018 somente no projeto staging `ozvylnaipubrmaadikvk`;
-5. validar estrutura, grants, RLS, policies, helpers, lint, resíduos e 49 pgTAP em transação com rollback;
-6. manter criação de contas, convites, memberships, roles por tenant, fatores MFA, Vercel, DNS e produção proibidos.
+3. confirmar que o dry-run seleciona exclusivamente `0019_harden_legacy_public_rls.sql`;
+4. aplicar a 0019 somente no projeto staging `ozvylnaipubrmaadikvk`;
+5. repetir advisors de segurança e validar que não restam tabelas públicas sem RLS;
+6. manter contas, dados reais, Vercel, DNS e produção inalterados.
 
-Comando de aceite sugerido: `M04-G1 pacote e laboratório aprovados; aplicar 0018 exclusivamente no Supabase staging e executar validação remota, sem criar contas, convites, memberships, roles ou fatores MFA.`
+Comando de aceite sugerido: `Autorizo aplicar exclusivamente a migration 0019 no Supabase de staging e executar a validação remota, sem criar contas ou dados reais.`
 
 ## 11. Histórico do documento
 
