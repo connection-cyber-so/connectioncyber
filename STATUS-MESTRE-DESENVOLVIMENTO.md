@@ -344,7 +344,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M08 | Financeiro e bancário | Aplicado e validado em staging | Receber, pagar, fluxo de caixa, cartões, cheques e boletos | 0024 aplicada; 64/64 asserções aprovadas; zero dados reais. |
 | M09 | Serviços e oficinas | Aplicado e validado em staging | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | 0025 aplicada; 68/68 asserções aprovadas; zero dados reais. |
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
-| M11 | Atendimento e acesso remoto | Não iniciado | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | MFA, consentimento, expiração e revogação comprovados. |
+| M11 | Atendimento e acesso remoto | Parecer técnico concluído; implementação local autorizada | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | MFA, consentimento, grant efêmero, expiração e revogação comprovados. |
 | M12 | Agente local e periféricos | Não iniciado | Impressão, etiqueta, balança, TEF e contingência/offline | Testes físicos no piloto sem segredo exposto. |
 | M13 | Fiscal e certificado A1 | Não iniciado | Perfis tributários, XML, NF-e/NFC-e e eventos | Homologação, contingência e ciclo do certificado aprovados. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
@@ -383,17 +383,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Parecer técnico do M11
+### Implementação local determinística do M11
 
-Próxima sequência automática:
+Próxima sequência permitida:
 
-1. auditar identidade, portal, RBAC e ativos aplicáveis ao suporte;
-2. definir tickets, SLA, filas, dispositivos, consentimento e sessões remotas;
-3. definir trilha de auditoria, expiração, revogação e segregação por tenant;
-4. documentar segurança, concorrência, idempotência e critérios de aceite;
-5. apresentar o parecer sem criar migration, ticket, sessão ou dado real.
+1. criar migration 0027, preflight, rollback e testes;
+2. implementar tickets, filas, SLA, dispositivos, consentimentos e sessões;
+3. implementar grants efêmeros, consumo único, expiração e revogação;
+4. criar serviços e telas da central de atendimento e acesso remoto;
+5. validar localmente e parar somente antes da aplicação remota da 0027.
 
-Após o parecer, a implementação local do M11 poderá continuar automaticamente; qualquer nova aplicação remota exigirá autorização específica.
+Esta sequência local continua automaticamente. O próximo aceite será exigido somente para aplicar a migration 0027 no Supabase staging.
 
 ## 11. Histórico do documento
 
@@ -438,6 +438,7 @@ Após o parecer, a implementação local do M11 poderá continuar automaticament
 | 3.8.0 | 27/08/2026 | M10-G0 | M09 aprovado por continuidade; receitas, adicionais, salão, comandas, cozinha, rateio e fechamento integrado documentados. | Parecer concluído; nenhuma migration M10 aplicada, nenhuma comanda ou venda criada e produção intocada. |
 | 3.9.0 | 27/08/2026 | M10-G1 | Migration 0026, duas RPCs, preflight, rollback, 72 testes e tela `/alimentacao` preparados. | TypeScript, ESLint e 9/9 testes Node aprovados; execução SQL e aplicação remota não iniciadas; produção intocada. |
 | 4.0.0 | 27/08/2026 | M10-G2 | Delimitadores SQL corrigidos após bloqueio seguro do primeiro preflight; preflight, dry-run e migration 0026 executados exclusivamente no staging. | 72/72 aprovados, zero registros M10, histórico alinhado, banco sem migrations pendentes e produção intocada. |
+| 4.1.0 | 27/08/2026 | M11-G0 | M10 aprovado por continuidade; tickets, SLA, filas, dispositivos, consentimento, grants efêmeros, sessões e auditoria documentados. | Parecer concluído; nenhuma migration M11 aplicada, nenhum ticket, grant ou sessão criado e produção intocada. |
 
 ## 12. Protocolo de atualização futura
 
