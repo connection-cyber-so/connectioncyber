@@ -7,6 +7,7 @@ const ITEMS = [
   { href: '/identidades', label: 'Identidades e acessos' },
   { href: '/cadastros', label: 'Cadastros ERP' },
   { href: '/catalogo', label: 'Catálogo universal' },
+  { href: '/operacoes', label: 'Preços, estoque e compras' },
   { href: '/diagnostics', label: 'Diagnóstico Digital' },
   { href: '/products', label: 'Produtos' },
   { href: '/offers', label: 'Ofertas' },

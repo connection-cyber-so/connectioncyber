@@ -339,7 +339,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M03 | Portal do cliente e subdomínios | Aprovado | `apps/portal`, autenticação e resolução segura de hostname | Concluído e aceito em 18/08/2026; 0017 permanece somente em staging. |
 | M04 | Usuários, RBAC e MFA | Aprovado em staging | Identidade, memberships, papéis, convites, recuperação, MFA e hardening | 0018–0020 aplicadas e validadas exclusivamente em staging. |
 | M05 | Cadastros e catálogo universal | Aplicado e validado em staging | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | 0021 aplicada; 44/44 asserções aprovadas; zero dados reais. |
-| M06 | Preços, estoque e compras | Parecer técnico concluído; implementação local autorizada | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | Saldo sempre derivado do livro de movimentos; testes de concorrência aprovados. |
+| M06 | Preços, estoque e compras | Pacote local preparado; aplicação remota pendente | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | Preflight aprovado; dry-run seleciona somente 0022; 48 asserções preparadas. |
 | M07 | Vendas, orçamento e PDV | Não iniciado | Orçamentos, vendas, pagamentos, caixa e comprovantes | Totais por dia/item/pagamento e estoque/caixa reconciliados. |
 | M08 | Financeiro e bancário | Não iniciado | Receber, pagar, fluxo de caixa, cartões, cheques e boletos | Saldos em aberto e liquidações coincidem com o legado. |
 | M09 | Serviços e oficinas | Não iniciado | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | OS fecha materiais, serviços, estoque e financeiro transacionalmente. |
@@ -383,17 +383,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Implementação local determinística do M06
+### Validação e aplicação exclusiva da migration 0022 em staging
 
 Próxima sequência permitida:
 
-1. criar migration 0022, preflight, rollback e testes;
-2. implementar serviços e telas server-side;
-3. validar testes, type-check, lint e build;
-4. confirmar dry-run remoto exclusivo;
-5. solicitar autorização antes de aplicar a 0022.
+1. validar a 0022 transacionalmente no Supabase staging;
+2. confirmar novamente o dry-run exclusivo;
+3. aplicar somente a migration 0022;
+4. executar as 48 asserções e contagens de resíduos;
+5. preservar produção, contas e dados reais.
 
-Esta sequência local continua automaticamente. O próximo aceite será exigido somente para aplicar a migration 0022 no Supabase staging.
+Comando de aceite sugerido: `Autorizo validar e aplicar exclusivamente a migration 0022 no Supabase de staging e executar as 48 asserções remotas, sem criar contas ou dados reais.`
 
 ## 11. Histórico do documento
 
@@ -424,6 +424,7 @@ Esta sequência local continua automaticamente. O próximo aceite será exigido 
 | 2.4.0 | 26/08/2026 | M05-G1 | Cadastros, catálogo universal, migration 0021, preflight, rollback, telas e 44 pgTAP apresentados. | Código local, type-check, ESLint e dry-run aprovados; 0021 permanece não aplicada e produção intocada. |
 | 2.5.0 | 26/08/2026 | M05-G2 | Migration 0021 aplicada exclusivamente em staging; histórico, grants, RLS, contagens e 44 pgTAP validados. | 44/44 aprovados, zero registros M05, banco sem migrations pendentes e produção intocada. |
 | 2.6.0 | 26/08/2026 | M06-G0 | M05 aprovado por continuidade; preços, estoque, compras, concorrência, idempotência e fronteiras documentados. | Parecer concluído; nenhuma migration M06 aplicada, nenhum dado criado e produção intocada. |
+| 2.7.0 | 26/08/2026 | M06-G1 | Migration 0022, preflight, rollback, 48 testes e visão `/operacoes` preparados. | Testes, TypeScript, ESLint, preflight e dry-run aprovados; 0022 não aplicada e produção intocada. |
 
 ## 12. Protocolo de atualização futura
 
