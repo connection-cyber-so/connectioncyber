@@ -337,8 +337,8 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M01 | Arquitetura canônica multissegmento | Aprovado | Núcleo universal, capacidades, catálogo lógico, invariantes e contrato do M02 | Concluído e aceito em 18/08/2026; nenhum schema aplicado. |
 | M02 | Fundação ERP multiempresa | Aprovado | Memberships, estabelecimentos, capacidades, configurações, sequências, auditoria e isolamento | Concluído e aceito em 18/08/2026; 0016 permanece somente em staging. |
 | M03 | Portal do cliente e subdomínios | Aprovado | `apps/portal`, autenticação e resolução segura de hostname | Concluído e aceito em 18/08/2026; 0017 permanece somente em staging. |
-| M04 | Usuários, RBAC e MFA | Staging aplicado; hardening pendente | Identidade, memberships, papéis, convites, recuperação e MFA | 0018 aplicada e validada em staging; 0019 corrige RLS legado antes do avanço para M05. |
-| M05 | Cadastros e catálogo universal | Não iniciado | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | Cinco segmentos representados sem fork ou dado real. |
+| M04 | Usuários, RBAC e MFA | Aprovado em staging | Identidade, memberships, papéis, convites, recuperação, MFA e hardening | 0018–0020 aplicadas e validadas exclusivamente em staging. |
+| M05 | Cadastros e catálogo universal | Pacote local validado; aplicação remota pendente | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | Cinco segmentos representados sem fork ou dado real. |
 | M06 | Preços, estoque e compras | Não iniciado | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | Saldo sempre derivado do livro de movimentos; testes de concorrência aprovados. |
 | M07 | Vendas, orçamento e PDV | Não iniciado | Orçamentos, vendas, pagamentos, caixa e comprovantes | Totais por dia/item/pagamento e estoque/caixa reconciliados. |
 | M08 | Financeiro e bancário | Não iniciado | Receber, pagar, fluxo de caixa, cartões, cheques e boletos | Saldos em aberto e liquidações coincidem com o legado. |
@@ -383,18 +383,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Aceite do hardening M04-G2 e aplicação exclusiva da 0019 em staging
+### Aplicação exclusiva da migration 0021 do M05 em staging
 
 Próxima sequência permitida:
 
-1. revisar a migration 0019, seu preflight, rollback e 21 testes pgTAP;
-2. executar preflight somente leitura no Supabase staging;
-3. confirmar que o dry-run seleciona exclusivamente `0019_harden_legacy_public_rls.sql`;
-4. aplicar a 0019 somente no projeto staging `ozvylnaipubrmaadikvk`;
-5. repetir advisors de segurança e validar que não restam tabelas públicas sem RLS;
-6. manter contas, dados reais, Vercel, DNS e produção inalterados.
+1. executar o preflight somente leitura no Supabase staging;
+2. confirmar que o dry-run seleciona exclusivamente `0021_m05_parties_catalog.sql`;
+3. aplicar a 0021 somente no projeto staging `ozvylnaipubrmaadikvk`;
+4. executar as 44 asserções pgTAP e validar RLS, grants e zero fixtures;
+5. manter contas, dados reais, Vercel, DNS e produção inalterados.
 
-Comando de aceite sugerido: `Autorizo aplicar exclusivamente a migration 0019 no Supabase de staging e executar a validação remota, sem criar contas ou dados reais.`
+Comando de aceite sugerido: `Autorizo aplicar exclusivamente a migration 0021 no Supabase de staging e executar a validação remota, sem criar contas ou dados reais.`
 
 ## 11. Histórico do documento
 
@@ -422,6 +421,7 @@ Comando de aceite sugerido: `Autorizo aplicar exclusivamente a migration 0019 no
 | 2.2.1 | 18/08/2026 | M04-G0 | Checkpoint `bbdc6cc`, Quality Gates `32210191254`, Vercel e Preview registrados. | `site`, `platform` e `portal` aprovados; HTTP 200; `main` preservada; nenhuma conta ou migration remota criada. |
 | 2.3.0 | 19/08/2026 | M04-G1 | Migration 0018, preflight, rollback, dry-run, sete personas, quatro telas, 9 testes Node e 49 pgTAP apresentados. | M02 38/38, M03 35/35, M04 49/49 e rebuild 49/49; build aprovado; zero resíduos; remoto inalterado. |
 | 2.3.1 | 19/08/2026 | M04-G1 | Checkpoint `72b1e0a`, Quality Gates `32212844513`, deployment Vercel e Preview HTTP 200 registrados. | `site`, `platform` e `portal` aprovados; `main` preservada; 0018 não aplicada e zero identidades criadas. |
+| 2.4.0 | 26/08/2026 | M05-G1 | Cadastros, catálogo universal, migration 0021, preflight, rollback, telas e 44 pgTAP apresentados. | Código local, type-check, ESLint e dry-run aprovados; 0021 permanece não aplicada e produção intocada. |
 
 ## 12. Protocolo de atualização futura
 

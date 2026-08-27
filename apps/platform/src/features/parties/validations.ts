@@ -1,0 +1,2 @@
+import { z } from 'zod';
+export const partySchema=z.object({kind:z.enum(['person','organization']),legal_name:z.string().trim().min(2,'Informe um nome com pelo menos 2 caracteres.').max(180),trade_name:z.string().trim().max(180).optional(),tax_id:z.string().trim().regex(/^(\d{11}|\d{14})$/,'CPF/CNPJ deve conter 11 ou 14 dígitos.').optional().or(z.literal('')),role:z.enum(['customer','supplier','employee','buyer','sales_rep','technician','carrier','other'])});

@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation';
 const ITEMS = [
   { href: '/tenants', label: 'Tenants' },
   { href: '/identidades', label: 'Identidades e acessos' },
+  { href: '/cadastros', label: 'Cadastros ERP' },
+  { href: '/catalogo', label: 'Catálogo universal' },
   { href: '/diagnostics', label: 'Diagnóstico Digital' },
   { href: '/products', label: 'Produtos' },
   { href: '/offers', label: 'Ofertas' },
