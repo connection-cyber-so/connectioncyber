@@ -344,7 +344,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M08 | Financeiro e bancário | Aplicado e validado em staging | Receber, pagar, fluxo de caixa, cartões, cheques e boletos | 0024 aplicada; 64/64 asserções aprovadas; zero dados reais. |
 | M09 | Serviços e oficinas | Aplicado e validado em staging | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | 0025 aplicada; 68/68 asserções aprovadas; zero dados reais. |
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
-| M11 | Atendimento e acesso remoto | Pacote local concluído; aguarda resolução da 0027 paralela | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | M11 renumerado para 0028; não aplicar antes de auditar a migration CTR 0027 paralela. |
+| M11 | Atendimento e acesso remoto | Pacote local concluído; aguarda remediação da CTR 0027 | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | M11 está em 0028; 0027 CTR foi reprovada na auditoria e precisa ser corrigida primeiro. |
 | M12 | Agente local e periféricos | Não iniciado | Impressão, etiqueta, balança, TEF e contingência/offline | Testes físicos no piloto sem segredo exposto. |
 | M13 | Fiscal e certificado A1 | Não iniciado | Perfis tributários, XML, NF-e/NFC-e e eventos | Homologação, contingência e ciclo do certificado aprovados. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
@@ -383,17 +383,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Aplicação remota controlada do M11
+### Remediação local controlada da CTR 0027
 
-Próxima sequência condicionada a autorização explícita:
+Próxima sequência automática local:
 
-1. auditar e decidir o destino da migration paralela 0027 de busca híbrida CTR;
-2. executar preflight e `db push --dry-run` vinculados ao staging;
-3. somente após resolver a 0027, validar a migration M11 0028;
-4. executar as 76 asserções pgTAP remotas e verificar RLS, grants e zero registros M11;
-5. registrar evidências sem criar tickets, dispositivos, consentimentos, grants, sessões ou dados reais.
+1. remover o embedding placeholder e manter fallback lexical;
+2. definir contrato de provedor, modelo, dimensão, privacidade e custo;
+3. reescrever a 0027 com schema vetorial explícito, metadados, limites e ranking determinístico;
+4. criar preflight, rollback, pgTAP e testes multiempresa/qualidade;
+5. validar localmente e parar antes de qualquer aplicação remota da 0027.
 
-Nenhuma migration remota será iniciada enquanto a 0027 paralela não for auditada e autorizada separadamente.
+Nenhuma migration remota será iniciada enquanto a CTR 0027 não for corrigida, validada e autorizada separadamente.
 
 ## 11. Histórico do documento
 
@@ -440,6 +440,7 @@ Nenhuma migration remota será iniciada enquanto a 0027 paralela não for audita
 | 4.0.0 | 27/08/2026 | M10-G2 | Delimitadores SQL corrigidos após bloqueio seguro do primeiro preflight; preflight, dry-run e migration 0026 executados exclusivamente no staging. | 72/72 aprovados, zero registros M10, histórico alinhado, banco sem migrations pendentes e produção intocada. |
 | 4.1.0 | 27/08/2026 | M11-G0 | M10 aprovado por continuidade; tickets, SLA, filas, dispositivos, consentimento, grants efêmeros, sessões e auditoria documentados. | Parecer concluído; nenhuma migration M11 aplicada, nenhum ticket, grant ou sessão criado e produção intocada. |
 | 4.2.0 | 27/08/2026 | M11-G1 | Inventário global analisado; migration M11 renumerada para 0028 devido à 0027 CTR paralela; três RPCs, preflight, rollback, 76 testes e tela `/atendimento` preparados. | TypeScript, ESLint e 9/9 testes Node aprovados; 0027 CTR preservada e não versionada; execução SQL e aplicação remota não iniciadas; produção intocada. |
+| 4.3.0 | 27/08/2026 | CTR-0027-G0 | Migration, mudanças de catálogo, padrão e spec CTR auditados sem alteração dos arquivos paralelos. | Reprovada para aplicação: vetor placeholder, pacote sem portões, pgvector não qualificado, RPC sem limites e ausência de proveniência; remoto e produção intocados. |
 
 ## 12. Protocolo de atualização futura
 
