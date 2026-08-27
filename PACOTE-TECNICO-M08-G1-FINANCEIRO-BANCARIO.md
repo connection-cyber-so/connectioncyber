@@ -37,6 +37,6 @@
 - dry-run remoto: somente `0024_m08_finance_banking.sql` pendente;
 - nenhuma migration M08, conta, título ou transação criada remotamente.
 
-## Próximo portão
+## Resultado remoto
 
-A `0024` precisa ser validada em transação com rollback e aplicada exclusivamente no staging após autorização explícita. Em seguida serão executadas 64 asserções e contagens de resíduos.
+Em 27/08/2026, a `0024` foi validada integralmente em transação com rollback, aplicada exclusivamente no Supabase staging e confirmada no histórico remoto. As 64 asserções passaram, o dry-run final não encontrou migrations pendentes e permaneceram zeradas as tabelas de títulos, liquidações, movimentos, contas e transações bancárias. Produção, credenciais e dados reais não foram alterados.
