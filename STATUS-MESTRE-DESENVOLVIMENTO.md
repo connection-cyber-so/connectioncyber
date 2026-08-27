@@ -340,7 +340,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M04 | Usuários, RBAC e MFA | Aprovado em staging | Identidade, memberships, papéis, convites, recuperação, MFA e hardening | 0018–0020 aplicadas e validadas exclusivamente em staging. |
 | M05 | Cadastros e catálogo universal | Aplicado e validado em staging | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | 0021 aplicada; 44/44 asserções aprovadas; zero dados reais. |
 | M06 | Preços, estoque e compras | Aplicado e validado em staging | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | 0022 aplicada; 48/48 asserções aprovadas; zero dados reais. |
-| M07 | Vendas, orçamento e PDV | Parecer técnico concluído; implementação local autorizada | Orçamentos, vendas, pagamentos, caixa e comprovantes | Totais por dia/item/pagamento e estoque/caixa reconciliados. |
+| M07 | Vendas, orçamento e PDV | Pacote local preparado; aplicação remota pendente | Orçamentos, vendas, pagamentos, caixa e comprovantes | Preflight aprovado; dry-run seleciona somente 0023; 52 asserções preparadas. |
 | M08 | Financeiro e bancário | Não iniciado | Receber, pagar, fluxo de caixa, cartões, cheques e boletos | Saldos em aberto e liquidações coincidem com o legado. |
 | M09 | Serviços e oficinas | Não iniciado | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | OS fecha materiais, serviços, estoque e financeiro transacionalmente. |
 | M10 | Restaurantes e lanchonetes | Não iniciado | Receitas, adicionais, mesas, comandas e cozinha | Comanda fecha venda, insumos, caixa e fiscal sem duplicidade. |
@@ -383,17 +383,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Implementação local determinística do M07
+### Validação e aplicação exclusiva da migration 0023 em staging
 
 Próxima sequência permitida:
 
-1. criar migration 0023, preflight, rollback e testes;
-2. implementar fechamento transacional e idempotente;
-3. criar serviços e telas de orçamento, venda e PDV;
-4. validar concorrência, reconciliação, testes e build;
-5. parar somente antes da aplicação remota da 0023.
+1. validar a 0023 transacionalmente com rollback;
+2. confirmar novamente o dry-run exclusivo;
+3. aplicar somente a migration 0023;
+4. executar as 52 asserções e contagens de resíduos;
+5. preservar produção, contas, vendas e dados reais.
 
-Esta sequência local continua automaticamente. O próximo aceite será exigido somente para aplicar a migration 0023 no Supabase staging.
+Comando de aceite sugerido: `Autorizo validar e aplicar exclusivamente a migration 0023 no Supabase de staging e executar as 52 asserções remotas, sem criar contas, vendas, pagamentos ou dados reais.`
 
 ## 11. Histórico do documento
 
@@ -427,6 +427,7 @@ Esta sequência local continua automaticamente. O próximo aceite será exigido 
 | 2.7.0 | 26/08/2026 | M06-G1 | Migration 0022, preflight, rollback, 48 testes e visão `/operacoes` preparados. | Testes, TypeScript, ESLint, preflight e dry-run aprovados; 0022 não aplicada e produção intocada. |
 | 2.8.0 | 26/08/2026 | M06-G2 | Migration 0022 validada com rollback, aplicada somente em staging e verificada com 48 asserções. | 48/48 aprovados, zero registros M06, histórico alinhado e produção intocada. |
 | 2.9.0 | 26/08/2026 | M07-G0 | M06 aprovado por continuidade; vendas, orçamento, PDV, pagamentos, caixa, concorrência e limites fiscal/financeiro documentados. | Parecer concluído; nenhuma migration M07 aplicada, nenhuma conta ou venda criada e produção intocada. |
+| 3.0.0 | 27/08/2026 | M07-G1 | Migration 0023, preflight, rollback, 52 testes, fechamento atômico e telas `/vendas` e `/pdv` preparados. | Testes, TypeScript, ESLint, preflight e dry-run aprovados; 0023 não aplicada e produção intocada. |
 
 ## 12. Protocolo de atualização futura
 

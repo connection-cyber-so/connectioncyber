@@ -8,6 +8,8 @@ const ITEMS = [
   { href: '/cadastros', label: 'Cadastros ERP' },
   { href: '/catalogo', label: 'Catálogo universal' },
   { href: '/operacoes', label: 'Preços, estoque e compras' },
+  { href: '/vendas', label: 'Orçamentos e vendas' },
+  { href: '/pdv', label: 'PDV e caixa' },
   { href: '/diagnostics', label: 'Diagnóstico Digital' },
   { href: '/products', label: 'Produtos' },
   { href: '/offers', label: 'Ofertas' },
