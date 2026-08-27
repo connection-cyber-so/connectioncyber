@@ -33,6 +33,6 @@ A função de fechamento bloqueia a venda, valida estado e idempotência, recalc
 - dry-run remoto: somente `0023_m07_sales_pos.sql` pendente;
 - nenhum objeto M07, conta, venda, pagamento ou dado real criado.
 
-## Próximo portão
+## Resultado remoto
 
-A migration precisa ser validada em transação com rollback e então aplicada exclusivamente em staging. Depois serão executadas as 52 asserções e contagens de resíduos. Essa etapa exige autorização explícita.
+Em 27/08/2026, a migration foi validada integralmente em transação com rollback, aplicada exclusivamente no Supabase staging e confirmada no histórico remoto. As 52 asserções passaram, o dry-run final não encontrou migrations pendentes e permaneceram zeradas as tabelas de orçamentos, vendas, pagamentos, sessões e movimentos de caixa. Produção, contas e dados reais não foram alterados.
