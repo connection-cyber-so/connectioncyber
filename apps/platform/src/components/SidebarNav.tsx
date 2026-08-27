@@ -14,6 +14,7 @@ const ITEMS = [
   { href: '/bancos', label: 'Bancos e conciliação' },
   { href: '/servicos', label: 'Serviços e oficinas' },
   { href: '/alimentacao', label: 'Restaurantes e lanchonetes' },
+  { href: '/atendimento', label: 'Atendimento e acesso remoto' },
   { href: '/diagnostics', label: 'Diagnóstico Digital' },
   { href: '/products', label: 'Produtos' },
   { href: '/offers', label: 'Ofertas' },

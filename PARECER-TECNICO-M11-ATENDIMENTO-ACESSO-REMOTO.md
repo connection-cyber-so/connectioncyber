@@ -158,11 +158,11 @@ Uma repetição idempotente retornará o mesmo identificador de grant, mas nunca
 
 ## 15. Sequência determinística proposta
 
-1. criar migration `0027`, preflight, rollback e testes SQL;
+1. criar migration `0028`, preflight, rollback e testes SQL;
 2. implementar RPCs de ticket, atribuição, consentimento, grant, consumo e revogação;
 3. criar serviços e telas de central, filas, SLA, dispositivos e sessões;
 4. testar cross-tenant, MFA, expiração, uso único, revogação e auditoria;
-5. validar localmente e parar antes de qualquer aplicação remota da `0027`.
+5. validar localmente e parar antes de qualquer aplicação remota da `0028`.
 
 ## 16. Critérios de aceite
 
