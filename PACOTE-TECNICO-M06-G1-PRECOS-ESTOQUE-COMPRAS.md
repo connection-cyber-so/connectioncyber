@@ -28,6 +28,6 @@
 - dry-run remoto: somente a migration `0022` pendente;
 - Supabase remoto permanece com histórico até `0021`.
 
-## Próximo portão
+## Resultado remoto
 
-A migration ainda precisa de validação SQL transacional e da suíte de 48 asserções. Nenhuma aplicação persistente será feita sem autorização explícita para a `0022` exclusivamente no Supabase staging.
+Em 26/08/2026, a migration foi validada integralmente em transação com rollback, aplicada exclusivamente no Supabase staging e confirmada no histórico remoto. As 48 asserções passaram, o dry-run final não encontrou migrations pendentes e as tabelas de listas de preços, movimentos, pedidos e recebimentos permaneceram com zero registros. Produção, contas e dados reais não foram alterados.
