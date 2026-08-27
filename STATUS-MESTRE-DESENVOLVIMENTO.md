@@ -341,7 +341,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M05 | Cadastros e catálogo universal | Aplicado e validado em staging | Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições | 0021 aplicada; 44/44 asserções aprovadas; zero dados reais. |
 | M06 | Preços, estoque e compras | Aplicado e validado em staging | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | 0022 aplicada; 48/48 asserções aprovadas; zero dados reais. |
 | M07 | Vendas, orçamento e PDV | Aplicado e validado em staging | Orçamentos, vendas, pagamentos, caixa e comprovantes | 0023 aplicada; 52/52 asserções aprovadas; zero dados reais. |
-| M08 | Financeiro e bancário | Não iniciado | Receber, pagar, fluxo de caixa, cartões, cheques e boletos | Saldos em aberto e liquidações coincidem com o legado. |
+| M08 | Financeiro e bancário | Parecer técnico concluído; implementação local autorizada | Receber, pagar, fluxo de caixa, cartões, cheques e boletos | Saldos, liquidações, bancos e conciliações derivados de livros imutáveis. |
 | M09 | Serviços e oficinas | Não iniciado | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | OS fecha materiais, serviços, estoque e financeiro transacionalmente. |
 | M10 | Restaurantes e lanchonetes | Não iniciado | Receitas, adicionais, mesas, comandas e cozinha | Comanda fecha venda, insumos, caixa e fiscal sem duplicidade. |
 | M11 | Atendimento e acesso remoto | Não iniciado | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | MFA, consentimento, expiração e revogação comprovados. |
@@ -383,17 +383,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Aceite formal do M07 e início do parecer técnico M08
+### Implementação local determinística do M08
 
 Próxima sequência permitida:
 
-1. revisar as evidências finais do M07;
-2. aceitar formalmente o M07 em staging;
-3. iniciar o parecer técnico M08 sem migration remota;
-4. preservar produção, contas, vendas e dados reais;
-5. integrar futuramente títulos e liquidações sem alterar vendas concluídas.
+1. criar migration 0024, preflight, rollback e testes;
+2. implementar títulos, liquidações, estornos e transferências;
+3. criar serviços e telas financeiras/bancárias;
+4. validar concorrência, reconciliação, testes e build;
+5. parar somente antes da aplicação remota da 0024.
 
-Comando de aceite sugerido: `Aprovo o M07 em staging e autorizo iniciar o parecer técnico do M08, sem aplicar migration remota.`
+Esta sequência local continua automaticamente. O próximo aceite será exigido somente para aplicar a migration 0024 no Supabase staging.
 
 ## 11. Histórico do documento
 
@@ -429,6 +429,7 @@ Comando de aceite sugerido: `Aprovo o M07 em staging e autorizo iniciar o parece
 | 2.9.0 | 26/08/2026 | M07-G0 | M06 aprovado por continuidade; vendas, orçamento, PDV, pagamentos, caixa, concorrência e limites fiscal/financeiro documentados. | Parecer concluído; nenhuma migration M07 aplicada, nenhuma conta ou venda criada e produção intocada. |
 | 3.0.0 | 27/08/2026 | M07-G1 | Migration 0023, preflight, rollback, 52 testes, fechamento atômico e telas `/vendas` e `/pdv` preparados. | Testes, TypeScript, ESLint, preflight e dry-run aprovados; 0023 não aplicada e produção intocada. |
 | 3.1.0 | 27/08/2026 | M07-G2 | Migration 0023 validada com rollback, aplicada somente em staging e verificada com 52 asserções. | 52/52 aprovados, zero registros M07, histórico alinhado e produção intocada. |
+| 3.2.0 | 27/08/2026 | M08-G0 | M07 aprovado por continuidade; títulos, parcelas, liquidações, bancos, cartões, cheques, boletos e conciliação documentados. | Parecer concluído; nenhuma migration M08 aplicada, nenhuma conta ou transação criada e produção intocada. |
 
 ## 12. Protocolo de atualização futura
 
