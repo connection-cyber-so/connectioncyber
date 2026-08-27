@@ -343,7 +343,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M07 | Vendas, orçamento e PDV | Aplicado e validado em staging | Orçamentos, vendas, pagamentos, caixa e comprovantes | 0023 aplicada; 52/52 asserções aprovadas; zero dados reais. |
 | M08 | Financeiro e bancário | Aplicado e validado em staging | Receber, pagar, fluxo de caixa, cartões, cheques e boletos | 0024 aplicada; 64/64 asserções aprovadas; zero dados reais. |
 | M09 | Serviços e oficinas | Aplicado e validado em staging | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | 0025 aplicada; 68/68 asserções aprovadas; zero dados reais. |
-| M10 | Restaurantes e lanchonetes | Não iniciado | Receitas, adicionais, mesas, comandas e cozinha | Comanda fecha venda, insumos, caixa e fiscal sem duplicidade. |
+| M10 | Restaurantes e lanchonetes | Parecer técnico concluído; implementação local autorizada | Receitas, adicionais, mesas, comandas e cozinha | Comanda gera uma venda M07 e um consumo M06, com rateio e cozinha auditáveis. |
 | M11 | Atendimento e acesso remoto | Não iniciado | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | MFA, consentimento, expiração e revogação comprovados. |
 | M12 | Agente local e periféricos | Não iniciado | Impressão, etiqueta, balança, TEF e contingência/offline | Testes físicos no piloto sem segredo exposto. |
 | M13 | Fiscal e certificado A1 | Não iniciado | Perfis tributários, XML, NF-e/NFC-e e eventos | Homologação, contingência e ciclo do certificado aprovados. |
@@ -383,17 +383,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Parecer técnico do M10
+### Implementação local determinística do M10
 
-Próxima sequência automática:
+Próxima sequência permitida:
 
-1. auditar as fronteiras de M05–M09 aplicáveis a alimentação;
-2. definir receitas, adicionais, mesas, comandas e cozinha;
-3. definir integração única com estoque, vendas, caixa e financeiro;
-4. documentar segurança multiempresa, concorrência, idempotência e critérios de aceite;
-5. apresentar o parecer sem criar migration, comanda, venda ou dado real.
+1. criar migration 0026, preflight, rollback e testes;
+2. implementar mesas, comandas, pedidos, adicionais, cozinha e rateio;
+3. implementar fechamento integrado a estoque, venda, caixa e financeiro;
+4. criar serviços e telas de salão, comandas e cozinha;
+5. validar localmente e parar somente antes da aplicação remota da 0026.
 
-Após o parecer, a implementação local do M10 poderá continuar automaticamente; qualquer nova aplicação remota exigirá autorização específica.
+Esta sequência local continua automaticamente. O próximo aceite será exigido somente para aplicar a migration 0026 no Supabase staging.
 
 ## 11. Histórico do documento
 
@@ -435,6 +435,7 @@ Após o parecer, a implementação local do M10 poderá continuar automaticament
 | 3.5.0 | 27/08/2026 | M09-G0 | M08 aprovado por continuidade; ativos, veículos, agenda, OS, inspeção, autorização, garantia e fechamento integrado documentados. | Parecer concluído; nenhuma migration M09 aplicada, nenhum ativo ou OS criado e produção intocada. |
 | 3.6.0 | 27/08/2026 | M09-G1 | Migration 0025, duas RPCs, preflight, rollback, 68 testes e tela `/servicos` preparados. | TypeScript, ESLint e 9/9 testes Node aprovados; execução SQL e aplicação remota não iniciadas; produção intocada. |
 | 3.7.0 | 27/08/2026 | M09-G2 | Preflight, dry-run e migration 0025 executados exclusivamente no Supabase staging; histórico, RLS, grants, objetos e contagens auditados. | 68/68 aprovados, zero registros M09, banco sem migrations pendentes e produção intocada. |
+| 3.8.0 | 27/08/2026 | M10-G0 | M09 aprovado por continuidade; receitas, adicionais, salão, comandas, cozinha, rateio e fechamento integrado documentados. | Parecer concluído; nenhuma migration M10 aplicada, nenhuma comanda ou venda criada e produção intocada. |
 
 ## 12. Protocolo de atualização futura
 
