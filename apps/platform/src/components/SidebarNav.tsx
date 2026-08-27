@@ -10,6 +10,8 @@ const ITEMS = [
   { href: '/operacoes', label: 'Preços, estoque e compras' },
   { href: '/vendas', label: 'Orçamentos e vendas' },
   { href: '/pdv', label: 'PDV e caixa' },
+  { href: '/financeiro', label: 'Financeiro' },
+  { href: '/bancos', label: 'Bancos e conciliação' },
   { href: '/diagnostics', label: 'Diagnóstico Digital' },
   { href: '/products', label: 'Produtos' },
   { href: '/offers', label: 'Ofertas' },

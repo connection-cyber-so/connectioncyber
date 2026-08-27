@@ -1,0 +1,6 @@
+-- Somente laboratório vazio. Em ambiente com uso, aplicar forward-fix.
+begin;
+do $$ begin if exists(select 1 from public.erp_financial_entries) or exists(select 1 from public.erp_settlements) or exists(select 1 from public.erp_bank_transactions) then raise exception 'Rollback recusado: há dados M08';end if;end $$;
+drop function if exists public.erp_transfer_financial_balance(uuid,uuid,uuid,numeric,text),public.erp_confirm_settlement(uuid,uuid,text),public.erp_post_financial_entry(uuid,uuid,uuid,text,text,numeric,date,date[],text);
+drop table if exists public.erp_billing_slips,public.erp_checks,public.erp_card_receivables,public.erp_bank_reconciliation_items,public.erp_bank_reconciliations,public.erp_bank_transactions,public.erp_bank_accounts,public.erp_financial_movements,public.erp_settlement_allocations,public.erp_settlements,public.erp_installments,public.erp_financial_entries,public.erp_financial_accounts,public.erp_cost_centers,public.erp_financial_categories cascade;
+delete from public.erp_permissions where key in('finance.read','finance.entry','finance.settle','finance.reverse','finance.adjust','treasury.read','treasury.manage','treasury.transfer','banking.read','banking.import','banking.reconcile','receivables.read','receivables.manage','payables.read','payables.manage');commit;
