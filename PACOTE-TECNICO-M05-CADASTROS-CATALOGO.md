@@ -36,7 +36,7 @@ Entregar um núcleo multiempresa único para pessoas, colaboradores, unidades, p
 
 ## Estado remoto
 
-A migration 0021 não foi aplicada. O próximo portão exige autorização explícita para executar preflight, aplicar exclusivamente a 0021 no Supabase de staging e rodar os 44 testes remotos. Produção, Vercel, DNS, contas e dados reais permanecem intocados.
+A migration 0021 foi aplicada exclusivamente no Supabase staging em 26/08/2026. O preflight retornou `M05_PREFLIGHT_OK`, o histórico remoto confirmou `0021`, as 44 asserções pgTAP passaram e o dry-run final retornou banco atualizado sem migrations pendentes. As tabelas de pessoas, itens, variações e composições permaneceram com zero registros. Produção, Vercel, DNS, contas e dados reais permanecem intocados.
 
 ## Rollback
 
