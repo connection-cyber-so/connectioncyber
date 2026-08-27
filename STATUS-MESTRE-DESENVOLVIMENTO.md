@@ -342,7 +342,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M06 | Preços, estoque e compras | Aplicado e validado em staging | Listas, depósitos, movimentos, inventário, lotes, séries e pedidos | 0022 aplicada; 48/48 asserções aprovadas; zero dados reais. |
 | M07 | Vendas, orçamento e PDV | Aplicado e validado em staging | Orçamentos, vendas, pagamentos, caixa e comprovantes | 0023 aplicada; 52/52 asserções aprovadas; zero dados reais. |
 | M08 | Financeiro e bancário | Aplicado e validado em staging | Receber, pagar, fluxo de caixa, cartões, cheques e boletos | 0024 aplicada; 64/64 asserções aprovadas; zero dados reais. |
-| M09 | Serviços e oficinas | Pacote local concluído; aguarda autorização remota | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | Aplicar somente a 0025 em staging e aprovar 68/68 asserções sem dados reais. |
+| M09 | Serviços e oficinas | Aplicado e validado em staging | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | 0025 aplicada; 68/68 asserções aprovadas; zero dados reais. |
 | M10 | Restaurantes e lanchonetes | Não iniciado | Receitas, adicionais, mesas, comandas e cozinha | Comanda fecha venda, insumos, caixa e fiscal sem duplicidade. |
 | M11 | Atendimento e acesso remoto | Não iniciado | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | MFA, consentimento, expiração e revogação comprovados. |
 | M12 | Agente local e periféricos | Não iniciado | Impressão, etiqueta, balança, TEF e contingência/offline | Testes físicos no piloto sem segredo exposto. |
@@ -383,17 +383,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Aplicação remota controlada do M09
+### Parecer técnico do M10
 
-Próxima sequência condicionada a autorização explícita:
+Próxima sequência automática:
 
-1. conferir que somente a migration 0025 está pendente no projeto Supabase staging;
-2. executar preflight e `db push --dry-run` vinculados ao staging;
-3. aplicar exclusivamente a migration 0025;
-4. executar as 68 asserções pgTAP remotas e verificar RLS, grants e zero registros M09;
-5. registrar evidências, sem criar ativos, agendas, ordens de serviço, vendas ou dados reais.
+1. auditar as fronteiras de M05–M09 aplicáveis a alimentação;
+2. definir receitas, adicionais, mesas, comandas e cozinha;
+3. definir integração única com estoque, vendas, caixa e financeiro;
+4. documentar segurança multiempresa, concorrência, idempotência e critérios de aceite;
+5. apresentar o parecer sem criar migration, comanda, venda ou dado real.
 
-Nenhuma dessas ações remotas será iniciada sem autorização específica para a migration 0025 no Supabase staging.
+Após o parecer, a implementação local do M10 poderá continuar automaticamente; qualquer nova aplicação remota exigirá autorização específica.
 
 ## 11. Histórico do documento
 
@@ -434,6 +434,7 @@ Nenhuma dessas ações remotas será iniciada sem autorização específica para
 | 3.4.0 | 27/08/2026 | M08-G2 | Migration 0024 validada com rollback, aplicada somente em staging e verificada com 64 asserções. | 64/64 aprovados, zero registros M08, histórico alinhado e produção intocada. |
 | 3.5.0 | 27/08/2026 | M09-G0 | M08 aprovado por continuidade; ativos, veículos, agenda, OS, inspeção, autorização, garantia e fechamento integrado documentados. | Parecer concluído; nenhuma migration M09 aplicada, nenhum ativo ou OS criado e produção intocada. |
 | 3.6.0 | 27/08/2026 | M09-G1 | Migration 0025, duas RPCs, preflight, rollback, 68 testes e tela `/servicos` preparados. | TypeScript, ESLint e 9/9 testes Node aprovados; execução SQL e aplicação remota não iniciadas; produção intocada. |
+| 3.7.0 | 27/08/2026 | M09-G2 | Preflight, dry-run e migration 0025 executados exclusivamente no Supabase staging; histórico, RLS, grants, objetos e contagens auditados. | 68/68 aprovados, zero registros M09, banco sem migrations pendentes e produção intocada. |
 
 ## 12. Protocolo de atualização futura
 
