@@ -13,6 +13,7 @@ const ITEMS = [
   { href: '/financeiro', label: 'Financeiro' },
   { href: '/bancos', label: 'Bancos e conciliação' },
   { href: '/servicos', label: 'Serviços e oficinas' },
+  { href: '/alimentacao', label: 'Restaurantes e lanchonetes' },
   { href: '/diagnostics', label: 'Diagnóstico Digital' },
   { href: '/products', label: 'Produtos' },
   { href: '/offers', label: 'Ofertas' },
