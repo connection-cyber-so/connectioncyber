@@ -17,3 +17,12 @@ Proibido neste estágio: importar/instalar A1, armazenar senha/PFX/CSC, transmit
 - assinatura: desativada;
 - transmissão: desativada;
 - produção: desativada.
+
+## Validação M13-G7
+
+- fluxo de leitura efêmera preparado;
+- senha representada por segredo opaco e sempre mascarado;
+- contêiner e senha eliminados da memória após sucesso ou falha;
+- chave privada não extraída;
+- saída limitada a referência, hashes, validade e estado da cadeia;
+- nenhum certificado real foi aberto ou importado.

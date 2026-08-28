@@ -346,7 +346,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | G6 local concluído | 0030 validada; custódia abstrata; piloto mascarado; 78 testes e zero dados | Autorizar separadamente a importação protegida do A1, sem assinatura/transmissão. |
+| M13 | Fiscal e certificado A1 | G7 local concluído | 0030 validada; fluxo A1 efêmero; 88 testes e zero dados | Autorizar separadamente a inspeção local do A1 real, sem assinatura/transmissão. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
@@ -383,14 +383,14 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G7 — importação protegida do A1
+### M13-G8 — inspeção local do A1 da empresa-piloto
 
 Próxima sequência local e automática:
 
-1. escolher o mecanismo de armazenamento protegido disponível no host;
-2. importar o A1 somente após autorização específica, sem revelar senha em comando ou log;
-3. registrar apenas referência opaca, hashes e validade;
-4. validar cadeia e titular sem assinar ou transmitir;
+1. selecionar o arquivo por diálogo local protegido, nunca por caminho enviado ao chat;
+2. obter a senha por entrada local mascarada, sem argumento, variável ou log;
+3. inspecionar cadeia, titular e validade exclusivamente em memória;
+4. registrar apenas referência opaca, hashes e validade após confirmação;
 5. manter CSC, assinatura, transmissão e produção em portões independentes.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
