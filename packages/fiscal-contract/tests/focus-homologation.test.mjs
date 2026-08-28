@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';import test from'node:test';import{createFocusHomologationAdapter,syntheticFocusProbe}from'../src/focus-homologation.mjs';
+const token='homologation-token-placeholder';
+test('token ausente bloqueia adaptador',()=>assert.throws(()=>createFocusHomologationAdapter(),/FOCUS_HOMOLOGATION_TOKEN_MISSING/));
+test('base URL é exclusivamente homologação',()=>assert.equal(createFocusHomologationAdapter({token,fetchImpl:()=>{}}).baseUrl,'https://homologacao.focusnfe.com.br'));
+test('payload sintético canônico é preparado sem emissão',()=>assert.match(createFocusHomologationAdapter({token,fetchImpl:()=>{}}).prepareIssue(syntheticFocusProbe()).payloadHash,/^[a-f0-9]{64}$/));
+test('produção é recusada',()=>assert.throws(()=>createFocusHomologationAdapter({token,fetchImpl:()=>{}}).prepareIssue({...syntheticFocusProbe(),environment:'production'}),/PRODUCTION/));
+test('PFX é recusado recursivamente',()=>assert.throws(()=>createFocusHomologationAdapter({token,fetchImpl:()=>{}}).prepareIssue({...syntheticFocusProbe(),taxSnapshot:{pfx:'x'}}),/SECRET_FIELD_FORBIDDEN/));
+test('URL absoluta é recusada',async()=>await assert.rejects(createFocusHomologationAdapter({token,fetchImpl:()=>{}}).request('https://api.focusnfe.com.br/v2/nfe'),/INVALID_FOCUS_PATH/));
+test('requisição mock usa homologação e Basic Auth sem emitir',async()=>{let seen;const fetchImpl=async(url,init)=>{seen={url,init};return new Response(JSON.stringify({status:'mock'}),{status:200})};const result=await createFocusHomologationAdapter({token,fetchImpl}).request('/v2/nfce/synthetic-ref');assert.equal(result.status,200);assert.match(seen.url,/^https:\/\/homologacao\.focusnfe\.com\.br/);assert.match(seen.init.headers.Authorization,/^Basic /)});
+test('timeout é fail-closed',async()=>{const fetchImpl=(_u,{signal})=>new Promise((_r,reject)=>signal.addEventListener('abort',()=>reject(Object.assign(new Error('aborted'),{name:'AbortError'}))));await assert.rejects(createFocusHomologationAdapter({token,fetchImpl,timeoutMs:1000}).request('/v2/nfce/synthetic-ref'),/FOCUS_TIMEOUT/)});
