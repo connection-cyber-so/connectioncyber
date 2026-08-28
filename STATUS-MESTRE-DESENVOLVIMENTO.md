@@ -346,7 +346,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | G1 concluído | Contrato canônico, ameaças, matriz de provedores e 24 testes sintéticos | G2: migration local `0030`, preflight, rollback, pgTAP e simuladores. |
+| M13 | Fiscal e certificado A1 | G2 local implementado | Migration 0030, preflight, rollback, 89 pgTAP e 41 testes sintéticos/estáticos | Auditoria local; pgTAP aguarda runtime Docker/PostgreSQL. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G2 — migration local 0030 e laboratório fiscal sintético
+### M13-G2A — auditoria técnica local da migration 0030
 
 Próxima sequência local e automática:
 
-1. implementar localmente a migration `0030` conforme o contrato M13-G1;
-2. criar preflight somente leitura e rollback protegido;
-3. criar testes pgTAP de RLS, concorrência, estados e zero segredos;
-4. ampliar simuladores de timeout, webhook, contingência e reconciliação;
-5. auditar localmente antes de qualquer validação remota.
+1. revisar integridade relacional, grants, RLS e funções `security definer`;
+2. revisar idempotência, concorrência, estados e contingência;
+3. confirmar que rollback e pgTAP cobrem todos os objetos;
+4. remediar localmente qualquer bloqueio encontrado;
+5. manter validação remota bloqueada até relatório final e autorização específica.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 

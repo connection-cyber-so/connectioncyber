@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { FiscalContractError, assertTransition, assertWebhookAuthenticity, canonicalize, fiscalIdempotencyKey, payloadHash, reconciliationDecision, validateIssueRequest, validateProviderEvent } from '../src/index.mjs';
+import { FiscalContractError, MemoryFiscalSimulator, assertTransition, assertWebhookAuthenticity, canonicalize, fiscalIdempotencyKey, payloadHash, reconciliationDecision, validateIssueRequest, validateProviderEvent } from '../src/index.mjs';
 const tenant='12000000-0000-4000-8000-000000000001',establishment='13000000-0000-4000-8000-000000000001',requestId='14000000-0000-4000-8000-000000000001';
 function request(overrides={}){return{contractVersion:'1.0',requestId,tenantId:tenant,establishmentId:establishment,environment:'homologation',model:'65',idempotencyKey:`${tenant}:homologation:65:1:1:issue`,saleRef:'synthetic-sale-001',issuedAt:'2026-08-28T12:00:00-03:00',schemaVersion:'synthetic-v1',taxSnapshot:{regime:'synthetic'},items:[{line:1,amount:'1.00'}],totals:{amount:'1.00'},contingency:null,...overrides}}
 function event(overrides={}){return{contractVersion:'1.0',eventId:'synthetic-event-001',provider:'simulator',providerDocumentId:'synthetic-doc-001',tenantId:tenant,environment:'homologation',model:'65',status:'authorized',occurredAt:'2026-08-28T15:00:00.000Z',receivedAt:'2026-08-28T15:00:01.000Z',payloadHash:'a'.repeat(64),...overrides}}
@@ -28,3 +28,11 @@ test('webhook válido é aceito',()=>assert.equal(assertWebhookAuthenticity({raw
 test('timeout gera consulta, não rejeição',()=>assert.equal(reconciliationDecision({localStatus:'transmitting',providerStatus:'unknown'}),'query_provider'));
 test('autorização externa divergente é importada',()=>assert.equal(reconciliationDecision({localStatus:'transmitting',providerStatus:'authorized'}),'import_authorization'));
 test('estado igual é idempotente',()=>assert.equal(reconciliationDecision({localStatus:'authorized',providerStatus:'authorized'}),'no_op'));
+test('simulador autoriza sem rede ou certificado',()=>assert.equal(new MemoryFiscalSimulator().issue(request()).status,'authorized'));
+test('simulador preserva idempotência de emissão',()=>{const s=new MemoryFiscalSimulator(),r=request();assert.equal(s.issue(r),s.issue(r))});
+test('timeout permanece em transmissão',()=>assert.equal(new MemoryFiscalSimulator().issue(request(),{response:'timeout'}).status,'transmitting'));
+test('retry não cria outro documento',()=>{const s=new MemoryFiscalSimulator(),r=request(),first=s.issue(r,{response:'timeout'});assert.equal(s.retry(r).id,first.id)});
+test('reconciliação importa autorização perdida',()=>{const s=new MemoryFiscalSimulator(),r=request();s.issue(r,{response:'timeout'});assert.equal(s.reconcile(r.idempotencyKey,'authorized'),'import_authorization')});
+test('webhook sintético válido é aceito',()=>assert.equal(new MemoryFiscalSimulator().receiveWebhook(event()),'accepted'));
+test('replay de webhook é deduplicado',()=>{const s=new MemoryFiscalSimulator(),e=event();s.receiveWebhook(e);assert.equal(s.receiveWebhook(e),'duplicate')});
+test('webhook sintético sem assinatura é recusado',()=>assert.throws(()=>new MemoryFiscalSimulator().receiveWebhook(event(),{signatureValid:false}),/INVALID_WEBHOOK_SIGNATURE/));

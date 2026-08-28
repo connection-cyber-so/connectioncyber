@@ -48,3 +48,16 @@ export function reconciliationDecision({localStatus,providerStatus}){
   if(localStatus===providerStatus)return'no_op';
   return'manual_review';
 }
+
+export class MemoryFiscalSimulator{
+  constructor(){this.documents=new Map();this.webhooks=new Set()}
+  issue(request,{response='authorized'}={}){
+    validateIssueRequest(request);
+    if(this.documents.has(request.idempotencyKey))return this.documents.get(request.idempotencyKey);
+    const result={id:request.requestId,status:response==='timeout'?'transmitting':response,attempts:1};
+    this.documents.set(request.idempotencyKey,result);return result;
+  }
+  retry(request){const current=this.documents.get(request.idempotencyKey);if(!current)return this.issue(request);current.attempts+=1;return current}
+  reconcile(idempotencyKey,providerStatus){const current=this.documents.get(idempotencyKey);if(!current)fail('DOCUMENT_NOT_FOUND');const action=reconciliationDecision({localStatus:current.status,providerStatus});if(action==='import_authorization')current.status='authorized';return action}
+  receiveWebhook(event,{signatureValid=true}={}){validateProviderEvent(event);assertWebhookAuthenticity({rawBody:canonicalize(event),signature:signatureValid?'valid':'invalid',verify:(_b,s)=>s==='valid'});const key=`${event.provider}:${event.environment}:${event.eventId}`;if(this.webhooks.has(key))return'duplicate';this.webhooks.add(key);return'accepted'}
+}

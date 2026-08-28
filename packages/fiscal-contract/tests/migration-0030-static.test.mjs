@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import test from 'node:test';
+const migration=fs.readFileSync(new URL('../../../supabase/migrations/0030_m13_fiscal_a1.sql',import.meta.url),'utf8');
+const preflight=fs.readFileSync(new URL('../../../supabase/preflight/0030_m13_fiscal_a1_preflight.sql',import.meta.url),'utf8');
+const rollback=fs.readFileSync(new URL('../../../supabase/rollback/0030_m13_fiscal_a1.rollback.sql',import.meta.url),'utf8');
+const pgtap=fs.readFileSync(new URL('../../../supabase/tests/0030_m13_fiscal_a1.test.sql',import.meta.url),'utf8');
+test('migration é transacional',()=>{assert.match(migration,/^begin;/m);assert.match(migration,/commit;\s*$/)});
+test('migration cria 14 tabelas fiscais',()=>assert.equal((migration.match(/create table public\./g)||[]).length,14));
+test('todas as tabelas entram no bloco RLS',()=>assert.match(migration,/foreach t in array array\[[^\]]*erp_fiscal_webhook_inbox/));
+test('PFX e CSC não são colunas',()=>{assert.doesNotMatch(migration,/\b(pfx|p12|certificate_password|csc_value)\s+(text|bytea)/i)});
+test('preflight bloqueia objetos preexistentes',()=>assert.match(preflight,/Objetos M13 já existem/));
+test('preflight tem marcador determinístico',()=>assert.match(preflight,/M13_0030_PREFLIGHT_OK/));
+test('rollback remove funções antes das tabelas',()=>assert.ok(rollback.indexOf('drop function')<rollback.indexOf('drop table')));
+test('pgTAP declara 89 asserções',()=>assert.match(pgtap,/select plan\(89\)/));
+test('pgTAP termina em rollback',()=>assert.match(pgtap,/rollback;\s*$/));
