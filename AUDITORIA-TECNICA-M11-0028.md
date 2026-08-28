@@ -8,7 +8,9 @@
 
 ## Parecer
 
-**Resultado: bloqueada para aplicação remota.** A estrutura geral é viável, mas a migration ainda não atende ao nível de segurança necessário para consentimento e acesso remoto.
+**Resultado original: bloqueada para aplicação remota.** A estrutura geral era viável, mas a migration ainda não atendia ao nível de segurança necessário para consentimento e acesso remoto.
+
+**Remediação local:** concluída em 27/08/2026. O portão remoto continua fechado até preflight e validação transacional autorizados.
 
 ## Achados bloqueadores
 

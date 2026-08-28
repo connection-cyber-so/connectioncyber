@@ -1,4 +1,4 @@
-begin;set local role postgres;create extension if not exists pgtap with schema extensions;set local search_path=public,extensions,pgtap;select plan(76);
+begin;set local role postgres;create extension if not exists pgtap with schema extensions;set local search_path=public,extensions,pgtap;select plan(87);
 select ok(to_regclass(format('public.%I',table_name))is not null,format('tabela %s existe',table_name))from unnest(array['erp_support_queues','erp_support_queue_members','erp_sla_policies','erp_sla_targets','erp_support_tickets','erp_support_ticket_events','erp_support_messages','erp_support_attachments','erp_ticket_assignments','erp_ticket_sla_clocks','erp_managed_devices','erp_device_identifiers','erp_remote_consents','erp_remote_access_grants','erp_remote_sessions','erp_remote_session_events','erp_remote_session_artifacts'])names(table_name);
 select ok(c.relrowsecurity,format('RLS ativo em %s',c.relname))from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public'and c.relname=any(array['erp_support_queues','erp_support_queue_members','erp_sla_policies','erp_sla_targets','erp_support_tickets','erp_support_ticket_events','erp_support_messages','erp_support_attachments','erp_ticket_assignments','erp_ticket_sla_clocks','erp_managed_devices','erp_device_identifiers','erp_remote_consents','erp_remote_access_grants','erp_remote_sessions','erp_remote_session_events','erp_remote_session_artifacts'])order by c.relname;
 select ok(not has_table_privilege('anon',format('public.%I',table_name),'SELECT'),format('anon não lê %s',table_name))from unnest(array['erp_support_tickets','erp_support_messages','erp_managed_devices','erp_remote_access_grants','erp_remote_sessions'])names(table_name);
@@ -25,6 +25,17 @@ select ok(exists(select 1 from pg_constraint where conname='erp_remote_session_e
 select ok((select prosecdef from pg_proc where oid='public.erp_create_support_ticket(uuid,uuid,uuid,text,text,text,text,text,text)'::regprocedure),'ticket security definer');
 select ok((select prosecdef from pg_proc where oid='public.erp_issue_remote_access_grant(uuid,uuid,uuid,uuid,text[],text,text)'::regprocedure),'grant security definer');
 select ok((select prosecdef from pg_proc where oid='public.erp_revoke_remote_access(uuid,uuid,text,text)'::regprocedure),'revogação security definer');
+select ok(not has_function_privilege('anon','public.erp_decide_remote_consent(uuid,uuid,text,timestamptz,text)','EXECUTE'),'anon não decide consentimento');
+select ok(has_function_privilege('authenticated','public.erp_decide_remote_consent(uuid,uuid,text,timestamptz,text)','EXECUTE'),'authenticated decide consentimento por RPC');
+select ok((select prosecdef from pg_proc where oid='public.erp_decide_remote_consent(uuid,uuid,text,timestamptz,text)'::regprocedure),'consentimento security definer');
+select ok(pg_get_functiondef('public.erp_issue_remote_access_grant(uuid,uuid,uuid,uuid,text[],text,text)'::regprocedure)like '%current_aal()%','emissão exige AAL2 inclusive para staff');
+select ok(pg_get_functiondef('public.erp_revoke_remote_access(uuid,uuid,text,text)'::regprocedure)like '%current_aal()%','revogação exige AAL2 inclusive para staff');
+select ok(not has_table_privilege('authenticated','public.erp_remote_consents','UPDATE'),'consentimento não aceita update direto');
+select ok(not has_table_privilege('authenticated','public.erp_support_tickets','INSERT'),'ticket é criado somente por RPC');
+select ok(exists(select 1 from pg_policies where schemaname='public'and tablename='erp_remote_access_grants'and policyname='erp_remote_access_grants_select'and qual like '%remote.audit%'),'grants exigem auditoria remota');
+select ok(exists(select 1 from pg_constraint where conname='erp_support_attachments_message_ticket_fkey'),'anexo e mensagem pertencem ao mesmo ticket');
+select ok(exists(select 1 from pg_constraint where conname='erp_remote_access_grants_consent_context_fkey'),'grant preserva contexto do consentimento');
+select ok(pg_get_functiondef('public.erp_decide_remote_consent(uuid,uuid,text,timestamptz,text)'::regprocedure)like '%24 hours%','consentimento limita validade a 24 horas');
 select ok(exists(select 1 from pg_constraint where conrelid='public.erp_support_ticket_events'::regclass and contype='c'),'evento recusa segredos');
 select ok(exists(select 1 from pg_constraint where conrelid='public.erp_remote_access_grants'::regclass and contype='c'),'grant possui expiração válida');
 select ok(exists(select 1 from pg_constraint where conrelid='public.erp_remote_session_events'::regclass and contype='c'),'sessão recusa segredos');
