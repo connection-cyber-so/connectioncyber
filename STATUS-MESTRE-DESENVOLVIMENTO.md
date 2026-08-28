@@ -346,7 +346,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | G2 pronto para validação transacional | Migration 0030, preflight, rollback, 100 pgTAP e 50 testes locais | Aguarda autorização exclusiva para preflight e ROLLBACK remoto. |
+| M13 | Fiscal e certificado A1 | 0030 aplicada e validada em staging | 14 tabelas com RLS, 6 permissões, 100/100 pgTAP e zero dados fiscais | Próximo: homologação de provedor sem certificado real. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G3 — validação transacional remota da migration 0030
+### M13-G5 — prova de conceito de provedor fiscal em homologação
 
 Próxima sequência local e automática:
 
-1. executar preflight remoto somente leitura no Supabase staging;
-2. confirmar hash e escopo exclusivo da migration `0030`;
-3. aplicar a `0030` dentro de transação com `ROLLBACK`;
-4. executar as 100 asserções pgTAP e confirmar zero resíduos;
-5. manter aplicação persistente e produção bloqueadas.
+1. selecionar Focus NFe e PlugNotas para prova técnica comparável;
+2. configurar somente credenciais de homologação em cofre separado;
+3. executar payloads exclusivamente sintéticos e sem certificado real;
+4. medir idempotência, timeout, webhook, consulta e exportação;
+5. manter certificado real, contratação definitiva e produção bloqueados.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 
