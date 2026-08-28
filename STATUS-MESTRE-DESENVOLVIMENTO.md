@@ -345,7 +345,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M09 | Serviços e oficinas | Aplicado e validado em staging | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | 0025 aplicada; 68/68 asserções aprovadas; zero dados reais. |
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
-| M12 | Agente local e periféricos | Validado localmente | Impressão, etiqueta, balança, TEF e contingência/offline | Revisão final aprovada: 27/27 testes locais e 84 pgTAP preparados; aguarda portão transacional remoto. |
+| M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
 | M13 | Fiscal e certificado A1 | Não iniciado | Perfis tributários, XML, NF-e/NFC-e e eventos | Homologação, contingência e ciclo do certificado aprovados. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M12-G3 — validação transacional remota da migration 0029
+### M13-G0 — parecer técnico fiscal e certificado A1
 
 Próxima sequência local e automática:
 
-1. confirmar projeto staging, SHA e seleção exclusiva da 0029;
-2. executar preflight remoto somente leitura;
-3. validar migration e 84 asserções em transação com ROLLBACK;
-4. comprovar zero objetos, permissões e dados persistidos;
-5. manter aplicação persistente em portão separado.
+1. definir fronteiras entre fiscal, pagamento e operação offline;
+2. modelar ciclo do certificado A1 sem segredo no banco ou navegador;
+3. definir homologação, contingência, eventos e armazenamento de XML;
+4. estabelecer riscos, dependências e critérios de aceite;
+5. manter migration, provedor fiscal e produção em portões separados.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 
