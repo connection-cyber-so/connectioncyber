@@ -345,7 +345,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M09 | Serviços e oficinas | Aplicado e validado em staging | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | 0025 aplicada; 68/68 asserções aprovadas; zero dados reais. |
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
-| M12 | Agente local e periféricos | Planejado | Impressão, etiqueta, balança, TEF e contingência/offline | G1 concluído com protocolo 1.0, modelo de ameaças e 12/12 testes; próxima etapa é a migration local 0029. |
+| M12 | Agente local e periféricos | Validado localmente | Impressão, etiqueta, balança, TEF e contingência/offline | G2 preparado: 0029, 64 pgTAP e simuladores com 19/19 testes; aguarda auditoria técnica local. |
 | M13 | Fiscal e certificado A1 | Não iniciado | Perfis tributários, XML, NF-e/NFC-e e eventos | Homologação, contingência e ciclo do certificado aprovados. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
@@ -383,14 +383,14 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M12-G2 — migration local 0029 e simulador
+### M12-G2 — auditoria técnica da migration 0029
 
 Próxima sequência local e automática:
 
-1. criar schema aditivo para agentes, chaves, comandos e eventos;
-2. incluir fila offline, reconciliação, RLS e idempotência;
-3. preparar preflight, rollback e testes pgTAP locais;
-4. criar simuladores sem hardware, TEF ou credenciais;
+1. revisar isolamento multiempresa, RLS e privilégios das quatro RPCs;
+2. revisar pareamento, nonce, expiração, revogação e atualização;
+3. revisar cadeia offline, conflitos e consistência financeira;
+4. corrigir localmente qualquer achado antes de validar SQL remotamente;
 5. manter toda aplicação remota bloqueada até autorização específica.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
