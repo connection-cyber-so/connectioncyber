@@ -344,7 +344,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M08 | Financeiro e bancário | Aplicado e validado em staging | Receber, pagar, fluxo de caixa, cartões, cheques e boletos | 0024 aplicada; 64/64 asserções aprovadas; zero dados reais. |
 | M09 | Serviços e oficinas | Aplicado e validado em staging | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | 0025 aplicada; 68/68 asserções aprovadas; zero dados reais. |
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
-| M11 | Atendimento e acesso remoto | Pacote local concluído; aguarda remediação da CTR 0027 | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | M11 está em 0028; 0027 CTR foi reprovada na auditoria e precisa ser corrigida primeiro. |
+| M11 | Atendimento e acesso remoto | Pacote local concluído; aguarda portão CTR 0027 | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | M11 está em 0028; CTR 0027 foi corrigida localmente, mas permanece não aplicada. |
 | M12 | Agente local e periféricos | Não iniciado | Impressão, etiqueta, balança, TEF e contingência/offline | Testes físicos no piloto sem segredo exposto. |
 | M13 | Fiscal e certificado A1 | Não iniciado | Perfis tributários, XML, NF-e/NFC-e e eventos | Homologação, contingência e ciclo do certificado aprovados. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
@@ -383,17 +383,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### Remediação local controlada da CTR 0027
+### Validação controlada da CTR 0027
 
-Próxima sequência automática local:
+Próxima sequência bloqueada até nova autorização explícita:
 
-1. remover o embedding placeholder e manter fallback lexical;
-2. definir contrato de provedor, modelo, dimensão, privacidade e custo;
-3. reescrever a 0027 com schema vetorial explícito, metadados, limites e ranking determinístico;
-4. criar preflight, rollback, pgTAP e testes multiempresa/qualidade;
-5. validar localmente e parar antes de qualquer aplicação remota da 0027.
+1. confirmar que somente 0027 e 0028 estão pendentes no staging;
+2. executar preflight e dry-run exclusivamente da CTR 0027;
+3. aplicar a 0027 somente após autorização específica;
+4. executar 36 asserções e comprovar zero embeddings/dados criados;
+5. somente depois abrir o portão remoto separado da M11 0028.
 
-Nenhuma migration remota será iniciada enquanto a CTR 0027 não for corrigida, validada e autorizada separadamente.
+Nenhuma migration remota será iniciada sem autorização específica. A geração semântica continuará desabilitada até decisão de provedor/modelo/privacidade/custo.
 
 ## 11. Histórico do documento
 
@@ -441,6 +441,7 @@ Nenhuma migration remota será iniciada enquanto a CTR 0027 não for corrigida, 
 | 4.1.0 | 27/08/2026 | M11-G0 | M10 aprovado por continuidade; tickets, SLA, filas, dispositivos, consentimento, grants efêmeros, sessões e auditoria documentados. | Parecer concluído; nenhuma migration M11 aplicada, nenhum ticket, grant ou sessão criado e produção intocada. |
 | 4.2.0 | 27/08/2026 | M11-G1 | Inventário global analisado; migration M11 renumerada para 0028 devido à 0027 CTR paralela; três RPCs, preflight, rollback, 76 testes e tela `/atendimento` preparados. | TypeScript, ESLint e 9/9 testes Node aprovados; 0027 CTR preservada e não versionada; execução SQL e aplicação remota não iniciadas; produção intocada. |
 | 4.3.0 | 27/08/2026 | CTR-0027-G0 | Migration, mudanças de catálogo, padrão e spec CTR auditados sem alteração dos arquivos paralelos. | Reprovada para aplicação: vetor placeholder, pacote sem portões, pgvector não qualificado, RPC sem limites e ausência de proveniência; remoto e produção intocados. |
+| 4.4.0 | 27/08/2026 | CTR-0027-G1 | Placeholder removido; migration, fallback lexical, RRF, privilégios server-only, preflight, rollback e 36 testes preparados. | TypeScript, ESLint e 9/9 testes Node aprovados; SQL remoto não executado, embeddings reais desabilitados e produção intocada. |
 
 ## 12. Protocolo de atualização futura
 
