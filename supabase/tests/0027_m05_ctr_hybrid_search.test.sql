@@ -8,7 +8,7 @@ select ok(not(select prosecdef from pg_proc where oid='public.match_catalog_hybr
 select ok(not has_function_privilege('anon','public.match_catalog_hybrid(extensions.vector,text,uuid,integer)','EXECUTE'),'anon não pesquisa');select ok(has_function_privilege('authenticated','public.match_catalog_hybrid(extensions.vector,text,uuid,integer)','EXECUTE'),'authenticated pesquisa sob RLS');
 select ok(pg_get_functiondef('public.match_catalog_hybrid(extensions.vector,text,uuid,integer)'::regprocedure)like '%has_permission%','RPC exige permissão de catálogo');
 select ok(pg_get_functiondef('public.match_catalog_hybrid(extensions.vector,text,uuid,integer)'::regprocedure)like '%BETWEEN 1 AND 50%','RPC limita quantidade');
-select ok(pg_get_functiondef('public.match_catalog_hybrid(extensions.vector,text,uuid,integer)'::regprocedure)like '%60 +%','RPC usa RRF determinístico');
+select ok(pg_get_functiondef('public.match_catalog_hybrid(extensions.vector,text,uuid,integer)'::regprocedure)~'60\s*\+','RPC usa RRF determinístico');
 select ok((select indexdef like '%WHERE (embedding IS NOT NULL)%'from pg_indexes where schemaname='public'and indexname='erp_catalog_items_embedding_idx'),'HNSW ignora embedding nulo');
 select ok(not has_column_privilege('authenticated','public.erp_catalog_items','embedding','INSERT'),'cliente não insere vetor');select ok(not has_column_privilege('authenticated','public.erp_catalog_items','embedding','UPDATE'),'cliente não atualiza vetor');
 select ok(not has_column_privilege('authenticated','public.erp_catalog_items','embedding_model','INSERT'),'cliente não insere modelo');select ok(not has_column_privilege('authenticated','public.erp_catalog_items','embedding_model','UPDATE'),'cliente não atualiza modelo');

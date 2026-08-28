@@ -4,6 +4,19 @@ BEGIN;
 -- 1. Extensão em schema determinístico do Supabase.
 CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA extensions;
 DO $$
+DECLARE
+  v_schema text;
+BEGIN
+  SELECT n.nspname INTO v_schema
+  FROM pg_extension e
+  JOIN pg_namespace n ON n.oid = e.extnamespace
+  WHERE e.extname = 'vector';
+
+  IF v_schema IS DISTINCT FROM 'extensions' THEN
+    ALTER EXTENSION vector SET SCHEMA extensions;
+  END IF;
+END $$;
+DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace
@@ -30,7 +43,8 @@ ADD CONSTRAINT erp_catalog_embedding_metadata_valid CHECK (
 
 -- 3. Índices de Alta Performance
 -- Índice HNSW para busca semântica ultrarrápida
-CREATE INDEX IF NOT EXISTS erp_catalog_items_embedding_idx ON public.erp_catalog_items
+DROP INDEX IF EXISTS public.erp_catalog_items_embedding_idx;
+CREATE INDEX erp_catalog_items_embedding_idx ON public.erp_catalog_items
 USING hnsw (embedding extensions.vector_cosine_ops) WHERE embedding IS NOT NULL;
 -- Índice GIN para busca lexical exata de palavras-chave
 CREATE INDEX IF NOT EXISTS erp_catalog_items_fts_idx ON public.erp_catalog_items USING gin (fts);
