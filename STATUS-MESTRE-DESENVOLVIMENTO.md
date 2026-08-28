@@ -346,7 +346,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | G7 local concluído | 0030 validada; fluxo A1 efêmero; 88 testes e zero dados | Autorizar separadamente a inspeção local do A1 real, sem assinatura/transmissão. |
+| M13 | Fiscal e certificado A1 | G8 local concluído | A1 real válido e cadeia local aprovada; 104 testes; zero dados fiscais | Autorizar separadamente assinatura local de XML sintético, sem transmissão. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G8 — inspeção local do A1 da empresa-piloto
+### M13-G9 — assinatura local controlada
 
 Próxima sequência local e automática:
 
-1. selecionar o arquivo por diálogo local protegido, nunca por caminho enviado ao chat;
-2. obter a senha por entrada local mascarada, sem argumento, variável ou log;
-3. inspecionar cadeia, titular e validade exclusivamente em memória;
-4. registrar apenas referência opaca, hashes e validade após confirmação;
-5. manter CSC, assinatura, transmissão e produção em portões independentes.
+1. selecionar o certificado válido no repositório pessoal do Windows;
+2. construir XML exclusivamente sintético, sem identidade ou valor fiscal real;
+3. assinar localmente sem exportar a chave privada;
+4. validar assinatura, algoritmo e integridade sem chamada externa;
+5. manter CSC, transmissão e produção em portões independentes.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 

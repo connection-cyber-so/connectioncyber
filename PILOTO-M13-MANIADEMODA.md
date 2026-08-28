@@ -26,3 +26,12 @@ Proibido neste estágio: importar/instalar A1, armazenar senha/PFX/CSC, transmit
 - chave privada não extraída;
 - saída limitada a referência, hashes, validade e estado da cadeia;
 - nenhum certificado real foi aberto ou importado.
+
+## Validação M13-G8
+
+- certificado selecionado no repositório pessoal do Windows em modo somente leitura;
+- validade atual confirmada: `true`;
+- cadeia local confirmada: `true`;
+- senha não solicitada pelo inspetor;
+- titular, CNPJ, impressão digital e material criptográfico não registrados no projeto;
+- chave privada não exportada, assinatura e transmissão não executadas.
