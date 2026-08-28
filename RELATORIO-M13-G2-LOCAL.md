@@ -8,13 +8,13 @@ Escopo: somente arquivos locais em `connectioncyber-staging`.
 - migration `0030_m13_fiscal_a1.sql` com 14 tabelas, RLS, seis permissões e quatro RPCs;
 - preflight determinístico `M13_0030_PREFLIGHT_OK`;
 - rollback que remove funções antes das tabelas e limpa permissões M13;
-- suíte pgTAP declarada com 89 asserções e `ROLLBACK` final;
+- suíte pgTAP declarada com 97 asserções e `ROLLBACK` final após remediação;
 - simulador fiscal sem rede, XML, certificado, CSC, provedor ou dado real;
-- 41/41 testes Node aprovados e schemas JSON válidos.
+- 48/48 testes Node aprovados e schemas JSON válidos após auditoria.
 
 ## Resultado honesto do laboratório
 
-O runtime Docker Desktop estava parado. A tentativa de iniciar o serviço local foi recusada pelo Windows (`Cannot open com.docker.service`), e `supabase start` confirmou ausência do engine. Por isso, a migration e as 89 asserções pgTAP não foram executadas em PostgreSQL neste portão. Nenhum comando remoto foi usado como alternativa.
+O runtime Docker Desktop estava parado. A tentativa de iniciar o serviço local foi recusada pelo Windows (`Cannot open com.docker.service`), e `supabase start` confirmou ausência do engine. Por isso, a migration e as 97 asserções pgTAP não foram executadas em PostgreSQL neste portão. Nenhum comando remoto foi usado como alternativa.
 
 ## Estado de segurança
 

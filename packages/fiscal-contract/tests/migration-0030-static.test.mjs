@@ -12,5 +12,12 @@ test('PFX e CSC não são colunas',()=>{assert.doesNotMatch(migration,/\b(pfx|p1
 test('preflight bloqueia objetos preexistentes',()=>assert.match(preflight,/Objetos M13 já existem/));
 test('preflight tem marcador determinístico',()=>assert.match(preflight,/M13_0030_PREFLIGHT_OK/));
 test('rollback remove funções antes das tabelas',()=>assert.ok(rollback.indexOf('drop function')<rollback.indexOf('drop table')));
-test('pgTAP declara 89 asserções',()=>assert.match(pgtap,/select plan\(89\)/));
+test('pgTAP declara 97 asserções',()=>assert.match(pgtap,/select plan\(97\)/));
 test('pgTAP termina em rollback',()=>assert.match(pgtap,/rollback;\s*$/));
+test('IDs externos opcionais usam índices parciais',()=>{assert.doesNotMatch(migration,/unique nulls not distinct\(tenant_id,provider,provider_document_id\)/);assert.match(migration,/provider_document_unique[^;]+where provider_document_id is not null/)});
+test('documento preserva estabelecimento e série',()=>assert.match(migration,/foreign key\(tenant_id,series_id,establishment_id,environment,model,series\)/));
+test('documento referencia schema por modelo e versão',()=>assert.match(migration,/foreign key\(model,schema_version\)references public\.erp_fiscal_schema_versions/));
+test('contingência possui vínculo obrigatório com modelo 65',()=>assert.match(migration,/document_model text not null default '65'check\(document_model='65'\)/));
+test('referência criptográfica aceita apenas identificador de cofre',()=>assert.match(migration,/secret_ref~'\^\(vault\|hsm\|provider\|seal\):\/\//));
+test('produção possui kill switch também no SQL',()=>assert.ok((migration.match(/fiscal production disabled/g)||[]).length>=2));
+test('evento divergente do estado é recusado',()=>assert.match(migration,/event and status mismatch/));
