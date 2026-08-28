@@ -346,7 +346,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | Não iniciado | Perfis tributários, XML, NF-e/NFC-e e eventos | Homologação, contingência e ciclo do certificado aprovados. |
+| M13 | Fiscal e certificado A1 | G0 concluído | Parecer, fronteiras, segurança A1, NF-e/NFC-e e contingência | G1: contrato canônico, ameaças e matriz de provedores. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G0 — parecer técnico fiscal e certificado A1
+### M13-G1 — contrato fiscal, ameaças e matriz de provedores
 
 Próxima sequência local e automática:
 
-1. definir fronteiras entre fiscal, pagamento e operação offline;
-2. modelar ciclo do certificado A1 sem segredo no banco ou navegador;
-3. definir homologação, contingência, eventos e armazenamento de XML;
-4. estabelecer riscos, dependências e critérios de aceite;
-5. manter migration, provedor fiscal e produção em portões separados.
+1. definir contratos canônicos de emissão, eventos, status e webhooks;
+2. modelar ameaças da numeração, assinatura, transmissão e contingência;
+3. comparar provedor fiscal e integração direta com critérios verificáveis;
+4. especificar simuladores e testes sem certificado nem dados reais;
+5. preparar o contrato da migration local `0030`, sem executá-la remotamente.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 
