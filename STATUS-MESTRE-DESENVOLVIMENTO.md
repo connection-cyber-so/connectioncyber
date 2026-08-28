@@ -346,7 +346,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | G5 preparado; token pendente | 0030 validada; adaptador Focus homologação; 58 testes e zero dados | Executar probe somente após token local de homologação. |
+| M13 | Fiscal e certificado A1 | G5 simulado concluído | 0030 validada; adaptador SEFAZ sem rede; 68 testes e zero dados | Autorizar separadamente custódia e empresa-piloto de homologação. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G5 — prova de conceito de provedor fiscal em homologação
+### M13-G6 — empresa-piloto e credenciais de homologação
 
 Próxima sequência local e automática:
 
-1. selecionar Focus NFe e PlugNotas para prova técnica comparável;
-2. configurar somente credenciais de homologação em cofre separado;
-3. executar payloads exclusivamente sintéticos e sem certificado real;
-4. medir idempotência, timeout, webhook, consulta e exportação;
-5. manter certificado real, contratação definitiva e produção bloqueados.
+1. definir a custódia do certificado A1 sem armazená-lo no Git ou banco;
+2. validar a situação da empresa-piloto e credenciais exclusivamente em homologação;
+3. autorizar separadamente a instalação/importação do A1 e o uso do CSC;
+4. executar primeiro assinatura e validação local, sem transmissão;
+5. manter transmissão e produção em portões independentes.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 

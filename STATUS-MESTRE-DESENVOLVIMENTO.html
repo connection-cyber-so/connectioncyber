@@ -117,7 +117,7 @@
     <tr><td>M10</td><td>Restaurantes/lanchonetes</td><td>Não iniciado</td><td>Receitas, adicionais, mesas, comandas e cozinha</td><td>Comanda fecha venda, insumos, caixa e fiscal.</td></tr>
     <tr><td>M11</td><td>Atendimento/remoto</td><td>Aplicado e validado em staging</td><td>Tickets, dispositivos, consentimentos e sessões</td><td>0028 aplicada; 87/87 asserções; zero dados reais.</td></tr>
     <tr><td>M12</td><td>Agente local/periféricos</td><td>Aplicado e validado em staging</td><td>Impressão, balança, TEF e contingência</td><td>0029 aplicada; 84/84 asserções; 12 tabelas com RLS e zero dados reais.</td></tr>
-    <tr><td>M13</td><td>Fiscal/A1</td><td>G5 preparado; token pendente</td><td>0030 validada; adaptador Focus homologação; 58 testes e zero dados</td><td>Executar probe somente após token local de homologação.</td></tr>
+    <tr><td>M13</td><td>Fiscal/A1</td><td>G5 simulado concluído</td><td>0030 validada; adaptador SEFAZ sem rede; 68 testes e zero dados</td><td>Autorizar separadamente custódia e empresa-piloto de homologação.</td></tr>
     <tr><td>M14</td><td>Engenharia reversa/importador</td><td>Não iniciado</td><td>Laboratório, adaptadores, lotes e reconciliação</td><td>Reexecução sem duplicidade e totais fechados.</td></tr>
     <tr><td>M15</td><td>Piloto/implantações</td><td>Não iniciado</td><td>Corte e ondas por tenant</td><td>Aceite e rollback individual.</td></tr>
   </tbody></table></div>
@@ -128,8 +128,8 @@
   <h2>9. Processo por cliente</h2>
   <ol><li>Preservar backup original.</li><li>Calcular hash.</li><li>Restaurar cópia isolada.</li><li>Inventariar schema e integridade.</li><li>Extrair em área protegida.</li><li>Transformar com tenant no servidor.</li><li>Carregar por job idempotente.</li><li>Reconciliar entidades e saldos.</li><li>Obter aceite.</li><li>Cortar com rollback.</li><li>Repetir individualmente.</li></ol>
 
-  <h2>10. Próxima ação — M13-G5 prova de conceito de provedor fiscal em homologação</h2>
-  <ol><li>Selecionar Focus NFe e PlugNotas para prova comparável.</li><li>Usar somente credenciais de homologação em cofre separado.</li><li>Executar payloads sintéticos sem certificado real.</li><li>Medir idempotência, timeout, webhook, consulta e exportação.</li><li>Manter certificado real, contratação e produção bloqueados.</li></ol>
+  <h2>10. Próxima ação — M13-G6 empresa-piloto e credenciais de homologação</h2>
+  <ol><li>Definir custódia do A1 fora do Git e banco.</li><li>Validar empresa-piloto e credenciais somente em homologação.</li><li>Autorizar separadamente A1 e CSC.</li><li>Executar primeiro assinatura e validação local, sem transmissão.</li><li>Manter transmissão e produção em portões independentes.</li></ol>
   <p>Estado: 0030 aplicada e validada no staging com 100/100; 14 tabelas RLS, seis permissões e zero dados fiscais; produção intocada.</p>
 
   <h2>11. Histórico</h2>
