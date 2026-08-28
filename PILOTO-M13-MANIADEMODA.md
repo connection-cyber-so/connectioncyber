@@ -7,3 +7,13 @@
 - ambiente deste portão: somente simulação local de homologação.
 
 Proibido neste estágio: importar/instalar A1, armazenar senha/PFX/CSC, transmitir à SEFAZ, gerar chave/protocolo/XML válido, criar dados no Supabase ou acessar produção. A identidade completa e as credenciais da empresa-piloto permanecem em portão separado.
+
+## Validação M13-G6
+
+- identificador técnico: `pilot-maniademoda`;
+- cofre definido: externo, por referência opaca e chave não exportável;
+- inventário futuro: somente hashes do titular e impressão digital, validade e referência;
+- importação A1: desativada;
+- assinatura: desativada;
+- transmissão: desativada;
+- produção: desativada.

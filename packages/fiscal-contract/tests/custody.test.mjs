@@ -1,0 +1,14 @@
+import test from'node:test';import assert from'node:assert/strict';
+import{defineA1CustodyPolicy,maniaDeModaPilotDescriptor,validateCertificateInventoryMetadata,validatePilotDescriptor}from'../src/custody.mjs';
+const hash='a'.repeat(64);
+const policy=()=>({storage:'external-vault',privateKeyExportable:false,gitStorage:false,databaseStorage:false,importAuthorized:false,signingAuthorized:false,transmissionAuthorized:false,requiredApprovals:['certificate-import','fiscal-transmission']});
+test('piloto mascarado é válido',()=>assert.equal(validatePilotDescriptor(maniaDeModaPilotDescriptor()).validated,true));
+test('piloto recusa CNPJ completo',()=>assert.throws(()=>validatePilotDescriptor({...maniaDeModaPilotDescriptor(),identity:'1'.repeat(14)}),/PILOT_SECRET_OR_IDENTITY_FORBIDDEN/));
+test('piloto recusa produção',()=>assert.throws(()=>validatePilotDescriptor({...maniaDeModaPilotDescriptor(),productionEnabled:true}),/UNSAFE_PILOT_SCOPE/));
+test('piloto recusa transmissão',()=>assert.throws(()=>validatePilotDescriptor({...maniaDeModaPilotDescriptor(),transmissionEnabled:true}),/UNSAFE_PILOT_SCOPE/));
+test('custódia exige cofre externo e chave não exportável',()=>assert.equal(defineA1CustodyPolicy(policy()).validated,true));
+test('custódia recusa armazenamento no Git',()=>assert.throws(()=>defineA1CustodyPolicy({...policy(),gitStorage:true}),/INVALID_CUSTODY_STORAGE/));
+test('custódia recusa importação antecipada',()=>assert.throws(()=>defineA1CustodyPolicy({...policy(),importAuthorized:true}),/CURRENT_GATE_EXCEEDED/));
+test('custódia exige portões separados',()=>assert.throws(()=>defineA1CustodyPolicy({...policy(),requiredApprovals:['certificate-import']}),/MISSING_SEPARATE_GATES/));
+test('inventário aceita somente metadados por hash',()=>assert.equal(validateCertificateInventoryMetadata({subjectHash:hash,thumbprint:hash,expiresAt:'2099-01-01T00:00:00Z'}).materialPresent,false));
+test('inventário recusa caminho PFX',()=>assert.throws(()=>validateCertificateInventoryMetadata({subjectHash:hash,thumbprint:hash,expiresAt:'2099-01-01T00:00:00Z',path:'pilot.pfx'}),/CERTIFICATE_MATERIAL_FORBIDDEN/));
