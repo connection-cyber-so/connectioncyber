@@ -14,6 +14,7 @@ Escopo: revisão local estática e simulada; sem execução remota.
 | A05 | Crítica | `secret_ref` aceitava conteúdo arbitrário que poderia esconder segredo real | formato fechado para referências `vault://`, `hsm://`, `provider://` ou `seal://` |
 | A06 | Alta | tipo do evento podia divergir do estado aplicado | mapeamento obrigatório evento↔estado na RPC |
 | A07 | Crítica | pacote Node bloqueava produção, mas RPC SQL não tinha kill switch equivalente | `app.fiscal_production_enabled` permanece falso/ausente por padrão na reserva e no webhook |
+| A08 | Crítica | operador podia declarar autorização e grants do broker eram incoerentes | operador limitado a validar/enfileirar/cancelar com AAL2; somente broker processa assinatura, transmissão e resposta fiscal |
 
 ## Evidências
 
@@ -23,14 +24,14 @@ Escopo: revisão local estática e simulada; sem execução remota.
 - reserva usa lock de linha e idempotência antes/depois do lock;
 - criação e transição repetidas retornam o objeto existente;
 - rollback remove objetos M13 e a chave composta adicionada em `erp_sales`;
-- 48/48 testes Node aprovados;
-- 97 asserções pgTAP preparadas com rollback final;
+- 50/50 testes Node aprovados;
+- 100 asserções pgTAP preparadas com rollback final;
 - zero PFX, CSC, certificado, XML, credencial ou dado fiscal real.
 
 ## Limite atual
 
-Docker/PostgreSQL local permanece indisponível por permissão do serviço Windows. Portanto, as 97 asserções ainda precisam de execução transacional antes de qualquer aplicação persistente. A indisponibilidade não foi contornada com acesso remoto.
+Docker/PostgreSQL local permanece indisponível por permissão do serviço Windows. Portanto, as 100 asserções ainda precisam de execução transacional antes de qualquer aplicação persistente. A indisponibilidade não foi contornada com acesso remoto.
 
 ## Conclusão
 
-Os sete bloqueios identificados foram remediados localmente. Não há bloqueio crítico conhecido na revisão estática; a prontidão definitiva depende da revisão final e da execução PostgreSQL transacional das 97 asserções.
+Os oito bloqueios identificados foram remediados localmente. Não há bloqueio crítico conhecido na revisão estática; a prontidão definitiva depende da execução PostgreSQL transacional das 100 asserções.

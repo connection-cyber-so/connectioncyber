@@ -346,7 +346,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | G2 auditado e remediado | Migration 0030, preflight, rollback, 97 pgTAP e 48 testes sintéticos/estáticos | Revisão final local; pgTAP aguarda runtime Docker/PostgreSQL. |
+| M13 | Fiscal e certificado A1 | G2 pronto para validação transacional | Migration 0030, preflight, rollback, 100 pgTAP e 50 testes locais | Aguarda autorização exclusiva para preflight e ROLLBACK remoto. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G2B — revisão final local da migration 0030
+### M13-G3 — validação transacional remota da migration 0030
 
 Próxima sequência local e automática:
 
-1. repetir testes estáticos, simuladores e varredura de segredos;
-2. conferir hash e escopo exclusivo da migration `0030`;
-3. confirmar que nenhum bloqueio crítico permanece aberto;
-4. emitir relatório final de prontidão transacional;
-5. manter qualquer execução remota bloqueada até autorização específica.
+1. executar preflight remoto somente leitura no Supabase staging;
+2. confirmar hash e escopo exclusivo da migration `0030`;
+3. aplicar a `0030` dentro de transação com `ROLLBACK`;
+4. executar as 100 asserções pgTAP e confirmar zero resíduos;
+5. manter aplicação persistente e produção bloqueadas.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 
