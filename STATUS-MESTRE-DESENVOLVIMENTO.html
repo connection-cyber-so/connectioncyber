@@ -116,7 +116,7 @@
     <tr><td>M09</td><td>Serviços/oficinas</td><td>Não iniciado</td><td>Ativos, veículos, agenda e OS</td><td>Materiais, serviços, estoque e financeiro fecham.</td></tr>
     <tr><td>M10</td><td>Restaurantes/lanchonetes</td><td>Não iniciado</td><td>Receitas, adicionais, mesas, comandas e cozinha</td><td>Comanda fecha venda, insumos, caixa e fiscal.</td></tr>
     <tr><td>M11</td><td>Atendimento/remoto</td><td>Aplicado e validado em staging</td><td>Tickets, dispositivos, consentimentos e sessões</td><td>0028 aplicada; 87/87 asserções; zero dados reais.</td></tr>
-    <tr><td>M12</td><td>Agente local/periféricos</td><td>Em desenvolvimento</td><td>Impressão, balança, TEF e contingência</td><td>Auditoria 0029 encontrou sete bloqueios; validação remota bloqueada.</td></tr>
+    <tr><td>M12</td><td>Agente local/periféricos</td><td>Validado localmente</td><td>Impressão, balança, TEF e contingência</td><td>Sete bloqueios remediados; 84 pgTAP e 19/19 simuladores; aguarda revisão final local.</td></tr>
     <tr><td>M13</td><td>Fiscal/A1</td><td>Não iniciado</td><td>Perfis, XML, DF-e e eventos</td><td>Homologação e contingência.</td></tr>
     <tr><td>M14</td><td>Engenharia reversa/importador</td><td>Não iniciado</td><td>Laboratório, adaptadores, lotes e reconciliação</td><td>Reexecução sem duplicidade e totais fechados.</td></tr>
     <tr><td>M15</td><td>Piloto/implantações</td><td>Não iniciado</td><td>Corte e ondas por tenant</td><td>Aceite e rollback individual.</td></tr>
@@ -128,7 +128,7 @@
   <h2>9. Processo por cliente</h2>
   <ol><li>Preservar backup original.</li><li>Calcular hash.</li><li>Restaurar cópia isolada.</li><li>Inventariar schema e integridade.</li><li>Extrair em área protegida.</li><li>Transformar com tenant no servidor.</li><li>Carregar por job idempotente.</li><li>Reconciliar entidades e saldos.</li><li>Obter aceite.</li><li>Cortar com rollback.</li><li>Repetir individualmente.</li></ol>
 
-  <h2>10. Próxima ação — remediação local da migration 0029</h2>
+  <h2>10. Próxima ação — revisão final local da migration 0029</h2>
   <ol><li>Revisar migration, dry-run, telas, testes e riscos do G1.</li><li>Executar preflight somente leitura no Supabase staging.</li><li>Confirmar hash e selecionar somente a 0018.</li><li>Aplicar a 0018 exclusivamente no projeto staging.</li><li>Validar estrutura, grants, RLS, helpers, lint, resíduos e 49 pgTAP transacionais.</li><li>Manter contas, convites, memberships, roles por tenant, MFA, Vercel, DNS e produção proibidos.</li></ol>
   <p>Comando sugerido: <code>M04-G1 pacote e laboratório aprovados; aplicar 0018 exclusivamente no Supabase staging e executar validação remota, sem criar contas, convites, memberships, roles ou fatores MFA.</code></p>
 

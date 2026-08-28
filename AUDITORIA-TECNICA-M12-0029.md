@@ -8,7 +8,9 @@
 
 ## Parecer
 
-**Resultado: bloqueada para validação ou aplicação remota.** A base estrutural é adequada, mas o contrato de confiança do agente ainda não está completo no banco.
+**Resultado original: bloqueada para validação ou aplicação remota.** A base estrutural era adequada, mas o contrato de confiança do agente ainda não estava completo no banco.
+
+**Remediação local:** concluída em 28/08/2026. A validação remota continua bloqueada até autorização específica.
 
 ## Achados bloqueadores
 

@@ -345,7 +345,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M09 | Serviços e oficinas | Aplicado e validado em staging | Ativos, veículos, agenda, OS, peças, mão de obra e histórico | 0025 aplicada; 68/68 asserções aprovadas; zero dados reais. |
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
-| M12 | Agente local e periféricos | Em desenvolvimento | Impressão, etiqueta, balança, TEF e contingência/offline | Auditoria 0029 encontrou sete bloqueios; simuladores seguem em 19/19 e a validação remota está bloqueada. |
+| M12 | Agente local e periféricos | Validado localmente | Impressão, etiqueta, balança, TEF e contingência/offline | Sete bloqueios da 0029 remediados; 84 pgTAP preparados e simuladores em 19/19; aguarda revisão final local. |
 | M13 | Fiscal e certificado A1 | Não iniciado | Perfis tributários, XML, NF-e/NFC-e e eventos | Homologação, contingência e ciclo do certificado aprovados. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M12-G2 — remediação local da migration 0029
+### M12-G2 — revisão final local da migration 0029
 
 Próxima sequência local e automática:
 
-1. implementar ativação atômica do agente e ingestão restrita ao broker;
-2. reforçar vínculos compostos de agente, estabelecimento, periférico e snapshot;
-3. garantir cadeia offline, MFA e reconciliação idempotente;
-4. segregar RLS e ampliar rollback e pgTAP;
-5. manter toda validação remota bloqueada até nova auditoria aprovada.
+1. conferir assinaturas das sete RPCs e privilégios do broker;
+2. conferir nomes de constraints e plano de 84 testes;
+3. conferir preflight e rollback após a remediação;
+4. emitir parecer de prontidão para validação transacional;
+5. manter toda validação remota bloqueada até autorização específica.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 
