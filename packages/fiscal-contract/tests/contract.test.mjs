@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { FiscalContractError, assertTransition, assertWebhookAuthenticity, canonicalize, fiscalIdempotencyKey, payloadHash, reconciliationDecision, validateIssueRequest, validateProviderEvent } from '../src/index.mjs';
+const tenant='12000000-0000-4000-8000-000000000001',establishment='13000000-0000-4000-8000-000000000001',requestId='14000000-0000-4000-8000-000000000001';
+function request(overrides={}){return{contractVersion:'1.0',requestId,tenantId:tenant,establishmentId:establishment,environment:'homologation',model:'65',idempotencyKey:`${tenant}:homologation:65:1:1:issue`,saleRef:'synthetic-sale-001',issuedAt:'2026-08-28T12:00:00-03:00',schemaVersion:'synthetic-v1',taxSnapshot:{regime:'synthetic'},items:[{line:1,amount:'1.00'}],totals:{amount:'1.00'},contingency:null,...overrides}}
+function event(overrides={}){return{contractVersion:'1.0',eventId:'synthetic-event-001',provider:'simulator',providerDocumentId:'synthetic-doc-001',tenantId:tenant,environment:'homologation',model:'65',status:'authorized',occurredAt:'2026-08-28T15:00:00.000Z',receivedAt:'2026-08-28T15:00:01.000Z',payloadHash:'a'.repeat(64),...overrides}}
+test('aceita solicitação sintética de homologação',()=>assert.equal(validateIssueRequest(request()),true));
+test('produção permanece desligada por padrão',()=>assert.throws(()=>validateIssueRequest(request({environment:'production'})),/PRODUCTION_KILL_SWITCH/));
+test('produção exige liberação explícita',()=>assert.equal(validateIssueRequest(request({environment:'production'}),{allowProduction:true}),true));
+test('tenant inválido é recusado',()=>assert.throws(()=>validateIssueRequest(request({tenantId:'invalid'})),/INVALID_IDENTITY/));
+test('modelo fiscal desconhecido é recusado',()=>assert.throws(()=>validateIssueRequest(request({model:'99'})),/INVALID_FISCAL_SCOPE/));
+test('item vazio é recusado',()=>assert.throws(()=>validateIssueRequest(request({items:[]})),/INVALID_SNAPSHOT/));
+test('PFX em qualquer profundidade é recusado',()=>assert.throws(()=>validateIssueRequest(request({taxSnapshot:{custody:{pfx:'forbidden'}}})),/SECRET_FIELD_FORBIDDEN/));
+test('CSC em qualquer profundidade é recusado',()=>assert.throws(()=>validateIssueRequest(request({totals:{csc:'forbidden'}})),/SECRET_FIELD_FORBIDDEN/));
+test('contingência offline em NF-e é recusada',()=>assert.throws(()=>validateIssueRequest(request({model:'55',contingency:{mode:'offline'}})),/OFFLINE_CONTINGENCY_NFCE_ONLY/));
+test('chave idempotente é determinística',()=>{const input={tenantId:tenant,environment:'homologation',model:'65',series:1,number:9};assert.equal(fiscalIdempotencyKey(input),fiscalIdempotencyKey(input))});
+test('ambiente participa da chave idempotente',()=>assert.notEqual(fiscalIdempotencyKey({tenantId:tenant,environment:'homologation',model:'65',series:1,number:9}),fiscalIdempotencyKey({tenantId:tenant,environment:'production',model:'65',series:1,number:9})));
+test('canonicalização independe da ordem',()=>assert.equal(canonicalize({b:2,a:1}),canonicalize({a:1,b:2})));
+test('hash detecta alteração do payload',()=>assert.notEqual(payloadHash({a:1}),payloadHash({a:2})));
+test('evento esperado é aceito',()=>assert.equal(validateProviderEvent(event(),{expectedTenantId:tenant,expectedEnvironment:'homologation'}),true));
+test('evento cross-tenant é recusado',()=>assert.throws(()=>validateProviderEvent(event(),{expectedTenantId:'22000000-0000-4000-8000-000000000001'}),/TENANT_MISMATCH/));
+test('evento de outro ambiente é recusado',()=>assert.throws(()=>validateProviderEvent(event(),{expectedEnvironment:'production'}),/ENVIRONMENT_MISMATCH/));
+test('evento sem hash válido é recusado',()=>assert.throws(()=>validateProviderEvent(event({payloadHash:'bad'})),/INVALID_EVENT_EVIDENCE/));
+test('transição autorizada funciona',()=>assert.equal(assertTransition('transmitting','authorized'),true));
+test('autorizado não retorna para fila',()=>assert.throws(()=>assertTransition('authorized','queued'),FiscalContractError));
+test('webhook sem assinatura válida é recusado',()=>assert.throws(()=>assertWebhookAuthenticity({rawBody:'{}',signature:'bad',verify:()=>false}),/INVALID_WEBHOOK_SIGNATURE/));
+test('webhook válido é aceito',()=>assert.equal(assertWebhookAuthenticity({rawBody:'{}',signature:'ok',verify:(_b,s)=>s==='ok'}),true));
+test('timeout gera consulta, não rejeição',()=>assert.equal(reconciliationDecision({localStatus:'transmitting',providerStatus:'unknown'}),'query_provider'));
+test('autorização externa divergente é importada',()=>assert.equal(reconciliationDecision({localStatus:'transmitting',providerStatus:'authorized'}),'import_authorization'));
+test('estado igual é idempotente',()=>assert.equal(reconciliationDecision({localStatus:'authorized',providerStatus:'authorized'}),'no_op'));
