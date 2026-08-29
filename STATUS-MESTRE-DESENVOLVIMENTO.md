@@ -346,8 +346,8 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | G16 parecer concluído | Motor global aprovado; primeira NF-e exige preflight individual e portão persistente | Autorizar G17 local sem transmissão para a empresa-piloto. |
-| M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
+| M13 | Fiscal e certificado A1 | Motor global validado; piloto pendente | Contratos, schemas, assinatura, estados, SOAP/TLS e perfis tributários fail-closed | Retomar validação individual após confirmação do contador em 31/08/2026; emissão real permanece bloqueada. |
+| M14 | Engenharia reversa e importador | Fundação concluída em staging | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | 0031 aplicada; 96/96 pós-aplicação; execução com fonte real transferida aos portões individuais do M15. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
 ## 8. Critérios globais de validação
@@ -383,17 +383,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M14-G4 — remediação local da migration 0031
+### M15-G0 — parecer de prontidão do piloto
 
-Próxima sequência autorizável:
+Próxima sequência automática:
 
-1. serializar idempotência e concorrência por lote;
-2. completar FKs compostas e máquina de estados;
-3. aplicar allowlist aos metadados e preservar bloqueios de reconciliação;
-4. ampliar testes pgTAP e concorrentes;
-5. repetir migration, rollback, zero resíduos e reconstrução somente local.
+1. consolidar a matriz de prontidão da empresa-piloto Mania de Moda;
+2. inventariar bloqueios fiscais, domínio, usuários, backup, operação e suporte;
+3. definir backup, restauração, corte, rollback e observabilidade por tenant;
+4. fixar critérios de aceite funcionais, financeiros, fiscais, segurança e desempenho;
+5. emitir a sequência determinística dos portões M15 sem criar dados reais.
 
-Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
+Importação de backup real, criação de usuários, credenciais, fiscal, domínio público, pagamentos e produção permanecem em portões separados.
 
 ## 11. Histórico do documento
 
@@ -453,6 +453,7 @@ Nenhuma migration remota será iniciada sem autorização específica. Instalaç
 | 6.2.0 | 29/08/2026 | M14-G5 | Auditoria final independente de escopo, concorrência, integridade, RLS, privilégios, rollback e resíduos da 0031. | Aprovada para preflight e validação transacional remota com ROLLBACK; 41/41, 96/96, 7/7 RLS, 5/5 RPCs e zero dados; aplicação persistente bloqueada. |
 | 6.3.0 | 29/08/2026 | M14-G6 | Dry-run exclusivo, preflight e validação fail-closed da 0031 no Supabase staging dentro de transação com ROLLBACK. | 96/96 aprovados; histórico remoto permanece em 0030; preflight final confirmou zero resíduos; produção intocada e aplicação persistente bloqueada. |
 | 6.4.0 | 29/08/2026 | M14-G7 | Migration 0031 aplicada persistentemente apenas no Supabase staging e auditada pelo fluxo pós-aplicação fail-closed. | 96/96, auditoria estrutural, histórico 0031/0031, dry-run sem pendências e zero dados; produção intocada. |
+| 6.5.0 | 29/08/2026 | M14-G8 | Fundação global do importador encerrada e pendências dependentes de fonte real transferidas para portões individuais do piloto. | M14 concluído em staging; M15 definido como próximo módulo; M15-G0 liberado sem dados reais e corte fiscal/produção bloqueado. |
 
 ## 12. Protocolo de atualização futura
 
