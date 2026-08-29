@@ -1,6 +1,7 @@
 import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';
 const source=readFileSync(new URL('../scripts/Inspect-A1Protected.ps1',import.meta.url),'utf8');
 const installed=readFileSync(new URL('../scripts/Inspect-A1Installed.ps1',import.meta.url),'utf8');
+const signer=readFileSync(new URL('../scripts/Sign-SyntheticXmlInstalledA1.ps1',import.meta.url),'utf8');
 test('script PowerShell permanece ASCII',()=>assert.doesNotMatch(source,/[^\x00-\x7F]/));
 test('senha usa SecureString mascarada',()=>assert.match(source,/Read-Host[^\r\n]+-AsSecureString/));
 test('certificado usa EphemeralKeySet',()=>assert.match(source,/X509KeyStorageFlags\]::EphemeralKeySet/));
@@ -17,3 +18,12 @@ test('inspetor instalado não solicita senha',()=>assert.doesNotMatch(installed,
 test('inspetor instalado mascara identidade',()=>assert.match(installed,/\\d\{14\}/));
 test('inspetor instalado não grava arquivo nem acessa rede',()=>assert.doesNotMatch(installed,/WriteAll|Set-Content|Out-File|Invoke-WebRequest|Invoke-RestMethod|HttpClient/));
 test('seletor instalado oferece somente certificados atualmente válidos',()=>assert.match(installed,/HasPrivateKey -and \$validNow/));
+test('assinador permanece ASCII',()=>assert.doesNotMatch(signer,/[^\x00-\x7F]/));
+test('XML é explicitamente sintético e sem valor fiscal',()=>{assert.match(signer,/SyntheticFiscalDocument/);assert.match(signer,/FiscalValue>false/)});
+test('assinador usa SHA-256 e RSA-SHA256',()=>{assert.match(signer,/XmlDsigSHA256Url/);assert.match(signer,/XmlDsigRSASHA256Url/)});
+test('assinador valida assinatura com chave pública',()=>assert.match(signer,/CheckSignature\(\$publicKey\)/));
+test('assinador não inclui certificado ou identidade no XML',()=>assert.doesNotMatch(signer,/KeyInfo|X509Data|<CNPJ|<CPF/));
+test('assinador não exporta chave',()=>assert.doesNotMatch(signer,/\.Export\(|Export-PfxCertificate|Exportable/));
+test('assinador não grava XML ou arquivo',()=>assert.doesNotMatch(signer,/\.Save\(|WriteAll|Set-Content|Out-File|Export-Clixml/));
+test('assinador não acessa rede ou SEFAZ',()=>assert.doesNotMatch(signer,/Invoke-WebRequest|Invoke-RestMethod|HttpClient|sefaz/i));
+test('assinador limita seleção a certificado válido',()=>assert.match(signer,/HasPrivateKey -and \$validNow/));

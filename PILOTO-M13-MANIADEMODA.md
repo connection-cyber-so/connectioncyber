@@ -35,3 +35,12 @@ Proibido neste estágio: importar/instalar A1, armazenar senha/PFX/CSC, transmit
 - senha não solicitada pelo inspetor;
 - titular, CNPJ, impressão digital e material criptográfico não registrados no projeto;
 - chave privada não exportada, assinatura e transmissão não executadas.
+
+## Validação M13-G9
+
+- XML exclusivamente sintético assinado em memória com o A1 instalado;
+- assinatura criptográfica válida: `true`;
+- cadeia válida: `true`;
+- conteúdo sem identidade real: `true`;
+- valor fiscal: `false`;
+- chave privada exportada, XML persistido, CSC usado, transmissão e produção: `false`.
