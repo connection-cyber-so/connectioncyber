@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M14-G1 — contrato canônico e simulador de importação
+### M14-G2 — migration local 0031 e ledger de importação
 
 Próxima sequência autorizável:
 
-1. definir manifesto imutável da fonte e hashes;
-2. especificar lote canônico por tenant e domínio;
-3. implementar mapeamentos sintéticos e rejeições determinísticas;
-4. provar idempotência, rollback e reconciliação;
-5. manter qualquer backup ou dado real em portão separado.
+1. criar tabelas tenant-scoped de manifesto, job, lote, item, rejeição e reconciliação;
+2. aplicar RLS, privilégios server-only e idempotência;
+3. preparar preflight e rollback completos;
+4. executar testes pgTAP apenas no laboratório local;
+5. manter backup, dado real e aplicação remota em portões separados.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 
@@ -446,6 +446,7 @@ Nenhuma migration remota será iniciada sem autorização específica. Instalaç
 | 5.5.0 | 29/08/2026 | M13-G18 | Coletor protegido em memória, validações cruzadas e oito testes adicionais preparados. | 217/217 e parser PowerShell aprovados; coleta real não executada; zero persistência, XML, assinatura, transmissão ou produção. |
 | 5.6.0 | 29/08/2026 | M13-G19 | Quatro perfis sintéticos, resolução por tenant e validação fail-closed de CRT, CST/CSOSN, NCM, CFOP e versão. | 234/234 aprovados; RPA com CSOSN e produção bloqueados; empresa-piloto pendente de contador. |
 | 5.7.0 | 29/08/2026 | M14-G0 | Pipeline determinístico de importação, invariantes, riscos e portões definidos. | Contratos e simuladores liberados; backup, credenciais e dados reais permanecem bloqueados. |
+| 5.8.0 | 29/08/2026 | M14-G1 | Manifesto SHA-256, lote canônico, dez domínios e simulador atômico/idempotente implementados. | 24/24 aprovados; reconciliação prévia, isolamento recursivo e replay comprovados; zero fonte real ou persistência. |
 
 ## 12. Protocolo de atualização futura
 
