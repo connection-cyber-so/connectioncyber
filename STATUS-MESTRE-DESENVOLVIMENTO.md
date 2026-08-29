@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M14-G2 — laboratório PostgreSQL local da migration 0031
+### M14-G3 — auditoria técnica final local da migration 0031
 
 Próxima sequência autorizável:
 
-1. iniciar o Docker Desktop e confirmar o Engine ativo;
-2. executar preflight e migration 0031 no banco descartável;
-3. confirmar 80/80 pgTAP;
-4. executar rollback, comprovar zero resíduos e reconstruir com 80/80;
-5. manter backup, dado real e aplicação remota em portões separados.
+1. revisar schema, FKs, RLS, grants e RPCs server-only;
+2. confirmar hash, escopo e ausência de payload bruto;
+3. revisar concorrência, idempotência e reconciliação;
+4. emitir parecer de prontidão para validação transacional remota;
+5. manter backup real, aplicação persistente e produção bloqueados.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 
@@ -447,7 +447,7 @@ Nenhuma migration remota será iniciada sem autorização específica. Instalaç
 | 5.6.0 | 29/08/2026 | M13-G19 | Quatro perfis sintéticos, resolução por tenant e validação fail-closed de CRT, CST/CSOSN, NCM, CFOP e versão. | 234/234 aprovados; RPA com CSOSN e produção bloqueados; empresa-piloto pendente de contador. |
 | 5.7.0 | 29/08/2026 | M14-G0 | Pipeline determinístico de importação, invariantes, riscos e portões definidos. | Contratos e simuladores liberados; backup, credenciais e dados reais permanecem bloqueados. |
 | 5.8.0 | 29/08/2026 | M14-G1 | Manifesto SHA-256, lote canônico, dez domínios e simulador atômico/idempotente implementados. | 24/24 aprovados; reconciliação prévia, isolamento recursivo e replay comprovados; zero fonte real ou persistência. |
-| 5.9.0 | 29/08/2026 | M14-G2 | Migration 0031, sete tabelas, cinco RPCs server-only, RLS, preflight, rollback e 80 pgTAP preparados. | 37/37 estáticos aprovados; Docker sem daemon impediu execução SQL local; remoto e produção intocados. |
+| 5.9.0 | 29/08/2026 | M14-G2 | Migration 0031, sete tabelas, cinco RPCs server-only, RLS, preflight, rollback e 80 pgTAP preparados e executados localmente. | Constraint longa nomeada; 37/37, preflight, 80/80, rollback, zero resíduos, rebuild e 80/80; remoto e produção intocados. |
 
 ## 12. Protocolo de atualização futura
 
