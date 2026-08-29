@@ -1,0 +1,16 @@
+import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';import{buildSoap12Envelope,createBlockedNFeSoapClient,resolveAuthorizer}from'../src/nfe-soap.mjs';
+const catalog=JSON.parse(readFileSync(new URL('../catalogs/nfe-homologation-authorizers.json',import.meta.url),'utf8'));
+test('catálogo contém 27 UFs sem duplicidade',()=>{const states=Object.values(catalog.routes).flat();assert.equal(states.length,27);assert.equal(new Set(states).size,27)});
+test('SP usa autorizador próprio',()=>assert.equal(resolveAuthorizer(catalog,'SP'),'OWN'));
+test('MA usa SVAN',()=>assert.equal(resolveAuthorizer(catalog,'MA'),'SVAN'));
+test('RJ usa SVRS',()=>assert.equal(resolveAuthorizer(catalog,'RJ'),'SVRS'));
+test('UF inválida é recusada',()=>assert.throws(()=>resolveAuthorizer(catalog,'XX'),/UF_NOT_ROUTED/));
+test('catálogo permanece bloqueado',()=>{assert.equal(catalog.networkEnabled,false);assert.equal(catalog.productionEnabled,false)});
+test('quatro serviços essenciais são versionados',()=>assert.equal(catalog.services.length,4));
+test('envelope usa SOAP 1.2 e correlação',()=>{const xml=buildSoap12Envelope({service:'NFeStatusServico4',correlationId:'corr-synthetic-001',payloadXml:'<synthetic/>'});assert.match(xml,/2003\/05\/soap-envelope/);assert.match(xml,/corr-synthetic-001/)});
+test('envelope recusa identidade real',()=>assert.throws(()=>buildSoap12Envelope({service:'NFeStatusServico4',correlationId:'corr-synthetic-001',payloadXml:'<CNPJ>00000000000000</CNPJ>'}),/INVALID_SOAP_REQUEST/));
+test('serviço fora da lista é recusado',()=>assert.throws(()=>buildSoap12Envelope({service:'Other',correlationId:'corr-synthetic-001',payloadXml:'<synthetic/>'}),/INVALID_SOAP_REQUEST/));
+test('cliente exige mTLS por referência',()=>assert.throws(()=>createBlockedNFeSoapClient({catalog,transport:null,tls:{mode:'none',privateKeyExportable:false}}),/FAIL_CLOSED/));
+test('cliente bloqueado não envia',()=>{const client=createBlockedNFeSoapClient({catalog,transport:null,tls:{mode:'mutual-tls-reference-only',privateKeyExportable:false}});assert.equal(client.networkEnabled,false);assert.throws(()=>client.send(),/NETWORK_GATE_CLOSED/)});
+test('timeout é fixo e tentativa única',()=>{const client=createBlockedNFeSoapClient({catalog,transport:null,tls:{mode:'mutual-tls-reference-only',privateKeyExportable:false}});assert.equal(client.timeoutMs,15000);assert.equal(client.maxAttempts,1)});
+test('código não implementa transporte',()=>assert.doesNotMatch(createBlockedNFeSoapClient.toString(),/fetch|HttpClient|https\.request|axios/i));
