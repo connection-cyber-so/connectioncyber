@@ -1,0 +1,15 @@
+import test from'node:test';import assert from'node:assert/strict';import fs from'node:fs';
+const migration=fs.readFileSync(new URL('../../../supabase/migrations/0031_m14_import_ledger.sql',import.meta.url),'utf8'),preflight=fs.readFileSync(new URL('../../../supabase/preflight/0031_m14_import_ledger_preflight.sql',import.meta.url),'utf8'),rollback=fs.readFileSync(new URL('../../../supabase/rollback/0031_m14_import_ledger.rollback.sql',import.meta.url),'utf8'),pgtap=fs.readFileSync(new URL('../../../supabase/tests/0031_m14_import_ledger.test.sql',import.meta.url),'utf8');
+test('migration 0031 is transactional',()=>{assert.match(migration,/^--[\s\S]*\nbegin;/);assert.match(migration,/commit;\s*$/)});
+test('migration creates seven ledger tables',()=>assert.equal((migration.match(/create table public\.erp_import_/g)||[]).length,7));
+test('all ledger tables enter RLS loop',()=>assert.match(migration,/foreach t in array array\['erp_import_manifests'[\s\S]*'erp_import_reconciliations'\]/));
+test('raw payload and source path are forbidden',()=>{assert.doesNotMatch(migration,/\braw_payload\b|\bsource_path text\b/i);assert.match(migration,/source_path/)});
+test('five RPCs are security definer',()=>assert.equal((migration.match(/returns uuid language plpgsql security definer/g)||[]).length,5));
+test('all RPCs are broker only',()=>assert.equal((migration.match(/broker only/g)||[]).length,5));
+test('finalization locks and reconciles batch',()=>{assert.match(migration,/for update/);assert.match(migration,/reconciliation mismatch/)});
+test('canonical conflict is fail closed',()=>assert.match(migration,/canonical key conflict/));
+test('idempotency conflicts are fail closed',()=>{assert.match(migration,/manifest idempotency conflict/);assert.match(migration,/job idempotency conflict/);assert.match(migration,/batch idempotency conflict/)});
+test('preflight has deterministic marker',()=>assert.match(preflight,/M14_0031_PREFLIGHT_OK/));
+test('rollback removes functions before tables',()=>assert.ok(rollback.indexOf('drop function')<rollback.indexOf('drop table')));
+test('pgTAP declares exactly 80 assertions',()=>assert.match(pgtap,/select plan\(80\)/));
+test('pgTAP always rolls back',()=>assert.match(pgtap,/rollback;\s*$/));
