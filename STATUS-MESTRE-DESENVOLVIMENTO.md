@@ -449,6 +449,7 @@ Nenhuma migration remota será iniciada sem autorização específica. Instalaç
 | 5.8.0 | 29/08/2026 | M14-G1 | Manifesto SHA-256, lote canônico, dez domínios e simulador atômico/idempotente implementados. | 24/24 aprovados; reconciliação prévia, isolamento recursivo e replay comprovados; zero fonte real ou persistência. |
 | 5.9.0 | 29/08/2026 | M14-G2 | Migration 0031, sete tabelas, cinco RPCs server-only, RLS, preflight, rollback e 80 pgTAP preparados e executados localmente. | Constraint longa nomeada; 37/37, preflight, 80/80, rollback, zero resíduos, rebuild e 80/80; remoto e produção intocados. |
 | 6.0.0 | 29/08/2026 | M14-G3 | Auditoria de concorrência, idempotência, FKs, estados, metadados e reconciliação da 0031. | Reprovada para remoto com sete bloqueios; nenhuma alteração SQL, dado real ou acesso à produção. |
+| 6.1.0 | 29/08/2026 | M14-G4 | Sete bloqueios da 0031 remediados; concorrência serializada, FKs compostas, estados fail-closed, allowlists e reconciliação durável implementados. | 41/41 e dois ciclos 96/96 aprovados; rollback e preflight repetidos; remoto e produção intocados; aguarda auditoria M14-G5. |
 
 ## 12. Protocolo de atualização futura
 
