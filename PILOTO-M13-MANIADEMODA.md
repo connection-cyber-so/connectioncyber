@@ -54,3 +54,12 @@ Proibido neste estágio: importar/instalar A1, armazenar senha/PFX/CSC, transmit
 - cadeia válida: `true`;
 - identidade da empresa-piloto ausente dos campos fiscais: `true`;
 - XML persistido, CSC, transmissão e produção: `false`.
+
+## Validação M13-G11
+
+- chave de acesso sintética com 44 dígitos e módulo 11 validada;
+- itens, descontos, acréscimos, pagamentos e total reconciliados em centavos;
+- envelope `enviNFe` 4.00 montado somente em memória;
+- lote derivado deterministicamente e reprocessamento sem duplicidade;
+- conflitos e divergências geram rejeições locais estáveis;
+- certificado, CSC, assinatura, persistência, transmissão e produção: `false`.

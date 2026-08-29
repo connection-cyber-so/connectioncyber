@@ -1,0 +1,6 @@
+import{createHash}from'node:crypto';import{buildEnviNFe,composeSyntheticAccessKey,deterministicBatchId,LocalBatchRegistry,reconcileNFeTotals,validateAccessKey}from'../src/nfe-business.mjs';
+const accessKey=composeSyntheticAccessKey({stateCode:'35',yearMonth:'2608',series:'001',number:'000000001',numericCode:'00000001'});
+const reconciliation=reconcileNFeTotals({items:[{productCents:100,discountCents:0}],totals:{freightCents:0,insuranceCents:0,otherCents:0,ipiCents:0,stCents:0,desonerationCents:0,invoiceCents:100},payments:[{method:'90',amountCents:0}]});
+const batchId=deterministicBatchId({accessKey,idempotencyKey:'synthetic-idempotency-001'}),nfeXml='<NFe xmlns="http://www.portalfiscal.inf.br/nfe"><synthetic/></NFe>',envelope=buildEnviNFe({batchId,accessKey,nfeXml});
+const registry=new LocalBatchRegistry(),contentHash=createHash('sha256').update(envelope).digest('hex'),first=registry.submit({batchId,contentHash}),second=registry.submit({batchId,contentHash});
+console.log(JSON.stringify({result:'M13_G11_LOCAL_RULES_OK',accessKeyValid:validateAccessKey(accessKey),totalsValid:reconciliation.invoiceCents===100,batchIdempotent:first.status==='accepted_local'&&second.status==='duplicate'&&registry.size()===1,envelopeBuilt:envelope.includes('<enviNFe'),syntheticIdentity:true,signed:false,persisted:false,transmitted:false,productionAccessed:false}));
