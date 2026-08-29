@@ -346,7 +346,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | G14 TLS concluído | SP, SVRS e SVAN em TLS 1.2/mTLS; zero bytes de aplicação; 186 testes | Autorizar StatusServico4 sintético em homologação, sem NF-e. |
+| M13 | Fiscal e certificado A1 | G15 concluído | StatusServico4 SP/SVRS/SVAN HTTP 200 cStat 107; 190 testes | Emitir parecer G16 antes de qualquer autorização NF-e. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 

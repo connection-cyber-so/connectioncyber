@@ -1,6 +1,7 @@
 import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';import{buildSoap12Envelope,createBlockedNFeSoapClient,resolveAuthorizer}from'../src/nfe-soap.mjs';
 const catalog=JSON.parse(readFileSync(new URL('../catalogs/nfe-homologation-authorizers.json',import.meta.url),'utf8'));
 const tlsHosts=JSON.parse(readFileSync(new URL('../catalogs/nfe-homologation-tls-hosts.json',import.meta.url),'utf8')),tlsScript=readFileSync(new URL('../scripts/Test-NFeHomologationTls.ps1',import.meta.url),'utf8');
+const statusScript=readFileSync(new URL('../scripts/Invoke-NFeStatusHomologation.ps1',import.meta.url),'utf8');
 test('catálogo contém 27 UFs sem duplicidade',()=>{const states=Object.values(catalog.routes).flat();assert.equal(states.length,27);assert.equal(new Set(states).size,27)});
 test('SP usa autorizador próprio',()=>assert.equal(resolveAuthorizer(catalog,'SP'),'OWN'));
 test('MA usa SVAN',()=>assert.equal(resolveAuthorizer(catalog,'MA'),'SVAN'));
@@ -19,3 +20,7 @@ test('prova TLS contém somente hosts de homologação',()=>assert.equal(tlsHost
 test('prova TLS proíbe HTTP e produção',()=>{assert.equal(tlsHosts.httpRequestAllowed,false);assert.equal(tlsHosts.productionAllowed,false)});
 test('script TLS permanece ASCII',()=>assert.doesNotMatch(tlsScript,/[^\x00-\x7F]/));
 test('script TLS não envia bytes de aplicação',()=>assert.doesNotMatch(tlsScript,/\.Write\(|HttpWebRequest|Invoke-WebRequest|Invoke-RestMethod/));
+test('consulta de status permanece ASCII',()=>assert.doesNotMatch(statusScript,/[^\x00-\x7F]/));
+test('consulta usa somente StatusServico4',()=>{assert.match(statusScript,/NFeStatusServico4/);assert.doesNotMatch(statusScript,/NFeAutorizacao4|enviNFe|NFeRecepcaoEvento4/)});
+test('payload não contém identidade ou documento',()=>assert.doesNotMatch(statusScript,/<CNPJ>|<CPF>|<chNFe>|<infNFe>/));
+test('consulta usa somente homologação',()=>{assert.match(statusScript,/<tpAmb>2<\/tpAmb>/);assert.doesNotMatch(statusScript,/tpAmb>1/)});
