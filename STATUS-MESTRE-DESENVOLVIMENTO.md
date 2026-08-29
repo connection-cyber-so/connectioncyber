@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G17 — preflight individual da primeira NF-e
+### M13-G18 — coleta fiscal protegida da empresa-piloto
 
 Próxima sequência autorizável:
 
-1. confirmar credenciamento, UF e autorizador da empresa-piloto;
-2. validar correspondência entre A1 e emitente sem registrar identidade;
-3. reservar série e número exclusivos de homologação;
-4. montar, validar e assinar uma NF-e localmente sem persistir ou transmitir;
-5. emitir hash e resumo técnico para um portão posterior de envio único.
+1. coletar localmente os 13 requisitos ausentes, fora do Git e dos logs;
+2. validar formatos de UF, município, IE, CRT, série e número;
+3. exigir confirmação do cenário NCM, CFOP e CSOSN;
+4. confirmar credenciamento e correspondência do A1 sem registrar identidade;
+5. repetir o preflight; montagem e assinatura continuam bloqueadas até aprovação completa.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 
@@ -442,6 +442,7 @@ Nenhuma migration remota será iniciada sem autorização específica. Instalaç
 | 4.2.0 | 27/08/2026 | M11-G1 | Inventário global analisado; migration M11 renumerada para 0028 devido à 0027 CTR paralela; três RPCs, preflight, rollback, 76 testes e tela `/atendimento` preparados. | TypeScript, ESLint e 9/9 testes Node aprovados; 0027 CTR preservada e não versionada; execução SQL e aplicação remota não iniciadas; produção intocada. |
 | 4.3.0 | 27/08/2026 | CTR-0027-G0 | Migration, mudanças de catálogo, padrão e spec CTR auditados sem alteração dos arquivos paralelos. | Reprovada para aplicação: vetor placeholder, pacote sem portões, pgvector não qualificado, RPC sem limites e ausência de proveniência; remoto e produção intocados. |
 | 4.4.0 | 27/08/2026 | CTR-0027-G1 | Placeholder removido; migration, fallback lexical, RRF, privilégios server-only, preflight, rollback e 36 testes preparados. | TypeScript, ESLint e 9/9 testes Node aprovados; SQL remoto não executado, embeddings reais desabilitados e produção intocada. |
+| 5.4.0 | 29/08/2026 | M13-G17 | Preflight individual fail-closed da primeira NF-e modelo 55 e 19 novos testes preparados. | 209/209 aprovados; 13 requisitos ausentes bloqueados; nenhum XML, assinatura, transmissão, Supabase remoto ou produção. |
 
 ## 12. Protocolo de atualização futura
 

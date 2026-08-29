@@ -72,3 +72,13 @@ Proibido neste estágio: importar/instalar A1, armazenar senha/PFX/CSC, transmit
 - conflito de protocolo direcionado para revisão manual;
 - documento único preservado após consulta e reprocessamento;
 - rede, certificado, CSC, XML persistido, transmissão e produção: `false`.
+
+## Validação M13-G17
+
+- preflight individual executado localmente em modo fail-closed;
+- 13 requisitos fiscais ausentes detectados sem inventar valores;
+- credenciamento e correspondência do A1 permanecem sem confirmação;
+- cadastro fiscal, numeração e cenário tributário permanecem bloqueados;
+- suíte fiscal aprovada: `209/209`;
+- XML gerado, assinado, persistido ou transmitido: `false`;
+- Supabase remoto e produção: não acessados.
