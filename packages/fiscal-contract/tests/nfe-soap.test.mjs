@@ -1,5 +1,6 @@
 import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';import{buildSoap12Envelope,createBlockedNFeSoapClient,resolveAuthorizer}from'../src/nfe-soap.mjs';
 const catalog=JSON.parse(readFileSync(new URL('../catalogs/nfe-homologation-authorizers.json',import.meta.url),'utf8'));
+const tlsHosts=JSON.parse(readFileSync(new URL('../catalogs/nfe-homologation-tls-hosts.json',import.meta.url),'utf8')),tlsScript=readFileSync(new URL('../scripts/Test-NFeHomologationTls.ps1',import.meta.url),'utf8');
 test('catálogo contém 27 UFs sem duplicidade',()=>{const states=Object.values(catalog.routes).flat();assert.equal(states.length,27);assert.equal(new Set(states).size,27)});
 test('SP usa autorizador próprio',()=>assert.equal(resolveAuthorizer(catalog,'SP'),'OWN'));
 test('MA usa SVAN',()=>assert.equal(resolveAuthorizer(catalog,'MA'),'SVAN'));
@@ -14,3 +15,7 @@ test('cliente exige mTLS por referência',()=>assert.throws(()=>createBlockedNFe
 test('cliente bloqueado não envia',()=>{const client=createBlockedNFeSoapClient({catalog,transport:null,tls:{mode:'mutual-tls-reference-only',privateKeyExportable:false}});assert.equal(client.networkEnabled,false);assert.throws(()=>client.send(),/NETWORK_GATE_CLOSED/)});
 test('timeout é fixo e tentativa única',()=>{const client=createBlockedNFeSoapClient({catalog,transport:null,tls:{mode:'mutual-tls-reference-only',privateKeyExportable:false}});assert.equal(client.timeoutMs,15000);assert.equal(client.maxAttempts,1)});
 test('código não implementa transporte',()=>assert.doesNotMatch(createBlockedNFeSoapClient.toString(),/fetch|HttpClient|https\.request|axios/i));
+test('prova TLS contém somente hosts de homologação',()=>assert.equal(tlsHosts.hosts.every(item=>/hom|homolog/i.test(item.host)),true));
+test('prova TLS proíbe HTTP e produção',()=>{assert.equal(tlsHosts.httpRequestAllowed,false);assert.equal(tlsHosts.productionAllowed,false)});
+test('script TLS permanece ASCII',()=>assert.doesNotMatch(tlsScript,/[^\x00-\x7F]/));
+test('script TLS não envia bytes de aplicação',()=>assert.doesNotMatch(tlsScript,/\.Write\(|HttpWebRequest|Invoke-WebRequest|Invoke-RestMethod/));
