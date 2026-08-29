@@ -346,7 +346,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | G9 local concluído | Assinatura sintética RSA-SHA256 validada; 113 testes; zero dados fiscais | Autorizar separadamente XML NF-e de homologação e validação local de schema. |
+| M13 | Fiscal e certificado A1 | G10 local concluído | NF-e 4.00/XSD 010e_v1.02 e assinatura válidas; 128 testes; zero dados fiscais | Autorizar regras de negócio e envelope NF-e locais, sem transmissão. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
@@ -383,14 +383,14 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G10 — XML NF-e canônico de homologação
+### M13-G11 — regras de negócio e envelope NF-e
 
 Próxima sequência local e automática:
 
-1. fixar versão e schemas oficiais da NF-e usados pelo contrato;
-2. gerar XML de homologação exclusivamente com dados sintéticos;
-3. validar estrutura, tipos, totais e regras locais antes da assinatura;
-4. assinar e revalidar somente em memória, sem transmissão;
+1. gerar chave de acesso sintética e validar seu dígito;
+2. reconciliar itens, tributos, pagamentos e total da NF-e;
+3. montar envelope `enviNFe` e identificador de lote idempotente;
+4. testar rejeições e reprocessamento inteiramente locais;
 5. manter NFC-e/CSC, transmissão e produção em portões independentes.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.

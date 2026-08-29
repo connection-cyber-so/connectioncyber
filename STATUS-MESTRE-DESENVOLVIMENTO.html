@@ -117,7 +117,7 @@
     <tr><td>M10</td><td>Restaurantes/lanchonetes</td><td>Não iniciado</td><td>Receitas, adicionais, mesas, comandas e cozinha</td><td>Comanda fecha venda, insumos, caixa e fiscal.</td></tr>
     <tr><td>M11</td><td>Atendimento/remoto</td><td>Aplicado e validado em staging</td><td>Tickets, dispositivos, consentimentos e sessões</td><td>0028 aplicada; 87/87 asserções; zero dados reais.</td></tr>
     <tr><td>M12</td><td>Agente local/periféricos</td><td>Aplicado e validado em staging</td><td>Impressão, balança, TEF e contingência</td><td>0029 aplicada; 84/84 asserções; 12 tabelas com RLS e zero dados reais.</td></tr>
-    <tr><td>M13</td><td>Fiscal/A1</td><td>G9 local concluído</td><td>Assinatura sintética RSA-SHA256 validada; 113 testes; zero dados fiscais</td><td>Autorizar separadamente XML NF-e de homologação e validação local de schema.</td></tr>
+    <tr><td>M13</td><td>Fiscal/A1</td><td>G10 local concluído</td><td>NF-e 4.00/XSD 010e_v1.02 e assinatura válidas; 128 testes; zero dados fiscais</td><td>Autorizar regras de negócio e envelope NF-e locais, sem transmissão.</td></tr>
     <tr><td>M14</td><td>Engenharia reversa/importador</td><td>Não iniciado</td><td>Laboratório, adaptadores, lotes e reconciliação</td><td>Reexecução sem duplicidade e totais fechados.</td></tr>
     <tr><td>M15</td><td>Piloto/implantações</td><td>Não iniciado</td><td>Corte e ondas por tenant</td><td>Aceite e rollback individual.</td></tr>
   </tbody></table></div>
@@ -128,8 +128,8 @@
   <h2>9. Processo por cliente</h2>
   <ol><li>Preservar backup original.</li><li>Calcular hash.</li><li>Restaurar cópia isolada.</li><li>Inventariar schema e integridade.</li><li>Extrair em área protegida.</li><li>Transformar com tenant no servidor.</li><li>Carregar por job idempotente.</li><li>Reconciliar entidades e saldos.</li><li>Obter aceite.</li><li>Cortar com rollback.</li><li>Repetir individualmente.</li></ol>
 
-  <h2>10. Próxima ação — M13-G10 XML NF-e canônico de homologação</h2>
-  <ol><li>Fixar versão e schemas fiscais usados pelo contrato.</li><li>Gerar XML de homologação somente com dados sintéticos.</li><li>Validar estrutura, tipos, totais e regras locais.</li><li>Assinar e revalidar apenas em memória, sem transmissão.</li><li>Manter NFC-e/CSC, transmissão e produção em portões independentes.</li></ol>
+  <h2>10. Próxima ação — M13-G11 regras de negócio e envelope NF-e</h2>
+  <ol><li>Gerar chave sintética e validar o dígito.</li><li>Reconciliar itens, tributos, pagamentos e total.</li><li>Montar envelope enviNFe e lote idempotente.</li><li>Testar rejeições e reprocessamento somente local.</li><li>Manter NFC-e/CSC, transmissão e produção em portões independentes.</li></ol>
   <p>Estado: 0030 aplicada e validada no staging com 100/100; 14 tabelas RLS, seis permissões e zero dados fiscais; produção intocada.</p>
 
   <h2>11. Histórico</h2>

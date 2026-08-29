@@ -1,0 +1,14 @@
+import test from'node:test';import assert from'node:assert/strict';import{createHash}from'node:crypto';import{readFileSync}from'node:fs';
+const root=new URL('../schemas/nfe/010e_v1.02/',import.meta.url);const manifest=JSON.parse(readFileSync(new URL('schema-manifest.json',root),'utf8'));const hash=file=>createHash('sha256').update(readFileSync(file)).digest('hex');
+const xsdRoot=new URL('xsd/PL_010e_v1.02/NFe/',root);const signer=readFileSync(new URL('../scripts/Sign-CanonicalNFeHomologation.ps1',import.meta.url),'utf8');
+test('pacote oficial fica fixado em 010e_v1.02',()=>assert.equal(manifest.package,'010e_v1.02'));
+test('hash do ZIP oficial confere',()=>assert.equal(hash(new URL('PL_010e_v1.02.zip',root)),manifest.zipSha256));
+for(const[name,expected]of Object.entries(manifest.files))test(`hash oficial confere: ${name}`,()=>assert.equal(hash(new URL(name,xsdRoot)),expected));
+test('schema raiz é NF-e 4.00',()=>assert.match(readFileSync(new URL('nfe_v4.00.xsd',xsdRoot),'utf8'),/name="NFe" type="TNFe"/));
+test('assinador canônico permanece ASCII',()=>assert.doesNotMatch(signer,/[^\x00-\x7F]/));
+test('XML usa modelo 55 e homologação',()=>{assert.match(signer,/<mod>55<\/mod>/);assert.match(signer,/<tpAmb>2<\/tpAmb>/)});
+test('perfil XMLDSig segue algoritmos fixados pelo XSD',()=>{assert.match(signer,/XmlDsigRSASHA1Url/);assert.match(signer,/XmlDsigSHA1Url/)});
+test('KeyInfo contém somente certificado público em memória',()=>{assert.match(signer,/KeyInfoX509Data\(\$leaf\)/);assert.doesNotMatch(signer,/\.Export\(/)});
+test('XML não contém identidade da empresa-piloto',()=>assert.doesNotMatch(signer,/09050756|09\.050\.756/));
+test('assinatura e validação ocorrem somente em memória',()=>{assert.match(signer,/CheckSignature\(\$publicKey\)/);assert.doesNotMatch(signer,/\.Save\(|WriteAll|Set-Content|Out-File/)});
+test('script não acessa SEFAZ ou rede',()=>assert.doesNotMatch(signer,/Invoke-WebRequest|Invoke-RestMethod|HttpClient|WebClient|sefaz/i));

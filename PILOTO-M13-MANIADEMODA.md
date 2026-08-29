@@ -44,3 +44,13 @@ Proibido neste estágio: importar/instalar A1, armazenar senha/PFX/CSC, transmit
 - conteúdo sem identidade real: `true`;
 - valor fiscal: `false`;
 - chave privada exportada, XML persistido, CSC usado, transmissão e produção: `false`.
+
+## Validação M13-G10
+
+- pacote oficial NF-e `010e_v1.02` fixado com hashes SHA-256;
+- NF-e modelo 55 em homologação gerada com identidade fiscal sintética;
+- schema oficial válido: `true`;
+- assinatura XMLDSig válida: `true`;
+- cadeia válida: `true`;
+- identidade da empresa-piloto ausente dos campos fiscais: `true`;
+- XML persistido, CSC, transmissão e produção: `false`.
