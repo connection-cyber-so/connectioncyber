@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-08-29",
+  "pilot": {
+    "id": "pilot-maniademoda",
+    "subdomain": "maniademoda.connectioncyber.com.br",
+    "segment": "seasonal-apparel-footwear",
+    "taxRegimeKnown": "normal-rpa",
+    "realIdentityStored": false
+  },
+  "decision": "synthetic_preparation_only",
+  "readiness": [
+    { "area": "tenant_isolation", "status": "ready_staging", "evidence": "RLS and tenant-scoped modules validated through migration 0031" },
+    { "area": "import_foundation", "status": "ready_staging", "evidence": "0031 applied; post-apply 96/96; zero data" },
+    { "area": "fiscal_engine", "status": "conditional", "evidence": "global engine validated; pilot tax configuration awaits accountant confirmation" },
+    { "area": "authentication", "status": "blocked", "evidence": "password policy, confirmation and privileged MFA require pre-pilot hardening" },
+    { "area": "backup_restore", "status": "blocked", "evidence": "RPO/RTO and restore drill are not proven" },
+    { "area": "legacy_source", "status": "blocked", "evidence": "no protected source copy has entered chain of custody" },
+    { "area": "devices_offline", "status": "blocked", "evidence": "printer, scale, drawer, TEF and offline inventory not validated for the pilot" },
+    { "area": "dns", "status": "conditional", "evidence": "explicit subdomain planned; no DNS mutation authorized" },
+    { "area": "payments", "status": "blocked", "evidence": "real payment operation and webhook production validation are not authorized" },
+    { "area": "observability_support", "status": "conditional", "evidence": "technical audit exists; pilot runbooks and alert ownership remain to be fixed" }
+  ],
+  "acceptance": {
+    "security": ["zero cross-tenant access", "MFA for privileged users", "no secrets in browser, logs or Git", "audit trail for privileged actions"],
+    "functional": ["critical retail journeys pass", "idempotent retries do not duplicate", "devices fail closed", "offline policy is documented"],
+    "data": ["counts and amounts reconcile", "source remains immutable", "rollback restores the previous state", "exceptions are accepted explicitly"],
+    "fiscal": ["pilot registration confirmed", "homologation passes before production", "A1 and CSC remain in approved custody", "no production emission before go-no-go"],
+    "operations": ["backup and restore drill passes", "RPO and RTO are accepted", "monitoring and support contacts are active", "cutover and rollback windows are approved"]
+  },
+  "gates": [
+    { "id": "M15-G1", "name": "pre-pilot security baseline", "automatic": true, "realData": false },
+    { "id": "M15-G2", "name": "synthetic end-to-end rehearsal", "automatic": true, "realData": false },
+    { "id": "M15-G3", "name": "device and offline inventory", "automatic": false, "realData": false },
+    { "id": "M15-G4", "name": "pilot fiscal confirmation and homologation", "automatic": false, "realData": true },
+    { "id": "M15-G5", "name": "protected legacy source intake", "automatic": false, "realData": true },
+    { "id": "M15-G6", "name": "staging migration rehearsal", "automatic": false, "realData": true },
+    { "id": "M15-G7", "name": "controlled UAT", "automatic": false, "realData": true },
+    { "id": "M15-G8", "name": "cutover and rollback drill", "automatic": false, "realData": true },
+    { "id": "M15-G9", "name": "production go-no-go", "automatic": false, "realData": true },
+    { "id": "M15-G10", "name": "controlled production cutover", "automatic": false, "realData": true },
+    { "id": "M15-G11", "name": "hypercare and pilot closure", "automatic": false, "realData": true }
+  ]
+}
