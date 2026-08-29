@@ -451,6 +451,7 @@ Nenhuma migration remota será iniciada sem autorização específica. Instalaç
 | 6.0.0 | 29/08/2026 | M14-G3 | Auditoria de concorrência, idempotência, FKs, estados, metadados e reconciliação da 0031. | Reprovada para remoto com sete bloqueios; nenhuma alteração SQL, dado real ou acesso à produção. |
 | 6.1.0 | 29/08/2026 | M14-G4 | Sete bloqueios da 0031 remediados; concorrência serializada, FKs compostas, estados fail-closed, allowlists e reconciliação durável implementados. | 41/41 e dois ciclos 96/96 aprovados; rollback e preflight repetidos; remoto e produção intocados; aguarda auditoria M14-G5. |
 | 6.2.0 | 29/08/2026 | M14-G5 | Auditoria final independente de escopo, concorrência, integridade, RLS, privilégios, rollback e resíduos da 0031. | Aprovada para preflight e validação transacional remota com ROLLBACK; 41/41, 96/96, 7/7 RLS, 5/5 RPCs e zero dados; aplicação persistente bloqueada. |
+| 6.3.0 | 29/08/2026 | M14-G6 | Dry-run exclusivo, preflight e validação fail-closed da 0031 no Supabase staging dentro de transação com ROLLBACK. | 96/96 aprovados; histórico remoto permanece em 0030; preflight final confirmou zero resíduos; produção intocada e aplicação persistente bloqueada. |
 
 ## 12. Protocolo de atualização futura
 

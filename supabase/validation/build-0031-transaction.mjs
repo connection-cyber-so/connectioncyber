@@ -1,0 +1,39 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const directory = path.dirname(fileURLToPath(import.meta.url));
+const supabaseDirectory = path.resolve(directory, '..');
+const migrationPath = path.join(supabaseDirectory, 'migrations', '0031_m14_import_ledger.sql');
+const testsPath = path.join(supabaseDirectory, 'tests', '0031_m14_import_ledger.test.sql');
+const outputPath = path.join(directory, '0031_transaction.generated.sql');
+
+const migration = fs.readFileSync(migrationPath, 'utf8');
+const tests = fs.readFileSync(testsPath, 'utf8');
+
+if (!/\nbegin;\s*/i.test(migration) || !/commit;\s*$/i.test(migration)) {
+  throw new Error('Migration 0031 is not transaction-delimited');
+}
+if (!/^begin;/i.test(tests) || !/rollback;\s*$/i.test(tests)) {
+  throw new Error('pgTAP 0031 is not rollback-delimited');
+}
+if (!/select plan\(96\)/i.test(tests)) {
+  throw new Error('pgTAP 0031 must declare exactly 96 assertions');
+}
+
+const migrationBody = migration.replace(/\nbegin;\s*/i, '\n').replace(/commit;\s*$/i, '');
+const testsBody = tests
+  .replace(/^begin;/i, '')
+  .replace(/select \* from finish\(\);/i, '')
+  .replace(/rollback;\s*$/i, '');
+const finishGate = `do $$
+declare failure text;
+begin
+ select string_agg(result, E'\\n') into failure from finish() as f(result);
+ if failure is not null then raise exception 'M14_0031_PGTAP_FAILED: %', failure;end if;
+end$$;
+select 'M14_0031_TRANSACTION_96_OF_96_ROLLBACK' result;`;
+const generated = `begin;\n${migrationBody}\n${testsBody}\n${finishGate}\nrollback;\n`;
+
+fs.writeFileSync(outputPath, generated, { encoding: 'utf8', flag: 'w' });
+console.log(`M14_0031_TRANSACTION_BUILT path=${outputPath}`);
