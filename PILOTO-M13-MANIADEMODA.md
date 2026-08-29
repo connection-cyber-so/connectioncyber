@@ -92,3 +92,13 @@ Proibido neste estágio: importar/instalar A1, armazenar senha/PFX/CSC, transmit
 - suíte fiscal aprovada: `217/217`;
 - coleta real ainda não executada e nenhum dado fiscal armazenado;
 - XML, assinatura, transmissão, Supabase remoto e produção: não acessados.
+
+## Validação M13-G19
+
+- cadastro oficial classificado como Regime Normal/RPA;
+- perfil sintético correspondente: CRT 3 com CST;
+- configuração legada com CSOSN bloqueada;
+- vínculo fiscal definitivo pendente de confirmação contábil;
+- resolução por tenant e produção fail-closed;
+- suíte fiscal aprovada: `234/234`;
+- XML, assinatura, persistência, transmissão e produção: `false`.

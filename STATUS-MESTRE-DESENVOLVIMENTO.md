@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G18 — execução local da coleta protegida
+### M14-G1 — contrato canônico e simulador de importação
 
 Próxima sequência autorizável:
 
-1. executar o coletor em terminal local;
-2. informar os 13 valores confirmados nas entradas mascaradas;
-3. obter `M13_G18_PROTECTED_CONFIG_OK` sem revelar valores;
-4. corrigir somente os campos listados se houver bloqueios;
-5. manter montagem, assinatura e transmissão bloqueadas até a aprovação completa.
+1. definir manifesto imutável da fonte e hashes;
+2. especificar lote canônico por tenant e domínio;
+3. implementar mapeamentos sintéticos e rejeições determinísticas;
+4. provar idempotência, rollback e reconciliação;
+5. manter qualquer backup ou dado real em portão separado.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 
@@ -444,6 +444,8 @@ Nenhuma migration remota será iniciada sem autorização específica. Instalaç
 | 4.4.0 | 27/08/2026 | CTR-0027-G1 | Placeholder removido; migration, fallback lexical, RRF, privilégios server-only, preflight, rollback e 36 testes preparados. | TypeScript, ESLint e 9/9 testes Node aprovados; SQL remoto não executado, embeddings reais desabilitados e produção intocada. |
 | 5.4.0 | 29/08/2026 | M13-G17 | Preflight individual fail-closed da primeira NF-e modelo 55 e 19 novos testes preparados. | 209/209 aprovados; 13 requisitos ausentes bloqueados; nenhum XML, assinatura, transmissão, Supabase remoto ou produção. |
 | 5.5.0 | 29/08/2026 | M13-G18 | Coletor protegido em memória, validações cruzadas e oito testes adicionais preparados. | 217/217 e parser PowerShell aprovados; coleta real não executada; zero persistência, XML, assinatura, transmissão ou produção. |
+| 5.6.0 | 29/08/2026 | M13-G19 | Quatro perfis sintéticos, resolução por tenant e validação fail-closed de CRT, CST/CSOSN, NCM, CFOP e versão. | 234/234 aprovados; RPA com CSOSN e produção bloqueados; empresa-piloto pendente de contador. |
+| 5.7.0 | 29/08/2026 | M14-G0 | Pipeline determinístico de importação, invariantes, riscos e portões definidos. | Contratos e simuladores liberados; backup, credenciais e dados reais permanecem bloqueados. |
 
 ## 12. Protocolo de atualização futura
 
