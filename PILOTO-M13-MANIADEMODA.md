@@ -63,3 +63,12 @@ Proibido neste estágio: importar/instalar A1, armazenar senha/PFX/CSC, transmit
 - lote derivado deterministicamente e reprocessamento sem duplicidade;
 - conflitos e divergências geram rejeições locais estáveis;
 - certificado, CSC, assinatura, persistência, transmissão e produção: `false`.
+
+## Validação M13-G12
+
+- ciclo local recebido, processamento, autorização e rejeição validado;
+- timeout convertido em consulta posterior sem nova emissão;
+- duplicidade reconciliada com protocolo existente;
+- conflito de protocolo direcionado para revisão manual;
+- documento único preservado após consulta e reprocessamento;
+- rede, certificado, CSC, XML persistido, transmissão e produção: `false`.

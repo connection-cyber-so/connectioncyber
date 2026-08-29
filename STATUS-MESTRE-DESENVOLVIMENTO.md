@@ -346,7 +346,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | G11 local concluído | Chave/DV, totais, enviNFe e lote idempotente; 148 testes | Autorizar simulador local do ciclo de autorização NF-e, sem rede. |
+| M13 | Fiscal e certificado A1 | G12 local concluído | Ciclo, timeout, consulta, duplicidade e protocolo; 168 testes | Autorizar arquitetura SOAP/TLS de homologação ainda bloqueada sem rede. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G12 — ciclo local de autorização NF-e
+### M13-G13 — transporte SOAP/TLS de homologação
 
 Próxima sequência local e automática:
 
-1. modelar recebimento, processamento, autorização e rejeição do lote;
-2. simular timeout e consulta posterior sem duplicar emissão;
-3. tratar duplicidade de NF-e e protocolo já existente;
-4. reconciliar estado local e resposta fiscal deterministicamente;
-5. manter rede, NFC-e/CSC e produção em portões independentes.
+1. versionar catálogo oficial de serviços por UF e autorizador;
+2. definir envelopes SOAP, timeouts e correlação de requisição;
+3. especificar TLS mútuo usando chave não exportável;
+4. implementar cliente fail-closed inicialmente bloqueado sem rede;
+5. manter transmissão real, NFC-e/CSC e produção em portões independentes.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 
