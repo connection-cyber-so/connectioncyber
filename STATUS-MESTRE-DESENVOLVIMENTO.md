@@ -346,7 +346,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M10 | Restaurantes e lanchonetes | Aplicado e validado em staging | Receitas, adicionais, mesas, comandas e cozinha | 0026 aplicada; 72/72 asserções aprovadas; zero dados reais. |
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
-| M13 | Fiscal e certificado A1 | G15 concluído | StatusServico4 SP/SVRS/SVAN HTTP 200 cStat 107; 190 testes | Emitir parecer G16 antes de qualquer autorização NF-e. |
+| M13 | Fiscal e certificado A1 | G16 parecer concluído | Motor global aprovado; primeira NF-e exige preflight individual e portão persistente | Autorizar G17 local sem transmissão para a empresa-piloto. |
 | M14 | Engenharia reversa e importador | Não iniciado | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | Reexecução não duplica; relatórios fecham contagens e totais. |
 | M15 | Piloto e implantação por cliente | Não iniciado | Migração simulada, corte e ondas individuais | Aceite, reconciliação e rollback executados por tenant. |
 
@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M13-G15 — StatusServico4 em homologação
+### M13-G17 — preflight individual da primeira NF-e
 
-Próxima sequência local e automática:
+Próxima sequência autorizável:
 
-1. versionar catálogo oficial de serviços por UF e autorizador;
-2. definir envelopes SOAP, timeouts e correlação de requisição;
-3. especificar TLS mútuo usando chave não exportável;
-4. implementar cliente fail-closed inicialmente bloqueado sem rede;
-5. manter transmissão real, NFC-e/CSC e produção em portões independentes.
+1. confirmar credenciamento, UF e autorizador da empresa-piloto;
+2. validar correspondência entre A1 e emitente sem registrar identidade;
+3. reservar série e número exclusivos de homologação;
+4. montar, validar e assinar uma NF-e localmente sem persistir ou transmitir;
+5. emitir hash e resumo técnico para um portão posterior de envio único.
 
 Nenhuma migration remota será iniciada sem autorização específica. Instalação física, TEF, fiscal e produção permanecem em portões separados.
 
