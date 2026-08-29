@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import {validatePilotFiscalConfig} from '../src/pilot-config.mjs';
+const valid=()=>({credentialedHomologation:true,certificateMatchesIssuer:true,state:'SP',stateCode:'35',municipalityCode:'3550308',stateRegistration:'123456789',crt:'1',series:1,number:1,ncm:'61091000',cfop:'5102',csosn:'102',operationApproved:true});
+test('configuracao sintetica coerente fica pronta',()=>assert.equal(validatePilotFiscalConfig(valid()).ready,true));
+test('UF e codigo divergentes bloqueiam',()=>assert.ok(validatePilotFiscalConfig({...valid(),stateCode:'43'}).blockers.includes('stateCodeMismatch')));
+test('municipio de outra UF bloqueia',()=>assert.ok(validatePilotFiscalConfig({...valid(),municipalityCode:'4314902'}).blockers.includes('municipalityStateMismatch')));
+test('IE fora do formato bloqueia',()=>assert.ok(validatePilotFiscalConfig({...valid(),stateRegistration:'ISENTO'}).blockers.includes('stateRegistrationFormat')));
+test('CFOP sem direcao de saida bloqueia',()=>assert.ok(validatePilotFiscalConfig({...valid(),cfop:'1102'}).blockers.includes('cfopDirection')));
+test('CSOSN desconhecido bloqueia',()=>assert.ok(validatePilotFiscalConfig({...valid(),csosn:'999'}).blockers.includes('csosnUnsupported')));
+test('coletor permanece ASCII e nao grava dados',()=>{const script=fs.readFileSync(new URL('../scripts/Collect-PilotFiscalConfigProtected.ps1',import.meta.url));assert.equal([...script].every(byte=>byte<128),true);const text=script.toString('ascii');assert.match(text,/Read-Host .* -AsSecureString/);assert.doesNotMatch(text,/Set-Content|Out-File|Add-Content|Export-/i);assert.match(text,/Remove-Item -LiteralPath "Env:M13_G18_\$name"/)});
+test('resultado nao imprime valores',()=>{const text=fs.readFileSync(new URL('../scripts/validate-pilot-config-env.mjs',import.meta.url),'utf8');assert.match(text,/valuesPrinted:false/);assert.match(text,/persisted:false/)});

@@ -82,3 +82,13 @@ Proibido neste estágio: importar/instalar A1, armazenar senha/PFX/CSC, transmit
 - suíte fiscal aprovada: `209/209`;
 - XML gerado, assinado, persistido ou transmitido: `false`;
 - Supabase remoto e produção: não acessados.
+
+## Preparação M13-G18
+
+- coletor local protegido criado para os 13 requisitos;
+- entradas mascaradas e mantidas somente na memória do processo;
+- correspondência UF/código/município e formatos fiscais validados;
+- saída não revela os valores informados;
+- suíte fiscal aprovada: `217/217`;
+- coleta real ainda não executada e nenhum dado fiscal armazenado;
+- XML, assinatura, transmissão, Supabase remoto e produção: não acessados.
