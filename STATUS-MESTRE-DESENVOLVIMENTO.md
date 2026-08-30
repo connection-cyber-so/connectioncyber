@@ -508,5 +508,7 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Estado compartilhado somente em memória; novos cadastros alimentam imediatamente o PDV.
 - Cliente selecionável na venda e produto pesquisável no catálogo.
 - 37/37 testes, TypeScript e ESLint aprovados.
-- Build e ensaio visual aguardam repetição no runtime oficial Node.js 22; Node.js 26 foi recusado pela política do projeto.
+- Runtime normalizado em Node.js 22.23.2; build Next.js aprovado.
+- Desktop e celular 390 × 844 aprovados; sem rolagem horizontal.
+- Marcador final: `M15_G6_VISUAL_INTEGRATION_OK`.
 - Supabase remoto, Vercel e produção não acessados.
