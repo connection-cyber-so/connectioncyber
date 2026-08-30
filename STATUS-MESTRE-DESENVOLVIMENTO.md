@@ -502,3 +502,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Busca, catálogo, carrinho, estoque, desconto, pagamento e comprovante implementados.
 - 31/31 testes, TypeScript, ESLint, build, desktop e celular aprovados.
 - Estado somente em memória; Supabase remoto, pagamentos, fiscal e produção intocados.
+## M15-G6 — cadastros integrados ao PDV (30/08/2026)
+
+- Fluxos visuais de cliente e produto sintéticos implementados em `/demo`.
+- Estado compartilhado somente em memória; novos cadastros alimentam imediatamente o PDV.
+- Cliente selecionável na venda e produto pesquisável no catálogo.
+- 37/37 testes, TypeScript e ESLint aprovados.
+- Build e ensaio visual aguardam repetição no runtime oficial Node.js 22; Node.js 26 foi recusado pela política do projeto.
+- Supabase remoto, Vercel e produção não acessados.
