@@ -1,5 +1,7 @@
 export type DemoProduct={id:string;name:string;code:string;price:number;stock:number};
 export type DemoCustomer={id:string;name:string;email:string;kind:'Pessoa'|'Empresa'};
+export type DemoPayment='pix'|'dinheiro'|'cartao';
+export type DemoCashMovement={id:string;kind:'Abertura'|'Venda'|'Entrada'|'Saída'|'Fechamento';amount:number;label:string;payment?:DemoPayment};
 
 export const initialDemoProducts:DemoProduct[]=[
   {id:'synthetic-001',name:'Camiseta Essential',code:'SYN-001',price:59.9,stock:18},

@@ -519,3 +519,10 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 41/41 testes, TypeScript, ESLint, build, desktop e celular aprovados com Node.js 22.23.2.
 - Marcador: `M15_G7_INVENTORY_VISUAL_OK`.
 - Supabase remoto, Vercel e produção não acessados.
+## M15-G8 — caixa visual integrado (30/08/2026)
+
+- Abertura, entradas, saídas, vendas automáticas e fechamento conferido implementados em memória.
+- PDV bloqueado com caixa fechado; diferença de fechamento bloqueada.
+- 46/46 testes, TypeScript, ESLint, build, desktop e celular aprovados com Node.js 22.23.2.
+- Marcador: `M15_G8_CASH_VISUAL_OK`.
+- Supabase remoto, Vercel, pagamentos e produção não acessados.

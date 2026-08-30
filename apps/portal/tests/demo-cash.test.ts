@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const cash=readFileSync(new URL('../src/components/DemoCash.tsx',import.meta.url),'utf8');
+const pos=readFileSync(new URL('../src/components/DemoPos.tsx',import.meta.url),'utf8');
+test('caixa cobre abertura entrada saída e fechamento',()=>{for(const marker of['Abertura','Entrada','Saída','Fechamento'])assert.match(cash,new RegExp(marker))});
+test('caixa bloqueia saída acima do saldo',()=>assert.match(cash,/amount>balance/));
+test('fechamento bloqueia divergência',()=>assert.match(cash,/Math\.abs\(difference\)>\.009/));
+test('PDV exige caixa aberto e notifica venda',()=>{assert.match(pos,/cashOpen/);assert.match(pos,/onSaleComplete/)});
+test('caixa e PDV não usam persistência',()=>assert.doesNotMatch(cash+pos,/fetch\(|supabase|localStorage|sessionStorage|indexedDB/i));
