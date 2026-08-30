@@ -496,3 +496,9 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Cadastros, estoque, vendas/PDV, caixa e financeiro navegáveis.
 - 24/24 testes, TypeScript, ESLint, build, desktop e celular aprovados.
 - Supabase remoto, Vercel e produção não alterados.
+## M15-G5 — PDV visual sintético (30/08/2026)
+
+- Fluxo completo de venda disponível em `/demo` → “Nova venda”.
+- Busca, catálogo, carrinho, estoque, desconto, pagamento e comprovante implementados.
+- 31/31 testes, TypeScript, ESLint, build, desktop e celular aprovados.
+- Estado somente em memória; Supabase remoto, pagamentos, fiscal e produção intocados.

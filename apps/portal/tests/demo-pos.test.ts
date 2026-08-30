@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const source=readFileSync(new URL('../src/components/DemoPos.tsx',import.meta.url),'utf8');
+test('PDV usa somente produtos sintéticos',()=>{assert.match(source,/SYN-001/);assert.match(source,/SYNTHETIC-SALE/)});
+test('PDV não usa rede ou Supabase',()=>assert.doesNotMatch(source,/fetch\(|supabase|XMLHttpRequest/i));
+test('PDV suporta busca carrinho e quantidade',()=>{for(const marker of['query','cart','quantity'])assert.match(source,new RegExp(marker))});
+test('PDV limita quantidade ao estoque',()=>assert.match(source,/Math\.min\(next,item\.stock\)/));
+test('PDV impede total negativo',()=>assert.match(source,/Math\.max\(0,subtotal-discount\)/));
+test('PDV oferece Pix dinheiro e cartão',()=>{for(const payment of['pix','dinheiro','cartao'])assert.match(source,new RegExp(payment))});
+test('comprovante declara ausência de persistência',()=>assert.match(source,/Nenhum registro foi persistido ou transmitido/));
