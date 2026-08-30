@@ -2,7 +2,7 @@
 
 ## Estado
 
-Preparado localmente. **Não executar remotamente sem autorização específica.**
+Executado no staging após autorização específica. Resultado: 30 asserções concluídas e `M15_G3_ROLLBACK_CLEAN` com zero resíduos. Qualquer repetição exige nova autorização.
 
 ## Ordem determinística
 

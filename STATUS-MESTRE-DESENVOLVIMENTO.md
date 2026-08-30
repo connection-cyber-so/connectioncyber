@@ -348,7 +348,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
 | M13 | Fiscal e certificado A1 | Motor global validado; piloto pendente | Contratos, schemas, assinatura, estados, SOAP/TLS e perfis tributários fail-closed | Retomar validação individual após confirmação do contador em 31/08/2026; emissão real permanece bloqueada. |
 | M14 | Engenharia reversa e importador | Fundação concluída em staging | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | 0031 aplicada; 96/96 pós-aplicação; execução com fonte real transferida aos portões individuais do M15. |
-| M15 | Piloto e implantação por cliente | G1-R1 concluído; ensaio sintético liberado | Migração simulada, corte e ondas individuais | 337/337, três builds e headers/redirect/CI/runbooks aprovados; usuários reais e produção bloqueados. |
+| M15 | Piloto e implantação por cliente | G3 aprovado no staging com rollback | Migração simulada, corte e ondas individuais | 371 testes locais; preflight e 30 asserções remotas concluídas; zero resíduos; usuários reais e produção bloqueados. |
 
 ## 8. Critérios globais de validação
 
@@ -487,3 +487,5 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Cadastro, catálogo, estoque, venda, caixa, financeiro, RLS e cross-tenant cobertos.
 - Fiscal fail-closed, nenhuma conta e `ROLLBACK` obrigatório.
 - Execução remota bloqueada até autorização específica.
+- Execução posteriormente autorizada e aprovada: `M15_G3_PREFLIGHT_OK`, 30 asserções e `M15_G3_ROLLBACK_CLEAN`.
+- Resíduos após rollback: 0 tenants, 0 contas e 0 documentos fiscais.

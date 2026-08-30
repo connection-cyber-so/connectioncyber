@@ -4,7 +4,7 @@ Data: 30/08/2026
 
 ## Decisão
 
-**Pacote local preparado. Execução remota permanece bloqueada.**
+**Pacote local preparado e posteriormente aprovado no staging com rollback.**
 
 ## Entregas
 
@@ -22,12 +22,12 @@ Data: 30/08/2026
 - contrato M15: **34/34 testes**;
 - suíte consolidada do projeto: **371 testes** na baseline atual;
 - marcador local preservado: `M15_G2_SYNTHETIC_JOURNEY_OK`;
-- execução remota: não realizada.
+- execução remota autorizada: aprovada com rollback e zero resíduos.
 
 ## Limites
 
-Nenhuma conexão ao Supabase, Vercel ou produção foi realizada. Nenhuma migration, conta, fixture ou dado foi aplicado remotamente.
+Na preparação local, nenhuma conexão foi realizada. Após autorização específica, o ensaio foi executado exclusivamente no Supabase staging e terminou com zero tenants, contas ou documentos fiscais residuais. Vercel e produção não foram acessados.
 
 ## Próximo portão
 
-Autorizar exclusivamente o preflight remoto e a execução transacional do M15-G3 no Supabase staging `ozvylnaipubrmaadikvk`, com `ROLLBACK`, 30 asserções e zero persistência.
+M15-G4: parecer de prontidão do piloto visual e definição do primeiro fluxo demonstrável com interface, ainda sem usuários ou dados reais.
