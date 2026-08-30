@@ -1,0 +1,1 @@
+{"name":"@connectioncyber/pilot-journey","version":"0.1.0","private":true,"type":"module","engines":{"node":">=22 <23"},"scripts":{"pretest":"node ../../scripts/check-node-version.mjs","test":"node --test tests/*.test.mjs","simulate":"node scripts/m15-g2-simulate.mjs"}}

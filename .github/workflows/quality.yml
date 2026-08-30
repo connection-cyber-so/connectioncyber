@@ -73,7 +73,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [device-protocol, fiscal-contract, import-contract]
+        package: [device-protocol, fiscal-contract, import-contract, pilot-journey]
     defaults:
       run:
         working-directory: packages/${{ matrix.package }}

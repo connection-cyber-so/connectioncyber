@@ -472,3 +472,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - riscos residuais;
 - decisão: aprovado, reprovado ou bloqueado;
 - próxima ação permitida.
+## M15-G2 — jornada sintética ponta a ponta (30/08/2026)
+
+- `M15_G2_SYNTHETIC_JOURNEY_OK`.
+- MEI, ME e LTDA sintéticos validados.
+- Autenticação, MFA, membership, papéis e cross-tenant aprovados.
+- Cadastro, catálogo, estoque, venda, caixa e financeiro exercitados.
+- Fiscal bloqueado por padrão e rollback com zero registros remanescentes.
+- Supabase remoto e produção não acessados.
