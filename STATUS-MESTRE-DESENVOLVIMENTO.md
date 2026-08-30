@@ -480,3 +480,10 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Cadastro, catálogo, estoque, venda, caixa e financeiro exercitados.
 - Fiscal bloqueado por padrão e rollback com zero registros remanescentes.
 - Supabase remoto e produção não acessados.
+## M15-G3 — preparação do ensaio integrado (30/08/2026)
+
+- Preflight e ensaio pgTAP local preparados.
+- MEI, ME e LTDA exclusivamente sintéticos; 30 asserções planejadas.
+- Cadastro, catálogo, estoque, venda, caixa, financeiro, RLS e cross-tenant cobertos.
+- Fiscal fail-closed, nenhuma conta e `ROLLBACK` obrigatório.
+- Execução remota bloqueada até autorização específica.
