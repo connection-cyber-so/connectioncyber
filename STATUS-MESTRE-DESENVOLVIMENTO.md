@@ -348,7 +348,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
 | M13 | Fiscal e certificado A1 | Motor global validado; piloto pendente | Contratos, schemas, assinatura, estados, SOAP/TLS e perfis tributários fail-closed | Retomar validação individual após confirmação do contador em 31/08/2026; emissão real permanece bloqueada. |
 | M14 | Engenharia reversa e importador | Fundação concluída em staging | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | 0031 aplicada; 96/96 pós-aplicação; execução com fonte real transferida aos portões individuais do M15. |
-| M15 | Piloto e implantação por cliente | G0 concluído; preparação sintética liberada | Migração simulada, corte e ondas individuais | UAT real bloqueada por Auth/MFA, backup, fiscal, fonte legada e dispositivos. |
+| M15 | Piloto e implantação por cliente | G1 auditado; remediação R1 liberada | Migração simulada, corte e ondas individuais | 5 críticos, 6 altos e 4 médios; UAT real bloqueada até R1 e portões remotos. |
 
 ## 8. Critérios globais de validação
 
@@ -383,15 +383,15 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M15-G1 — baseline de segurança pré-piloto
+### M15-G1-R1 — remediação local da baseline pré-piloto
 
 Próxima sequência automática:
 
-1. auditar Auth, confirmação, recuperação e MFA privilegiado;
-2. revisar RLS residual, variáveis, dependências, CI/CD e ambientes;
-3. definir RPO/RTO, restauração, observabilidade e runbooks;
-4. classificar remediações locais e portões remotos;
-5. emitir parecer para o ensaio sintético M15-G2.
+1. aplicar headers compartilhados e redirect allowlisted;
+2. fixar Node 22 e repetir a suíte do portal;
+3. ampliar CI para pacotes críticos, SQL, audit e secret scan;
+4. separar seeds de laboratório e criar runbooks mínimos;
+5. repetir testes, type-check, lint e builds antes do M15-G2.
 
 Importação de backup real, criação de usuários, credenciais, fiscal, domínio público, pagamentos e produção permanecem em portões separados.
 
@@ -455,6 +455,7 @@ Importação de backup real, criação de usuários, credenciais, fiscal, domín
 | 6.4.0 | 29/08/2026 | M14-G7 | Migration 0031 aplicada persistentemente apenas no Supabase staging e auditada pelo fluxo pós-aplicação fail-closed. | 96/96, auditoria estrutural, histórico 0031/0031, dry-run sem pendências e zero dados; produção intocada. |
 | 6.5.0 | 29/08/2026 | M14-G8 | Fundação global do importador encerrada e pendências dependentes de fonte real transferidas para portões individuais do piloto. | M14 concluído em staging; M15 definido como próximo módulo; M15-G0 liberado sem dados reais e corte fiscal/produção bloqueado. |
 | 6.6.0 | 29/08/2026 | M15-G0 | Matriz de prontidão, riscos, critérios de aceite e onze portões determinísticos definidos para a Mania de Moda. | Preparação sintética liberada; UAT real e produção bloqueadas até segurança, backup, fiscal, dispositivos, fonte e operação serem aprovados. |
+| 6.7.0 | 30/08/2026 | M15-G1 | Baseline local auditada em Auth, MFA, rede, segredos, dependências, CI/CD, headers, backup, observabilidade e runbooks. | 316 testes e zero vulnerabilidades runtime; 5 críticos, 6 altos e 4 médios; UAT real reprovada e remediação local R1 liberada. |
 
 ## 12. Protocolo de atualização futura
 
