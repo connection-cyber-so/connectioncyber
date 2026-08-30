@@ -512,3 +512,10 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Desktop e celular 390 × 844 aprovados; sem rolagem horizontal.
 - Marcador final: `M15_G6_VISUAL_INTEGRATION_OK`.
 - Supabase remoto, Vercel e produção não acessados.
+## M15-G7 — estoque visual integrado (30/08/2026)
+
+- Entrada, saída, ledger sintético e bloqueio de saldo negativo implementados.
+- Saldo compartilhado em memória e refletido imediatamente no PDV.
+- 41/41 testes, TypeScript, ESLint, build, desktop e celular aprovados com Node.js 22.23.2.
+- Marcador: `M15_G7_INVENTORY_VISUAL_OK`.
+- Supabase remoto, Vercel e produção não acessados.
