@@ -7,6 +7,9 @@
   },
   "description": "ConnectionCyberSO — painel interno (ERP/CRM/SaaS multi-tenant)",
   "scripts": {
+    "predev": "node ../../scripts/check-node-version.mjs",
+    "pretest": "node ../../scripts/check-node-version.mjs",
+    "prebuild": "node ../../scripts/check-node-version.mjs",
     "dev": "next dev -p 3011",
     "build": "next build",
     "start": "next start -p 3011",

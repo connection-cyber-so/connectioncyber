@@ -1,1 +1,1 @@
-{"name":"@connectioncyber/import-contract","version":"0.1.0","private":true,"type":"module","engines":{"node":">=22 <23"},"exports":{".":"./src/index.mjs"},"scripts":{"test":"node --test tests/*.test.mjs","simulate":"node scripts/m14-g1-simulate.mjs"}}
+{"name":"@connectioncyber/import-contract","version":"0.1.0","private":true,"type":"module","engines":{"node":">=22 <23"},"exports":{".":"./src/index.mjs"},"scripts":{"pretest":"node ../../scripts/check-node-version.mjs","test":"node --test tests/*.test.mjs","simulate":"node scripts/m14-g1-simulate.mjs"}}

@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/config/env';
+import { safePlatformRedirect } from '@/domain/redirect.mjs';
 
 function LoginForm() {
   const router = useRouter();
@@ -22,7 +23,7 @@ function LoginForm() {
       const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw authError;
 
-      const redirectTarget = searchParams.get('redirect') ?? '/';
+      const redirectTarget = safePlatformRedirect(searchParams.get('redirect'));
       router.replace(redirectTarget);
       router.refresh();
     } catch (err: any) {

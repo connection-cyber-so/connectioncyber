@@ -5,6 +5,9 @@
   "engines": { "node": ">=22 <23" },
   "description": "ConnectionCyber — portal ERP multiempresa isolado por hostname e membership",
   "scripts": {
+    "predev": "node ../../scripts/check-node-version.mjs",
+    "pretest": "node ../../scripts/check-node-version.mjs",
+    "prebuild": "node ../../scripts/check-node-version.mjs",
     "dev": "next dev -p 3021",
     "build": "next build",
     "start": "next start -p 3021",

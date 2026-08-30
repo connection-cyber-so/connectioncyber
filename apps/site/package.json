@@ -7,6 +7,9 @@
   },
   "description": "ConnectionCyber - Assessoria e Treinamento Tecnológico | Site corporativo + Portal de Membros",
   "scripts": {
+    "predev": "node ../../scripts/check-node-version.mjs",
+    "pretest": "node ../../scripts/check-node-version.mjs",
+    "prebuild": "node ../../scripts/check-node-version.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
