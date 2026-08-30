@@ -489,3 +489,10 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Execução remota bloqueada até autorização específica.
 - Execução posteriormente autorizada e aprovada: `M15_G3_PREFLIGHT_OK`, 30 asserções e `M15_G3_ROLLBACK_CLEAN`.
 - Resíduos após rollback: 0 tenants, 0 contas e 0 documentos fiscais.
+## M15-G4 — primeiro fluxo visual (30/08/2026)
+
+- Dashboard local `/demo` criado com dados exclusivamente sintéticos.
+- Perfis MEI, ME e LTDA alternáveis; capacidades e indicadores mudam por perfil.
+- Cadastros, estoque, vendas/PDV, caixa e financeiro navegáveis.
+- 24/24 testes, TypeScript, ESLint, build, desktop e celular aprovados.
+- Supabase remoto, Vercel e produção não alterados.

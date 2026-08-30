@@ -14,7 +14,8 @@ export default async function PortalEntryPage() {
         <StatePanel
           code="STAGING"
           title="Portal preparado para configuração"
-          description="O shell M03 está pronto. As variáveis do Supabase staging serão conectadas somente em um portão posterior."
+          description="O acesso real permanece protegido. Enquanto isso, visualize o fluxo completo com dados sintéticos locais."
+          action={{ href: '/demo', label: 'Abrir demonstração' }}
         />
       );
     case 'service-unavailable':
