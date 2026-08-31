@@ -548,3 +548,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Aceite final e hipercare real continuam bloqueados até corte autorizado.
 - Marcador: `M15_G11_LOCAL_PREPARATION_OK`.
 - Serviços remotos e produção não acessados.
+## M16-G0 — industrialização multiempresa (30/08/2026)
+
+- Nenhum gate formal existia depois do M15-G11; o parecer cronológico foi emitido antes de avançar.
+- M15 operacional real permanece bloqueado até UAT, corte e acompanhamento autorizados.
+- M16 definido como trilha local para núcleo único, capacidades por tenant e rollout em ondas.
+- Sequência M16-G1 a M16-G8 registrada com portões remotos explícitos.
+- Marcador: `M16_G0_MULTI_TENANT_PRODUCTIZATION_APPROVED`.
+- Próximo gate local: M16-G1, contrato canônico de capacidades, planos e exceções.
