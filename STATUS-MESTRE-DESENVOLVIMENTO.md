@@ -730,3 +730,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - RLS ativo, dez funções presentes, zero receipts e privilégios mínimos confirmados.
 - Marcador: `M17_G11_0033_STAGING_96_OF_96_OK`.
 - Produção não acessada e nenhum dado real criado.
+## M17-G12 — encerramento do backend persistente e definição do M18 (31/08/2026)
+
+- M17 encerrado no escopo de backend transacional persistente, com migration `0033/0033` e 96/96 asserções.
+- Inspeção confirmou que `apps/platform/src` ainda não chama as sete RPCs persistentes da `0033`.
+- O aceite visual persistente não foi presumido nem descartado; foi transferido para uma trilha própria.
+- Próximo módulo: M18 — integração visual persistente e UAT sintético.
+- Piloto M15 real e produção continuam bloqueados até o parecer M18-G8.
+- Marcador: `M17_G12_BACKEND_PERSISTENT_TRACK_CLOSED_M18_DEFINED`.
+- Nenhum serviço remoto acessado e nenhum dado criado neste gate.
