@@ -556,3 +556,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Sequência M16-G1 a M16-G8 registrada com portões remotos explícitos.
 - Marcador: `M16_G0_MULTI_TENANT_PRODUCTIZATION_APPROVED`.
 - Próximo gate local: M16-G1, contrato canônico de capacidades, planos e exceções.
+## M16-G1 — contrato canônico de capacidades (30/08/2026)
+
+- Catálogo, blueprints MEI/ME/LTDA e exceções temporárias auditáveis implementados localmente.
+- Resolução determinística e fail-closed, sem condicionais por cliente real.
+- Simulador e testes usam somente tenants sintéticos.
+- 20/20 testes aprovados com Node.js 22.23.2.
+- Marcador: `M16_G1_CAPABILITY_CONTRACT_OK`.
+- Banco, Supabase, Vercel, GitHub e produção não acessados.
