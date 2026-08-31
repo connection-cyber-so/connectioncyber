@@ -676,3 +676,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 108/108 testes do pacote e 32/32 testes da plataforma, TypeScript, ESLint e build aprovados.
 - Marcador: `M17_G5_LOCAL_FINANCE_RECONCILIATION_OK`.
 - Banco, Supabase, rede e produção não acessados.
+## M17-G6 — auditoria independente da jornada integrada (31/08/2026)
+
+- Segurança, concorrência, idempotência e rollback dos gates M17-G1 a G5 foram auditados adversarialmente.
+- Triagem de campos de autoridade passou a bloquear aliases independentemente de maiúsculas.
+- Reconciliação financeira tornou-se atômica e deixou de ser exposta sem autorização.
+- Corridas idênticas e divergentes de venda e liquidação foram comprovadas fail-closed.
+- 116/116 testes do pacote e 32/32 testes da plataforma, TypeScript, ESLint e build aprovados.
+- Marcador: `M17_G6_INDEPENDENT_LOCAL_AUDIT_OK`.
+- Banco, Supabase, rede e produção não acessados.

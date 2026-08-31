@@ -39,7 +39,7 @@ export const ERROR_CATALOG = Object.freeze({
   INTERNAL_FAILURE: { publicCode: 'OPERATION_FAILED', retryable: true, httpStatus: 500 },
 });
 
-const AUTHORITY_FIELDS = new Set(['tenantId', 'tenant_id', 'userId', 'actorId', 'actorRole', 'roles', 'capabilities', 'priceTotal', 'stockBalance', 'cashBalance']);
+const AUTHORITY_FIELDS = new Set(['tenantid', 'tenant_id', 'userid', 'actorid', 'actorrole', 'roles', 'capabilities', 'pricetotal', 'stockbalance', 'cashbalance']);
 export const fail = (code) => { const definition = ERROR_CATALOG[code] ?? ERROR_CATALOG.INTERNAL_FAILURE; throw Object.assign(new Error(code), { code, publicError: definition }); };
 const canonical = (value) => value && typeof value === 'object' ? Array.isArray(value) ? value.map(canonical) : Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value;
 export const payloadHash = (value) => createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex');
@@ -58,7 +58,7 @@ export function validateCommand(command, context) {
   if (!/^SYNTHETIC-REQUEST-[A-Z0-9-]{3,80}$/.test(command.requestId ?? '')) fail('INVALID_COMMAND');
   if (!command.payload || typeof command.payload !== 'object' || Array.isArray(command.payload)) fail('INVALID_COMMAND');
   let forbidden = false;
-  walk(command, (key) => { if (AUTHORITY_FIELDS.has(key)) forbidden = true; });
+  walk(command, (key) => { if (AUTHORITY_FIELDS.has(key.toLowerCase())) forbidden = true; });
   if (Object.hasOwn(command, 'role')) forbidden = true;
   if (forbidden) fail('AUTHORITY_FIELD_FORBIDDEN');
   const serialized = JSON.stringify(command.payload);

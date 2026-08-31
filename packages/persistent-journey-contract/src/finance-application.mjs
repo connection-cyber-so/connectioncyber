@@ -9,7 +9,7 @@ export class MemoryFinanceStore {
   #tenantEntries(tenantId) { if (!this.#state.entries.has(tenantId)) this.#state.entries.set(tenantId, new Map()); return this.#state.entries.get(tenantId); }
   reconcile(tenantId) {
     if (!syntheticTenant(tenantId)) fail('TENANT_CONTEXT_REQUIRED');
-    const operational = this.#operations.snapshot(tenantId), entries = this.#tenantEntries(tenantId);
+    const operational = this.#operations.snapshot(tenantId), entries = new Map(this.#tenantEntries(tenantId));
     for (const sale of operational.sales) {
       const expected = sale.paymentKind === 'credit'
         ? { kind: 'receivable', settledCents: 0, status: 'open' }
@@ -19,6 +19,7 @@ export class MemoryFinanceStore {
       else if (current.amountCents !== sale.totalCents || current.kind !== expected.kind) fail('RECONCILIATION_MISMATCH');
     }
     for (const entry of entries.values()) if (!operational.sales.some(sale => sale.id === entry.saleId)) fail('RECONCILIATION_MISMATCH');
+    this.#state.entries.set(tenantId, entries);
     const rows = [...entries.values()], sum = selector => rows.reduce((total, row) => total + selector(row), 0);
     const grossSalesCents = operational.sales.reduce((total, sale) => total + sale.totalCents, 0);
     const cashSalesCents = sum(row => row.kind === 'cash' ? row.amountCents : 0);
@@ -58,5 +59,5 @@ export class MemoryFinanceStore {
 
 export function createFinanceApplication({ authorizer, store }) {
   if (!authorizer?.authorize || !store?.execute) fail('CONTEXT_RESOLUTION_FAILED');
-  return Object.freeze({ async execute({ host, command }) { const authorization = await authorizer.authorize({ host, command }); return store.execute(authorization, command); }, reconcile(tenantId) { return store.reconcile(tenantId); } });
+  return Object.freeze({ async execute({ host, command }) { const authorization = await authorizer.authorize({ host, command }); return store.execute(authorization, command); } });
 }
