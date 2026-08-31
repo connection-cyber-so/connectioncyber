@@ -631,3 +631,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - M15 operacional real permanece suspenso até identidade, fiscal, equipamentos, backup, UAT e aceite do piloto.
 - Marcador: `M17_G0_PERSISTENT_FUNCTIONAL_TRACK_APPROVED`.
 - Nenhum código funcional, banco ou serviço remoto foi alterado neste parecer.
+## M17-G1 — contrato canônico da jornada persistente (31/08/2026)
+
+- Sete comandos e seis máquinas de estado foram formalizados em pacote executável local.
+- Tenant, ator, membership e capacidades são contexto exclusivo do servidor; campos de autoridade do navegador são recusados.
+- Idempotência, conflito, erros públicos seguros e rollback integral foram implementados.
+- Simulador reconciliou cadastro, catálogo, estoque, venda, caixa e financeiro.
+- 25/25 testes do contrato e 32/32 testes da plataforma aprovados com Node.js 22.23.2.
+- Marcador: `M17_G1_PERSISTENT_JOURNEY_CONTRACT_OK`.
+- Banco, Supabase, rede e produção não acessados.
