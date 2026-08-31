@@ -573,3 +573,10 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Marcador: `M16_G2_FAIL_CLOSED_ENGINE_OK`.
 - Serviços remotos e produção não acessados.
 - Próximo gate: M16-G3, migration local `0032`; aplicação remota bloqueada.
+## M16-G3 — migration local 0032 (30/08/2026)
+
+- Catálogo, entitlements, exceções tenant-scoped, RLS e resolver protegidos preparados localmente.
+- Preflight `M16_G3_PREFLIGHT_OK` e pgTAP com 48 asserções e rollback obrigatório.
+- 49/49 testes locais aprovados; SHA-256 `a1a8feed5dffa94984bb0572c809bccf20f503b225044a5048da057835d53e01`.
+- Marcador: `M16_G3_MIGRATION_0032_LOCAL_READY`.
+- Migration não aplicada em banco; próximo gate é auditoria local M16-G4.
