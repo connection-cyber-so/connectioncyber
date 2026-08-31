@@ -622,3 +622,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 32/32 testes, TypeScript, ESLint e build aprovados com Node.js 22.23.2.
 - Marcador: `M16_G8_SYNTHETIC_ROLLOUT_OK`.
 - Serviços remotos e produção não acessados; M16 encerrado no escopo planejado.
+## M17-G0 — parecer de integração funcional persistente (31/08/2026)
+
+- M16 encerrado: núcleo único, capacidades, migration `0032`, painel e rollout sintético concluídos.
+- Lacuna prioritária confirmada entre a jornada visual em memória e o backend multi-tenant persistente.
+- M17 definido para integrar cadastro, catálogo, estoque, PDV, caixa e financeiro por contratos server-side e RPCs idempotentes.
+- Sequência M17-G1 a M17-G9 separa trabalho local dos portões remotos em staging.
+- M15 operacional real permanece suspenso até identidade, fiscal, equipamentos, backup, UAT e aceite do piloto.
+- Marcador: `M17_G0_PERSISTENT_FUNCTIONAL_TRACK_APPROVED`.
+- Nenhum código funcional, banco ou serviço remoto foi alterado neste parecer.
