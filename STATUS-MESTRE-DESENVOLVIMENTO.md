@@ -722,3 +722,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Prova final confirmou tabela e dez funções ausentes; zero resíduo e zero dados reais.
 - Marcador: `M17_G10_0033_TRANSACTION_96_OF_96_ROLLBACK_OK`.
 - Produção não acessada; aplicação persistente da `0033` continua bloqueada.
+## M17-G11 — aplicação persistente da migration 0033 em staging (31/08/2026)
+
+- Dry-run confirmou exclusivamente `0033_m17_persistent_journey.sql`, sem seeds ou roles.
+- Migration registrada como `0033/0033` no Supabase staging `ozvylnaipubrmaadikvk`.
+- 96/96 asserções pós-aplicação aprovadas em transação com `ROLLBACK`.
+- RLS ativo, dez funções presentes, zero receipts e privilégios mínimos confirmados.
+- Marcador: `M17_G11_0033_STAGING_96_OF_96_OK`.
+- Produção não acessada e nenhum dado real criado.
