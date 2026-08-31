@@ -640,3 +640,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 25/25 testes do contrato e 32/32 testes da plataforma aprovados com Node.js 22.23.2.
 - Marcador: `M17_G1_PERSISTENT_JOURNEY_CONTRACT_OK`.
 - Banco, Supabase, rede e produção não acessados.
+## M17-G2 — autorização server-side com dublês (31/08/2026)
+
+- Host, sessão, tenant, membership, MFA, permissão e capacidade agora compõem uma fronteira de autorização única.
+- Os sete comandos possuem política explícita de permissão e capacidade.
+- Divergências, capacidades desconhecidas e falhas de dependência permanecem fail-closed.
+- Autorizações e negações produzem evidência mínima sem payload ou host.
+- 44/44 testes do pacote e regressão completa da plataforma aprovados com Node.js 22.23.2.
+- Marcador: `M17_G2_SERVER_AUTHORIZATION_OK`.
+- Somente dublês locais; banco, Supabase, rede e produção não acessados.

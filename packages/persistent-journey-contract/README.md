@@ -16,4 +16,5 @@ Set-Location -LiteralPath "F:\Projetos\connectioncyber-staging\packages\persiste
 $env:PATH = "$env:TEMP\connectioncyber-node22\node-v22.23.2-win-x64;$env:PATH"
 npm test
 npm run simulate
+npm run simulate:authorization
 ```

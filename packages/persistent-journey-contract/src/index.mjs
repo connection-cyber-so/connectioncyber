@@ -14,6 +14,12 @@ export const AGGREGATE_STATES = Object.freeze({
   receivable: ['absent', 'open', 'settled', 'reversed'],
 });
 export const ERROR_CATALOG = Object.freeze({
+  SESSION_REQUIRED: { publicCode: 'AUTHENTICATION_REQUIRED', retryable: false, httpStatus: 401 },
+  TENANT_NOT_FOUND: { publicCode: 'ACCESS_DENIED', retryable: false, httpStatus: 403 },
+  TENANT_HOST_MISMATCH: { publicCode: 'ACCESS_DENIED', retryable: false, httpStatus: 403 },
+  MFA_REQUIRED: { publicCode: 'MFA_REQUIRED', retryable: false, httpStatus: 403 },
+  PERMISSION_REQUIRED: { publicCode: 'ACCESS_DENIED', retryable: false, httpStatus: 403 },
+  CONTEXT_RESOLUTION_FAILED: { publicCode: 'OPERATION_FAILED', retryable: true, httpStatus: 503 },
   INVALID_COMMAND: { publicCode: 'INVALID_REQUEST', retryable: false, httpStatus: 400 },
   AUTHORITY_FIELD_FORBIDDEN: { publicCode: 'INVALID_REQUEST', retryable: false, httpStatus: 400 },
   TENANT_CONTEXT_REQUIRED: { publicCode: 'ACCESS_DENIED', retryable: false, httpStatus: 403 },
@@ -27,7 +33,7 @@ export const ERROR_CATALOG = Object.freeze({
 });
 
 const AUTHORITY_FIELDS = new Set(['tenantId', 'tenant_id', 'userId', 'actorId', 'role', 'roles', 'capabilities', 'priceTotal', 'stockBalance', 'cashBalance']);
-const fail = (code) => { const definition = ERROR_CATALOG[code] ?? ERROR_CATALOG.INTERNAL_FAILURE; throw Object.assign(new Error(code), { code, publicError: definition }); };
+export const fail = (code) => { const definition = ERROR_CATALOG[code] ?? ERROR_CATALOG.INTERNAL_FAILURE; throw Object.assign(new Error(code), { code, publicError: definition }); };
 const canonical = (value) => value && typeof value === 'object' ? Array.isArray(value) ? value.map(canonical) : Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value;
 export const payloadHash = (value) => createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex');
 const walk = (value, visit) => { if (!value || typeof value !== 'object') return; for (const [key, nested] of Object.entries(value)) { visit(key, nested); walk(nested, visit); } };
