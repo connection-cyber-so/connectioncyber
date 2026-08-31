@@ -32,13 +32,14 @@ create table public.erp_tenant_capability_exceptions(
  capability_key text not null references public.erp_capability_catalog(key)on delete restrict,
  effect text not null check(effect in('allow','deny')),
  reason_hash text not null check(reason_hash~'^[a-f0-9]{64}$'),
- approval_ref text not null check(approval_ref~'^approval:[a-z0-9:-]{8,120}$'),
+ approval_ref text not null check(approval_ref~'^approval:sha256:[a-f0-9]{64}$'),
  effective_from timestamptz not null,
  expires_at timestamptz not null,
  status text not null default'active'check(status in('active','revoked','expired')),
  created_at timestamptz not null default now(),
  revoked_at timestamptz,
  unique(tenant_id,id),
+ unique(tenant_id,capability_key,approval_ref),
  check(expires_at>effective_from),
  check((status='revoked'and revoked_at is not null)or(status<>'revoked'and revoked_at is null))
 );
@@ -71,7 +72,9 @@ alter table public.erp_tenant_capability_entitlements enable row level security;
 alter table public.erp_tenant_capability_exceptions enable row level security;
 revoke all on public.erp_capability_catalog,public.erp_tenant_capability_entitlements,public.erp_tenant_capability_exceptions from anon,authenticated;
 grant select on public.erp_capability_catalog,public.erp_tenant_capability_entitlements,public.erp_tenant_capability_exceptions to authenticated;
-grant all on public.erp_capability_catalog,public.erp_tenant_capability_entitlements,public.erp_tenant_capability_exceptions to service_role;
+revoke all on public.erp_capability_catalog,public.erp_tenant_capability_entitlements,public.erp_tenant_capability_exceptions from service_role;
+grant select on public.erp_capability_catalog,public.erp_tenant_capability_entitlements,public.erp_tenant_capability_exceptions to service_role;
+grant insert on public.erp_tenant_capability_entitlements,public.erp_tenant_capability_exceptions to service_role;
 
 create policy erp_capability_catalog_select on public.erp_capability_catalog for select to authenticated using(active);
 create policy erp_tenant_capability_entitlements_select on public.erp_tenant_capability_entitlements for select to authenticated using(erp_security.has_permission(tenant_id,'capabilities.read')or erp_security.has_permission(tenant_id,'capabilities.manage')or public.is_platform_staff());
@@ -100,7 +103,23 @@ begin
  from public.erp_capability_catalog c left join entitlement e on e.capability_key=c.key left join exception_state x on x.capability_key=c.key
  where c.active order by c.key;
 end$$;
+
+create or replace function public.erp_revoke_capability_exception(p_tenant_id uuid,p_exception_id uuid,p_revoked_at timestamptz default now())
+returns boolean language plpgsql security definer set search_path=''as $$
+declare v_status text;
+begin
+ if auth.role()<>'service_role'then raise exception 'broker only';end if;
+ if p_tenant_id is null or p_exception_id is null or p_revoked_at is null or p_revoked_at>now()+interval'5 minutes'then raise exception 'invalid revocation';end if;
+ select status into v_status from public.erp_tenant_capability_exceptions where tenant_id=p_tenant_id and id=p_exception_id for update;
+ if v_status is null then raise exception 'exception not found';end if;
+ if v_status='revoked'then return false;end if;
+ if v_status<>'active'then raise exception 'only active exception can be revoked';end if;
+ update public.erp_tenant_capability_exceptions set status='revoked',revoked_at=p_revoked_at where tenant_id=p_tenant_id and id=p_exception_id;
+ return true;
+end$$;
 revoke execute on function public.erp_resolve_tenant_capabilities(uuid,timestamptz)from public,anon;
 grant execute on function public.erp_resolve_tenant_capabilities(uuid,timestamptz)to authenticated,service_role;
+revoke execute on function public.erp_revoke_capability_exception(uuid,uuid,timestamptz)from public,anon,authenticated,service_role;
+grant execute on function public.erp_revoke_capability_exception(uuid,uuid,timestamptz)to service_role;
 
 commit;

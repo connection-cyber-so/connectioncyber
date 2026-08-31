@@ -15,9 +15,9 @@ Data: 30/08/2026
 
 ## Validação local
 
-- SHA-256: `a1a8feed5dffa94984bb0572c809bccf20f503b225044a5048da057835d53e01`;
-- 48 asserções pgTAP declaradas;
-- 49/49 testes Node.js e estáticos aprovados;
+- SHA-256 remediado: `dfe30f58e5e2e136107deaeeb904cef1278c2c6e938cffdc0b34297e7ef7a20e`;
+- 60 asserções pgTAP declaradas;
+- 52/52 testes Node.js e estáticos aprovados;
 - Node.js 22.23.2;
 - ensaio termina obrigatoriamente em `ROLLBACK`;
 - nenhuma conta, identidade fiscal ou dado real incluído.
@@ -28,4 +28,4 @@ A migration não foi executada contra PostgreSQL ou Supabase. A validação tran
 
 ## Marcador
 
-`M16_G3_MIGRATION_0032_LOCAL_READY`
+`M16_G3_MIGRATION_0032_LOCAL_READY` — normalizado após M16-G4.
