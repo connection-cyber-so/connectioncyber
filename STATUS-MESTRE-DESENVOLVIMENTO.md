@@ -685,3 +685,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 116/116 testes do pacote e 32/32 testes da plataforma, TypeScript, ESLint e build aprovados.
 - Marcador: `M17_G6_INDEPENDENT_LOCAL_AUDIT_OK`.
 - Banco, Supabase, rede e produção não acessados.
+## M17-G7 — contrato de persistência PostgreSQL/Supabase (31/08/2026)
+
+- Contrato `M17-PG-1.0` cobre os sete comandos com RPCs transacionais versionadas.
+- Baseline 0021–0024 e 0032 será reutilizada; inbox `erp_command_receipts` foi planejado sem criar migration.
+- Locks ordenados, versões otimistas, hash idempotente e rollback integral foram formalizados.
+- Vinte invariantes de tenant, RLS, dinheiro, estoque, caixa, financeiro e erros seguros foram fixados.
+- 141/141 testes do pacote e 32/32 testes da plataforma, TypeScript, ESLint e build aprovados.
+- Marcador: `M17_G7_POSTGRES_PERSISTENCE_CONTRACT_OK`.
+- Nenhuma migration criada; banco, Supabase, rede e produção não acessados.
