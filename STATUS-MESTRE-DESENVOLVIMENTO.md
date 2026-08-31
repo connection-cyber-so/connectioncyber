@@ -533,3 +533,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 51/51 testes, TypeScript, ESLint, build, desktop e celular aprovados com Node.js 22.23.2.
 - Marcador: `M15_G9_FINANCE_VISUAL_OK`.
 - Supabase remoto, Vercel, bancos, pagamentos e produção não acessados.
+## M15-G10 — jornada visual consolidada (30/08/2026)
+
+- Dashboard conectado às vendas, estoque, caixa e financeiro da sessão.
+- Indicadores e alertas são recalculados após cada operação sintética.
+- Estado financeiro preservado durante a navegação entre módulos.
+- 56/56 testes, TypeScript, ESLint e build aprovados com Node.js 22.23.2.
+- Marcador: `M15_G10_CONSOLIDATED_JOURNEY_OK`.
+- Supabase remoto, Vercel, bancos, fiscal e produção não acessados.
