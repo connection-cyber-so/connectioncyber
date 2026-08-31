@@ -11,6 +11,7 @@ test('tenant ausente falha fechado', () => assert.throws(() => validateCommand(s
 test('membership inativa é recusada', () => assert.throws(() => validateCommand(syntheticCommand('party.create', 1, { name: 'SYNTHETIC' }), { ...context, membershipActive: false }), /MEMBERSHIP_REQUIRED/));
 test('tenant enviado pelo navegador é recusado', () => assert.throws(() => validateCommand({ ...syntheticCommand('party.create', 1, { name: 'SYNTHETIC' }), tenantId: context.tenantId }, context), /AUTHORITY_FIELD_FORBIDDEN/));
 test('campo de autoridade aninhado é recusado', () => assert.throws(() => validateCommand(syntheticCommand('sale.complete', 1, { name: 'SYNTHETIC', meta: { priceTotal: 1 } }), context), /AUTHORITY_FIELD_FORBIDDEN/));
+test('papel técnico no envelope é recusado', () => assert.throws(() => validateCommand({ ...syntheticCommand('party.create', 1, { name: 'SYNTHETIC' }), role: 'owner' }, context), /AUTHORITY_FIELD_FORBIDDEN/));
 test('capacidade ausente é recusada', () => assert.throws(() => validateCommand(syntheticCommand('sale.complete', 1, { sale: 'SYNTHETIC', quantity: 1, amountCents: 100 }), { ...context, capabilities: [] }), /CAPABILITY_REQUIRED/));
 test('payload sem marcador sintético é recusado', () => assert.throws(() => validateCommand(syntheticCommand('party.create', 1, { name: 'REAL' }), context), /INVALID_COMMAND/));
 test('segredo no payload é recusado', () => assert.throws(() => validateCommand(syntheticCommand('party.create', 1, { name: 'SYNTHETIC', password: 'x' }), context), /INVALID_COMMAND/));

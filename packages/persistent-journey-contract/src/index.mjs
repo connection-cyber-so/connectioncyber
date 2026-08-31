@@ -27,12 +27,14 @@ export const ERROR_CATALOG = Object.freeze({
   CAPABILITY_REQUIRED: { publicCode: 'CAPABILITY_BLOCKED', retryable: false, httpStatus: 403 },
   INVALID_STATE_TRANSITION: { publicCode: 'OPERATION_NOT_ALLOWED', retryable: false, httpStatus: 409 },
   IDEMPOTENCY_CONFLICT: { publicCode: 'REQUEST_CONFLICT', retryable: false, httpStatus: 409 },
+  DUPLICATE_RESOURCE: { publicCode: 'RESOURCE_ALREADY_EXISTS', retryable: false, httpStatus: 409 },
+  AUTHORIZATION_CONTEXT_MISMATCH: { publicCode: 'ACCESS_DENIED', retryable: false, httpStatus: 403 },
   RESOURCE_NOT_FOUND: { publicCode: 'RESOURCE_NOT_FOUND', retryable: false, httpStatus: 404 },
   CONCURRENT_MODIFICATION: { publicCode: 'RETRY_LATER', retryable: true, httpStatus: 409 },
   INTERNAL_FAILURE: { publicCode: 'OPERATION_FAILED', retryable: true, httpStatus: 500 },
 });
 
-const AUTHORITY_FIELDS = new Set(['tenantId', 'tenant_id', 'userId', 'actorId', 'role', 'roles', 'capabilities', 'priceTotal', 'stockBalance', 'cashBalance']);
+const AUTHORITY_FIELDS = new Set(['tenantId', 'tenant_id', 'userId', 'actorId', 'actorRole', 'roles', 'capabilities', 'priceTotal', 'stockBalance', 'cashBalance']);
 export const fail = (code) => { const definition = ERROR_CATALOG[code] ?? ERROR_CATALOG.INTERNAL_FAILURE; throw Object.assign(new Error(code), { code, publicError: definition }); };
 const canonical = (value) => value && typeof value === 'object' ? Array.isArray(value) ? value.map(canonical) : Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value;
 export const payloadHash = (value) => createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex');
@@ -52,6 +54,7 @@ export function validateCommand(command, context) {
   if (!command.payload || typeof command.payload !== 'object' || Array.isArray(command.payload)) fail('INVALID_COMMAND');
   let forbidden = false;
   walk(command, (key) => { if (AUTHORITY_FIELDS.has(key)) forbidden = true; });
+  if (Object.hasOwn(command, 'role')) forbidden = true;
   if (forbidden) fail('AUTHORITY_FIELD_FORBIDDEN');
   const serialized = JSON.stringify(command.payload);
   if (!serialized.includes('SYNTHETIC') || /cnpj|cpf|password|secret|token|certificate|csc|pfx/i.test(serialized)) fail('INVALID_COMMAND');

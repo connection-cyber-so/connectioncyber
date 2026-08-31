@@ -1,0 +1,35 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { syntheticCommand } from '../src/index.mjs';
+import { createSyntheticAuthorizationDoubles } from '../src/doubles.mjs';
+import { createServerCommandAuthorizer } from '../src/server-authorizer.mjs';
+import { createMasterDataApplication, MemoryMasterDataStore } from '../src/master-data-application.mjs';
+
+const host = 'synthetic-me.connectioncyber.invalid';
+const setup = (overrides = {}) => { const doubles = createSyntheticAuthorizationDoubles(overrides), store = new MemoryMasterDataStore(), authorizer = createServerCommandAuthorizer({ ...doubles, clock: () => new Date('2026-08-31T12:00:00.000Z') }); return { doubles, store, app: createMasterDataApplication({ authorizer, store }) }; };
+const party = (sequence = 1, overrides = {}) => syntheticCommand('party.create', sequence, { marker: 'SYNTHETIC-MASTER-DATA', kind: 'organization', legalName: 'SYNTHETIC CUSTOMER', tradeName: 'SYNTHETIC SHOP', role: 'customer', ...overrides });
+const item = (sequence = 2, overrides = {}) => syntheticCommand('catalog.item.create', sequence, { marker: 'SYNTHETIC-MASTER-DATA', kind: 'product', code: 'SYNTHETIC-001', name: 'SYNTHETIC PRODUCT', description: 'SYNTHETIC DESCRIPTION', trackInventory: true, allowsFraction: false, ...overrides });
+
+test('cadastro autorizado usa tenant e ator do servidor', async () => { const { app } = setup(), result = await app.execute({ host, command: party() }); assert.deepEqual([result.resource.tenantId, result.resource.createdBy], ['SYNTHETIC-TENANT-ME-001', 'SYNTHETIC-ACTOR-OWNER-001']); });
+test('catálogo autorizado usa tenant e ator do servidor', async () => { const { app } = setup(), result = await app.execute({ host, command: item() }); assert.deepEqual([result.resource.tenantId, result.resource.createdBy], ['SYNTHETIC-TENANT-ME-001', 'SYNTHETIC-ACTOR-OWNER-001']); });
+test('cadastro pode ser relido no tenant correto', async () => { const { app, store } = setup(); await app.execute({ host, command: party() }); assert.equal(store.listParties('SYNTHETIC-TENANT-ME-001').length, 1); });
+test('item pode ser relido no tenant correto', async () => { const { app, store } = setup(); await app.execute({ host, command: item() }); assert.equal(store.listItems('SYNTHETIC-TENANT-ME-001').length, 1); });
+test('outro tenant não enxerga cadastro', async () => { const { app, store } = setup(); await app.execute({ host, command: party() }); assert.equal(store.listParties('SYNTHETIC-TENANT-OTHER').length, 0); });
+test('outro tenant não enxerga item', async () => { const { app, store } = setup(); await app.execute({ host, command: item() }); assert.equal(store.listItems('SYNTHETIC-TENANT-OTHER').length, 0); });
+test('replay de cadastro não duplica', async () => { const { app, store } = setup(), command = party(); await app.execute({ host, command }); assert.equal((await app.execute({ host, command })).replayed, true); assert.equal(store.listParties('SYNTHETIC-TENANT-ME-001').length, 1); });
+test('replay de item não duplica', async () => { const { app, store } = setup(), command = item(); await app.execute({ host, command }); assert.equal((await app.execute({ host, command })).replayed, true); assert.equal(store.listItems('SYNTHETIC-TENANT-ME-001').length, 1); });
+test('mesma chave com payload diferente conflita', async () => { const { app } = setup(); await app.execute({ host, command: party() }); await assert.rejects(app.execute({ host, command: party(1, { legalName: 'SYNTHETIC OTHER' }) }), /IDEMPOTENCY_CONFLICT/); });
+test('nome duplicado no mesmo tenant conflita', async () => { const { app } = setup(); await app.execute({ host, command: party(1) }); await assert.rejects(app.execute({ host, command: party(2) }), /DUPLICATE_RESOURCE/); });
+test('código duplicado no mesmo tenant conflita', async () => { const { app } = setup(); await app.execute({ host, command: item(1) }); await assert.rejects(app.execute({ host, command: item(2) }), /DUPLICATE_RESOURCE/); });
+test('falha após repositório desfaz cadastro e inbox', async () => { const { app, store } = setup(); await assert.rejects(app.execute({ host, command: party(1, { injectFailure: 'SYNTHETIC-AFTER-REPOSITORY' }) }), /INTERNAL_FAILURE/); assert.equal(store.listParties('SYNTHETIC-TENANT-ME-001').length, 0); assert.equal(store.evidence().commands, 0); });
+test('permissão ausente bloqueia antes do repositório', async () => { const { app, store } = setup({ memberships: { async resolveActive(userId, tenantId) { return { id: 'SYNTHETIC-M', tenantId, userId, role: 'operator', active: true, permissions: [] }; } } }); await assert.rejects(app.execute({ host, command: party() }), /PERMISSION_REQUIRED/); assert.equal(store.evidence().commands, 0); });
+test('capacidade ausente bloqueia antes do repositório', async () => { const { app, store } = setup({ capabilities: { async resolveEffective() { return []; } } }); await assert.rejects(app.execute({ host, command: item() }), /CAPABILITY_REQUIRED/); assert.equal(store.evidence().commands, 0); });
+test('tipo de pessoa inválido é recusado', async () => await assert.rejects(setup().app.execute({ host, command: party(1, { kind: 'unknown' }) }), /INVALID_COMMAND/));
+test('papel inválido é recusado', async () => await assert.rejects(setup().app.execute({ host, command: party(1, { role: 'root' }) }), /INVALID_COMMAND/));
+test('nome empresarial sem escopo sintético é recusado', async () => await assert.rejects(setup().app.execute({ host, command: party(1, { legalName: 'EMPRESA REAL' }) }), /INVALID_COMMAND/));
+test('código de item é normalizado', async () => assert.equal((await setup().app.execute({ host, command: item(1, { code: 'synthetic-abc' }) })).resource.code, 'SYNTHETIC-ABC'));
+test('serviço não pode controlar estoque', async () => await assert.rejects(setup().app.execute({ host, command: item(1, { kind: 'service', trackInventory: true }) }), /INVALID_COMMAND/));
+test('nome de item sem escopo sintético é recusado', async () => await assert.rejects(setup().app.execute({ host, command: item(1, { name: 'PRODUTO REAL' }) }), /INVALID_COMMAND/));
+test('aplicação não aceita autorização fornecida externamente', () => assert.equal(createMasterDataApplication({ authorizer: { authorize() {} }, store: { execute() {} } }).execute.length, 1));
+test('repositório permanece local e sem rede', () => { const source = MemoryMasterDataStore.toString(); assert.doesNotMatch(source, /fetch\(|supabase|createClient|\.from\(/i); });
+test('evidência confirma ausência de persistência e produção', async () => { const { app, store } = setup(); await app.execute({ host, command: party() }); const evidence = store.evidence(); assert.equal(evidence.persisted || evidence.remoteAccessed || evidence.productionAccessed, false); });

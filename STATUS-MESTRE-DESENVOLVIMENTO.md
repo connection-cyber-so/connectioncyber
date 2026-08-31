@@ -649,3 +649,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 44/44 testes do pacote e regressão completa da plataforma aprovados com Node.js 22.23.2.
 - Marcador: `M17_G2_SERVER_AUTHORIZATION_OK`.
 - Somente dublês locais; banco, Supabase, rede e produção não acessados.
+## M17-G3 — cadastro e catálogo com repositórios locais (31/08/2026)
+
+- Comandos de cadastro e item foram conectados à fronteira server-side M17-G2.
+- Unidade de trabalho local reúne repositórios tenant-scoped e inbox idempotente.
+- Replay, conflito, duplicidade, isolamento e rollback integral foram comprovados.
+- Campos mestres reais são recusados; somente conteúdo explicitamente sintético é aceito.
+- 68/68 testes do pacote e regressão completa da plataforma aprovados com Node.js 22.23.2.
+- Marcador: `M17_G3_LOCAL_MASTER_DATA_OK`.
+- Banco, Supabase, rede e produção não acessados.
