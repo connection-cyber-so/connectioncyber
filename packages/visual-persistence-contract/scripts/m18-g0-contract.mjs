@@ -1,0 +1,1 @@
+import{validateVisualPersistenceContract}from'../src/index.mjs';const result=validateVisualPersistenceContract();if(!result.valid)throw new Error(`M18_G0_INVALID:${result.findings.join(',')}`);console.log(JSON.stringify({result:'M18_G0_VISUAL_PERSISTENCE_CONTRACT_OK',...result}));

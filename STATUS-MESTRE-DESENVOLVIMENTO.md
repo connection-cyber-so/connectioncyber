@@ -739,3 +739,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Piloto M15 real e produção continuam bloqueados até o parecer M18-G8.
 - Marcador: `M17_G12_BACKEND_PERSISTENT_TRACK_CLOSED_M18_DEFINED`.
 - Nenhum serviço remoto acessado e nenhum dado criado neste gate.
+## M18-G0 — contrato da integração visual persistente (31/08/2026)
+
+- Contrato `M18-VISUAL-1.0` mapeia seis superfícies visuais, sete RPCs e onze read models.
+- Estados UX obrigam validação, submissão única, releitura e somente então sucesso.
+- Dez ameaças cobrem tenant vindo do navegador, adulteração de valores, replay, aba obsoleta, erro SQL, segredo e estado otimista.
+- 30/30 testes do contrato e 32/32 testes da plataforma, TypeScript e ESLint aprovados.
+- Marcador: `M18_G0_VISUAL_PERSISTENCE_CONTRACT_OK`.
+- Nenhum serviço remoto acessado e nenhum dado criado.
