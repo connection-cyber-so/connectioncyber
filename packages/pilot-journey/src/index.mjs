@@ -14,3 +14,25 @@ export class SyntheticPilotLab{
   evidence(){return Object.freeze({tenants:this.#tenants.size,memberships:this.#memberships.size,records:this.#records.size,events:this.#events.length,remoteAccessed:false,productionAccessed:false,persisted:false})}
 }
 export function executeSyntheticJourney(){const lab=new SyntheticPilotLab(),tenants=['MEI','ME','LTDA'].map(profile=>lab.createTenant({legalProfile:profile,name:`SYNTHETIC-${profile}`})),pilot=tenants[1],session=lab.authenticate({userId:'SYNTHETIC-USER-OWNER',tenantId:pilot.id,role:'owner',mfa:true}),steps=[['parties',{name:'SYNTHETIC-CUSTOMER'}],['catalog',{sku:'SYNTHETIC-SKU-001'}],['inventory',{movement:'SYNTHETIC-ENTRY',quantity:10}],['sales',{sale:'SYNTHETIC-SALE-001',amountCents:1000}],['cash',{movement:'SYNTHETIC-CASH',amountCents:1000}],['finance',{title:'SYNTHETIC-RECEIVABLE',amountCents:1000}]];steps.forEach(([module,payload],index)=>lab.write(session,pilot.id,module,payload,`m15g2:${module}:${index+1}`));let crossTenantDenied=false,fiscalFailClosed=false;try{lab.access(session,tenants[2].id,'sales')}catch(error){crossTenantDenied=error.message==='CROSS_TENANT_DENIED'}try{lab.access(session,pilot.id,'fiscal')}catch(error){fiscalFailClosed=error.message==='FISCAL_FAIL_CLOSED'}const beforeRollback=lab.evidence(),rollback=lab.rollback();return Object.freeze({result:'M15_G2_SYNTHETIC_JOURNEY_OK',profiles:tenants.map(item=>item.legalProfile),modules:steps.map(item=>item[0]),crossTenantDenied,fiscalFailClosed,beforeRollback,rollback,afterRollback:lab.evidence()})}
+
+const HYPERCARE_LIMITS=Object.freeze({availabilityPct:99.5,errorRatePct:1,p95Ms:1200,reconciliationPending:0,crossTenantEvents:0,fiscalProductionEvents:0})
+export function evaluateSyntheticHypercare(sample){
+  assertSynthetic(sample)
+  const required=['availabilityPct','errorRatePct','p95Ms','reconciliationPending','crossTenantEvents','fiscalProductionEvents']
+  if(required.some(key=>!Number.isFinite(sample[key])))fail('INCOMPLETE_HYPERCARE_SAMPLE')
+  const breaches=[]
+  if(sample.crossTenantEvents>HYPERCARE_LIMITS.crossTenantEvents)breaches.push({severity:'SEV-1',code:'CROSS_TENANT_EVENT'})
+  if(sample.fiscalProductionEvents>HYPERCARE_LIMITS.fiscalProductionEvents)breaches.push({severity:'SEV-1',code:'FISCAL_PRODUCTION_EVENT'})
+  if(sample.availabilityPct<HYPERCARE_LIMITS.availabilityPct)breaches.push({severity:'SEV-2',code:'AVAILABILITY_BELOW_TARGET'})
+  if(sample.errorRatePct>HYPERCARE_LIMITS.errorRatePct)breaches.push({severity:'SEV-2',code:'ERROR_RATE_ABOVE_TARGET'})
+  if(sample.p95Ms>HYPERCARE_LIMITS.p95Ms)breaches.push({severity:'SEV-2',code:'LATENCY_ABOVE_TARGET'})
+  if(sample.reconciliationPending>HYPERCARE_LIMITS.reconciliationPending)breaches.push({severity:'SEV-2',code:'RECONCILIATION_PENDING'})
+  const highest=breaches.some(item=>item.severity==='SEV-1')?'SEV-1':breaches.length?'SEV-2':'HEALTHY'
+  return Object.freeze({status:highest,goLiveEligible:false,synthetic:true,breaches:Object.freeze(breaches),remoteAccessed:false,productionAccessed:false})
+}
+export function executeSyntheticHypercare(){
+  const healthy=evaluateSyntheticHypercare({name:'SYNTHETIC-HEALTHY',availabilityPct:100,errorRatePct:0,p95Ms:250,reconciliationPending:0,crossTenantEvents:0,fiscalProductionEvents:0})
+  const degraded=evaluateSyntheticHypercare({name:'SYNTHETIC-DEGRADED',availabilityPct:98,errorRatePct:2,p95Ms:1500,reconciliationPending:1,crossTenantEvents:0,fiscalProductionEvents:0})
+  const critical=evaluateSyntheticHypercare({name:'SYNTHETIC-CRITICAL',availabilityPct:100,errorRatePct:0,p95Ms:250,reconciliationPending:0,crossTenantEvents:1,fiscalProductionEvents:0})
+  return Object.freeze({result:'M15_G11_LOCAL_PREPARATION_OK',healthy:healthy.status,degraded:degraded.status,critical:critical.status,acceptanceBlocked:true,realMonitoringConfigured:false,remoteAccessed:false,productionAccessed:false})
+}

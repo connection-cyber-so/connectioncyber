@@ -541,3 +541,10 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 56/56 testes, TypeScript, ESLint e build aprovados com Node.js 22.23.2.
 - Marcador: `M15_G10_CONSOLIDATED_JOURNEY_OK`.
 - Supabase remoto, Vercel, bancos, fiscal e produção não acessados.
+## M15-G11 — preparação local de hipercare (30/08/2026)
+
+- Próximo gate cronológico confirmado no parecer M15-G0.
+- Contrato de métricas, alertas SEV-1/SEV-2, simulador e critérios de aceite preparados localmente.
+- Aceite final e hipercare real continuam bloqueados até corte autorizado.
+- Marcador: `M15_G11_LOCAL_PREPARATION_OK`.
+- Serviços remotos e produção não acessados.
