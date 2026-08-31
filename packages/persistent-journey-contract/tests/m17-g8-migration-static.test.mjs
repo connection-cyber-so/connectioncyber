@@ -19,8 +19,13 @@ test('receipt terminal exige resultado e horário', () => assert.match(migration
 test('RLS está habilitada no inbox', () => assert.match(migration, /alter table public\.erp_command_receipts enable row level security/));
 test('authenticated não recebe acesso direto ao inbox', () => assert.match(migration, /revoke all on table public\.erp_command_receipts from public,anon,authenticated/));
 test('claim usa lock transacional', () => assert.match(migration, /erp_claim_command_v1[\s\S]+pg_advisory_xact_lock/));
-test('claim compara hash em replay', () => assert.match(migration, /v\.payload_hash<>p_payload_hash/));
-test('claim recalcula SHA-256 do JSONB no banco', () => assert.match(migration, /digest\(convert_to\(p_payload::text,'UTF8'\),'sha256'\)/));
+test('claim compara hash canônico calculado em replay', () => assert.match(migration, /v\.payload_hash<>v_computed_hash/));
+test('claim recalcula SHA-256 do JSONB no banco', () => assert.match(migration, /public\.digest\(convert_to\(v_payload_text,'UTF8'\),'sha256'\)/));
+test('hash informado não é autoridade de persistência', () => assert.match(migration, /values\(p_tenant_id,p_command_type,p_request_id,v_computed_hash,auth\.uid\(\)\)/));
+test('payload tem limite e triagem de segredos', () => { assert.match(migration, /octet_length\(v_payload_text\)>65536/); assert.match(migration, /unsafe command payload/); });
+test('estoque exige item rastreável e local ativo', () => assert.match(migration, /i\.track_inventory and i\.status='active'[\s\S]+l\.active/));
+test('venda a prazo projeta recebível e parcela na mesma RPC', () => { assert.match(migration, /pm\.kind='store_credit'/); assert.match(migration, /insert into public\.erp_financial_entries/); assert.match(migration, /insert into public\.erp_installments/); });
+test('projeção financeira usa identidade e valor autoritativos do banco', () => assert.match(migration, /v_sale\.customer_id is null[\s\S]+v_credit<>v_sale\.grand_total/));
 test('claim recusa comando ainda processando', () => assert.match(migration, /command already processing/));
 test('sete RPCs versionadas existem', () => assert.equal(rpcNames.every(name => migration.includes(`erp_command_${name}_v1`)), true));
 test('sete RPCs verificam autorização', () => assert.equal((migration.match(/perform public\.erp_require_command_access_v1/g) ?? []).length, 7));
@@ -31,5 +36,5 @@ test('RPCs recusam anon', () => assert.match(migration, /revoke execute on funct
 test('preflight cobre baseline e ausência da 0033', () => { assert.match(preflight, /required baseline RPC missing/); assert.match(preflight, /0033 already present/); });
 test('preflight possui marcador determinístico', () => assert.match(preflight, /M17_0033_PREFLIGHT_OK/));
 test('rollback remove sete RPCs helpers e tabela', () => { assert.equal(rpcNames.every(name => rollback.includes(`drop function if exists public.erp_command_${name}_v1`)), true); assert.match(rollback, /drop table if exists public\.erp_command_receipts/); });
-test('pgTAP declara 90 asserções e rollback', () => { assert.match(pgtap, /select plan\(90\)/); assert.match(pgtap, /select\*from finish\(\);rollback;/); });
+test('pgTAP declara 96 asserções e rollback', () => { assert.match(pgtap, /select plan\(96\)/); assert.match(pgtap, /select\*from finish\(\);rollback;/); });
 test('nenhum arquivo executa acesso remoto', () => assert.doesNotMatch(migration + preflight + rollback + pgtap, /supabase\s+(db|link|login)|https?:\/\//i));

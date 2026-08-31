@@ -1,4 +1,4 @@
-begin;set local role postgres;create extension if not exists pgtap with schema extensions;set local search_path=public,extensions,pgtap;select plan(90);
+begin;set local role postgres;create extension if not exists pgtap with schema extensions;set local search_path=public,extensions,pgtap;select plan(96);
 select ok(to_regclass('public.erp_command_receipts')is not null,'command receipts table exists');
 select ok((select relrowsecurity from pg_class where oid='public.erp_command_receipts'::regclass),'command receipts RLS enabled');
 select ok(not has_table_privilege('anon','public.erp_command_receipts','SELECT'),'anon cannot read receipts');
@@ -17,6 +17,12 @@ select is((select count(*)::integer from unnest(array['party.create','catalog.it
 select is((select count(*)::integer from public.erp_command_receipts),0,'zero command receipts before fixtures');
 select ok(pg_get_functiondef('public.erp_claim_command_v1(uuid,text,text,text,jsonb)'::regprocedure)like'%pg_advisory_xact_lock%','claim serializes concurrent requests');
 select ok(pg_get_functiondef('public.erp_claim_command_v1(uuid,text,text,text,jsonb)'::regprocedure)like'%idempotency conflict%','claim rejects divergent hash');
+select ok(pg_get_functiondef('public.erp_claim_command_v1(uuid,text,text,text,jsonb)'::regprocedure)like'%public.digest%','claim computes hash with qualified pgcrypto function');
+select ok(pg_get_functiondef('public.erp_claim_command_v1(uuid,text,text,text,jsonb)'::regprocedure)like'%v_computed_hash%','database-computed hash is authoritative');
+select ok(pg_get_functiondef('public.erp_claim_command_v1(uuid,text,text,text,jsonb)'::regprocedure)like'%unsafe command payload%','claim rejects oversized or secret payload');
+select ok(pg_get_functiondef('public.erp_command_receive_inventory_v1(uuid,text,text,jsonb)'::regprocedure)like'%inventory target unavailable%','inventory requires tracked item and active location');
+select ok(pg_get_functiondef('public.erp_command_complete_sale_v1(uuid,text,text,jsonb)'::regprocedure)like'%erp_financial_entries%','store credit creates financial entry atomically');
+select ok(pg_get_functiondef('public.erp_command_complete_sale_v1(uuid,text,text,jsonb)'::regprocedure)like'%v_credit<>v_sale.grand_total%','mixed store credit fails closed');
 select ok(pg_get_functiondef(signature::regprocedure)like'%erp_require_command_access_v1%',format('%s checks access',signature))from unnest(array['public.erp_command_create_party_v1(uuid,text,text,jsonb)','public.erp_command_create_catalog_item_v1(uuid,text,text,jsonb)','public.erp_command_receive_inventory_v1(uuid,text,text,jsonb)','public.erp_command_open_cash_v1(uuid,text,text,jsonb)','public.erp_command_complete_sale_v1(uuid,text,text,jsonb)','public.erp_command_settle_receivable_v1(uuid,text,text,jsonb)','public.erp_command_close_cash_v1(uuid,text,text,jsonb)'])signature;
 select ok(pg_get_functiondef(signature::regprocedure)like'%erp_claim_command_v1%',format('%s claims receipt',signature))from unnest(array['public.erp_command_create_party_v1(uuid,text,text,jsonb)','public.erp_command_create_catalog_item_v1(uuid,text,text,jsonb)','public.erp_command_receive_inventory_v1(uuid,text,text,jsonb)','public.erp_command_open_cash_v1(uuid,text,text,jsonb)','public.erp_command_complete_sale_v1(uuid,text,text,jsonb)','public.erp_command_settle_receivable_v1(uuid,text,text,jsonb)','public.erp_command_close_cash_v1(uuid,text,text,jsonb)'])signature;
 select ok(pg_get_functiondef('public.erp_command_complete_sale_v1(uuid,text,text,jsonb)'::regprocedure)like'%pg_advisory_xact_lock%','sale wrapper locks aggregate');

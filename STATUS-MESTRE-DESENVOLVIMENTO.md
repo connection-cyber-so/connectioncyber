@@ -704,3 +704,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - SHA-256 da migration: `17f7fc7e740d6f11cdfdba86a81c44fc9d057b3a4bec6f5d1800c9daf635284b`.
 - Marcador: `M17_G8_MIGRATION_0033_LOCAL_READY`.
 - Supabase, rede e produção não acessados; aplicação remota bloqueada.
+## M17-G9 — auditoria independente da migration 0033 (31/08/2026)
+
+- Cinco bloqueios foram encontrados e remediados: hash canônico, função criptográfica qualificada, triagem de payload, alvo de estoque e projeção financeira da venda a prazo.
+- Crediário integral da loja agora cria título e parcela atomicamente; modalidade mista permanece fail-closed.
+- Plano pgTAP ampliado para 96 asserções, ainda sem execução PostgreSQL ou remota.
+- 168/168 testes do pacote e 32/32 testes da plataforma, TypeScript, ESLint e `git diff --check` aprovados.
+- SHA-256 final da migration: `d94789aa0de9803d4cd4e1c9e627fc220a9750543a482c87b82466706773c5f2`.
+- Marcador: `M17_G9_MIGRATION_0033_LOCAL_AUDIT_OK`.
+- Supabase, rede e produção não acessados; validação remota bloqueada.

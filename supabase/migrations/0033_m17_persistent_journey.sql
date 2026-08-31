@@ -32,18 +32,19 @@ end$$;
 
 create or replace function public.erp_claim_command_v1(p_tenant_id uuid,p_command_type text,p_request_id text,p_payload_hash text,p_payload jsonb) returns jsonb
 language plpgsql security definer set search_path='' as $$
-declare v public.erp_command_receipts%rowtype;
+declare v public.erp_command_receipts%rowtype;v_computed_hash text;v_payload_text text;
 begin
   if auth.uid() is null or p_tenant_id is null or p_command_type not in('party.create','catalog.item.create','inventory.receive','cash.open','sale.complete','finance.receivable.settle','cash.close')or p_request_id!~'^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$'or p_payload_hash!~'^[a-f0-9]{64}$'or jsonb_typeof(p_payload)<>'object'then raise exception using errcode='22023',message='invalid command envelope';end if;
-  if encode(digest(convert_to(p_payload::text,'UTF8'),'sha256'),'hex')<>p_payload_hash then raise exception using errcode='22023',message='payload hash mismatch';end if;
+  v_payload_text:=p_payload::text;if octet_length(v_payload_text)>65536 or v_payload_text~*'"(password|senha|secret|token|credential|private_key|service_role|certificate|certificado|pfx|p12|csc|id_token)"[[:space:]]*:'then raise exception using errcode='22023',message='unsafe command payload';end if;
+  v_computed_hash:=encode(public.digest(convert_to(v_payload_text,'UTF8'),'sha256'),'hex');
   perform pg_advisory_xact_lock(hashtextextended(p_tenant_id::text||':'||p_command_type||':'||p_request_id,0));
   select * into v from public.erp_command_receipts where tenant_id=p_tenant_id and command_type=p_command_type and request_id=p_request_id for update;
   if found then
-    if v.payload_hash<>p_payload_hash then raise exception using errcode='23505',message='idempotency conflict';end if;
+    if v.payload_hash<>v_computed_hash then raise exception using errcode='23505',message='idempotency conflict';end if;
     if v.status='succeeded'then return jsonb_build_object('receiptId',v.id,'replayed',true,'result',v.result_json);end if;
     raise exception using errcode='40001',message='command already processing';
   end if;
-  insert into public.erp_command_receipts(tenant_id,command_type,request_id,payload_hash,actor_id)values(p_tenant_id,p_command_type,p_request_id,p_payload_hash,auth.uid())returning * into v;
+  insert into public.erp_command_receipts(tenant_id,command_type,request_id,payload_hash,actor_id)values(p_tenant_id,p_command_type,p_request_id,v_computed_hash,auth.uid())returning * into v;
   return jsonb_build_object('receiptId',v.id,'replayed',false);
 end$$;
 
@@ -81,6 +82,7 @@ declare c jsonb;v_id uuid;v_qty numeric(19,6);v_result jsonb;
 begin
   perform public.erp_require_command_access_v1(p_tenant_id,'stock.manage','inventory.stock');c:=public.erp_claim_command_v1(p_tenant_id,'inventory.receive',p_request_id,p_payload_hash,p_payload);if(c->>'replayed')::boolean then return c->'result';end if;
   v_qty:=(p_payload->>'quantity')::numeric;if v_qty<=0 then raise exception using errcode='22023',message='invalid quantity';end if;
+  if not exists(select 1 from public.erp_catalog_items i where i.tenant_id=p_tenant_id and i.id=(p_payload->>'itemId')::uuid and i.track_inventory and i.status='active')or not exists(select 1 from public.erp_stock_locations l where l.tenant_id=p_tenant_id and l.id=(p_payload->>'locationId')::uuid and l.active)then raise exception using errcode='22023',message='inventory target unavailable';end if;
   perform pg_advisory_xact_lock(hashtextextended(p_tenant_id::text||':'||(p_payload->>'locationId')||':'||(p_payload->>'itemId')||':'||coalesce(p_payload->>'variantId',''),0));
   insert into public.erp_stock_movements(tenant_id,establishment_id,type,status,occurred_at,posted_at,source_type,idempotency_key,created_by)values(p_tenant_id,(p_payload->>'establishmentId')::uuid,'purchase_receipt','posted',now(),now(),'command',p_request_id||':stock',auth.uid())returning id into v_id;
   insert into public.erp_stock_movement_items(tenant_id,movement_id,location_id,item_id,variant_id,unit_id,quantity_delta,unit_cost)values(p_tenant_id,v_id,(p_payload->>'locationId')::uuid,(p_payload->>'itemId')::uuid,nullif(p_payload->>'variantId','')::uuid,(p_payload->>'unitId')::uuid,v_qty,nullif(p_payload->>'unitCost','')::numeric);
@@ -92,17 +94,29 @@ language plpgsql security definer set search_path='' as $$
 declare c jsonb;v_id uuid;v_result jsonb;
 begin
   perform public.erp_require_command_access_v1(p_tenant_id,'cash.operate','sales.pos');c:=public.erp_claim_command_v1(p_tenant_id,'cash.open',p_request_id,p_payload_hash,p_payload);if(c->>'replayed')::boolean then return c->'result';end if;
+  if not exists(select 1 from public.erp_cash_registers r where r.tenant_id=p_tenant_id and r.id=(p_payload->>'cashRegisterId')::uuid and r.active)then raise exception using errcode='22023',message='cash register unavailable';end if;
   perform pg_advisory_xact_lock(hashtextextended(p_tenant_id::text||':'||(p_payload->>'cashRegisterId'),0));v_id:=public.erp_open_cash_session(p_tenant_id,(p_payload->>'cashRegisterId')::uuid,(p_payload->>'openingAmount')::numeric,p_request_id||':cash');
   v_result:=jsonb_build_object('status','opened','cashSessionId',v_id);return public.erp_complete_command_v1(p_tenant_id,(c->>'receiptId')::uuid,v_result);
 end$$;
 
 create or replace function public.erp_command_complete_sale_v1(p_tenant_id uuid,p_request_id text,p_payload_hash text,p_payload jsonb) returns jsonb
 language plpgsql security definer set search_path='' as $$
-declare c jsonb;v_id uuid;v_result jsonb;
+declare c jsonb;v_id uuid;v_result jsonb;v_sale public.erp_sales%rowtype;v_credit numeric(19,4);v_due date;v_entry_id uuid;
 begin
   perform public.erp_require_command_access_v1(p_tenant_id,'sales.complete','sales.pos');c:=public.erp_claim_command_v1(p_tenant_id,'sale.complete',p_request_id,p_payload_hash,p_payload);if(c->>'replayed')::boolean then return c->'result';end if;
   v_id:=(p_payload->>'saleId')::uuid;perform pg_advisory_xact_lock(hashtextextended(p_tenant_id::text||':'||v_id::text,0));v_id:=public.erp_complete_sale(p_tenant_id,v_id,p_payload->>'saleIdempotencyKey');
-  v_result:=jsonb_build_object('status','completed','saleId',v_id);return public.erp_complete_command_v1(p_tenant_id,(c->>'receiptId')::uuid,v_result);
+  select * into strict v_sale from public.erp_sales where tenant_id=p_tenant_id and id=v_id;
+  select coalesce(sum(sp.amount),0) into v_credit from public.erp_sale_payments sp join public.erp_payment_methods pm on pm.tenant_id=sp.tenant_id and pm.id=sp.payment_method_id where sp.tenant_id=p_tenant_id and sp.sale_id=v_id and sp.status='captured' and pm.kind='store_credit';
+  if v_credit>0 then
+    if v_sale.customer_id is null then raise exception using errcode='22023',message='customer required for store credit';end if;
+    if v_credit<>v_sale.grand_total then raise exception using errcode='22023',message='mixed store credit projection unsupported';end if;
+    if coalesce(p_payload->>'dueDate','')!~'^\d{4}-\d{2}-\d{2}$' then raise exception using errcode='22023',message='dueDate required for store credit';end if;
+    v_due:=(p_payload->>'dueDate')::date;
+    insert into public.erp_financial_entries(tenant_id,establishment_id,party_id,code,direction,status,currency_code,principal_amount,issue_date,due_date,source_type,source_id,idempotency_key,created_by)
+    values(p_tenant_id,v_sale.establishment_id,v_sale.customer_id,v_sale.code||'-REC','receivable','open',v_sale.currency_code,v_credit,current_date,v_due,'sale',v_id,p_request_id||':receivable',auth.uid()) returning id into v_entry_id;
+    insert into public.erp_installments(tenant_id,financial_entry_id,number,status,due_date,principal_amount) values(p_tenant_id,v_entry_id,1,'open',v_due,v_credit);
+  end if;
+  v_result:=jsonb_build_object('status','completed','saleId',v_id,'financialEntryId',v_entry_id);return public.erp_complete_command_v1(p_tenant_id,(c->>'receiptId')::uuid,v_result);
 end$$;
 
 create or replace function public.erp_command_settle_receivable_v1(p_tenant_id uuid,p_request_id text,p_payload_hash text,p_payload jsonb) returns jsonb
