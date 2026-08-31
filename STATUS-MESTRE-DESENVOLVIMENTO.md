@@ -747,3 +747,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 30/30 testes do contrato e 32/32 testes da plataforma, TypeScript e ESLint aprovados.
 - Marcador: `M18_G0_VISUAL_PERSISTENCE_CONTRACT_OK`.
 - Nenhum serviço remoto acessado e nenhum dado criado.
+## M18-G1 — cliente server-side tipado (31/08/2026)
+
+- Broker tipado cobre sete RPCs e onze read models com transporte injetável.
+- Tenant, request ID e hash são derivados/validados no servidor; payload do navegador não recebe autoridade.
+- Sucesso exige releitura persistente; falhas são sanitizadas e escrita não tem retry automático cego.
+- 48/48 testes do pacote e 32/32 testes da plataforma, declarações TypeScript e ESLint aprovados.
+- Marcador: `M18_G1_TYPED_SERVER_CLIENT_OK`.
+- Nenhum serviço remoto acessado; conexão às telas começa no M18-G2.
