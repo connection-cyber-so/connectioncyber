@@ -604,3 +604,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Histórico alinhado até 0032 e dry-run final sem pendências.
 - Marcador: `M16_G6_0032_STAGING_APPLIED_OK`.
 - Produção não acessada.
+## M16-G7 — painel administrativo local de capacidades (31/08/2026)
+
+- Rota protegida `/capacidades` adicionada ao painel interno.
+- Perfis sintéticos MEI, ME e LTDA exibem 12 capacidades canônicas e prontidão crítica.
+- Exceções allow/deny/revoke funcionam somente em memória, com bloqueio prevalecendo em conflito.
+- 20/20 testes, TypeScript, ESLint e build aprovados com Node.js 22.23.2.
+- Marcador: `M16_G7_CAPABILITY_ADMIN_DEMO_OK`.
+- Supabase, Vercel, GitHub remoto e produção não acessados.
+- Próximo gate local: M16-G8, simulador de implantação em ondas e rollback por tenant.
