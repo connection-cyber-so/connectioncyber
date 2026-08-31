@@ -595,3 +595,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - ROLLBACK confirmado: histórico, tabela, colunas, RPCs, permissão e fixtures ausentes.
 - Marcador: `M16_G5_0032_TRANSACTION_ROLLBACK_OK`.
 - Produção não acessada e aplicação persistente continua bloqueada.
+## M16-G6 — aplicação persistente da 0032 no staging (31/08/2026)
+
+- Preflight e dry-run confirmaram exclusivamente a 0032.
+- Migration aplicada no Supabase staging `ozvylnaipubrmaadikvk`.
+- 60/60 asserções remotas aprovadas; RLS, RPCs e privilégios mínimos confirmados.
+- Zero exceções, fixtures, contas ou dados reais.
+- Histórico alinhado até 0032 e dry-run final sem pendências.
+- Marcador: `M16_G6_0032_STAGING_APPLIED_OK`.
+- Produção não acessada.
