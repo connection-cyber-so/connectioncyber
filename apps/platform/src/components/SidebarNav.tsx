@@ -6,6 +6,7 @@ const ITEMS = [
   { href: '/tenants', label: 'Tenants' },
   { href: '/identidades', label: 'Identidades e acessos' },
   { href: '/capacidades', label: 'Capacidades e planos' },
+  { href: '/implantacao', label: 'Implantação em ondas' },
   { href: '/cadastros', label: 'Cadastros ERP' },
   { href: '/catalogo', label: 'Catálogo universal' },
   { href: '/operacoes', label: 'Preços, estoque e compras' },

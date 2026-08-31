@@ -613,3 +613,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Marcador: `M16_G7_CAPABILITY_ADMIN_DEMO_OK`.
 - Supabase, Vercel, GitHub remoto e produção não acessados.
 - Próximo gate local: M16-G8, simulador de implantação em ondas e rollback por tenant.
+## M16-G8 — simulador local de implantação em ondas (31/08/2026)
+
+- Rota protegida `/implantacao` adicionada ao painel interno.
+- Ondas laboratório, canário, coorte e concluída possuem promoção determinística e fail-closed.
+- Critérios incluem volume, erros, latência, isolamento cross-tenant e prontidão de rollback.
+- Rollback sintético reverte somente a empresa selecionada para sua release anterior.
+- 32/32 testes, TypeScript, ESLint e build aprovados com Node.js 22.23.2.
+- Marcador: `M16_G8_SYNTHETIC_ROLLOUT_OK`.
+- Serviços remotos e produção não acessados; M16 encerrado no escopo planejado.
