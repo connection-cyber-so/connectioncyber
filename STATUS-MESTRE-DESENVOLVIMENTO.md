@@ -577,7 +577,7 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 
 - Catálogo, entitlements, exceções tenant-scoped, RLS e resolver protegidos preparados localmente.
 - Preflight `M16_G3_PREFLIGHT_OK` e pgTAP ampliado para 60 asserções com rollback obrigatório.
-- 52/52 testes locais aprovados; SHA-256 remediado `dfe30f58e5e2e136107deaeeb904cef1278c2c6e938cffdc0b34297e7ef7a20e`.
+- 54/54 testes locais aprovados; SHA-256 normalizado `237485033a7484147315adeda8184b837298e55982c9741f86cd9e7418c7e3f3`.
 - Marcador: `M16_G3_MIGRATION_0032_LOCAL_READY`.
 - Migration não aplicada em banco; próximo gate é auditoria local M16-G4.
 ## M16-G4 — auditoria e remediação da 0032 (30/08/2026)
@@ -585,6 +585,13 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Privilégios do service_role reduzidos; catálogo não pode ser alterado pelo broker.
 - Aprovação agora aceita somente referência SHA-256 opaca.
 - Revogação broker-only idempotente e testes reais do resolver adicionados.
-- 52/52 testes locais e 60 asserções pgTAP preparados.
+- 54/54 testes locais e 60 asserções pgTAP preparados.
 - Marcador: `M16_G4_MIGRATION_0032_AUDITED_READY`.
 - Próximo portão remoto: M16-G5 com preflight e rollback; aplicação persistente bloqueada.
+## M16-G5 — validação transacional remota da 0032 (31/08/2026)
+
+- Preflight final aprovado após compatibilização com catálogo e entitlements canônicos da 0016.
+- Dry-run confirmou somente a 0032; 60/60 asserções remotas aprovadas dentro de transação.
+- ROLLBACK confirmado: histórico, tabela, colunas, RPCs, permissão e fixtures ausentes.
+- Marcador: `M16_G5_0032_TRANSACTION_ROLLBACK_OK`.
+- Produção não acessada e aplicação persistente continua bloqueada.

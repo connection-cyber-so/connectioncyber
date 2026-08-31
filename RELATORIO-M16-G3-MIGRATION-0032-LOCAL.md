@@ -15,9 +15,9 @@ Data: 30/08/2026
 
 ## Validação local
 
-- SHA-256 remediado: `dfe30f58e5e2e136107deaeeb904cef1278c2c6e938cffdc0b34297e7ef7a20e`;
+- SHA-256 normalizado após compatibilização com a migration 0016: `237485033a7484147315adeda8184b837298e55982c9741f86cd9e7418c7e3f3`;
 - 60 asserções pgTAP declaradas;
-- 52/52 testes Node.js e estáticos aprovados;
+- 54/54 testes Node.js e estáticos aprovados;
 - Node.js 22.23.2;
 - ensaio termina obrigatoriamente em `ROLLBACK`;
 - nenhuma conta, identidade fiscal ou dado real incluído.

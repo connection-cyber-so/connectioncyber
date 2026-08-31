@@ -29,8 +29,8 @@ Data: 30/08/2026
 
 ## Evidência
 
-- SHA-256 final: `dfe30f58e5e2e136107deaeeb904cef1278c2c6e938cffdc0b34297e7ef7a20e`;
-- 52/52 testes locais aprovados;
+- SHA-256 final após compatibilização com a fundação 0016: `237485033a7484147315adeda8184b837298e55982c9741f86cd9e7418c7e3f3`;
+- 54/54 testes locais aprovados;
 - 60 asserções pgTAP preparadas;
 - banco e serviços remotos não acessados.
 
@@ -41,3 +41,7 @@ M16-G5 — preflight remoto somente leitura e validação transacional da `0032`
 ## Marcador
 
 `M16_G4_MIGRATION_0032_AUDITED_READY`
+
+## Normalização durante M16-G5
+
+O primeiro preflight remoto revelou que catálogo e entitlements já eram canônicos desde a `0016`. A `0032` foi corrigida para estender `erp_capability_catalog` e `erp_tenant_capabilities`, criando somente a tabela de exceções e as RPCs controladas. Nenhum objeto existente foi substituído.

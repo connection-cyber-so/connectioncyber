@@ -221,12 +221,17 @@
   <section>
     <h2>M16-G3 — migration local 0032</h2>
     <p><strong>Preparada localmente em 30/08/2026.</strong> Catálogo, entitlements, exceções tenant-scoped, RLS, preflight e rollback.</p>
-    <p>Após remediação M16-G4: 52/52 testes locais e plano pgTAP com 60 asserções. Nenhum banco acessado. Marcador <code>M16_G3_MIGRATION_0032_LOCAL_READY</code>.</p>
+    <p>Após normalização com a fundação 0016: 54/54 testes locais e plano pgTAP com 60 asserções. Marcador <code>M16_G3_MIGRATION_0032_LOCAL_READY</code>.</p>
   </section>
   <section>
     <h2>M16-G4 — auditoria da migration 0032</h2>
     <p><strong>Aprovada localmente em 30/08/2026.</strong> Privilégios mínimos, aprovação por hash e revogação broker-only implementados.</p>
-    <p>SHA-256 final <code>dfe30f58e5e2e136107deaeeb904cef1278c2c6e938cffdc0b34297e7ef7a20e</code>. Marcador <code>M16_G4_MIGRATION_0032_AUDITED_READY</code>.</p>
+    <p>SHA-256 normalizado <code>237485033a7484147315adeda8184b837298e55982c9741f86cd9e7418c7e3f3</code>. Marcador <code>M16_G4_MIGRATION_0032_AUDITED_READY</code>.</p>
+  </section>
+  <section>
+    <h2>M16-G5 — validação transacional da 0032</h2>
+    <p><strong>Aprovada no staging em 31/08/2026.</strong> Preflight final OK e 60/60 asserções remotas.</p>
+    <p>Rollback integral confirmado; 0032 permanece ausente do histórico e única no dry-run. Marcador <code>M16_G5_0032_TRANSACTION_ROLLBACK_OK</code>.</p>
   </section>
 </body>
 </html>
