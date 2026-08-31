@@ -19,4 +19,5 @@ npm run simulate
 npm run simulate:authorization
 npm run simulate:master-data
 npm run simulate:operations
+npm run simulate:finance
 ```

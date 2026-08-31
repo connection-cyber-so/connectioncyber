@@ -32,6 +32,8 @@ export const ERROR_CATALOG = Object.freeze({
   INSUFFICIENT_STOCK: { publicCode: 'INSUFFICIENT_STOCK', retryable: false, httpStatus: 409 },
   CASH_REGISTER_CLOSED: { publicCode: 'CASH_REGISTER_CLOSED', retryable: false, httpStatus: 409 },
   CASH_DIFFERENCE: { publicCode: 'CASH_DIFFERENCE', retryable: false, httpStatus: 409 },
+  RECONCILIATION_MISMATCH: { publicCode: 'RECONCILIATION_MISMATCH', retryable: false, httpStatus: 409 },
+  RECEIVABLE_OVERPAYMENT: { publicCode: 'RECEIVABLE_OVERPAYMENT', retryable: false, httpStatus: 409 },
   RESOURCE_NOT_FOUND: { publicCode: 'RESOURCE_NOT_FOUND', retryable: false, httpStatus: 404 },
   CONCURRENT_MODIFICATION: { publicCode: 'RETRY_LATER', retryable: true, httpStatus: 409 },
   INTERNAL_FAILURE: { publicCode: 'OPERATION_FAILED', retryable: true, httpStatus: 500 },

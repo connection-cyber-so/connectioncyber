@@ -1,0 +1,44 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { syntheticCommand } from '../src/index.mjs';
+import { createSyntheticAuthorizationDoubles } from '../src/doubles.mjs';
+import { createServerCommandAuthorizer } from '../src/server-authorizer.mjs';
+import { createMasterDataApplication, MemoryMasterDataStore } from '../src/master-data-application.mjs';
+import { createOperationsApplication, MemoryOperationsStore } from '../src/operations-application.mjs';
+import { createFinanceApplication, MemoryFinanceStore } from '../src/finance-application.mjs';
+
+const host = 'synthetic-me.connectioncyber.invalid', tenantId = 'SYNTHETIC-TENANT-ME-001';
+const setup = async () => {
+  const doubles = createSyntheticAuthorizationDoubles(), authorizer = createServerCommandAuthorizer({ ...doubles, clock: () => new Date('2026-08-31T12:00:00.000Z') });
+  const master = new MemoryMasterDataStore(), masterApp = createMasterDataApplication({ authorizer, store: master });
+  await masterApp.execute({ host, command: syntheticCommand('catalog.item.create', 1, { marker: 'SYNTHETIC', kind: 'product', code: 'SYNTHETIC-001', name: 'SYNTHETIC PRODUCT', trackInventory: true, allowsFraction: false, priceCents: 1000 }) });
+  const operations = new MemoryOperationsStore({ catalog: master }), operationsApp = createOperationsApplication({ authorizer, store: operations });
+  await operationsApp.execute({ host, command: syntheticCommand('inventory.receive', 2, { marker: 'SYNTHETIC', itemCode: 'SYNTHETIC-001', quantity: 10 }) });
+  await operationsApp.execute({ host, command: syntheticCommand('cash.open', 3, { register: 'SYNTHETIC CASH', openingAmountCents: 5000 }) });
+  const cash = await operationsApp.execute({ host, command: sale(4, 'cash', 2) });
+  const credit = await operationsApp.execute({ host, command: sale(5, 'credit', 1) });
+  const store = new MemoryFinanceStore({ operations }), app = createFinanceApplication({ authorizer, store });
+  return { operations, operationsApp, store, app, cash, credit };
+};
+const sale = (sequence, paymentKind, quantity) => syntheticCommand('sale.complete', sequence, { saleCode: `SYNTHETIC SALE ${sequence}`, paymentMethod: `SYNTHETIC ${paymentKind.toUpperCase()}`, paymentKind, lines: [{ itemCode: 'SYNTHETIC-001', quantity }], amountCents: 1 });
+const settle = (saleId, sequence = 6, amountCents = 1000, extra = {}) => syntheticCommand('finance.receivable.settle', sequence, { marker: 'SYNTHETIC', saleId, amountCents, ...extra });
+
+test('venda em dinheiro deriva lançamento liquidado', async () => { const { store, cash } = await setup(); const row = store.snapshot(tenantId).entries.find(entry => entry.saleId === cash.sale.id); assert.deepEqual([row.kind, row.status, row.settledCents], ['cash', 'settled', 2000]); });
+test('venda a prazo deriva recebível aberto', async () => { const { store, credit } = await setup(); const row = store.snapshot(tenantId).entries.find(entry => entry.saleId === credit.sale.id); assert.deepEqual([row.kind, row.status, row.settledCents], ['receivable', 'open', 0]); });
+test('venda a prazo não entra no caixa físico', async () => { const { operations } = await setup(); assert.deepEqual([operations.snapshot(tenantId).cash.salesAmountCents, operations.snapshot(tenantId).cash.expectedAmountCents], [2000, 7000]); });
+test('reconciliação fecha vendas caixa e títulos', async () => { const { store } = await setup(); const r = store.reconcile(tenantId); assert.deepEqual([r.grossSalesCents, r.cashSalesCents, r.receivablesCents, r.balanced], [3000, 2000, 1000, true]); });
+test('projeção financeira é idempotente', async () => { const { store } = await setup(); store.reconcile(tenantId); store.reconcile(tenantId); assert.equal(store.snapshot(tenantId).entries.length, 2); });
+test('baixa integral liquida recebível', async () => { const { app, credit } = await setup(); const result = await app.execute({ host, command: settle(credit.sale.id) }); assert.deepEqual([result.status, result.reconciliation.openReceivablesCents], ['settled', 0]); });
+test('baixa parcial mantém recebível aberto', async () => { const { app, credit } = await setup(); const result = await app.execute({ host, command: settle(credit.sale.id, 6, 400) }); assert.deepEqual([result.status, result.entry.settledCents, result.reconciliation.openReceivablesCents], ['open', 400, 600]); });
+test('duas baixas completam o título', async () => { const { app, credit } = await setup(); await app.execute({ host, command: settle(credit.sale.id, 6, 400) }); const result = await app.execute({ host, command: settle(credit.sale.id, 7, 600) }); assert.equal(result.status, 'settled'); });
+test('baixa acima do saldo é recusada', async () => { const { app, credit } = await setup(); await assert.rejects(app.execute({ host, command: settle(credit.sale.id, 6, 1001) }), /RECEIVABLE_OVERPAYMENT/); });
+test('venda em dinheiro não aceita baixa de recebível', async () => { const { app, cash } = await setup(); await assert.rejects(app.execute({ host, command: settle(cash.sale.id) }), /INVALID_STATE_TRANSITION/); });
+test('venda desconhecida é recusada', async () => { const { app } = await setup(); await assert.rejects(app.execute({ host, command: settle('SYNTHETIC-SALE-UNKNOWN') }), /RESOURCE_NOT_FOUND/); });
+test('replay não duplica liquidação', async () => { const { app, store, credit } = await setup(), command = settle(credit.sale.id); await app.execute({ host, command }); assert.equal((await app.execute({ host, command })).replayed, true); assert.equal(store.evidence().events, 1); });
+test('mesma chave com valor divergente conflita', async () => { const { app, credit } = await setup(); await app.execute({ host, command: settle(credit.sale.id, 6, 400) }); await assert.rejects(app.execute({ host, command: settle(credit.sale.id, 6, 500) }), /IDEMPOTENCY_CONFLICT/); });
+test('falha injetada desfaz baixa e inbox', async () => { const { app, store, credit } = await setup(); await assert.rejects(app.execute({ host, command: settle(credit.sale.id, 6, 400, { injectFailure: 'SYNTHETIC-AFTER-SETTLEMENT' }) }), /INTERNAL_FAILURE/); assert.deepEqual([store.snapshot(tenantId).reconciliation.openReceivablesCents, store.evidence().commands], [1000, 0]); });
+test('outro tenant não recebe lançamentos', async () => { const { store } = await setup(); assert.deepEqual(store.snapshot('SYNTHETIC-TENANT-OTHER').entries, []); });
+test('tenant inválido é bloqueado', async () => { const { store } = await setup(); assert.throws(() => store.snapshot('TENANT-OTHER'), /TENANT_CONTEXT_REQUIRED/); });
+test('aplicação não aceita autorização externa', () => assert.equal(createFinanceApplication({ authorizer: { authorize() {} }, store: { execute() {} } }).execute.length, 1));
+test('store não contém acesso de rede', () => assert.doesNotMatch(MemoryFinanceStore.toString(), /fetch\(|supabase|createClient|\.from\(/i));
+test('evidência confirma memória e produção bloqueada', async () => { const { store } = await setup(); const e = store.evidence(); assert.equal(e.persisted || e.remoteAccessed || e.productionAccessed, false); });

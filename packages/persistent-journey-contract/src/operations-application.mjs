@@ -52,10 +52,13 @@ export class MemoryOperationsStore {
     const totalCents = lines.reduce((sum, line) => sum + line.lineTotalCents, 0);
     for (const line of lines) if (line.item.trackInventory) { stock.set(line.itemCode, stock.get(line.itemCode) - line.quantity); this.#state.movements.push(Object.freeze({ tenantId: authorization.tenantId, itemCode: line.itemCode, quantity: -line.quantity, kind: 'sale' })); }
     if (command.payload.injectFailure === 'SYNTHETIC-AFTER-STOCK') fail('INTERNAL_FAILURE');
-    const sale = Object.freeze({ id: localId('SYNTHETIC-SALE', authorization.tenantId, command), tenantId: authorization.tenantId, code: command.payload.saleCode, totalCents, paymentMethod: command.payload.paymentMethod, lines: Object.freeze(lines.map(line => Object.freeze({ itemCode: line.itemCode, quantity: line.quantity, unitPriceCents: line.item.priceCents, lineTotalCents: line.lineTotalCents }))), createdBy: authorization.actorId });
+    const paymentKind = command.payload.paymentKind ?? 'cash';
+    if (!['cash', 'credit'].includes(paymentKind)) fail('INVALID_COMMAND');
+    const sale = Object.freeze({ id: localId('SYNTHETIC-SALE', authorization.tenantId, command), tenantId: authorization.tenantId, code: command.payload.saleCode, totalCents, paymentMethod: command.payload.paymentMethod, paymentKind, lines: Object.freeze(lines.map(line => Object.freeze({ itemCode: line.itemCode, quantity: line.quantity, unitPriceCents: line.item.priceCents, lineTotalCents: line.lineTotalCents }))), createdBy: authorization.actorId });
     this.#salesMap(authorization.tenantId).set(sale.id, sale);
-    this.#state.cash.set(authorization.tenantId, Object.freeze({ ...cash, expectedAmountCents: cash.expectedAmountCents + totalCents, salesAmountCents: cash.salesAmountCents + totalCents }));
-    return { status: 'completed', sale, cashExpectedAmountCents: cash.expectedAmountCents + totalCents };
+    const cashAmountCents = paymentKind === 'cash' ? totalCents : 0;
+    this.#state.cash.set(authorization.tenantId, Object.freeze({ ...cash, expectedAmountCents: cash.expectedAmountCents + cashAmountCents, salesAmountCents: cash.salesAmountCents + cashAmountCents }));
+    return { status: 'completed', sale, cashExpectedAmountCents: cash.expectedAmountCents + cashAmountCents };
   }
   #closeCash(authorization, command) {
     const cash = this.#state.cash.get(authorization.tenantId);

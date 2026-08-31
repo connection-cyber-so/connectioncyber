@@ -1,0 +1,21 @@
+import { syntheticCommand } from '../src/index.mjs';
+import { createSyntheticAuthorizationDoubles } from '../src/doubles.mjs';
+import { createServerCommandAuthorizer } from '../src/server-authorizer.mjs';
+import { createMasterDataApplication, MemoryMasterDataStore } from '../src/master-data-application.mjs';
+import { createOperationsApplication, MemoryOperationsStore } from '../src/operations-application.mjs';
+import { createFinanceApplication, MemoryFinanceStore } from '../src/finance-application.mjs';
+
+const host = 'synthetic-me.connectioncyber.invalid', tenantId = 'SYNTHETIC-TENANT-ME-001', authorizer = createServerCommandAuthorizer({ ...createSyntheticAuthorizationDoubles(), clock: () => new Date('2026-08-31T12:00:00.000Z') });
+const master = new MemoryMasterDataStore(), masterApp = createMasterDataApplication({ authorizer, store: master });
+await masterApp.execute({ host, command: syntheticCommand('catalog.item.create', 1, { marker: 'SYNTHETIC', kind: 'product', code: 'SYNTHETIC-001', name: 'SYNTHETIC PRODUCT', trackInventory: true, allowsFraction: false, priceCents: 1000 }) });
+const operations = new MemoryOperationsStore({ catalog: master }), operationsApp = createOperationsApplication({ authorizer, store: operations });
+await operationsApp.execute({ host, command: syntheticCommand('inventory.receive', 2, { marker: 'SYNTHETIC', itemCode: 'SYNTHETIC-001', quantity: 10 }) });
+await operationsApp.execute({ host, command: syntheticCommand('cash.open', 3, { register: 'SYNTHETIC CASH', openingAmountCents: 5000 }) });
+await operationsApp.execute({ host, command: syntheticCommand('sale.complete', 4, { saleCode: 'SYNTHETIC CASH SALE', paymentMethod: 'SYNTHETIC CASH', paymentKind: 'cash', lines: [{ itemCode: 'SYNTHETIC-001', quantity: 2 }], amountCents: 1 }) });
+const credit = await operationsApp.execute({ host, command: syntheticCommand('sale.complete', 5, { saleCode: 'SYNTHETIC CREDIT SALE', paymentMethod: 'SYNTHETIC CREDIT', paymentKind: 'credit', lines: [{ itemCode: 'SYNTHETIC-001', quantity: 1 }], amountCents: 1 }) });
+const finance = new MemoryFinanceStore({ operations }), financeApp = createFinanceApplication({ authorizer, store: finance });
+await financeApp.execute({ host, command: syntheticCommand('finance.receivable.settle', 6, { marker: 'SYNTHETIC', saleId: credit.sale.id, amountCents: 1000 }) });
+await operationsApp.execute({ host, command: syntheticCommand('cash.close', 7, { register: 'SYNTHETIC CASH', declaredAmountCents: 7000 }) });
+const reconciliation = finance.reconcile(tenantId);
+if (!reconciliation.balanced || reconciliation.openReceivablesCents !== 0) throw new Error('M17_G5_RECONCILIATION_FAILED');
+console.log(JSON.stringify({ result: 'M17_G5_LOCAL_FINANCE_RECONCILIATION_OK', reconciliation, cash: operations.snapshot(tenantId).cash, finance: finance.evidence(), operations: operations.evidence() }));

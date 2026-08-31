@@ -667,3 +667,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 89/89 testes do pacote e regressão completa da plataforma aprovados com Node.js 22.23.2.
 - Marcador: `M17_G4_LOCAL_OPERATIONS_OK`.
 - Banco, Supabase, rede e produção não acessados.
+## M17-G5 — financeiro derivado e reconciliação local (31/08/2026)
+
+- Venda em dinheiro liquida na origem; venda a prazo cria recebível sem inflar o caixa físico.
+- Baixas parciais e integrais são autorizadas no servidor, idempotentes e protegidas contra excesso.
+- Reconciliação por tenant fecha vendas, caixa, títulos, liquidações e saldo aberto.
+- Falha injetada, replay, conflito e isolamento entre empresas foram comprovados.
+- 108/108 testes do pacote e 32/32 testes da plataforma, TypeScript, ESLint e build aprovados.
+- Marcador: `M17_G5_LOCAL_FINANCE_RECONCILIATION_OK`.
+- Banco, Supabase, rede e produção não acessados.
