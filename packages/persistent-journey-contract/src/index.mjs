@@ -29,6 +29,9 @@ export const ERROR_CATALOG = Object.freeze({
   IDEMPOTENCY_CONFLICT: { publicCode: 'REQUEST_CONFLICT', retryable: false, httpStatus: 409 },
   DUPLICATE_RESOURCE: { publicCode: 'RESOURCE_ALREADY_EXISTS', retryable: false, httpStatus: 409 },
   AUTHORIZATION_CONTEXT_MISMATCH: { publicCode: 'ACCESS_DENIED', retryable: false, httpStatus: 403 },
+  INSUFFICIENT_STOCK: { publicCode: 'INSUFFICIENT_STOCK', retryable: false, httpStatus: 409 },
+  CASH_REGISTER_CLOSED: { publicCode: 'CASH_REGISTER_CLOSED', retryable: false, httpStatus: 409 },
+  CASH_DIFFERENCE: { publicCode: 'CASH_DIFFERENCE', retryable: false, httpStatus: 409 },
   RESOURCE_NOT_FOUND: { publicCode: 'RESOURCE_NOT_FOUND', retryable: false, httpStatus: 404 },
   CONCURRENT_MODIFICATION: { publicCode: 'RETRY_LATER', retryable: true, httpStatus: 409 },
   INTERNAL_FAILURE: { publicCode: 'OPERATION_FAILED', retryable: true, httpStatus: 500 },
@@ -58,7 +61,8 @@ export function validateCommand(command, context) {
   if (forbidden) fail('AUTHORITY_FIELD_FORBIDDEN');
   const serialized = JSON.stringify(command.payload);
   if (!serialized.includes('SYNTHETIC') || /cnpj|cpf|password|secret|token|certificate|csc|pfx/i.test(serialized)) fail('INVALID_COMMAND');
-  if ((command.type === 'inventory.receive' || command.type === 'sale.complete') && (!Number.isInteger(command.payload.quantity) || command.payload.quantity <= 0)) fail('INVALID_COMMAND');
+  if (command.type === 'inventory.receive' && (!Number.isInteger(command.payload.quantity) || command.payload.quantity <= 0)) fail('INVALID_COMMAND');
+  if (command.type === 'sale.complete') { const direct = Number.isInteger(command.payload.quantity) && command.payload.quantity > 0, lines = Array.isArray(command.payload.lines) && command.payload.lines.length > 0 && command.payload.lines.every(line => Number.isInteger(line?.quantity) && line.quantity > 0); if (!direct && !lines) fail('INVALID_COMMAND'); }
   if ((command.type === 'sale.complete' || command.type === 'finance.receivable.settle') && (!Number.isInteger(command.payload.amountCents) || command.payload.amountCents <= 0)) fail('INVALID_COMMAND');
   const requiredCapability = command.type.split('.')[0] === 'party' ? 'core.parties' : command.type.startsWith('catalog.') ? 'core.catalog' : command.type.startsWith('inventory.') ? 'inventory.stock' : command.type.startsWith('cash.') || command.type.startsWith('sale.') ? 'sales.pos' : 'finance';
   if (!server.capabilities.includes(requiredCapability)) fail('CAPABILITY_REQUIRED');

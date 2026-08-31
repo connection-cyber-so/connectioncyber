@@ -15,9 +15,9 @@ function validateParty(payload) {
 
 function validateItem(payload) {
   const code = clean(payload.code).toUpperCase(), name = clean(payload.name), description = clean(payload.description);
-  if (!ITEM_KINDS.has(payload.kind) || !/^SYNTHETIC[-_.][A-Z0-9._-]{1,54}$/.test(code) || !/^SYNTHETIC[ -]/.test(name) || (description && !/^SYNTHETIC[ -]/.test(description)) || name.length > 180 || description.length > 1000 || typeof payload.trackInventory !== 'boolean' || typeof payload.allowsFraction !== 'boolean') fail('INVALID_COMMAND');
+  if (!ITEM_KINDS.has(payload.kind) || !/^SYNTHETIC[-_.][A-Z0-9._-]{1,54}$/.test(code) || !/^SYNTHETIC[ -]/.test(name) || (description && !/^SYNTHETIC[ -]/.test(description)) || name.length > 180 || description.length > 1000 || typeof payload.trackInventory !== 'boolean' || typeof payload.allowsFraction !== 'boolean' || !Number.isInteger(payload.priceCents) || payload.priceCents <= 0) fail('INVALID_COMMAND');
   if (NON_STOCK_KINDS.has(payload.kind) && payload.trackInventory) fail('INVALID_COMMAND');
-  return { kind: payload.kind, code, name, description: description || null, trackInventory: payload.trackInventory, allowsFraction: payload.allowsFraction };
+  return { kind: payload.kind, code, name, description: description || null, trackInventory: payload.trackInventory, allowsFraction: payload.allowsFraction, priceCents: payload.priceCents };
 }
 
 export class MemoryMasterDataStore {
@@ -51,6 +51,7 @@ export class MemoryMasterDataStore {
   }
   listParties(tenantId) { if (!/^SYNTHETIC-TENANT-/.test(tenantId ?? '')) fail('TENANT_CONTEXT_REQUIRED'); return Object.freeze([...(this.#state.parties.get(tenantId)?.values() ?? [])]); }
   listItems(tenantId) { if (!/^SYNTHETIC-TENANT-/.test(tenantId ?? '')) fail('TENANT_CONTEXT_REQUIRED'); return Object.freeze([...(this.#state.items.get(tenantId)?.values() ?? [])]); }
+  getItem(tenantId, code) { if (!/^SYNTHETIC-TENANT-/.test(tenantId ?? '')) fail('TENANT_CONTEXT_REQUIRED'); return this.#state.items.get(tenantId)?.get(clean(code).toUpperCase()) ?? null; }
   evidence() { return Object.freeze({ tenantsWithParties: this.#state.parties.size, tenantsWithItems: this.#state.items.size, commands: this.#state.inbox.size, persisted: false, remoteAccessed: false, productionAccessed: false }); }
 }
 

@@ -658,3 +658,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 68/68 testes do pacote e regressão completa da plataforma aprovados com Node.js 22.23.2.
 - Marcador: `M17_G3_LOCAL_MASTER_DATA_OK`.
 - Banco, Supabase, rede e produção não acessados.
+## M17-G4 — estoque, PDV e caixa locais (31/08/2026)
+
+- Estoque, movimentos, venda, caixa e inbox foram integrados em unidade de trabalho local.
+- Total da venda e snapshot de preço são derivados do catálogo server-side.
+- Replay, insuficiência de estoque, falha injetada, diferença de caixa e isolamento foram comprovados.
+- Simulação finalizou estoque em 8 unidades e caixa conferido em 7.000 centavos.
+- 89/89 testes do pacote e regressão completa da plataforma aprovados com Node.js 22.23.2.
+- Marcador: `M17_G4_LOCAL_OPERATIONS_OK`.
+- Banco, Supabase, rede e produção não acessados.
