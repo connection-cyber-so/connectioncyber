@@ -710,6 +710,15 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Crediário integral da loja agora cria título e parcela atomicamente; modalidade mista permanece fail-closed.
 - Plano pgTAP ampliado para 96 asserções, ainda sem execução PostgreSQL ou remota.
 - 168/168 testes do pacote e 32/32 testes da plataforma, TypeScript, ESLint e `git diff --check` aprovados.
-- SHA-256 final da migration: `d94789aa0de9803d4cd4e1c9e627fc220a9750543a482c87b82466706773c5f2`.
+- SHA-256 final confirmado no M17-G10: `f20d6f908a7f8477e5a6dd96cc02b2634451943b9bac70839ba4aa686e848e26`.
 - Marcador: `M17_G9_MIGRATION_0033_LOCAL_AUDIT_OK`.
 - Supabase, rede e produção não acessados; validação remota bloqueada.
+## M17-G10 — validação transacional remota da migration 0033 (31/08/2026)
+
+- Staging confirmado: `ozvylnaipubrmaadikvk`; histórico remoto permaneceu em `0001–0032`.
+- Preflight corrigiu fail-closed a localização de `pgcrypto.digest` para o schema `extensions`.
+- Marcadores aprovados: `M17_0033_PREFLIGHT_OK` e `M17_0033_TRANSACTION_96_OF_96_ROLLBACK`.
+- 96/96 asserções executadas dentro de transação com `ROLLBACK`.
+- Prova final confirmou tabela e dez funções ausentes; zero resíduo e zero dados reais.
+- Marcador: `M17_G10_0033_TRANSACTION_96_OF_96_ROLLBACK_OK`.
+- Produção não acessada; aplicação persistente da `0033` continua bloqueada.

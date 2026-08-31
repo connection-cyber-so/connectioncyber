@@ -20,7 +20,7 @@ test('RLS está habilitada no inbox', () => assert.match(migration, /alter table
 test('authenticated não recebe acesso direto ao inbox', () => assert.match(migration, /revoke all on table public\.erp_command_receipts from public,anon,authenticated/));
 test('claim usa lock transacional', () => assert.match(migration, /erp_claim_command_v1[\s\S]+pg_advisory_xact_lock/));
 test('claim compara hash canônico calculado em replay', () => assert.match(migration, /v\.payload_hash<>v_computed_hash/));
-test('claim recalcula SHA-256 do JSONB no banco', () => assert.match(migration, /public\.digest\(convert_to\(v_payload_text,'UTF8'\),'sha256'\)/));
+test('claim recalcula SHA-256 do JSONB no banco', () => assert.match(migration, /extensions\.digest\(convert_to\(v_payload_text,'UTF8'\),'sha256'\)/));
 test('hash informado não é autoridade de persistência', () => assert.match(migration, /values\(p_tenant_id,p_command_type,p_request_id,v_computed_hash,auth\.uid\(\)\)/));
 test('payload tem limite e triagem de segredos', () => { assert.match(migration, /octet_length\(v_payload_text\)>65536/); assert.match(migration, /unsafe command payload/); });
 test('estoque exige item rastreável e local ativo', () => assert.match(migration, /i\.track_inventory and i\.status='active'[\s\S]+l\.active/));

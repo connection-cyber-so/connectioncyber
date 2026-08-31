@@ -17,7 +17,7 @@ select is((select count(*)::integer from unnest(array['party.create','catalog.it
 select is((select count(*)::integer from public.erp_command_receipts),0,'zero command receipts before fixtures');
 select ok(pg_get_functiondef('public.erp_claim_command_v1(uuid,text,text,text,jsonb)'::regprocedure)like'%pg_advisory_xact_lock%','claim serializes concurrent requests');
 select ok(pg_get_functiondef('public.erp_claim_command_v1(uuid,text,text,text,jsonb)'::regprocedure)like'%idempotency conflict%','claim rejects divergent hash');
-select ok(pg_get_functiondef('public.erp_claim_command_v1(uuid,text,text,text,jsonb)'::regprocedure)like'%public.digest%','claim computes hash with qualified pgcrypto function');
+select ok(pg_get_functiondef('public.erp_claim_command_v1(uuid,text,text,text,jsonb)'::regprocedure)like'%extensions.digest%','claim computes hash with qualified pgcrypto function');
 select ok(pg_get_functiondef('public.erp_claim_command_v1(uuid,text,text,text,jsonb)'::regprocedure)like'%v_computed_hash%','database-computed hash is authoritative');
 select ok(pg_get_functiondef('public.erp_claim_command_v1(uuid,text,text,text,jsonb)'::regprocedure)like'%unsafe command payload%','claim rejects oversized or secret payload');
 select ok(pg_get_functiondef('public.erp_command_receive_inventory_v1(uuid,text,text,jsonb)'::regprocedure)like'%inventory target unavailable%','inventory requires tracked item and active location');

@@ -36,7 +36,7 @@ declare v public.erp_command_receipts%rowtype;v_computed_hash text;v_payload_tex
 begin
   if auth.uid() is null or p_tenant_id is null or p_command_type not in('party.create','catalog.item.create','inventory.receive','cash.open','sale.complete','finance.receivable.settle','cash.close')or p_request_id!~'^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$'or p_payload_hash!~'^[a-f0-9]{64}$'or jsonb_typeof(p_payload)<>'object'then raise exception using errcode='22023',message='invalid command envelope';end if;
   v_payload_text:=p_payload::text;if octet_length(v_payload_text)>65536 or v_payload_text~*'"(password|senha|secret|token|credential|private_key|service_role|certificate|certificado|pfx|p12|csc|id_token)"[[:space:]]*:'then raise exception using errcode='22023',message='unsafe command payload';end if;
-  v_computed_hash:=encode(public.digest(convert_to(v_payload_text,'UTF8'),'sha256'),'hex');
+  v_computed_hash:=encode(extensions.digest(convert_to(v_payload_text,'UTF8'),'sha256'),'hex');
   perform pg_advisory_xact_lock(hashtextextended(p_tenant_id::text||':'||p_command_type||':'||p_request_id,0));
   select * into v from public.erp_command_receipts where tenant_id=p_tenant_id and command_type=p_command_type and request_id=p_request_id for update;
   if found then
