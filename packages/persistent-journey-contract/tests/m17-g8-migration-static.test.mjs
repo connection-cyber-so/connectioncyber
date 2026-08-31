@@ -1,0 +1,35 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const root = fileURLToPath(new URL('../../../', import.meta.url));
+const read = path => readFileSync(`${root}${path}`, 'utf8');
+const migration = read('supabase/migrations/0033_m17_persistent_journey.sql');
+const preflight = read('supabase/preflight/0033_m17_persistent_journey_preflight.sql');
+const rollback = read('supabase/rollback/0033_m17_persistent_journey_rollback.sql');
+const pgtap = read('supabase/tests/0033_m17_persistent_journey.test.sql');
+const rpcNames = ['create_party','create_catalog_item','receive_inventory','open_cash','complete_sale','settle_receivable','close_cash'];
+
+test('migration 0033 possui transação explícita', () => assert.match(migration, /^--[^\n]+\nbegin;[\s\S]+commit;\s*$/));
+test('inbox transacional é tenant scoped', () => assert.match(migration, /create table public\.erp_command_receipts[\s\S]+tenant_id uuid not null/));
+test('inbox tem unicidade por tenant comando e request', () => assert.match(migration, /unique \(tenant_id,command_type,request_id\)/));
+test('hash exige sha256 hexadecimal', () => assert.match(migration, /payload_hash ~ '\^\[a-f0-9\]\{64\}\$'/));
+test('receipt terminal exige resultado e horário', () => assert.match(migration, /status='succeeded' and result_json is not null and completed_at is not null/));
+test('RLS está habilitada no inbox', () => assert.match(migration, /alter table public\.erp_command_receipts enable row level security/));
+test('authenticated não recebe acesso direto ao inbox', () => assert.match(migration, /revoke all on table public\.erp_command_receipts from public,anon,authenticated/));
+test('claim usa lock transacional', () => assert.match(migration, /erp_claim_command_v1[\s\S]+pg_advisory_xact_lock/));
+test('claim compara hash em replay', () => assert.match(migration, /v\.payload_hash<>p_payload_hash/));
+test('claim recalcula SHA-256 do JSONB no banco', () => assert.match(migration, /digest\(convert_to\(p_payload::text,'UTF8'\),'sha256'\)/));
+test('claim recusa comando ainda processando', () => assert.match(migration, /command already processing/));
+test('sete RPCs versionadas existem', () => assert.equal(rpcNames.every(name => migration.includes(`erp_command_${name}_v1`)), true));
+test('sete RPCs verificam autorização', () => assert.equal((migration.match(/perform public\.erp_require_command_access_v1/g) ?? []).length, 7));
+test('sete RPCs reivindicam receipt', () => assert.equal((migration.match(/c:=public\.erp_claim_command_v1/g) ?? []).length, 7));
+test('sete RPCs completam receipt', () => assert.equal((migration.match(/return public\.erp_complete_command_v1/g) ?? []).length, 7));
+test('helpers não são executáveis por authenticated', () => assert.match(migration, /revoke execute on function public\.erp_require_command_access_v1[\s\S]+from public,anon,authenticated/));
+test('RPCs recusam anon', () => assert.match(migration, /revoke execute on function public\.erp_command_create_party_v1[\s\S]+from public,anon/));
+test('preflight cobre baseline e ausência da 0033', () => { assert.match(preflight, /required baseline RPC missing/); assert.match(preflight, /0033 already present/); });
+test('preflight possui marcador determinístico', () => assert.match(preflight, /M17_0033_PREFLIGHT_OK/));
+test('rollback remove sete RPCs helpers e tabela', () => { assert.equal(rpcNames.every(name => rollback.includes(`drop function if exists public.erp_command_${name}_v1`)), true); assert.match(rollback, /drop table if exists public\.erp_command_receipts/); });
+test('pgTAP declara 90 asserções e rollback', () => { assert.match(pgtap, /select plan\(90\)/); assert.match(pgtap, /select\*from finish\(\);rollback;/); });
+test('nenhum arquivo executa acesso remoto', () => assert.doesNotMatch(migration + preflight + rollback + pgtap, /supabase\s+(db|link|login)|https?:\/\//i));

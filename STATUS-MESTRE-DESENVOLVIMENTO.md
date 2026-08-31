@@ -694,3 +694,13 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 141/141 testes do pacote e 32/32 testes da plataforma, TypeScript, ESLint e build aprovados.
 - Marcador: `M17_G7_POSTGRES_PERSISTENCE_CONTRACT_OK`.
 - Nenhuma migration criada; banco, Supabase, rede e produção não acessados.
+## M17-G8 — migration local 0033 (31/08/2026)
+
+- Inbox transacional, três helpers e sete RPCs versionadas foram materializados localmente.
+- SHA-256 do JSONB é recalculado no banco; replay divergente e concorrência falham fechado.
+- RLS, privilégios mínimos, preflight, rollback e plano pgTAP de 90 asserções foram preparados.
+- 163/163 testes do pacote e 32/32 testes da plataforma, TypeScript, ESLint e build aprovados.
+- pgTAP ainda não executado em PostgreSQL porque `psql` e Supabase CLI não estavam disponíveis neste ambiente.
+- SHA-256 da migration: `17f7fc7e740d6f11cdfdba86a81c44fc9d057b3a4bec6f5d1800c9daf635284b`.
+- Marcador: `M17_G8_MIGRATION_0033_LOCAL_READY`.
+- Supabase, rede e produção não acessados; aplicação remota bloqueada.
