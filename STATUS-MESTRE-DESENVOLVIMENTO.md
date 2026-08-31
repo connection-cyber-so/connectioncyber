@@ -564,3 +564,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 20/20 testes aprovados com Node.js 22.23.2.
 - Marcador: `M16_G1_CAPABILITY_CONTRACT_OK`.
 - Banco, Supabase, Vercel, GitHub e produção não acessados.
+## M16-G2 — motor fail-closed e matriz empresarial (30/08/2026)
+
+- Estados enabled, disabled e blocked resolvidos deterministicamente.
+- Dependências e prontidão operacional impedem liberações implícitas.
+- Matriz sintética MEI/ME/LTDA implementada sem banco ou rede.
+- 37/37 testes aprovados com Node.js 22.23.2.
+- Marcador: `M16_G2_FAIL_CLOSED_ENGINE_OK`.
+- Serviços remotos e produção não acessados.
+- Próximo gate: M16-G3, migration local `0032`; aplicação remota bloqueada.
