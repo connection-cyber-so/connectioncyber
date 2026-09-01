@@ -7,6 +7,7 @@ test('cada comando exige releitura',()=>assert.equal(Object.values(COMMAND_BOUND
 test('todas as releituras existem',()=>assert.equal(Object.values(COMMAND_BOUNDARIES).flatMap(x=>x.refresh).every(x=>READ_MODELS[x]),true));
 test('read models resolvem tenant no servidor',()=>assert.equal(Object.values(READ_MODELS).every(x=>x.tenantFilter==='server-resolved'),true));
 test('read models possuem vazio explícito',()=>assert.equal(Object.values(READ_MODELS).every(x=>x.empty.length>0),true));
+test('read models possuem chave canônica estável',()=>assert.equal(Object.entries(READ_MODELS).every(([key,value])=>value.key===key),true));
 test('dashboard é releitura server-side',()=>assert.equal(READ_MODELS['dashboard-summary'].source,'server-aggregate'));
 test('venda relê estoque caixa e financeiro',()=>assert.deepEqual(COMMAND_BOUNDARIES['sale.complete'].refresh,['sales','stock-balance','open-cash-sessions','financial-summary']));
 test('tenant do navegador é recusado',()=>assert.throws(()=>validateBrowserPayload({tenantId:'x'}),/FORBIDDEN_BROWSER_FIELD/));

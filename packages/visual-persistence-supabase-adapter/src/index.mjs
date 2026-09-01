@@ -12,8 +12,8 @@ const READ_PLANS=Object.freeze({
  'erp_installments:/financeiro':{table:'erp_installments',columns:'id,tenant_id,financial_entry_id,number,status,due_date,principal_amount,interest_amount,fine_amount,discount_amount',order:['due_date',{ascending:true}],limit:200}
 });
 const fail=(code,message=code)=>{const error=new Error(message);error.code=code;throw error;};
-const readKey=contract=>{if(contract.source==='erp_cash_sessions')return `${contract.source}:${contract.screen}:${contract.empty.includes('fechamento')?'history':'open'}`;return `${contract.source}:${contract.screen}`;};
-const assertTenant=tenantId=>{if(typeof tenantId!=='string'||!/^[0-9a-f-]{36}$/i.test(tenantId))fail('TENANT_UNRESOLVED');};
+const readKey=contract=>{if(contract.key==='open-cash-sessions')return'erp_cash_sessions:/pdv:open';if(contract.key==='cash-history')return'erp_cash_sessions:/pdv:history';return `${contract.source}:${contract.screen}`;};
+const assertTenant=tenantId=>{if(typeof tenantId!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(tenantId))fail('TENANT_UNRESOLVED');};
 const stockBalance=rows=>Array.from(rows.reduce((map,row)=>{const key=`${row.location_id}:${row.item_id}:${row.variant_id??''}`,current=map.get(key)??{tenant_id:row.tenant_id,location_id:row.location_id,item_id:row.item_id,variant_id:row.variant_id,quantity:0};current.quantity+=Number(row.quantity_delta);map.set(key,current);return map;},new Map()).values());
 export function createSupabasePersistenceTransport({client,aggregateReader}={}){
  if(!client?.rpc||!client?.from)fail('INVALID_ADAPTER_DEPENDENCY');

@@ -1,9 +1,10 @@
 const AGGREGATE_LIMIT=5000;
 const fail=(code,message=code)=>{const error=new Error(message);error.code=code;throw error;};
 const number=value=>{const parsed=Number(value);return Number.isFinite(parsed)?parsed:0;};
+const assertTenant=tenantId=>{if(typeof tenantId!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(tenantId))fail('TENANT_UNRESOLVED');};
 async function rows(client,tenantId,{table,columns,eq,in:inFilter}){let query=client.from(table).select(columns).eq('tenant_id',tenantId);if(eq)query=query.eq(...eq);if(inFilter)query=query.in(...inFilter);query=query.limit(AGGREGATE_LIMIT);const{data,error}=await query;if(error)fail(typeof error.code==='string'?error.code:'PERSISTENCE_FAILURE','aggregate read failed');if(!Array.isArray(data))fail('INVALID_PERSISTENCE_RESPONSE');if(data.length===AGGREGATE_LIMIT)fail('AGGREGATE_LIMIT_EXCEEDED');return data;}
 const sum=(items,key)=>items.reduce((total,row)=>total+number(row[key]),0);
-export function createSupabaseAggregateReader(){return async({client,tenantId,scope})=>{
+export function createSupabaseAggregateReader(){return async({client,tenantId,scope})=>{assertTenant(tenantId);
  if(scope==='finance'){
   const[entries,installments]=await Promise.all([
    rows(client,tenantId,{table:'erp_financial_entries',columns:'id,direction,status,principal_amount',in:['status',['open','partially_settled','settled']]}),

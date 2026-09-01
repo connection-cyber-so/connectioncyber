@@ -10,17 +10,17 @@ export const COMMAND_BOUNDARIES=freeze({
  'cash.close':{rpc:'erp_command_close_cash_v1',screen:'/pdv',refresh:['open-cash-sessions','cash-history','dashboard-summary'],success:'cash-closed'},
 });
 export const READ_MODELS=freeze({
- parties:{screen:'/cadastros',source:'erp_parties',tenantFilter:'server-resolved',empty:'Nenhum cliente cadastrado.'},
- 'catalog-items':{screen:'/catalogo',source:'erp_catalog_items',tenantFilter:'server-resolved',empty:'Nenhum produto cadastrado.'},
- 'stock-balance':{screen:'/operacoes',source:'erp_stock_balance_v',tenantFilter:'server-resolved',empty:'Nenhum saldo de estoque.'},
- 'stock-movements':{screen:'/operacoes',source:'erp_stock_movements',tenantFilter:'server-resolved',empty:'Nenhuma movimentação.'},
- 'open-cash-sessions':{screen:'/pdv',source:'erp_cash_sessions',tenantFilter:'server-resolved',empty:'Nenhum caixa aberto.'},
- sales:{screen:'/vendas',source:'erp_sales',tenantFilter:'server-resolved',empty:'Nenhuma venda concluída.'},
- 'financial-entries':{screen:'/financeiro',source:'erp_financial_entries',tenantFilter:'server-resolved',empty:'Nenhum título financeiro.'},
- installments:{screen:'/financeiro',source:'erp_installments',tenantFilter:'server-resolved',empty:'Nenhuma parcela.'},
- 'financial-summary':{screen:'/financeiro',source:'server-aggregate',tenantFilter:'server-resolved',empty:'Financeiro sem movimento.'},
- 'cash-history':{screen:'/pdv',source:'erp_cash_sessions',tenantFilter:'server-resolved',empty:'Nenhum fechamento.'},
- 'dashboard-summary':{screen:'/',source:'server-aggregate',tenantFilter:'server-resolved',empty:'Operação sem movimento.'},
+ parties:{key:'parties',screen:'/cadastros',source:'erp_parties',tenantFilter:'server-resolved',empty:'Nenhum cliente cadastrado.'},
+ 'catalog-items':{key:'catalog-items',screen:'/catalogo',source:'erp_catalog_items',tenantFilter:'server-resolved',empty:'Nenhum produto cadastrado.'},
+ 'stock-balance':{key:'stock-balance',screen:'/operacoes',source:'erp_stock_balance_v',tenantFilter:'server-resolved',empty:'Nenhum saldo de estoque.'},
+ 'stock-movements':{key:'stock-movements',screen:'/operacoes',source:'erp_stock_movements',tenantFilter:'server-resolved',empty:'Nenhuma movimentação.'},
+ 'open-cash-sessions':{key:'open-cash-sessions',screen:'/pdv',source:'erp_cash_sessions',tenantFilter:'server-resolved',empty:'Nenhum caixa aberto.'},
+ sales:{key:'sales',screen:'/vendas',source:'erp_sales',tenantFilter:'server-resolved',empty:'Nenhuma venda concluída.'},
+ 'financial-entries':{key:'financial-entries',screen:'/financeiro',source:'erp_financial_entries',tenantFilter:'server-resolved',empty:'Nenhum título financeiro.'},
+ installments:{key:'installments',screen:'/financeiro',source:'erp_installments',tenantFilter:'server-resolved',empty:'Nenhuma parcela.'},
+ 'financial-summary':{key:'financial-summary',screen:'/financeiro',source:'server-aggregate',tenantFilter:'server-resolved',empty:'Financeiro sem movimento.'},
+ 'cash-history':{key:'cash-history',screen:'/pdv',source:'erp_cash_sessions',tenantFilter:'server-resolved',empty:'Nenhum fechamento.'},
+ 'dashboard-summary':{key:'dashboard-summary',screen:'/',source:'server-aggregate',tenantFilter:'server-resolved',empty:'Operação sem movimento.'},
 });
 export const UX_STATES=freeze(['idle','validating','submitting','revalidating','succeeded','failed','blocked']);
 export const UX_TRANSITIONS=freeze({idle:['validating'],validating:['submitting','failed','blocked'],submitting:['revalidating','failed','blocked'],revalidating:['succeeded','failed'],succeeded:['idle'],failed:['idle'],blocked:['idle']});
@@ -43,4 +43,4 @@ const walkKeys=(value,visit)=>{if(!value||typeof value!=='object')return;for(con
 export function validateBrowserPayload(payload){if(!payload||typeof payload!=='object'||Array.isArray(payload))throw new Error('INVALID_INPUT');const forbidden=new Set([...AUTHORITY_FIELDS,...SECRET_FIELDS].map(key=>key.toLowerCase()));walkKeys(payload,key=>{if(forbidden.has(key.toLowerCase()))throw new Error('FORBIDDEN_BROWSER_FIELD');});if(Buffer.byteLength(JSON.stringify(payload),'utf8')>65536)throw new Error('PAYLOAD_TOO_LARGE');return true;}
 export function transitionUx(current,next){if(!UX_STATES.includes(current)||!UX_STATES.includes(next)||!UX_TRANSITIONS[current].includes(next))throw new Error('INVALID_UX_TRANSITION');return next;}
 export function toPublicError(code,unsafeDetail=''){const safeCode=Object.hasOwn(PUBLIC_ERRORS,code)?code:'INTERNAL_FAILURE';return freeze({code:safeCode,message:PUBLIC_ERRORS[safeCode],retryWriteAutomatically:false,detailExposed:false,unsafeDetailRecorded:false,unsafeDetailLength:String(unsafeDetail).length});}
-export function validateVisualPersistenceContract(){const findings=[];const commands=Object.entries(COMMAND_BOUNDARIES);if(commands.length!==7)findings.push('seven-command-coverage');for(const[name,command]of commands){if(!command.rpc.endsWith('_v1'))findings.push(`${name}:versioned-rpc`);if(!command.screen.startsWith('/'))findings.push(`${name}:screen`);if(!command.refresh.length||command.refresh.some(read=>!READ_MODELS[read]))findings.push(`${name}:read-model-refresh`);}for(const[name,read]of Object.entries(READ_MODELS))if(read.tenantFilter!=='server-resolved'||!read.empty)findings.push(`${name}:safe-read-model`);if(THREAT_MODEL.length<10)findings.push('threat-coverage');if(UX_TRANSITIONS.submitting.includes('submitting')||UX_TRANSITIONS.submitting.includes('succeeded'))findings.push('unsafe-submit-transition');return freeze({valid:findings.length===0,findings,version:CONTRACT_VERSION,commands:commands.length,readModels:Object.keys(READ_MODELS).length,threats:THREAT_MODEL.length,remoteAccessed:false,productionAccessed:false});}
+export function validateVisualPersistenceContract(){const findings=[];const commands=Object.entries(COMMAND_BOUNDARIES);if(commands.length!==7)findings.push('seven-command-coverage');for(const[name,command]of commands){if(!command.rpc.endsWith('_v1'))findings.push(`${name}:versioned-rpc`);if(!command.screen.startsWith('/'))findings.push(`${name}:screen`);if(!command.refresh.length||command.refresh.some(read=>!READ_MODELS[read]))findings.push(`${name}:read-model-refresh`);}for(const[name,read]of Object.entries(READ_MODELS))if(read.key!==name||read.tenantFilter!=='server-resolved'||!read.empty)findings.push(`${name}:safe-read-model`);if(THREAT_MODEL.length<10)findings.push('threat-coverage');if(UX_TRANSITIONS.submitting.includes('submitting')||UX_TRANSITIONS.submitting.includes('succeeded'))findings.push('unsafe-submit-transition');return freeze({valid:findings.length===0,findings,version:CONTRACT_VERSION,commands:commands.length,readModels:Object.keys(READ_MODELS).length,threats:THREAT_MODEL.length,remoteAccessed:false,productionAccessed:false});}

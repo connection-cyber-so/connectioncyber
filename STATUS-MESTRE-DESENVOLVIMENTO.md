@@ -806,3 +806,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 23/23 testes do adaptador, 80/80 da plataforma, 49/49 do contrato, TypeScript, ESLint e build aprovados.
 - Marcador: `M18_G7_PERSISTENT_COMPOSITION_LOCAL_OK`.
 - Nenhum serviço remoto acessado e nenhum dado criado.
+## M18-G8 — auditoria final local e preflight read-only (01/09/2026)
+
+- UUID de tenant foi endurecido e read models receberam chaves canônicas estáveis.
+- Preflight SQL usa transação somente leitura, valida RPCs/relações/colunas/RLS/privilégios e termina em `ROLLBACK`.
+- Formatos persistentes ainda precisam de normalização antes de conectar as telas; ativação visual permanece bloqueada.
+- 31/31 testes do adaptador, 50/50 do contrato, 80/80 da plataforma, TypeScript, ESLint e build aprovados.
+- Marcador: `M18_G8_LOCAL_AUDIT_READ_ONLY_PREFLIGHT_READY`.
+- Supabase remoto não acessado e nenhum dado criado.
