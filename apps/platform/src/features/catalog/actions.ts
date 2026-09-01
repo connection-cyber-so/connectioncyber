@@ -1,10 +1,8 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
-import { requireCurrentTenantId } from '@/lib/tenant';
+import { localPersistenceClient } from '@/features/persistence/local';
 import { itemSchema, unitSchema } from './validations';
-import { createCatalogItem, createUnit } from './service';
 
 export type CatalogState = { error: string | null; success: boolean };
 
@@ -18,16 +16,7 @@ export async function createUnitAction(_: CatalogState, f: FormData): Promise<Ca
 
   if (!p.success) return { error: p.error.issues[0]?.message ?? 'Unidade inválida.', success: false };
 
-  try {
-    await createUnit(await createClient(), {
-      tenant_id: await requireCurrentTenantId(),
-      ...p.data
-    });
-    revalidatePath('/catalogo');
-    return { error: null, success: true };
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Erro ao criar unidade.', success: false };
-  }
+  return { error: `Unidades permanecem fixas no transporte local (${p.data.code}).`, success: false };
 }
 
 export async function createItemAction(_: CatalogState, f: FormData): Promise<CatalogState> {
@@ -44,14 +33,11 @@ export async function createItemAction(_: CatalogState, f: FormData): Promise<Ca
   if (!p.success) return { error: p.error.issues[0]?.message ?? 'Item inválido.', success: false };
 
   try {
-    await createCatalogItem(await createClient(), {
-      tenant_id: await requireCurrentTenantId(),
-      ...p.data
-    });
-
+    const result = await localPersistenceClient.execute('catalog.item.create', { code: p.data.code, name: p.data.name, description: p.data.description ?? '', kind: p.data.kind, baseUnitId: p.data.base_unit_id, trackInventory: p.data.track_inventory, allowsFraction: p.data.allows_fraction });
+    if (!result.ok) return { error: result.error.message, success: false };
     revalidatePath('/catalogo');
     return { error: null, success: true };
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Erro ao criar item.', success: false };
+  } catch {
+    return { error: 'Não foi possível criar o item nesta sessão.', success: false };
   }
 }

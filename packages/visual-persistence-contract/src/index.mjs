@@ -24,7 +24,7 @@ export const READ_MODELS=freeze({
 });
 export const UX_STATES=freeze(['idle','validating','submitting','revalidating','succeeded','failed','blocked']);
 export const UX_TRANSITIONS=freeze({idle:['validating'],validating:['submitting','failed','blocked'],submitting:['revalidating','failed','blocked'],revalidating:['succeeded','failed'],succeeded:['idle'],failed:['idle'],blocked:['idle']});
-export const AUTHORITY_FIELDS=freeze(['tenant_id','tenantId','actor_id','actorId','user_id','userId','permission','permissions','capability','capabilities','role','priceTotal','grandTotal','stockBalance','cashExpected','financialBalance']);
+export const AUTHORITY_FIELDS=freeze(['tenant_id','tenantId','actor_id','actorId','user_id','userId','permission','permissions','capability','capabilities','accessRole','membershipRole','priceTotal','grandTotal','stockBalance','cashExpected','financialBalance']);
 export const SECRET_FIELDS=freeze(['password','senha','secret','token','credential','privateKey','private_key','serviceRole','service_role','certificate','certificado','pfx','p12','csc']);
 export const PUBLIC_ERRORS=freeze({AUTH_REQUIRED:'Entre novamente para continuar.',TENANT_UNRESOLVED:'Não foi possível identificar a empresa.',ACCESS_DENIED:'Você não tem acesso a esta operação.',CAPABILITY_REQUIRED:'Este recurso não está habilitado para a empresa.',IDEMPOTENCY_CONFLICT:'A solicitação já existe com conteúdo diferente.',INVALID_INPUT:'Revise os campos informados.',INVALID_STATE:'A operação não é permitida no estado atual.',TEMPORARY_FAILURE:'Não foi possível concluir agora. Verifique o estado antes de tentar novamente.',INTERNAL_FAILURE:'Não foi possível concluir a operação.'});
 export const THREAT_MODEL=freeze([

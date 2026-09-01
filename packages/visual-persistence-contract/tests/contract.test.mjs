@@ -13,6 +13,7 @@ test('tenant do navegador é recusado',()=>assert.throws(()=>validateBrowserPayl
 test('autoridade aninhada é recusada',()=>assert.throws(()=>validateBrowserPayload({meta:{grandTotal:1}}),/FORBIDDEN_BROWSER_FIELD/));
 test('segredo aninhado é recusado',()=>assert.throws(()=>validateBrowserPayload({meta:{token:'x'}}),/FORBIDDEN_BROWSER_FIELD/));
 test('campos normais são aceitos',()=>assert.equal(validateBrowserPayload({name:'SYNTHETIC',lines:[{quantity:1}]}),true));
+test('papel comercial de cadastro é aceito',()=>assert.equal(validateBrowserPayload({role:'customer'}),true));
 test('array raiz é recusado',()=>assert.throws(()=>validateBrowserPayload([]),/INVALID_INPUT/));
 test('payload maior que 64 KiB é recusado',()=>assert.throws(()=>validateBrowserPayload({name:'x'.repeat(65537)}),/PAYLOAD_TOO_LARGE/));
 test('listas proibidas não são vazias',()=>assert.equal(AUTHORITY_FIELDS.length>10&&SECRET_FIELDS.length>10,true));

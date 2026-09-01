@@ -755,3 +755,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 48/48 testes do pacote e 32/32 testes da plataforma, declarações TypeScript e ESLint aprovados.
 - Marcador: `M18_G1_TYPED_SERVER_CLIENT_OK`.
 - Nenhum serviço remoto acessado; conexão às telas começa no M18-G2.
+## M18-G2 — cadastro e catálogo na fronteira visual local (31/08/2026)
+
+- Telas `/cadastros` e `/catalogo` executam `party.create` e `catalog.item.create` pelo cliente server-side M18.
+- Transporte local mantém snapshots sintéticos de clientes e produtos somente durante a sessão.
+- Tenant não chega ao navegador; escrita Supabase direta foi removida dessas duas ações.
+- 40/40 testes da plataforma, 49/49 do contrato, TypeScript, ESLint e build aprovados.
+- Marcador: `M18_G2_MASTER_DATA_VISUAL_LOCAL_OK`.
+- Nenhum serviço remoto acessado e nenhum dado real criado.
