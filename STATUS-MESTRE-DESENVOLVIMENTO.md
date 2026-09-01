@@ -926,3 +926,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Estado: aprovado; provisionamento efetivo permanece bloqueado em portão separado.
 - Coletor remediado após falha de autoload do módulo PowerShell.Security; DPAPI direto, parser, ASCII e 8/8 testes aprovados.
 - Assembly `System.Security` carregado explicitamente e ida e volta DPAPI comprovada no Windows PowerShell 5.1: `WINDOWS_POWERSHELL_51_DPAPI_OK`.
+
+## M18-G21 — provisionamento do piloto no staging (01/09/2026)
+
+- Preflights PostgreSQL e Auth aprovados; e-mail do piloto estava ausente.
+- Tenant Mania de Modas, estabelecimento, usuário Auth, membership owner e convite foram criados no staging.
+- Run de provisionamento `completed`, outbox `sent`, MFA/AAL2 obrigatório e zero compensações.
+- Executor fail-closed aprovado com 11/11 testes; testes da plataforma, TypeScript, ESLint e build aprovados.
+- Valores protegidos e chave service role permaneceram somente em memória; produção não acessada.
+- Estado: `M18-G21 APROVADO`.
