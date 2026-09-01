@@ -8,4 +8,4 @@ test('ação de produto usa fronteira catalog item create',()=>{assert.match(cat
 test('páginas leem somente snapshots locais',()=>{assert.match(partyPage,/listLocalParties/);assert.match(catalogPage,/listLocalCatalogItems/);assert.doesNotMatch(partyPage+catalogPage,/createClient|requireCurrentTenantId/);});
 test('telas declaram modo sintético e efêmero',()=>{assert.match(partyPage+catalogPage,/localPersistenceMode/);assert.match(partyPage+catalogPage,/reiniciar o servidor/);});
 test('unidade local é sintética e fixa',()=>{assert.match(local,/code: 'UN'/);assert.match(catalog,/Unidades permanecem fixas no transporte local/);});
-test('somente duas RPCs estão habilitadas neste gate',()=>{assert.match(local,/erp_command_create_party_v1/);assert.match(local,/erp_command_create_catalog_item_v1/);assert.match(local,/command unavailable in M18-G2/);});
+test('RPCs mestres permanecem habilitadas após evolução do transporte',()=>{assert.match(local,/erp_command_create_party_v1/);assert.match(local,/erp_command_create_catalog_item_v1/);assert.match(local,/command unavailable in M18-G3/);});

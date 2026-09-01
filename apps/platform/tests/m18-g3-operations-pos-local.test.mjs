@@ -1,0 +1,14 @@
+import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';import{fileURLToPath}from'node:url';const root=fileURLToPath(new URL('../',import.meta.url)),read=path=>readFileSync(`${root}${path}`,'utf8');
+const local=read('src/features/persistence/local.ts'),inventory=read('src/features/operations/actions.ts'),sales=read('src/features/sales/actions.ts'),operationsPage=read('src/app/(painel)/operacoes/page.tsx'),posPage=read('src/app/(painel)/pdv/page.tsx'),forms=read('src/features/sales/components/LocalPosForms.tsx');
+test('estoque usa inventory receive pelo broker',()=>assert.match(inventory,/execute\('inventory\.receive'/));
+test('caixa usa cash open pelo broker',()=>assert.match(sales,/execute\('cash\.open'/));
+test('venda usa sale complete pelo broker',()=>assert.match(sales,/execute\('sale\.complete'/));
+test('preço da venda é derivado no servidor local',()=>{assert.match(local,/prices\[id\]=100/);assert.doesNotMatch(forms,/name="price|name="total/);});
+test('venda exige estoque suficiente',()=>assert.match(local,/insufficient stock/));
+test('venda em dinheiro exige caixa aberto',()=>assert.match(local,/cash required/));
+test('dupla abertura de caixa falha fechado',()=>assert.match(local,/cash already open/));
+test('crediário permanece bloqueado para o próximo gate',()=>{assert.doesNotMatch(forms,/<option value="store_credit"/);assert.match(forms,/M18-G4 financeiro/);});
+test('páginas operacionais não importam Supabase',()=>assert.doesNotMatch(operationsPage+posPage,/createClient|requireCurrentTenantId|@supabase/));
+test('telas declaram transporte sintético',()=>assert.match(operationsPage+posPage,/localPersistenceMode/));
+test('estoque relê saldo após comando',()=>assert.match(local,/erp_stock_balance_v/));
+test('venda atualiza estoque e caixa atomicamente no dublê',()=>assert.match(local,/state\.stock\[draft\.itemId\]-=draft\.quantity[\s\S]+state\.cash\.expectedAmount\+=draft\.total/));

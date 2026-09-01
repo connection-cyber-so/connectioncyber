@@ -763,3 +763,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 40/40 testes da plataforma, 49/49 do contrato, TypeScript, ESLint e build aprovados.
 - Marcador: `M18_G2_MASTER_DATA_VISUAL_LOCAL_OK`.
 - Nenhum serviço remoto acessado e nenhum dado real criado.
+## M18-G3 — estoque, caixa e PDV na fronteira visual local (31/08/2026)
+
+- `/operacoes` usa `inventory.receive`; `/pdv` usa `cash.open` e `sale.complete` pelo broker M18.
+- Preço é derivado no servidor; venda em dinheiro baixa estoque e atualiza esperado de caixa atomicamente no dublê.
+- Estoque insuficiente, caixa ausente, dupla abertura e crediário falham fechado.
+- 52/52 testes da plataforma, 49/49 do contrato, TypeScript, ESLint e build aprovados.
+- Marcador: `M18_G3_INVENTORY_CASH_POS_VISUAL_LOCAL_OK`.
+- Nenhum serviço remoto acessado e nenhum dado real criado.
