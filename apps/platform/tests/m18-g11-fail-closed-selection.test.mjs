@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { persistentVisualTransportEnabled, selectVisualPersistence } from '../src/features/persistence/selector.mjs';
+import { persistentVisualWritesEnabled, resolveVisualPersistenceMode, selectVisualPersistence } from '../src/features/persistence/selector.mjs';
 
 const root = new URL('../src/', import.meta.url);
 const read = path => readFileSync(new URL(path, root), 'utf8');
@@ -19,19 +19,20 @@ test('dublê sintético é selecionado sem acesso remoto', () => {
   const result = selectVisualPersistence({ mode: 'synthetic', synthetic: facade });
   assert.equal(result.facade, facade);
   assert.equal(result.remote, false);
-  assert.equal(persistentVisualTransportEnabled, false);
+  assert.equal(persistentVisualWritesEnabled, false);
 });
 
-test('modo persistente falha fechado antes de tocar o dublê', () => {
+test('modo persistente de escrita falha fechado antes de tocar o dublê', () => {
   let touched = false;
   const persistent = Object.defineProperty({}, 'client', { get() { touched = true; return {}; } });
-  assert.throws(() => selectVisualPersistence({ mode: 'persistent', persistent }), error => error.code === 'PERSISTENT_TRANSPORT_DISABLED');
+  assert.throws(() => selectVisualPersistence({ mode: 'persistent', persistentReadOnly: persistent }), error => error.code === 'PERSISTENT_WRITES_DISABLED');
   assert.equal(touched, false);
 });
 
 test('modo ausente ou desconhecido é recusado', () => {
   assert.throws(() => selectVisualPersistence(), error => error.code === 'PERSISTENCE_MODE_INVALID');
   assert.throws(() => selectVisualPersistence({ mode: 'auto', synthetic: {} }), error => error.code === 'PERSISTENCE_MODE_INVALID');
+  assert.throws(() => resolveVisualPersistenceMode('auto'), error => error.code === 'PERSISTENCE_MODE_INVALID');
 });
 
 test('dublê sintético ausente é recusado', () => {
@@ -39,9 +40,9 @@ test('dublê sintético ausente é recusado', () => {
 });
 
 test('fachada selecionada fixa modo sintético sem ambiente ou Supabase', () => {
-  assert.match(selected, /mode: 'synthetic'/);
-  assert.doesNotMatch(selected, /process\.env|createClient|features\/persistence\/persistent/);
-  assert.match(selected, /transporte remoto desativado/);
+  assert.match(selected, /SERVER_VISUAL_PERSISTENCE_MODE/);
+  assert.doesNotMatch(selected, /NEXT_PUBLIC_VISUAL|serviceRole|service_role/);
+  assert.match(selected, /comandos remotos bloqueados/);
 });
 
 test('todas as telas e ações usam somente a fachada selecionada', () => {

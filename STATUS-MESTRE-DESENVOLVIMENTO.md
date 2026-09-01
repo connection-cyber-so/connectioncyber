@@ -840,3 +840,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 86/86 testes da plataforma, 50/50 do contrato, 44/44 do adaptador, TypeScript, ESLint e build aprovados.
 - Marcador: `M18_G11_FAIL_CLOSED_VISUAL_TRANSPORT_LOCAL_OK`.
 - Nenhum serviço remoto acessado; Supabase, Vercel e produção permanecem bloqueados.
+
+## M18-G12 — persistência visual somente leitura em staging (01/09/2026)
+
+- Flag privada aceita apenas `synthetic` e `persistent-read-only`; escrita e valores desconhecidos falham fechado.
+- Leituras persistentes exigem sessão e tenant derivados no servidor; comandos são bloqueados antes da conexão.
+- Preflight remoto retornou `M18_G12_PERSISTENT_READ_ONLY_OK` em transação somente leitura com `ROLLBACK`.
+- Sete RPCs presentes, RLS ativa, tenant sintético ausente e zero command receipts confirmados.
+- 93/93 testes da plataforma, 50/50 do contrato, 44/44 do adaptador, TypeScript, ESLint e build aprovados.
+- Nenhuma RPC, migration ou escrita executada; produção não acessada.
