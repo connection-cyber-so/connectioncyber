@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "environment": "staging",
+  "mode": "dry-run",
+  "pilot": true,
+  "batchKey": "m18-g13-maniademodas",
+  "tenant": {
+    "ref": "maniademodas",
+    "slug": "maniademodas",
+    "domain": "maniademoda.connectioncyber.com.br",
+    "displayName": "Mania de Modas",
+    "vertical": "varejo-moda-calcados",
+    "legalNameRef": "protected:M18_PILOT_LEGAL_NAME",
+    "taxIdRef": "protected:M18_PILOT_CNPJ",
+    "stateRegistrationRef": "protected:M18_PILOT_IE",
+    "capabilities": ["core.parties", "core.catalog", "inventory.stock", "sales.pos", "finance"]
+  },
+  "owner": {
+    "subjectKey": "maniademodas-owner",
+    "emailRef": "protected:M18_PILOT_OWNER_EMAIL",
+    "lifecycle": "invited",
+    "role": "owner",
+    "requireMfa": true,
+    "requiredAal": "aal2"
+  },
+  "controls": {
+    "writesAllowed": false,
+    "networkAllowed": false,
+    "productionAllowed": false
+  }
+}

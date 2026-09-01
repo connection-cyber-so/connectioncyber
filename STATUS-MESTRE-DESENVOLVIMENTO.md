@@ -849,3 +849,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Sete RPCs presentes, RLS ativa, tenant sintético ausente e zero command receipts confirmados.
 - 93/93 testes da plataforma, 50/50 do contrato, 44/44 do adaptador, TypeScript, ESLint e build aprovados.
 - Nenhuma RPC, migration ou escrita executada; produção não acessada.
+
+## M18-G13 — provisionamento protegido do piloto em dry-run (01/09/2026)
+
+- Plano determinístico de 13 ações preparado para `maniademodas`, sem executor de escrita.
+- CNPJ, IE, razão social e e-mail são aceitos somente por referências protegidas; valores diretos e segredos falham fechado.
+- Usuário-piloto exige convite, papel `owner`, MFA e AAL2; `--apply`, rede e produção permanecem bloqueados.
+- Preflight remoto somente leitura retornou `M18_G13_PILOT_PREFLIGHT_OK` e encerrou com `ROLLBACK`.
+- 14/14 testes M18-G13, 107/107 da plataforma, 50/50 do contrato, 44/44 do adaptador, TypeScript, ESLint e build aprovados.
+- Nenhum tenant, usuário, estabelecimento, membership, papel, fixture ou dado real criado; produção não acessada.
