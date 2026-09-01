@@ -7,7 +7,7 @@ test('preço da venda é derivado no servidor local',()=>{assert.match(local,/pr
 test('venda exige estoque suficiente',()=>assert.match(local,/insufficient stock/));
 test('venda em dinheiro exige caixa aberto',()=>assert.match(local,/cash required/));
 test('dupla abertura de caixa falha fechado',()=>assert.match(local,/cash already open/));
-test('crediário permanece bloqueado para o próximo gate',()=>{assert.doesNotMatch(forms,/<option value="store_credit"/);assert.match(forms,/M18-G4 financeiro/);});
+test('crediário exige cliente antes de concluir a venda',()=>{assert.match(forms,/<option value="store_credit"/);assert.match(forms,/name="customerId"/);});
 test('páginas operacionais não importam Supabase',()=>assert.doesNotMatch(operationsPage+posPage,/createClient|requireCurrentTenantId|@supabase/));
 test('telas declaram transporte sintético',()=>assert.match(operationsPage+posPage,/localPersistenceMode/));
 test('estoque relê saldo após comando',()=>assert.match(local,/erp_stock_balance_v/));

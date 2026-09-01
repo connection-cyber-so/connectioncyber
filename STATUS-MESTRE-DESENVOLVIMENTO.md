@@ -771,3 +771,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 52/52 testes da plataforma, 49/49 do contrato, TypeScript, ESLint e build aprovados.
 - Marcador: `M18_G3_INVENTORY_CASH_POS_VISUAL_LOCAL_OK`.
 - Nenhum serviço remoto acessado e nenhum dado real criado.
+## M18-G4 — financeiro, fechamento e dashboard por releitura local (31/08/2026)
+
+- Crediário exige cliente, gera recebível e permite baixa controlada por `financial.settle`.
+- Fechamento usa `cash.close` e bloqueia divergência entre contado e esperado.
+- Dashboard relê vendas, estoque, caixa e financeiro e reconcilia `vendas = dinheiro + crediário`.
+- 62/62 testes da plataforma, 49/49 do contrato, TypeScript, ESLint e build aprovados.
+- Marcador: `M18_G4_FINANCE_CASH_DASHBOARD_LOCAL_OK`.
+- Nenhum serviço remoto acessado e nenhum dado real criado.
