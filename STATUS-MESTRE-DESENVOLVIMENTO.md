@@ -814,3 +814,11 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 31/31 testes do adaptador, 50/50 do contrato, 80/80 da plataforma, TypeScript, ESLint e build aprovados.
 - Marcador: `M18_G8_LOCAL_AUDIT_READ_ONLY_PREFLIGHT_READY`.
 - Supabase remoto não acessado e nenhum dado criado.
+## M18-G9 — preflight remoto somente leitura (01/09/2026)
+
+- Branch `staging` e project ref `ozvylnaipubrmaadikvk` confirmados antes da conexão.
+- Preflight SHA-256 `B834D673A87B5BB41E54CFA046FF2D1E53A5240E2050788CE89DD071344A6A55` executado com sucesso.
+- Marcador remoto obrigatório: `M18_G8_READ_ONLY_PREFLIGHT_OK`.
+- Transação somente leitura encerrada com `ROLLBACK`; nenhuma RPC de comando ou migration executada.
+- Marcador: `M18_G9_REMOTE_READ_ONLY_PREFLIGHT_OK`.
+- Nenhuma conta, fixture, receipt ou dado criado; produção não acessada.
