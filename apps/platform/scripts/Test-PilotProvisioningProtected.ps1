@@ -1,10 +1,19 @@
 $ErrorActionPreference = 'Stop'
 
 function Reveal-Cipher([string]$Cipher) {
-    $secure = ConvertTo-SecureString $Cipher
-    $pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
-    try { return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer) }
-    finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer) }
+    $protected = [Convert]::FromBase64String($Cipher)
+    try {
+        $bytes = [Security.Cryptography.ProtectedData]::Unprotect(
+            $protected,
+            $null,
+            [Security.Cryptography.DataProtectionScope]::CurrentUser
+        )
+        try { return [Text.Encoding]::UTF8.GetString($bytes) }
+        finally { [Array]::Clear($bytes, 0, $bytes.Length) }
+    }
+    finally {
+        [Array]::Clear($protected, 0, $protected.Length)
+    }
 }
 
 $vaultPath = Join-Path $env:LOCALAPPDATA 'ConnectionCyber\staging\m18-pilot-protected.json'

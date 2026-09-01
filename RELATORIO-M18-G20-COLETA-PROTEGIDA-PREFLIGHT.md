@@ -18,3 +18,10 @@ Data: 01/09/2026
 O cofre protegido ainda não existe. A única intervenção necessária é informar localmente os quatro valores na janela mascarada. Valores fiscais e identidade não devem ser enviados ao chat, terminal, Git, banco, relatório ou logs.
 
 Após a coleta, o validador deve retornar `M18_G20_PROTECTED_CONFIG_OK`. A criação efetiva de tenant e usuário permanece bloqueada em portão separado.
+
+## Remediação do coletor
+
+- A primeira execução foi bloqueada porque o Windows PowerShell não carregou automaticamente `Microsoft.PowerShell.Security`.
+- Nenhum valor foi gravado nessa tentativa.
+- A dependência dos cmdlets do módulo foi removida; a proteção agora usa DPAPI `CurrentUser` diretamente.
+- Parser PowerShell, ASCII, ida e volta DPAPI sintética e 8/8 testes foram aprovados: `M18_G20_DPAPI_REMEDIATION_OK`.

@@ -923,3 +923,4 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Preflight remoto somente leitura aprovado: `M18_G20_REMOTE_PREFLIGHT_OK`.
 - Zero gravações no Supabase e produção não acessada.
 - Estado: aprovado com coleta local protegida pendente; provisionamento efetivo permanece bloqueado.
+- Coletor remediado após falha de autoload do módulo PowerShell.Security; DPAPI direto, parser, ASCII e 8/8 testes aprovados.

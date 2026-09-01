@@ -7,7 +7,7 @@ const validate = await readFile(new URL('../scripts/Test-PilotProvisioningProtec
 const preflight = await readFile(new URL('../../../supabase/preflight/m18_g20_pilot_identity_preflight.sql', import.meta.url), 'utf8');
 
 test('scripts PowerShell usam somente ASCII',()=>{assert.doesNotMatch(collect,/[^\x00-\x7F]/);assert.doesNotMatch(validate,/[^\x00-\x7F]/)});
-test('coleta usa entrada mascarada e DPAPI',()=>{assert.match(collect,/Read-Host \$Prompt -AsSecureString/);assert.match(collect,/ConvertFrom-SecureString/)});
+test('coleta usa entrada mascarada e DPAPI sem depender do modulo PowerShell.Security',()=>{assert.match(collect,/Read-Host \$Prompt -AsSecureString/);assert.match(collect,/ProtectedData\]::Protect/);assert.match(validate,/ProtectedData\]::Unprotect/);assert.doesNotMatch(collect,/ConvertFrom-SecureString/)});
 test('cofre fica fora do projeto',()=>{assert.match(collect,/LOCALAPPDATA/);assert.match(validate,/LOCALAPPDATA/);assert.doesNotMatch(collect,/apps\\platform\\\.env/)});
 test('gravacao declara UTF-8 explicitamente',()=>assert.match(collect,/Set-Content[^\n]+-Encoding utf8/));
 test('validador nao imprime valores protegidos',()=>{assert.doesNotMatch(validate,/Write-Output.*\$(legalName|taxId|stateRegistration|ownerEmail)/);assert.match(validate,/plaintextLogged=false/)});

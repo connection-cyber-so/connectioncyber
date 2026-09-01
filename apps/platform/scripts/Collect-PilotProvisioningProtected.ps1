@@ -14,6 +14,21 @@ function Assert-Format([string]$Name, [string]$Value, [string]$Pattern) {
     if ($Value -notmatch $Pattern) { throw "M18_G20_INVALID_$Name" }
 }
 
+function Protect-Text([string]$Value) {
+    $bytes = [Text.Encoding]::UTF8.GetBytes($Value)
+    try {
+        $protected = [Security.Cryptography.ProtectedData]::Protect(
+            $bytes,
+            $null,
+            [Security.Cryptography.DataProtectionScope]::CurrentUser
+        )
+        return [Convert]::ToBase64String($protected)
+    }
+    finally {
+        [Array]::Clear($bytes, 0, $bytes.Length)
+    }
+}
+
 $vaultDirectory = Join-Path $env:LOCALAPPDATA 'ConnectionCyber\staging'
 $vaultPath = Join-Path $vaultDirectory 'm18-pilot-protected.json'
 $legalName = Read-Protected 'Razao social (masked)'
@@ -35,10 +50,10 @@ try {
     $payload = [ordered]@{
         schemaVersion = 1
         environment = 'staging'
-        legalName = ConvertFrom-SecureString $legalName
-        taxId = ConvertFrom-SecureString $taxId
-        stateRegistration = ConvertFrom-SecureString (ConvertTo-SecureString $stateRegistrationText -AsPlainText -Force)
-        ownerEmail = ConvertFrom-SecureString (ConvertTo-SecureString $ownerEmailText -AsPlainText -Force)
+        legalName = Protect-Text $legalNameText
+        taxId = Protect-Text $taxIdText
+        stateRegistration = Protect-Text $stateRegistrationText
+        ownerEmail = Protect-Text $ownerEmailText
     }
     $payload | ConvertTo-Json | Set-Content -LiteralPath $vaultPath -Encoding utf8
     Write-Output 'M18_G20_PROTECTED_COLLECTION_OK'
