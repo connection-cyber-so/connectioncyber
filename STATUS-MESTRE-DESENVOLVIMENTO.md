@@ -788,3 +788,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Achados críticos/altos residuais no escopo local: zero.
 - Marcador: `M18_G5_LOCAL_INDEPENDENT_AUDIT_OK`.
 - Nenhum serviço remoto acessado e nenhum dado real criado.
+## M18-G6 — adaptador PostgreSQL/Supabase local (31/08/2026)
+
+- Pacote de transporte criado com allowlist das sete RPCs persistentes da `0033`.
+- Nove planos de leitura aplicam seleção explícita, limites e `tenant_id` antes dos filtros funcionais.
+- Saldo de estoque é derivado de `erp_stock_movement_items`; nenhuma view inexistente foi presumida.
+- Agregados permanecem fail-closed até receberem implementação server-side injetada.
+- 17/17 testes do adaptador, 49/49 do contrato, 74/74 da plataforma e build aprovados.
+- Marcador: `M18_G6_SUPABASE_ADAPTER_LOCAL_OK`.
+- Nenhuma tela conectada, nenhum serviço remoto acessado e nenhum dado criado.
