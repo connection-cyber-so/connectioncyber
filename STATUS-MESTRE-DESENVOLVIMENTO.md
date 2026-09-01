@@ -869,3 +869,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Identidades protegidas não são resolvidas ou persistidas; somente referências e fingerprints são usados.
 - 27/27 testes focados, 120/120 da plataforma, TypeScript, ESLint e build aprovados.
 - Supabase, Auth, Vercel e produção não foram acessados; nenhum dado foi criado.
+
+## M18-G15 — auditoria do mapeamento PostgreSQL/Auth (01/09/2026)
+
+- Dez alvos persistentes e onze passos da ordem segura foram mapeados.
+- Tenant é resolvido por membership; profile Auth não recebe autoridade por metadata ou JWT.
+- Banco deve confirmar tenant/outbox antes do convite Auth; vínculo final ocorre em nova transação e exige AAL2.
+- Seis bloqueios impedem criação efetiva: RPC atômica, allowlist do ledger, outbox, fronteira Auth/banco, IE e compensação.
+- Marcador `M18_G15_MAPPING_AUDIT_OK`; 7/7 testes focados, 127/127 da plataforma, TypeScript, ESLint e build aprovados.
+- Nenhum serviço remoto acessado e nenhum dado criado; aplicação permanece bloqueada.
