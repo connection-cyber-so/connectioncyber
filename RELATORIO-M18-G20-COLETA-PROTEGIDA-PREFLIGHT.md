@@ -13,11 +13,11 @@ Data: 01/09/2026
 
 ## Estado do portão
 
-`M18-G20 APROVADO COM COLETA LOCAL PENDENTE`.
+`M18-G20 APROVADO`.
 
-O cofre protegido ainda não existe. A única intervenção necessária é informar localmente os quatro valores na janela mascarada. Valores fiscais e identidade não devem ser enviados ao chat, terminal, Git, banco, relatório ou logs.
+O cofre protegido foi criado fora do projeto e validado sem revelar valores: `M18_G20_PROTECTED_CONFIG_OK fields=4 plaintextLogged=false gitPersisted=false`.
 
-Após a coleta, o validador deve retornar `M18_G20_PROTECTED_CONFIG_OK`. A criação efetiva de tenant e usuário permanece bloqueada em portão separado.
+A criação efetiva de tenant e usuário permanece bloqueada em portão separado.
 
 ## Remediação do coletor
 

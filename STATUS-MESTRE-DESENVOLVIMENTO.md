@@ -922,6 +922,7 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 8/8 testes focados, testes da plataforma, TypeScript, ESLint e build aprovados com Node.js 22.
 - Preflight remoto somente leitura aprovado: `M18_G20_REMOTE_PREFLIGHT_OK`.
 - Zero gravações no Supabase e produção não acessada.
-- Estado: aprovado com coleta local protegida pendente; provisionamento efetivo permanece bloqueado.
+- Coleta local concluída e cofre validado: `M18_G20_PROTECTED_CONFIG_OK`; nenhum valor foi registrado em Git ou logs.
+- Estado: aprovado; provisionamento efetivo permanece bloqueado em portão separado.
 - Coletor remediado após falha de autoload do módulo PowerShell.Security; DPAPI direto, parser, ASCII e 8/8 testes aprovados.
 - Assembly `System.Security` carregado explicitamente e ida e volta DPAPI comprovada no Windows PowerShell 5.1: `WINDOWS_POWERSHELL_51_DPAPI_OK`.
