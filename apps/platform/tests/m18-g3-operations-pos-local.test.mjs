@@ -9,6 +9,6 @@ test('venda em dinheiro exige caixa aberto',()=>assert.match(local,/cash require
 test('dupla abertura de caixa falha fechado',()=>assert.match(local,/cash already open/));
 test('crediário exige cliente antes de concluir a venda',()=>{assert.match(forms,/<option value="store_credit"/);assert.match(forms,/name="customerId"/);});
 test('páginas operacionais não importam Supabase',()=>assert.doesNotMatch(operationsPage+posPage,/createClient|requireCurrentTenantId|@supabase/));
-test('telas declaram transporte sintético',()=>assert.match(operationsPage+posPage,/localPersistenceMode/));
+test('telas declaram transporte sintético selecionado',()=>assert.match(operationsPage+posPage,/visualPersistenceMode/));
 test('estoque relê saldo após comando',()=>assert.match(local,/erp_stock_balance_v/));
 test('venda atualiza estoque e caixa atomicamente no dublê',()=>assert.match(local,/state\.stock\[draft\.itemId\]-=draft\.quantity[\s\S]+state\.cash\.expectedAmount\+=draft\.total/));

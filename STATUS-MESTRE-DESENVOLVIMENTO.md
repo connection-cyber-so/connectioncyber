@@ -831,3 +831,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 44/44 testes do adaptador, 50/50 do contrato, 80/80 da plataforma, TypeScript, ESLint e build aprovados.
 - Marcador: `M18_G10_PERSISTENT_READ_MODELS_NORMALIZED_LOCAL_OK`.
 - Nenhum novo acesso remoto; telas continuam no transporte sintético e produção permanece bloqueada.
+
+## M18-G11 — seleção fail-closed do transporte visual (01/09/2026)
+
+- Fachada server-side única passou a atender dashboard, cadastros, catálogo, estoque, PDV, caixa e financeiro.
+- Somente o dublê sintético local é selecionado; modo persistente falha antes de tocar qualquer dependência.
+- Modo inválido, ausente ou sem dublê também é recusado de forma determinística.
+- 86/86 testes da plataforma, 50/50 do contrato, 44/44 do adaptador, TypeScript, ESLint e build aprovados.
+- Marcador: `M18_G11_FAIL_CLOSED_VISUAL_TRANSPORT_LOCAL_OK`.
+- Nenhum serviço remoto acessado; Supabase, Vercel e produção permanecem bloqueados.

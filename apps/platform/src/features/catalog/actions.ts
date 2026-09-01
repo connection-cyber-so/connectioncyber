@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { localPersistenceClient } from '@/features/persistence/local';
+import { visualPersistenceClient } from '@/features/persistence/selected';
 import { itemSchema, unitSchema } from './validations';
 
 export type CatalogState = { error: string | null; success: boolean };
@@ -33,7 +33,7 @@ export async function createItemAction(_: CatalogState, f: FormData): Promise<Ca
   if (!p.success) return { error: p.error.issues[0]?.message ?? 'Item inválido.', success: false };
 
   try {
-    const result = await localPersistenceClient.execute('catalog.item.create', { code: p.data.code, name: p.data.name, description: p.data.description ?? '', kind: p.data.kind, baseUnitId: p.data.base_unit_id, trackInventory: p.data.track_inventory, allowsFraction: p.data.allows_fraction });
+    const result = await visualPersistenceClient.execute('catalog.item.create', { code: p.data.code, name: p.data.name, description: p.data.description ?? '', kind: p.data.kind, baseUnitId: p.data.base_unit_id, trackInventory: p.data.track_inventory, allowsFraction: p.data.allows_fraction });
     if (!result.ok) return { error: result.error.message, success: false };
     revalidatePath('/catalogo');
     return { error: null, success: true };

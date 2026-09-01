@@ -5,5 +5,5 @@ test('composição persistente é exclusivamente server-side',()=>assert.match(p
 test('composição injeta adaptador e agregador no broker',()=>{assert.match(persistent,/createSupabasePersistenceTransport/);assert.match(persistent,/createSupabaseAggregateReader/);assert.match(persistent,/createVisualPersistenceClient/);});
 test('tenant continua vindo de resolvedor server-side injetado',()=>assert.match(persistent,/resolveTenant: options\.resolveTenant/));
 test('composição não cria cliente nem lê ambiente por conta própria',()=>assert.doesNotMatch(persistent,/createClient\(|process\.env|NEXT_PUBLIC/));
-test('telas continuam no transporte local neste gate',()=>{assert.match(screens,/features\/persistence\/local/);assert.doesNotMatch(screens,/features\/persistence\/persistent/);assert.match(local,/M18-G5/);});
+test('telas usam fachada selecionada sem importar composição persistente',()=>{assert.match(screens,/features\/persistence\/selected/);assert.doesNotMatch(screens,/features\/persistence\/persistent/);assert.match(local,/M18-G5/);});
 test('marcador declara ativação remota bloqueada',()=>assert.match(persistent,/ativação remota bloqueada/));
