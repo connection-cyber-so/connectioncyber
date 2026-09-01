@@ -914,3 +914,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Histórico remoto `0034/0034`; dry-run final sem migrations pendentes.
 - Zero tenant, identidade, membership, outbox, compensação ou run M18 criado.
 - Produção não acessada; criação da empresa-piloto permanece em portão separado.
+
+## M18-G20 — coleta protegida e preflight final (01/09/2026)
+
+- Coletor mascarado e validador fail-closed implementados com cofre DPAPI fora do projeto e Git.
+- Quatro campos obrigatórios validados somente em memória: razão social, CNPJ, IE e e-mail do owner.
+- 8/8 testes focados, testes da plataforma, TypeScript, ESLint e build aprovados com Node.js 22.
+- Preflight remoto somente leitura aprovado: `M18_G20_REMOTE_PREFLIGHT_OK`.
+- Zero gravações no Supabase e produção não acessada.
+- Estado: aprovado com coleta local protegida pendente; provisionamento efetivo permanece bloqueado.
