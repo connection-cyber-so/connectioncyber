@@ -896,3 +896,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Replay idempotente, segredo, campo desconhecido, caller autenticado, MFA, capacidades e outbox foram exercitados.
 - Hash final da `0034`: `0551FD5EF16B2BCD3F530EBED65FE1CBFAB0EA3D651899F6EBD5167610F48251`.
 - Zero tenant sintético, outbox ou compensação residual; remoto e produção não acessados.
+
+## M18-G18 — validação transacional remota da 0034 (01/09/2026)
+
+- Dry-run remoto selecionou exclusivamente a migration `0034`.
+- Preflight retornou `M18_0034_PREFLIGHT_OK` antes e depois da validação.
+- Pacote exato passou localmente e remotamente com 90/90 asserções.
+- Marcador remoto: `M18_0034_TRANSACTION_90_OF_90_ROLLBACK`.
+- Histórico remoto permanece em `0033`; a `0034` não foi aplicada persistentemente.
+- Nenhum tenant, usuário, identidade ou dado persistiu; produção não acessada.
