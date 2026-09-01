@@ -15,7 +15,8 @@ Resultado: **IMPLEMENTAÇÃO LOCAL CONCLUÍDA; VALIDAÇÃO POSTGRESQL PENDENTE**
 
 ## Evidências
 
-- SHA-256 da migration: `DDCF72B5B39D8BD407ECB7B928F547DFDF097F254329BAA0711CC1FC4279C715`.
+- SHA-256 original da migration: `DDCF72B5B39D8BD407ECB7B928F547DFDF097F254329BAA0711CC1FC4279C715`.
+- Hash substituído pela revisão M18-G17 após remediação local.
 - Testes estáticos M18-G16: 15/15.
 - Plataforma: 142/142; contrato: 50/50; adaptador: 44/44.
 - TypeScript, ESLint e build Next.js aprovados em Node.js 22.23.2.

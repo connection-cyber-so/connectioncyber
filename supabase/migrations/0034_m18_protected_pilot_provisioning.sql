@@ -81,12 +81,12 @@ begin
   insert into public.erp_role_permissions(tenant_id,role_id,permission_id)select v_tenant_id,v_role_id,id from public.erp_permissions where active;
   for v_capability in select jsonb_array_elements_text(p_request->'capabilities')loop perform public.erp_set_tenant_capability(v_tenant_id,v_capability,'active','contract',1,encode(extensions.digest(convert_to(v_hash||':'||v_capability,'UTF8'),'sha256'),'hex'));end loop;
   insert into public.erp_identity_provisioning_steps(run_id,step_key,subject_key,action,status,tenant_id,finished_at)values
-    (v_run.id,'01:create_tenant',p_request->>'ownerSubjectKey','create_tenant','completed',v_tenant_id,now()),
-    (v_run.id,'02:create_establishment',p_request->>'ownerSubjectKey','create_establishment','completed',v_tenant_id,now()),
-    (v_run.id,'03:assign_capabilities',p_request->>'ownerSubjectKey','assign_capabilities','completed',v_tenant_id,now()),
-    (v_run.id,'04:enqueue_auth_invitation',p_request->>'ownerSubjectKey','enqueue_auth_invitation','completed',v_tenant_id,now()),
-    (v_run.id,'05:finalize_identity',p_request->>'ownerSubjectKey','finalize_identity','planned',v_tenant_id),
-    (v_run.id,'06:require_mfa',p_request->>'ownerSubjectKey','require_mfa','planned',v_tenant_id);
+    (v_run.id,'m18.01:create_tenant',p_request->>'ownerSubjectKey','create_tenant','completed',v_tenant_id,now()),
+    (v_run.id,'m18.02:create_establishment',p_request->>'ownerSubjectKey','create_establishment','completed',v_tenant_id,now()),
+    (v_run.id,'m18.03:assign_capabilities',p_request->>'ownerSubjectKey','assign_capabilities','completed',v_tenant_id,now()),
+    (v_run.id,'m18.04:enqueue_auth_invitation',p_request->>'ownerSubjectKey','enqueue_auth_invitation','completed',v_tenant_id,now()),
+    (v_run.id,'m18.05:finalize_identity',p_request->>'ownerSubjectKey','finalize_identity','planned',v_tenant_id,null),
+    (v_run.id,'m18.06:require_mfa',p_request->>'ownerSubjectKey','require_mfa','planned',v_tenant_id,null);
   insert into public.erp_auth_invitation_outbox(run_id,tenant_id,subject_key,email_ref,payload_hash)values(v_run.id,v_tenant_id,p_request->>'ownerSubjectKey',p_request->>'ownerEmailRef',v_hash)returning id into v_outbox_id;
   return jsonb_build_object('runId',v_run.id,'tenantId',v_tenant_id,'establishmentId',v_establishment_id,'outboxId',v_outbox_id,'replayed',false,'status','awaiting_auth_dispatch');
 end$$;
@@ -129,7 +129,7 @@ begin
   select*into v_outbox from public.erp_auth_invitation_outbox where run_id=p_run_id for update;if not found or v_outbox.auth_user_id is null or v_outbox.status not in('identity_created','sent','compensation_required')then raise exception using errcode='55000',message='compensation unavailable';end if;
   insert into public.erp_auth_identity_compensations(run_id,outbox_id,tenant_id,auth_user_id,reason_hash)values(p_run_id,v_outbox.id,v_outbox.tenant_id,v_outbox.auth_user_id,p_reason_hash)on conflict(outbox_id)do update set reason_hash=excluded.reason_hash returning id into v_id;
   update public.erp_auth_invitation_outbox set status='compensation_required'where id=v_outbox.id;
-  insert into public.erp_identity_provisioning_steps(run_id,step_key,subject_key,action,status,tenant_id,user_id)values(p_run_id,'07:compensate_auth_identity',v_outbox.subject_key,'compensate_auth_identity','planned',v_outbox.tenant_id,v_outbox.auth_user_id)on conflict(run_id,step_key)do nothing;
+  insert into public.erp_identity_provisioning_steps(run_id,step_key,subject_key,action,status,tenant_id,user_id)values(p_run_id,'m18.07:compensate_auth_identity',v_outbox.subject_key,'compensate_auth_identity','planned',v_outbox.tenant_id,v_outbox.auth_user_id)on conflict(run_id,step_key)do nothing;
   return v_id;
 end$$;
 

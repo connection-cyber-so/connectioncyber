@@ -884,6 +884,15 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Inscrição estadual, domínio único, outbox Auth e compensação durável implementados localmente.
 - Quatro RPCs server-only cobrem preparação atômica, registro Auth, finalização e compensação.
 - Preflight read-only, rollback vazio protegido e 72 asserções pgTAP foram preparados.
-- SHA-256: `DDCF72B5B39D8BD407ECB7B928F547DFDF097F254329BAA0711CC1FC4279C715`.
+- SHA-256 original: `DDCF72B5B39D8BD407ECB7B928F547DFDF097F254329BAA0711CC1FC4279C715`; substituído no M18-G17 após remediação.
 - 15/15 testes estáticos, 142/142 da plataforma, 50/50 do contrato, 44/44 do adaptador e build aprovados.
 - Docker local não disponibilizou o engine; PostgreSQL/pgTAP permanecem pendentes. Remoto e produção não foram acessados.
+
+## M18-G17 — auditoria e validação PostgreSQL local da 0034 (01/09/2026)
+
+- Banco local reconstruído integralmente pelas migrations `0001–0034`.
+- Auditoria adversarial encontrou e corrigiu quantidade desigual de valores e `step_key` fora do contrato.
+- 72/72 asserções estruturais e 18/18 adversariais aprovadas em transações com `ROLLBACK`.
+- Replay idempotente, segredo, campo desconhecido, caller autenticado, MFA, capacidades e outbox foram exercitados.
+- Hash final da `0034`: `0551FD5EF16B2BCD3F530EBED65FE1CBFAB0EA3D651899F6EBD5167610F48251`.
+- Zero tenant sintético, outbox ou compensação residual; remoto e produção não acessados.
