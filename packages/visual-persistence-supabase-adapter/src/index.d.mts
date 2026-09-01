@@ -6,3 +6,4 @@ export function createSupabasePersistenceTransport(options:{client:SupabaseLike;
 export const READ_PLANS:Readonly<Record<string,Readonly<Record<string,unknown>>>>;export const RPC_ALLOWLIST:readonly string[];
 export function createSupabaseAggregateReader():((input:{client:SupabaseLike;tenantId:string;scope:'dashboard'|'finance'})=>Promise<Json>);
 export const AGGREGATE_LIMIT:number;
+export function normalizeReadModel(key:string,value:Json,tenantId:string):Json;

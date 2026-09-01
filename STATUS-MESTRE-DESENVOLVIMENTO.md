@@ -822,3 +822,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Transação somente leitura encerrada com `ROLLBACK`; nenhuma RPC de comando ou migration executada.
 - Marcador: `M18_G9_REMOTE_READ_ONLY_PREFLIGHT_OK`.
 - Nenhuma conta, fixture, receipt ou dado criado; produção não acessada.
+
+## M18-G10 — normalização local dos read models persistentes (01/09/2026)
+
+- Read models persistentes foram convertidos para os formatos canônicos consumidos pelas telas.
+- Isolamento por tenant, números inválidos, liquidação excessiva e modelos desconhecidos falham fechado.
+- Dashboard persistente foi alinhado ao formato visual e reconcilia vendas, caixa e recebíveis confirmados.
+- 44/44 testes do adaptador, 50/50 do contrato, 80/80 da plataforma, TypeScript, ESLint e build aprovados.
+- Marcador: `M18_G10_PERSISTENT_READ_MODELS_NORMALIZED_LOCAL_OK`.
+- Nenhum novo acesso remoto; telas continuam no transporte sintético e produção permanece bloqueada.
