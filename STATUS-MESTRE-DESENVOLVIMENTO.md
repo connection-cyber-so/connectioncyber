@@ -24,6 +24,8 @@ Este documento é a fonte operacional do desenvolvimento controlado da Connectio
 
 Os arquivos `STATUS-MESTRE-DESENVOLVIMENTO.md` e `STATUS-MESTRE-DESENVOLVIMENTO.html` devem permanecer equivalentes. A atualização dos dois formatos faz parte da definição de pronto de cada módulo.
 
+A comunicação e a continuidade automática seguem `GOVERNANCA-EXECUCAO-AUTOMATICA.md`: atualizações intermediárias mínimas, documentação técnica integral e intervenção somente em portões que exigem autoridade, credenciais ou decisão do responsável.
+
 ## 2. Regra determinística de desenvolvimento
 
 Nenhum módulo avança automaticamente apenas porque o código foi escrito. A sequência obrigatória é:
@@ -858,3 +860,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Preflight remoto somente leitura retornou `M18_G13_PILOT_PREFLIGHT_OK` e encerrou com `ROLLBACK`.
 - 14/14 testes M18-G13, 107/107 da plataforma, 50/50 do contrato, 44/44 do adaptador, TypeScript, ESLint e build aprovados.
 - Nenhum tenant, usuário, estabelecimento, membership, papel, fixture ou dado real criado; produção não acessada.
+
+## M18-G14 — executor transacional local do piloto (01/09/2026)
+
+- Unidade de trabalho local implementada com rollback integral em seis pontos de falha.
+- Replay idêntico é idempotente; tenant divergente, referência ausente e modo remoto falham fechado.
+- Convite de identidade permanece em outbox pendente e não executável; MFA/AAL2 e owner integram o contrato.
+- Identidades protegidas não são resolvidas ou persistidas; somente referências e fingerprints são usados.
+- 27/27 testes focados, 120/120 da plataforma, TypeScript, ESLint e build aprovados.
+- Supabase, Auth, Vercel e produção não foram acessados; nenhum dado foi criado.
