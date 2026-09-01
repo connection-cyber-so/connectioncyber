@@ -779,3 +779,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 62/62 testes da plataforma, 49/49 do contrato, TypeScript, ESLint e build aprovados.
 - Marcador: `M18_G4_FINANCE_CASH_DASHBOARD_LOCAL_OK`.
 - Nenhum serviço remoto acessado e nenhum dado real criado.
+## M18-G5 — auditoria local independente da jornada visual (31/08/2026)
+
+- Tenant de escrita, replay e identidade do caixa foram auditados e remediados no transporte local.
+- Receipts por request ID, RPC e hash tornam replay idêntico seguro e conflito fail-closed.
+- Guardas de estoque, recebível, cliente e caixa precedem todas as mutações críticas.
+- 12 controles independentes; 74/74 testes da plataforma, 49/49 do contrato, TypeScript, ESLint e build aprovados.
+- Achados críticos/altos residuais no escopo local: zero.
+- Marcador: `M18_G5_LOCAL_INDEPENDENT_AUDIT_OK`.
+- Nenhum serviço remoto acessado e nenhum dado real criado.
