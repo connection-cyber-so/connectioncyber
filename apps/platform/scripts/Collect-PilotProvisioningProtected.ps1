@@ -1,4 +1,5 @@
 $ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Security
 
 function Read-Protected([string]$Prompt) {
     return Read-Host $Prompt -AsSecureString

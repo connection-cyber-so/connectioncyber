@@ -1,4 +1,5 @@
 $ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Security
 
 function Reveal-Cipher([string]$Cipher) {
     $protected = [Convert]::FromBase64String($Cipher)

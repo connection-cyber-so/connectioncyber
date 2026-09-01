@@ -25,3 +25,5 @@ Após a coleta, o validador deve retornar `M18_G20_PROTECTED_CONFIG_OK`. A cria�
 - Nenhum valor foi gravado nessa tentativa.
 - A dependência dos cmdlets do módulo foi removida; a proteção agora usa DPAPI `CurrentUser` diretamente.
 - Parser PowerShell, ASCII, ida e volta DPAPI sintética e 8/8 testes foram aprovados: `M18_G20_DPAPI_REMEDIATION_OK`.
+- Uma segunda execução revelou que `System.Security` não era carregado implicitamente; o assembly agora é carregado explicitamente antes de qualquer prompt.
+- A correção foi comprovada no mesmo `powershell.exe -NoProfile` usado pelo operador: `WINDOWS_POWERSHELL_51_DPAPI_OK`.

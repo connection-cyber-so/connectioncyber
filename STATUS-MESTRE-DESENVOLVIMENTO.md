@@ -924,3 +924,4 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Zero gravações no Supabase e produção não acessada.
 - Estado: aprovado com coleta local protegida pendente; provisionamento efetivo permanece bloqueado.
 - Coletor remediado após falha de autoload do módulo PowerShell.Security; DPAPI direto, parser, ASCII e 8/8 testes aprovados.
+- Assembly `System.Security` carregado explicitamente e ida e volta DPAPI comprovada no Windows PowerShell 5.1: `WINDOWS_POWERSHELL_51_DPAPI_OK`.
