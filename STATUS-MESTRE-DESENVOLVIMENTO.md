@@ -878,3 +878,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Seis bloqueios impedem criação efetiva: RPC atômica, allowlist do ledger, outbox, fronteira Auth/banco, IE e compensação.
 - Marcador `M18_G15_MAPPING_AUDIT_OK`; 7/7 testes focados, 127/127 da plataforma, TypeScript, ESLint e build aprovados.
 - Nenhum serviço remoto acessado e nenhum dado criado; aplicação permanece bloqueada.
+
+## M18-G16 — migration local 0034 (01/09/2026)
+
+- Inscrição estadual, domínio único, outbox Auth e compensação durável implementados localmente.
+- Quatro RPCs server-only cobrem preparação atômica, registro Auth, finalização e compensação.
+- Preflight read-only, rollback vazio protegido e 72 asserções pgTAP foram preparados.
+- SHA-256: `DDCF72B5B39D8BD407ECB7B928F547DFDF097F254329BAA0711CC1FC4279C715`.
+- 15/15 testes estáticos, 142/142 da plataforma, 50/50 do contrato, 44/44 do adaptador e build aprovados.
+- Docker local não disponibilizou o engine; PostgreSQL/pgTAP permanecem pendentes. Remoto e produção não foram acessados.
