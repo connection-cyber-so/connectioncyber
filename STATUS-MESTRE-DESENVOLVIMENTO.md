@@ -905,3 +905,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Marcador remoto: `M18_0034_TRANSACTION_90_OF_90_ROLLBACK`.
 - Histórico remoto permanece em `0033`; a `0034` não foi aplicada persistentemente.
 - Nenhum tenant, usuário, identidade ou dado persistiu; produção não acessada.
+
+## M18-G19 — aplicação persistente da 0034 no staging (01/09/2026)
+
+- Preflight aprovado e somente a migration `0034` foi aplicada persistentemente.
+- 72/72 asserções estruturais e 18/18 adversariais foram repetidas com sucesso.
+- Marcador final: `M18_G19_0034_APPLIED_90_OF_90_ZERO_DATA`.
+- Histórico remoto `0034/0034`; dry-run final sem migrations pendentes.
+- Zero tenant, identidade, membership, outbox, compensação ou run M18 criado.
+- Produção não acessada; criação da empresa-piloto permanece em portão separado.
