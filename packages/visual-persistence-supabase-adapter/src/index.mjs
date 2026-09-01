@@ -23,3 +23,4 @@ export function createSupabasePersistenceTransport({client,aggregateReader}={}){
  });
 }
 export{READ_PLANS,RPC_ALLOWLIST};
+export{createSupabaseAggregateReader,AGGREGATE_LIMIT}from'./aggregates.mjs';

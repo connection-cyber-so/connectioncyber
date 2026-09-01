@@ -797,3 +797,12 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - 17/17 testes do adaptador, 49/49 do contrato, 74/74 da plataforma e build aprovados.
 - Marcador: `M18_G6_SUPABASE_ADAPTER_LOCAL_OK`.
 - Nenhuma tela conectada, nenhum serviço remoto acessado e nenhum dado criado.
+## M18-G7 — agregados e composição persistente server-side (31/08/2026)
+
+- Agregados tenant-scoped de financeiro e dashboard foram implementados com fontes explícitas.
+- Janela de 5.000 registros falha fechado para impedir totais parciais ou truncados.
+- Fábrica server-side compõe broker, adaptador, agregador e resolvedor de tenant por injeção.
+- As telas continuam no transporte sintético; ativação remota permanece bloqueada.
+- 23/23 testes do adaptador, 80/80 da plataforma, 49/49 do contrato, TypeScript, ESLint e build aprovados.
+- Marcador: `M18_G7_PERSISTENT_COMPOSITION_LOCAL_OK`.
+- Nenhum serviço remoto acessado e nenhum dado criado.
