@@ -37,7 +37,7 @@
 <main>
   <header>
     <h1>ConnectionCyber — Status Mestre de Desenvolvimento</h1>
-  <div class="meta"><strong>Documento vivo e obrigatório</strong><span>Ambiente: staging</span><span>Atualizado: 19/08/2026</span><span>Versão: 2.3.1</span><span>Produção alterada: não</span></div>
+  <div class="meta"><strong>Documento vivo e obrigatório</strong><span>Ambiente: staging</span><span>Atualizado: 02/09/2026</span><span>Versão: 2.3.1</span><span>Produção alterada: não</span></div>
     <div class="notice">Os arquivos Markdown e HTML deste status devem permanecer equivalentes e ser atualizados no mesmo commit de cada módulo validado.</div>
   </header>
 
@@ -430,6 +430,12 @@
     <h2>M18-G21 — provisionamento do piloto no staging</h2>
     <p><strong>Aprovado em 01/09/2026.</strong> Tenant, estabelecimento, usuário Auth, membership owner e convite foram criados exclusivamente no staging.</p>
     <p>Run concluído, outbox enviada, MFA/AAL2 obrigatório e zero compensações. Segredos permaneceram somente em memória; produção não foi acessada.</p>
+  </section>
+  <section>
+    <h2>Documentação — CLAUDE.md e AGENTS.md</h2>
+    <p><strong>Aprovado em 02/09/2026.</strong> <code>CLAUDE.md</code>/<code>AGENTS.md</code> reescritos com a arquitetura real do repositório para orientar agentes de IA.</p>
+    <p>Cobrem identidade do clone (<code>staging</code>, sem <code>docs/</code>), governança de execução automática, comandos por app/pacote (sem workspace raiz, pin Node 22), os três apps Next.js e seus modelos de acesso, o padrão de módulo de <code>apps/platform/src/features</code>, os pacotes de contrato em <code>packages/*</code> e a governança de migrations do Supabase. A regra ADHD-Friendly Output foi preservada integralmente no topo de ambos os arquivos; <code>AGENTS.md</code> é uma cópia idêntica de <code>CLAUDE.md</code>.</p>
+    <p>Commit <code>be30281</code> na branch <code>staging</code>, publicado em <code>origin/staging</code> (<code>dcf647b..be30281</code>). Nenhum código de aplicação, schema, migration ou dado alterado; apenas documentação.</p>
   </section>
 </body>
 </html>

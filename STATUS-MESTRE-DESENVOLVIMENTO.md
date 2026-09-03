@@ -4,7 +4,7 @@
 
 **Ambiente de trabalho:** staging
 
-**Atualizado em:** 19/08/2026
+**Atualizado em:** 02/09/2026
 
 **Versão do documento:** 2.3.1
 
@@ -935,3 +935,18 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
 - Executor fail-closed aprovado com 11/11 testes; testes da plataforma, TypeScript, ESLint e build aprovados.
 - Valores protegidos e chave service role permaneceram somente em memória; produção não acessada.
 - Estado: `M18-G21 APROVADO`.
+
+## Documentação — CLAUDE.md e AGENTS.md (02/09/2026)
+
+- `CLAUDE.md`/`AGENTS.md` reescritos com a arquitetura real do repositório para orientar
+  agentes de IA: identidade do clone (`staging`, sem `docs/`), governança de execução
+  automática, comandos por app/pacote (sem workspace raiz, pin Node 22), os três apps Next.js
+  e seus modelos de acesso, o padrão de módulo de `apps/platform/src/features`, os pacotes de
+  contrato em `packages/*` e a governança de migrations do Supabase (preflight/tests/rollback/
+  verification/validation).
+- Regra ADHD-Friendly Output preservada integralmente no topo de ambos os arquivos.
+- `AGENTS.md` sincronizado como cópia idêntica de `CLAUDE.md`.
+- Commit `be30281` na branch `staging`, publicado em `origin/staging`
+  (`dcf647b..be30281`).
+- Nenhum código de aplicação, schema, migration ou dado alterado; apenas documentação.
+- Estado: aprovado.
