@@ -354,7 +354,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M16 | Capacidades por tenant e industrialização multiempresa | G0–G8 concluídos em staging | Contrato canônico de capacidades, motor fail-closed, migration 0032, painel administrativo e simulador de ondas | 0032 aplicada e validada em staging; ativação de capacidade por tenant real depende do piloto. |
 | M17 | Jornada persistente server-side | G0–G12 concluídos em staging | Autorização server-side, cadastro/catálogo/estoque/PDV/caixa/financeiro com repositório local, migration 0033 | 0033 aplicada e validada em staging; backend persistente pronto, consumido pelo M18. |
 | M18 | Persistência visual e piloto Mania de Modas | G0–G21 concluídos em staging; **G22 pendente de ação externa** | Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034, provisionamento do tenant piloto (Mania de Modas) | 0034 aplicada; tenant/estabelecimento/membership/convite criados em staging (`M18_G21_PROVISIONING_OK`). G22 trava em interação humana: usuário-piloto precisa aceitar o convite e cadastrar MFA antes da primeira jornada visual real. |
-| M19 | Redesign visual + roteamento de login | G0–G3 concluídos; **G4/G5 em andamento** | Tema global/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), UI de branding + roteamento de login por papel (G4/G5) | Programa autorizado a rodar sem check-in por gate. G3 aplicado em staging; G4 (engrenagem no portal) e G5 (seletor de login em 3 caminhos, sem lookup de e-mail pré-login) desenhados e aprovados, implementação em curso. |
+| M19 | Redesign visual + roteamento de login | **G0–G5 concluídos** | Tema global/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), engrenagem de branding no portal (G4), roteamento de login por papel sem lookup de e-mail (G5) | Programa concluído. `platform` 165/165, `portal` 75/75, `site` 19/19; type-check/lint/build limpos nos 3. Uma migration nova (0035), aplicada em staging com preflight+dry-run+push. |
 
 ## 8. Critérios globais de validação
 
@@ -389,18 +389,17 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M19-G4/G5 — UI de branding no portal + roteamento de login (em andamento)
+### M19 — concluído (G0–G5)
 
-Plano aprovado pelo usuário em 02-03/09/2026 (`C:\Users\joaqu\.claude\plans\keen-growing-cookie.md`,
-fora do repositório). G4: engrenagem de configuração de identidade visual por tenant no
-`apps/portal` (formulário server-rendered, RLS/RPC da migration `0035` como fronteira real).
-G5: `apps/site` `/login` vira seletor de 3 caminhos (aluno/academy, equipe — texto sem link,
-preservando "sem link público" do `apps/platform` — e empresa com portal próprio via slug/
-hostname, sem lookup de e-mail pré-login). Nenhuma migration nova nesta gate.
+Plano executado conforme aprovado pelo usuário em 02-03/09/2026
+(`C:\Users\joaqu\.claude\plans\keen-growing-cookie.md`, fora do repositório). Sem próxima ação
+pendente neste programa — eventual redesign bespoke por tela individual do `apps/platform`
+(fora de escopo do G2) ou upload de logo via Storage (fora de escopo do G4) ficam para um
+portão futuro, só se solicitados.
 
 ### M18-G22 — ativação controlada do acesso do usuário-piloto (bloqueado, ação externa)
 
-Paralelo e independente do M19 — não trava nem depende do M19.
+Único portão pendente no momento — independente do M19, que está concluído.
 
 Definido em `RELATORIO-M18-G21-PROVISIONAMENTO-PILOTO-STAGING.md` como próximo portão após o
 provisionamento do tenant Mania de Modas (`M18_G21_PROVISIONING_OK`). **Bloqueado em ação
@@ -1129,3 +1128,30 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
   ausência de `service_role` em toda a feature), type-check, lint e build limpos.
 - Nenhuma migration nova; nenhum dado remoto alterado além do que o próprio usuário salvar
   pela tela (ninguém salvou nada ainda — feature nova, staging sem uso real até aqui).
+
+## M19-G5 — roteamento de login por papel, sem lookup de e-mail (03/09/2026)
+
+- `apps/site` `/login` virou seletor de 3 caminhos, mantendo o form de aluno original como um
+  deles (só trocando o redirect cru da query string pelo novo `safeSiteRedirect`, fechando um
+  gap de open-redirect que já existia): **aluno/academy** (autentica ali mesmo, inalterado
+  além do fix), **equipe ConnectionCyber** (endereço do `platform.connectioncyber.com.br` como
+  texto simples, **não** link clicável — decisão confirmada com o usuário, preserva a postura
+  documentada de "sem link público" do painel interno), **empresa com portal próprio** (campo
+  de slug/hostname, navega pro portal da empresa onde a autenticação real acontece).
+- **Desenho rejeitado, registrado por completude**: um endpoint público resolvendo "a qual
+  tenant esse e-mail pertence" antes de qualquer login. Seria um oráculo novo de enumeração de
+  conta e o primeiro uso de `service_role` pré-autenticação em `apps/site` fora de webhook de
+  pagamento — sem reduzir esforço real de quem já sabe se é aluno/equipe/empresa. **Nenhuma
+  migration nova nem endpoint novo foi criado** para este gate.
+- `buildCompanyPortalLoginUrl` é 100% client-side, zero chamada de rede — só monta a URL
+  (slug vira `<slug>.connectioncyber.com.br`, ou aceita hostname completo já com ponto) e
+  navega; a existência real do tenant continua resolvida só no destino
+  (`classifyPortalHostname`+`portal_resolve_host` de `apps/portal`, sem mudança).
+- `apps/site`: 19/19 testes (10 novos: 2 de `safeSiteRedirect`, 3 de `buildCompanyPortalLoginUrl`
+  — funções puras, `assert.equal` de verdade — e 5 de asserção textual confirmando os 3
+  caminhos presentes, card da equipe sem link clicável, caminho da empresa sem `fetch(`, e
+  ausência de endpoint/`service_role` novo, travando contra volta silenciosa pro desenho
+  rejeitado), type-check, lint e build limpos. `platform` 165/165 sem regressão (não foi
+  tocado nesta gate).
+- Fecha o M19 (Fases 1–4 completas: tema/dark mode, redesign do painel, branding por tenant,
+  roteamento de login).

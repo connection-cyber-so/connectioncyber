@@ -128,7 +128,7 @@
     <tr><td>M16</td><td>Capacidades por tenant / industrialização multiempresa</td><td>G0–G8 concluídos em staging</td><td>Contrato canônico de capacidades, motor fail-closed, migration 0032, painel administrativo e simulador de ondas</td><td>0032 aplicada e validada em staging; ativação real por tenant depende do piloto.</td></tr>
     <tr><td>M17</td><td>Jornada persistente server-side</td><td>G0–G12 concluídos em staging</td><td>Autorização server-side, cadastro/catálogo/estoque/PDV/caixa/financeiro com repositório local, migration 0033</td><td>0033 aplicada e validada em staging; backend persistente pronto, consumido pelo M18.</td></tr>
     <tr><td>M18</td><td>Persistência visual e piloto Mania de Modas</td><td>G0–G21 concluídos em staging; <strong>G22 pendente de ação externa</strong></td><td>Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034, provisionamento do tenant piloto</td><td>0034 aplicada; tenant/estabelecimento/membership/convite criados (<code>M18_G21_PROVISIONING_OK</code>). G22 trava em interação humana: usuário-piloto aceitar convite e cadastrar MFA.</td></tr>
-    <tr><td>M19</td><td>Redesign visual + roteamento de login</td><td>G0–G3 concluídos; <strong>G4/G5 em andamento</strong></td><td>Tema/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), UI de branding + roteamento de login (G4/G5)</td><td>Programa autorizado a rodar sem check-in por gate. G3 aplicado em staging; G4/G5 desenhados e aprovados, implementação em curso.</td></tr>
+    <tr><td>M19</td><td>Redesign visual + roteamento de login</td><td><strong>G0–G5 concluídos</strong></td><td>Tema/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), engrenagem de branding (G4), roteamento de login (G5)</td><td>Programa concluído. platform 165/165, portal 75/75, site 19/19; type-check/lint/build limpos. Uma migration nova (0035) aplicada em staging.</td></tr>
   </tbody></table></div>
 
   <h2>8. Critérios globais</h2>
@@ -137,9 +137,9 @@
   <h2>9. Processo por cliente</h2>
   <ol><li>Preservar backup original.</li><li>Calcular hash.</li><li>Restaurar cópia isolada.</li><li>Inventariar schema e integridade.</li><li>Extrair em área protegida.</li><li>Transformar com tenant no servidor.</li><li>Carregar por job idempotente.</li><li>Reconciliar entidades e saldos.</li><li>Obter aceite.</li><li>Cortar com rollback.</li><li>Repetir individualmente.</li></ol>
 
-  <h2>10. Próxima ação — M19-G4/G5 branding + roteamento de login</h2>
-  <p>Plano aprovado pelo usuário em 02-03/09/2026. G4: engrenagem de identidade visual por tenant no <code>apps/portal</code> (RLS/RPC da <code>0035</code> como fronteira real). G5: <code>apps/site</code> <code>/login</code> vira seletor de 3 caminhos (aluno/academy, equipe — texto sem link, empresa via slug/hostname), sem lookup de e-mail pré-login. Nenhuma migration nova.</p>
-  <h2>M18-G22 ativação do usuário-piloto (bloqueado, ação externa, paralelo ao M19)</h2>
+  <h2>10. Próxima ação — M19 concluído (G0–G5)</h2>
+  <p>Plano executado conforme aprovado pelo usuário em 02-03/09/2026. Sem próxima ação pendente neste programa — redesign bespoke por tela individual do painel e upload de logo via Storage ficam pra um portão futuro, só se solicitados.</p>
+  <h2>M18-G22 ativação do usuário-piloto (único portão pendente, bloqueado em ação externa)</h2>
   <p>Definido em <code>RELATORIO-M18-G21-PROVISIONAMENTO-PILOTO-STAGING.md</code> como próximo portão após o provisionamento do tenant Mania de Modas. <strong>Bloqueado em ação externa</strong> — exige interação do usuário convidado, não é automatizável.</p>
   <ol><li>Confirmar que o convite Auth foi entregue e segue pendente de aceite.</li><li>Usuário-piloto aceita o convite e conclui o cadastro de senha.</li><li>Usuário-piloto cadastra MFA (obrigatório para <code>owner</code>; sessão exige AAL2).</li><li>Validar login real com AAL2 e acesso restrito ao próprio tenant.</li><li>Executar a primeira jornada visual (leitura) com a sessão real, ainda somente em staging.</li></ol>
   <p>Importação de backup real, dados fiscais, domínio público, pagamentos e produção permanecem em portões separados e bloqueados.</p>
@@ -484,6 +484,12 @@
     <p><strong>Aprovado em 03/09/2026.</strong> Nova tela <code>/configuracoes/aparencia</code>: cor e logo do tenant, mesmo idioma 100% servidor + formulário sem JS já usado no app. Escrita real só pela RPC <code>erp_set_tenant_branding</code>; tenant sempre vem da sessão, nunca de input do formulário.</p>
     <p><code>lib/branding.ts</code> recalcula a checagem de permissão só pra decidir se a engrenagem aparece — a fronteira de segurança continua sendo a RLS/RPC do banco. Leitura falha aberto (cosmético); escrita falha fechado (RPC). Cor do tenant sobrepõe <code>--orange</code>/<code>--orange-alt</code> via <code>&lt;style&gt;</code> injetado, revalidado no servidor.</p>
     <p><code>portal</code> 75/75 testes (16 novos), type-check, lint e build limpos. Nenhuma migration nova.</p>
+  </section>
+  <section>
+    <h2>M19-G5 — roteamento de login por papel, sem lookup de e-mail</h2>
+    <p><strong>Aprovado em 03/09/2026.</strong> <code>apps/site</code> <code>/login</code> virou seletor de 3 caminhos: aluno/academy (autentica ali, redirect agora validado por allowlist), equipe (endereço do platform como texto, não link — preserva "sem link público"), empresa (slug/hostname, navega pro portal próprio onde a autenticação real acontece).</p>
+    <p>Desenho rejeitado por completude: endpoint público resolvendo tenant por e-mail pré-login — oráculo de enumeração de conta, primeiro uso de <code>service_role</code> pré-auth em <code>apps/site</code> fora de webhook. Nenhuma migration ou endpoint novo criado. <code>buildCompanyPortalLoginUrl</code> é 100% client-side, zero rede.</p>
+    <p><code>site</code> 19/19 testes (10 novos), type-check, lint e build limpos. <code>platform</code> 165/165 sem regressão. Fecha o M19 (Fases 1–4 completas).</p>
   </section>
 </body>
 </html>
