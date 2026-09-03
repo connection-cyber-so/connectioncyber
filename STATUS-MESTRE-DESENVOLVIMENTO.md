@@ -1038,3 +1038,30 @@ sessão cruzando domínio sem autenticação própria no destino.
   especificidade do CSS); suítes completas: `platform` 165/165, `portal` 60/60, `site` 9/9;
   type-check, lint e build limpos nos 3.
 - Nenhuma migration, dado remoto ou sessão alterada — mudança é só client-side/CSS.
+
+## M19-G2 — redesign do painel (02/09/2026)
+
+Escopo real desta gate: **shell compartilhado** (topbar, sidebar, sistema de cards/grid) e a
+**home do dashboard**, no padrão visual de `apps/portal` `/demo` (cards de KPI limpos,
+saudação, menos borda pesada). Como as ~19 telas de módulo reusam essas mesmas classes CSS
+(`pf-content-card`, `pf-button`, `pf-page-header`...), o visual novo já propaga pra todas —
+redesenho bespoke do conteúdo interno de cada tela individual **não** foi feito nesta gate
+(ficaria em portões futuros se o padrão atual não for suficiente).
+
+- `.pf-content-card`: borda de 1.5px laranja em volta de tudo (decisão de 2026-08-15) trocada
+  por borda neutra de 1px + sombra — menos ruído com o menu já agrupado em seções (M19-G1).
+- `.pf-sidebar-link`: caixa com borda em cada um dos ~20 itens virou link plano; item ativo
+  ganha barra lateral laranja de 3px em vez da caixa inteira colorida.
+- Novo `.pf-stat-card`/`.pf-grid-3`: cards de KPI com número em destaque e tira laranja só no
+  topo. `.pf-grid-3` **não existia** em CSS antes — a home referenciava a classe no
+  `page.tsx` sem ela estar definida; os 6 cards caíam empilhados, sem grade nenhuma. Corrigido.
+- Topbar ganhou avatar circular (inicial do e-mail) ao lado do texto de sessão.
+- Dashboard (`(painel)/page.tsx`) ganhou saudação amigável. Tentativa inicial de personalizar
+  com o nome do usuário violava a regra do M18-G11 (telas de módulo não podem importar Supabase
+  direto — só o seletor fail-closed `features/persistence/selected` pode); corrigido para
+  saudação genérica, sem tocar Supabase nesta tela.
+- Todos os tokens de cor já vêm de `--cc-*` (herdados do M19-G1), então dark mode funciona
+  automaticamente no shell novo sem CSS adicional.
+- `platform` 165/165 (mais o teste que capturou a violação do M18-G11 antes do commit),
+  type-check, lint e build limpos.
+- Nenhuma migration, dado remoto ou sessão alterada — mudança é CSS/TSX client+server local.

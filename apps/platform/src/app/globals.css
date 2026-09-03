@@ -29,9 +29,10 @@ a {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
-  padding: 12px 24px;
+  padding: 14px 24px;
   border-bottom: 1px solid var(--cc-border);
   background: var(--cc-bg);
+  box-shadow: var(--cc-shadow-sm);
 }
 
 .pf-brand {
@@ -101,6 +102,29 @@ a {
   color: var(--cc-text);
 }
 
+/* M19-G2 — avatar circular com a inicial do e-mail, ao lado do texto de
+   sessão. Sem foto de perfil no modelo de dados hoje; a inicial é
+   determinística e não depende de nenhum campo novo. */
+.pf-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--cc-primary);
+  color: var(--cc-white);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.pf-topbar-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 /* ---- corpo do painel: menu lateral + conteúdo ---- */
 
 .pf-painel {
@@ -143,20 +167,31 @@ a {
   padding: 0 2px;
 }
 
+/* M19-G2 — item de menu limpo: caixa com borda de 1.5px em cada um dos ~20
+   links (padrão de 2026-08-15) ficava pesado/repetitivo com o menu agrupado
+   em seções (M19-G1). Trocado por link plano com barra de destaque lateral
+   no item ativo — mesma cor de marca (laranja), menos ruído visual. */
 .pf-sidebar-link {
   display: block;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-radius: var(--cc-radius-sm);
-  border: 1.5px solid var(--cc-orange);
-  background: var(--cc-bg);
-  color: var(--cc-text);
-  font-size: 0.88rem;
+  border: 1px solid transparent;
+  border-left: 3px solid transparent;
+  background: transparent;
+  color: var(--cc-text-muted);
+  font-size: 0.86rem;
   font-weight: 600;
   text-decoration: none;
 }
 
+.pf-sidebar-link:hover {
+  background: var(--cc-bg-alt);
+  color: var(--cc-text);
+}
+
 .pf-sidebar-link.active {
   background: var(--cc-bg-alt);
+  border-left-color: var(--cc-orange);
   color: var(--cc-primary);
 }
 
@@ -326,7 +361,7 @@ a {
 
 .pf-content-card {
   background: var(--cc-bg);
-  border: 1.5px solid var(--cc-orange);
+  border: 1px solid var(--cc-border);
   border-radius: var(--cc-radius-md);
   box-shadow: var(--cc-shadow-sm);
   padding: 24px;
@@ -343,6 +378,61 @@ a {
   .pf-grid-2 {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+/* M19-G2 — grid de cards de KPI (usado no dashboard). Existia referência a
+   .pf-grid-3 em (painel)/page.tsx sem a classe definida — cards caíam sem
+   layout de grade nenhum, só empilhados. */
+.pf-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .pf-grid-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 980px) {
+  .pf-grid-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* Card de estatística (KPI) — número grande em destaque, rótulo e contexto
+   discretos abaixo, tira laranja fina só no topo (marca sem repetir borda
+   em toda a volta do card, como no padrão antigo). */
+.pf-stat-card {
+  background: var(--cc-bg);
+  border: 1px solid var(--cc-border);
+  border-top: 3px solid var(--cc-orange);
+  border-radius: var(--cc-radius-md);
+  box-shadow: var(--cc-shadow-sm);
+  padding: 18px 20px;
+}
+
+.pf-stat-card h2 {
+  margin: 0 0 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cc-text-muted);
+}
+
+.pf-stat-card strong {
+  display: block;
+  font-size: 1.6rem;
+  line-height: 1.15;
+  color: var(--cc-text);
+}
+
+.pf-stat-card p {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  color: var(--cc-text-muted);
 }
 
 .pf-empty {

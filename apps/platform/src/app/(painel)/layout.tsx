@@ -65,11 +65,16 @@ export default async function PainelLayout({ children }: { children: React.React
         </Link>
 
         <div className="pf-topbar-right">
-          <div className="pf-welcome">
-            <div className="pf-welcome-eyebrow">Painel interno · Bem-vindo</div>
-            <div className="pf-welcome-session">
-              Sessão ativa como <strong>{user?.email}</strong>
+          <div className="pf-topbar-identity">
+            <div className="pf-welcome">
+              <div className="pf-welcome-eyebrow">Painel interno · Bem-vindo</div>
+              <div className="pf-welcome-session">
+                Sessão ativa como <strong>{user?.email}</strong>
+              </div>
             </div>
+            <span className="pf-avatar" aria-hidden="true">
+              {(user?.email ?? '?').charAt(0).toUpperCase()}
+            </span>
           </div>
           <ThemeToggle />
           <LogoutButton />

@@ -464,5 +464,11 @@
     <p>Alternador manual claro/escuro (<code>ThemeToggle</code> por app, <code>localStorage['cc-theme']</code>, sem tocar Supabase/sessão/tenant) sempre vence a preferência do sistema; script inline no <code>&lt;head&gt;</code> de cada app evita flash.</p>
     <p><code>platform</code> 165/165, <code>portal</code> 60/60, <code>site</code> 9/9; type-check, lint e build limpos nos 3. Nenhuma migration ou dado remoto alterado.</p>
   </section>
+  <section>
+    <h2>M19-G2 — redesign do painel</h2>
+    <p><strong>Aprovado em 02/09/2026.</strong> Escopo real: shell compartilhado (topbar, sidebar, cards/grid) e a home do dashboard, no padrão de <code>apps/portal</code> <code>/demo</code>. Como as ~19 telas de módulo reusam as mesmas classes CSS, o visual novo propaga pra todas; redesenho bespoke do conteúdo interno de cada tela não foi feito nesta gate.</p>
+    <p>Borda de 1.5px laranja em cada card/link virou borda neutra + sombra, com acento laranja só no topo dos cards de KPI e na barra lateral do item ativo do menu. <code>.pf-grid-3</code> não existia em CSS — corrigido (os 6 cards da home caíam sem grade). Topbar ganhou avatar circular.</p>
+    <p>Saudação da home ficou genérica (sem nome): personalizá-la exigiria a tela importar Supabase direto, o que viola a regra do M18-G11 (só o seletor fail-closed pode). <code>platform</code> 165/165, type-check, lint e build limpos. Nenhuma migration ou dado remoto alterado.</p>
+  </section>
 </body>
 </html>
