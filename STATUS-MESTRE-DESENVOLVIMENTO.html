@@ -444,5 +444,11 @@
     <p>Causa 2: <code>nfe_v4.00.xsd</code> e <code>xmldsig-core-schema_v1.01.xsd</code> em <code>packages/fiscal-contract</code> sofreram drift de line-ending (CRLF local via <code>core.autocrlf</code>), divergindo do hash SHA-256 oficial em <code>schema-manifest.json</code>. Bytes restaurados a partir do <code>PL_010e_v1.02.zip</code> oficial; <code>.gitattributes</code> criado para impedir recorrência.</p>
     <p>Local: <code>platform</code> 161/161 + build limpo sem env vars; <code>fiscal-contract</code> 234/234; type-check e lint limpos. Remoto: commit <code>bba6f34</code>, run <code>33714605809</code> concluído <code>success</code> nos 8 jobs. Nenhuma migration ou dado alterado.</p>
   </section>
+  <section>
+    <h2>Validação — apps/portal e apps/site local</h2>
+    <p><strong>Confirmado em 02/09/2026.</strong> Fecha a paridade local com os 8/8 jobs remotos do run <code>33714605809</code>.</p>
+    <p><code>apps/portal</code>: 56/56 testes, type-check limpo, lint limpo, build limpo (8/8 rotas). <code>apps/site</code>: 5/5 testes, lint limpo, build limpo (14/14 rotas); primeiro type-check acusou erro em <code>.next/types/routes.d.ts</code> gerado por cache local desatualizado — limpo e reexecutado sem erro.</p>
+    <p>Nenhum arquivo de código alterado; validação apenas confirma estado.</p>
+  </section>
 </body>
 </html>

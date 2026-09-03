@@ -977,3 +977,13 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
   `critical-contracts` × fiscal-contract/device-protocol/import-contract/pilot-journey).
 - Nenhuma migration, schema de banco ou dado alterado; escopo é código de aplicação e
   arquivo de schema oficial restaurado ao original. Estado: aprovado.
+
+## Validação — apps/portal e apps/site local (02/09/2026)
+
+- Confirmação local dos três apps após o fix de CI, fechando a paridade com os 8/8 jobs
+  remotos do run `33714605809`.
+- `apps/portal`: 56/56 testes, `type-check` limpo, `lint` limpo, `build` limpo (8/8 rotas).
+- `apps/site`: 5/5 testes, `lint` limpo, `build` limpo (14/14 rotas). Primeiro `type-check`
+  acusou erro em `.next/types/routes.d.ts` — arquivo gerado, não código-fonte; causado por
+  cache `.next` local desatualizado. Limpo e reexecutado: sem erro.
+- Nenhum arquivo de código alterado nesta validação — só confirmação de estado.
