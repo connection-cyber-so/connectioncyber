@@ -354,6 +354,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M16 | Capacidades por tenant e industrialização multiempresa | G0–G8 concluídos em staging | Contrato canônico de capacidades, motor fail-closed, migration 0032, painel administrativo e simulador de ondas | 0032 aplicada e validada em staging; ativação de capacidade por tenant real depende do piloto. |
 | M17 | Jornada persistente server-side | G0–G12 concluídos em staging | Autorização server-side, cadastro/catálogo/estoque/PDV/caixa/financeiro com repositório local, migration 0033 | 0033 aplicada e validada em staging; backend persistente pronto, consumido pelo M18. |
 | M18 | Persistência visual e piloto Mania de Modas | G0–G21 concluídos em staging; **G22 pendente de ação externa** | Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034, provisionamento do tenant piloto (Mania de Modas) | 0034 aplicada; tenant/estabelecimento/membership/convite criados em staging (`M18_G21_PROVISIONING_OK`). G22 trava em interação humana: usuário-piloto precisa aceitar o convite e cadastrar MFA antes da primeira jornada visual real. |
+| M19 | Redesign visual + roteamento de login | G0–G3 concluídos; **G4/G5 em andamento** | Tema global/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), UI de branding + roteamento de login por papel (G4/G5) | Programa autorizado a rodar sem check-in por gate. G3 aplicado em staging; G4 (engrenagem no portal) e G5 (seletor de login em 3 caminhos, sem lookup de e-mail pré-login) desenhados e aprovados, implementação em curso. |
 
 ## 8. Critérios globais de validação
 
@@ -388,7 +389,18 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M18-G22 — ativação controlada do acesso do usuário-piloto
+### M19-G4/G5 — UI de branding no portal + roteamento de login (em andamento)
+
+Plano aprovado pelo usuário em 02-03/09/2026 (`C:\Users\joaqu\.claude\plans\keen-growing-cookie.md`,
+fora do repositório). G4: engrenagem de configuração de identidade visual por tenant no
+`apps/portal` (formulário server-rendered, RLS/RPC da migration `0035` como fronteira real).
+G5: `apps/site` `/login` vira seletor de 3 caminhos (aluno/academy, equipe — texto sem link,
+preservando "sem link público" do `apps/platform` — e empresa com portal próprio via slug/
+hostname, sem lookup de e-mail pré-login). Nenhuma migration nova nesta gate.
+
+### M18-G22 — ativação controlada do acesso do usuário-piloto (bloqueado, ação externa)
+
+Paralelo e independente do M19 — não trava nem depende do M19.
 
 Definido em `RELATORIO-M18-G21-PROVISIONAMENTO-PILOTO-STAGING.md` como próximo portão após o
 provisionamento do tenant Mania de Modas (`M18_G21_PROVISIONING_OK`). **Bloqueado em ação
@@ -1065,3 +1077,28 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
 - `platform` 165/165 (mais o teste que capturou a violação do M18-G11 antes do commit),
   type-check, lint e build limpos.
 - Nenhuma migration, dado remoto ou sessão alterada — mudança é CSS/TSX client+server local.
+
+## M19-G3 — branding por tenant, migration aplicada em staging (02/09/2026)
+
+- Nova tabela `public.erp_tenant_branding` (tenant_id PK, `primary_color`/`logo_url`
+  opcionais, formato validado por `check`), RLS (`select`: membro do tenant ou equipe;
+  `insert`/`update`: permissão `branding.manage` ou equipe) e RPC
+  `public.erp_set_tenant_branding` — `security invoker`, RLS na tabela é a fronteira real
+  (mesmo padrão de `erp_create_party`/0021, não o broker `service_role`-only usado em
+  operações só de equipe).
+- Permissão `branding.manage` inserida no catálogo e retroaplicada (`erp_role_permissions`)
+  aos papéis `owner`/`admin` dos tenants já provisionados (ConnectionCyber, Mania de Modas);
+  provisionamento futuro já herda automaticamente via `erp_finalize_pilot_identity_v1` (0034).
+- 16 testes pgTAP (positivo + negativo): escrita cross-tenant bloqueada pela RLS, escrita sem
+  `branding.manage` bloqueada, cor/URL fora do formato recusadas pela função, leitura isolada
+  por tenant, `updated_by` reflete a sessão real.
+- Suíte local completa (20 arquivos, `0001`–`0035`) rodada no Postgres local via Docker:
+  zero falhas, zero regressão.
+- Preflight remoto: `M19_0035_PREFLIGHT_OK`. Dry-run transacional remoto (migration + 16
+  testes reais dentro de uma transação terminada em `ROLLBACK`, mesmo mecanismo de
+  `build-0033-transaction.mjs`): `M19_0035_TRANSACTION_16_OF_16_ROLLBACK`, zero resíduo
+  confirmado (tabela e permissão ausentes após o rollback).
+- **Aplicação persistente confirmada** via `npx supabase db push --linked` (autorizado pelo
+  usuário) — histórico remoto `0001–0035` alinhado. UI que consome esta migration (engrenagem
+  de configuração no portal) é a Fase 3 restante, ainda não implementada.
+- Produção não acessada; nenhum dado de cliente criado.

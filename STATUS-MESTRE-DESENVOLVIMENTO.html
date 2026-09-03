@@ -128,6 +128,7 @@
     <tr><td>M16</td><td>Capacidades por tenant / industrialização multiempresa</td><td>G0–G8 concluídos em staging</td><td>Contrato canônico de capacidades, motor fail-closed, migration 0032, painel administrativo e simulador de ondas</td><td>0032 aplicada e validada em staging; ativação real por tenant depende do piloto.</td></tr>
     <tr><td>M17</td><td>Jornada persistente server-side</td><td>G0–G12 concluídos em staging</td><td>Autorização server-side, cadastro/catálogo/estoque/PDV/caixa/financeiro com repositório local, migration 0033</td><td>0033 aplicada e validada em staging; backend persistente pronto, consumido pelo M18.</td></tr>
     <tr><td>M18</td><td>Persistência visual e piloto Mania de Modas</td><td>G0–G21 concluídos em staging; <strong>G22 pendente de ação externa</strong></td><td>Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034, provisionamento do tenant piloto</td><td>0034 aplicada; tenant/estabelecimento/membership/convite criados (<code>M18_G21_PROVISIONING_OK</code>). G22 trava em interação humana: usuário-piloto aceitar convite e cadastrar MFA.</td></tr>
+    <tr><td>M19</td><td>Redesign visual + roteamento de login</td><td>G0–G3 concluídos; <strong>G4/G5 em andamento</strong></td><td>Tema/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), UI de branding + roteamento de login (G4/G5)</td><td>Programa autorizado a rodar sem check-in por gate. G3 aplicado em staging; G4/G5 desenhados e aprovados, implementação em curso.</td></tr>
   </tbody></table></div>
 
   <h2>8. Critérios globais</h2>
@@ -136,7 +137,9 @@
   <h2>9. Processo por cliente</h2>
   <ol><li>Preservar backup original.</li><li>Calcular hash.</li><li>Restaurar cópia isolada.</li><li>Inventariar schema e integridade.</li><li>Extrair em área protegida.</li><li>Transformar com tenant no servidor.</li><li>Carregar por job idempotente.</li><li>Reconciliar entidades e saldos.</li><li>Obter aceite.</li><li>Cortar com rollback.</li><li>Repetir individualmente.</li></ol>
 
-  <h2>10. Próxima ação — M18-G22 ativação do usuário-piloto</h2>
+  <h2>10. Próxima ação — M19-G4/G5 branding + roteamento de login</h2>
+  <p>Plano aprovado pelo usuário em 02-03/09/2026. G4: engrenagem de identidade visual por tenant no <code>apps/portal</code> (RLS/RPC da <code>0035</code> como fronteira real). G5: <code>apps/site</code> <code>/login</code> vira seletor de 3 caminhos (aluno/academy, equipe — texto sem link, empresa via slug/hostname), sem lookup de e-mail pré-login. Nenhuma migration nova.</p>
+  <h2>M18-G22 ativação do usuário-piloto (bloqueado, ação externa, paralelo ao M19)</h2>
   <p>Definido em <code>RELATORIO-M18-G21-PROVISIONAMENTO-PILOTO-STAGING.md</code> como próximo portão após o provisionamento do tenant Mania de Modas. <strong>Bloqueado em ação externa</strong> — exige interação do usuário convidado, não é automatizável.</p>
   <ol><li>Confirmar que o convite Auth foi entregue e segue pendente de aceite.</li><li>Usuário-piloto aceita o convite e conclui o cadastro de senha.</li><li>Usuário-piloto cadastra MFA (obrigatório para <code>owner</code>; sessão exige AAL2).</li><li>Validar login real com AAL2 e acesso restrito ao próprio tenant.</li><li>Executar a primeira jornada visual (leitura) com a sessão real, ainda somente em staging.</li></ol>
   <p>Importação de backup real, dados fiscais, domínio público, pagamentos e produção permanecem em portões separados e bloqueados.</p>
@@ -469,6 +472,12 @@
     <p><strong>Aprovado em 02/09/2026.</strong> Escopo real: shell compartilhado (topbar, sidebar, cards/grid) e a home do dashboard, no padrão de <code>apps/portal</code> <code>/demo</code>. Como as ~19 telas de módulo reusam as mesmas classes CSS, o visual novo propaga pra todas; redesenho bespoke do conteúdo interno de cada tela não foi feito nesta gate.</p>
     <p>Borda de 1.5px laranja em cada card/link virou borda neutra + sombra, com acento laranja só no topo dos cards de KPI e na barra lateral do item ativo do menu. <code>.pf-grid-3</code> não existia em CSS — corrigido (os 6 cards da home caíam sem grade). Topbar ganhou avatar circular.</p>
     <p>Saudação da home ficou genérica (sem nome): personalizá-la exigiria a tela importar Supabase direto, o que viola a regra do M18-G11 (só o seletor fail-closed pode). <code>platform</code> 165/165, type-check, lint e build limpos. Nenhuma migration ou dado remoto alterado.</p>
+  </section>
+  <section>
+    <h2>M19-G3 — branding por tenant, migration aplicada em staging</h2>
+    <p><strong>Aprovado em 02/09/2026.</strong> Nova tabela <code>erp_tenant_branding</code> (cor/logo opcionais por tenant) com RLS e RPC <code>erp_set_tenant_branding</code> no mesmo padrão de <code>erp_create_party</code> (RLS é a fronteira real, não um broker <code>service_role</code>-only). Permissão <code>branding.manage</code> retroaplicada aos papéis owner/admin já existentes.</p>
+    <p>16 testes pgTAP positivo/negativo; suíte local completa (20 arquivos, 0001–0035) sem regressão. Preflight remoto <code>M19_0035_PREFLIGHT_OK</code>; dry-run transacional <code>M19_0035_TRANSACTION_16_OF_16_ROLLBACK</code> com zero resíduo.</p>
+    <p><strong>Aplicação persistente confirmada</strong> via <code>npx supabase db push --linked</code> (autorizado pelo usuário) — histórico remoto 0001–0035 alinhado. UI (engrenagem no portal) é a Fase 3 restante. Produção não acessada.</p>
   </section>
 </body>
 </html>
