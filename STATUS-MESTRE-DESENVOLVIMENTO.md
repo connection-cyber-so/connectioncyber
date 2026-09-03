@@ -993,3 +993,48 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
   acusou erro em `.next/types/routes.d.ts` — arquivo gerado, não código-fonte; causado por
   cache `.next` local desatualizado. Limpo e reexecutado: sem erro.
 - Nenhum arquivo de código alterado nesta validação — só confirmação de estado.
+
+## M19-G0 — escopo do redesign visual + roteamento de login (02/09/2026)
+
+Registrado antes de implementar, por decisão do usuário sobre `/tenants` (achado: menu
+lateral de `apps/platform` sem hierarquia, 19 links soltos) e pedido explícito de evoluir pra
+um programa maior. Autorização: "Fazer tudo nesta ordem cronologica sem minha intervenção".
+
+- **Fase 1 — Tema global + dark mode**: paleta oficial (8 tons) consistente nos 3 apps;
+  alternador manual claro/escuro persistido em `localStorage`, sem tocar sessão/tenant.
+- **Fase 2 — Redesign do painel** (`apps/platform`): aplicar o padrão visual de
+  `apps/portal` `/demo` (topbar com identidade + usuário, cards de KPI, ações rápidas) nas
+  telas do painel interno.
+- **Fase 3 — Branding por tenant**: migration nova + engrenagem de configuração no portal de
+  cada empresa, permitindo cor primária e ícone próprios sobrepondo a paleta global só ali.
+- **Fase 4 — Roteamento de login por papel**: form único no site identifica o e-mail e
+  redireciona (sem sessão compartilhada entre domínios — cookie do portal é host-only, decisão
+  de segurança já documentada em M03): `admin@connectioncyber.com.br`-like (staff) →
+  `apps/platform`; aluno/academy → `apps/site` `/membros`; e-mail de empresa cliente → portal
+  da própria empresa (`<slug>.connectioncyber.com.br`), autenticação real acontece lá.
+
+Critério de aceite por fase: testes + type-check + lint + build limpos nos apps tocados;
+nenhuma migration remota aplicada fora do portão específico da Fase 3; nenhuma credencial ou
+sessão cruzando domínio sem autenticação própria no destino.
+
+## M19-G1 — tema global e dark mode (02/09/2026)
+
+- Paleta oficial (8 tons) confirmada consistente: `apps/platform`/`apps/site` já a tinham via
+  `theme.css` compartilhado; `apps/portal` tinha só as 4 tonalidades base — as 4 "alt"
+  (`#F8961D`, `#CA2127`, `#4CB853`, `#28A992`) foram adicionadas sem renomear tokens existentes
+  (baixo risco de regressão nos ~50 usos já espalhados pelo portal).
+- Dark mode: os 3 apps já respeitavam `prefers-color-scheme` nos tokens semânticos
+  (`--cc-bg`/`--cc-text`/... em platform/site; `--ink`/`--surface`/... em portal, este último
+  sem suporte algum antes). Adicionado alternador manual — classes `.dark`/`.light` em `<html>`
+  com especificidade maior que o media query, sempre vencendo a preferência do sistema nos dois
+  sentidos.
+- `ThemeToggle` (um componente por app, sem pacote compartilhado — mesmo padrão já usado entre
+  `apps/site`/`apps/platform` pra `theme.css`) só lê/grava `localStorage['cc-theme']; nenhuma
+  chamada a Supabase, sessão ou tenant.
+- Script inline bloqueante no `<head>` de cada app (`app/layout.tsx` em platform/portal,
+  `_document.tsx` em site) aplica a classe salva antes da primeira pintura — sem flash
+  claro→escuro.
+- Testes novos por app confirmam o mecanismo (script presente, toggle sem I/O de sessão,
+  especificidade do CSS); suítes completas: `platform` 165/165, `portal` 60/60, `site` 9/9;
+  type-check, lint e build limpos nos 3.
+- Nenhuma migration, dado remoto ou sessão alterada — mudança é só client-side/CSS.

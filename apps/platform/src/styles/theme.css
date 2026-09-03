@@ -55,11 +55,30 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
     --cc-bg: var(--cc-gray-900);
     --cc-bg-alt: var(--cc-gray-800);
     --cc-text: var(--cc-gray-100);
     --cc-text-muted: var(--cc-gray-400);
     --cc-border: var(--cc-gray-700);
   }
+}
+
+/* Alternador manual (localStorage 'cc-theme') — sempre vence a preferência do
+   sistema, nos dois sentidos. Aplicado em <html> pelo script inline no <head>
+   (evita flash) e pelo ThemeToggle depois de montado. */
+:root.dark {
+  --cc-bg: var(--cc-gray-900);
+  --cc-bg-alt: var(--cc-gray-800);
+  --cc-text: var(--cc-gray-100);
+  --cc-text-muted: var(--cc-gray-400);
+  --cc-border: var(--cc-gray-700);
+}
+
+:root.light {
+  --cc-bg: var(--cc-white);
+  --cc-bg-alt: var(--cc-gray-100);
+  --cc-text: var(--cc-gray-900);
+  --cc-text-muted: var(--cc-gray-600);
+  --cc-border: var(--cc-gray-200);
 }

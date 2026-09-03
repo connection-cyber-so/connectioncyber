@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { Brand } from '@/components/Brand';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { loadPortalAccess } from '@/lib/portal-context';
 
 export const dynamic = 'force-dynamic';
@@ -28,6 +29,7 @@ export default async function PortalLayout({ children }: { children: ReactNode }
           <strong>{access.membership.tenantName}</strong>
         </div>
         <div className="topbar-actions">
+          <ThemeToggle />
           {access.host.kind === 'central' ? (
             <form method="post" action="/auth/clear-membership">
               <button className="button ghost compact" type="submit">Trocar empresa</button>

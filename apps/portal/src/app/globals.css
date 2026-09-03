@@ -1,16 +1,60 @@
 :root {
+  /* Paleta oficial ConnectionCyber — as 4 tonalidades "alt" faltavam aqui
+     (platform/site já as tinham em theme.css); acrescentadas pra portal usar
+     a mesma paleta completa, sem renomear as variáveis já em uso em toda a
+     árvore de componentes. */
   --orange: #f6851f;
+  --orange-alt: #f8961d;
   --orange-soft: #fff3e8;
   --red: #e01f27;
+  --red-alt: #ca2127;
   --green: #2c9c48;
+  --green-alt: #4cb853;
   --green-soft: #edf8f0;
   --teal: #1e9680;
+  --teal-alt: #28a992;
   --blue: #0a2135;
   --ink: #14222d;
   --muted: #62717b;
   --line: #d9e2e6;
   --surface: #f4f7f8;
   --white: #ffffff;
+}
+
+/* Dark mode — mesmo mecanismo de platform/site: preferência do sistema por
+   padrão, alternador manual (localStorage 'cc-theme') sempre vence nos dois
+   sentidos. Só os tokens semânticos de fundo/texto mudam; a paleta de marca
+   (orange/red/green/teal) é a mesma nos dois modos. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --ink: #eef3f5;
+    --muted: #9fb0b8;
+    --line: #2b3a42;
+    --surface: #0f1b22;
+    --white: #17242c;
+    --orange-soft: #3a2a17;
+    --green-soft: #16301f;
+  }
+}
+
+:root.dark {
+  --ink: #eef3f5;
+  --muted: #9fb0b8;
+  --line: #2b3a42;
+  --surface: #0f1b22;
+  --white: #17242c;
+  --orange-soft: #3a2a17;
+  --green-soft: #16301f;
+}
+
+:root.light {
+  --ink: #14222d;
+  --muted: #62717b;
+  --line: #d9e2e6;
+  --surface: #f4f7f8;
+  --white: #ffffff;
+  --orange-soft: #fff3e8;
+  --green-soft: #edf8f0;
 }
 
 * { box-sizing: border-box; }

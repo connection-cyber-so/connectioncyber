@@ -454,5 +454,15 @@
     <p><code>apps/portal</code>: 56/56 testes, type-check limpo, lint limpo, build limpo (8/8 rotas). <code>apps/site</code>: 5/5 testes, lint limpo, build limpo (14/14 rotas); primeiro type-check acusou erro em <code>.next/types/routes.d.ts</code> gerado por cache local desatualizado — limpo e reexecutado sem erro.</p>
     <p>Nenhum arquivo de código alterado; validação apenas confirma estado.</p>
   </section>
+  <section>
+    <h2>M19-G0 — escopo do redesign visual + roteamento de login</h2>
+    <p><strong>Registrado em 02/09/2026.</strong> Autorização: "Fazer tudo nesta ordem cronologica sem minha intervenção". Quatro fases: (1) tema global + dark mode; (2) redesign do painel (<code>apps/platform</code>) no padrão do <code>/demo</code> do portal; (3) branding por tenant (cor/ícone próprios); (4) roteamento de login por papel, sem sessão compartilhada entre domínios (cookie do portal é host-only, decisão já documentada em M03).</p>
+  </section>
+  <section>
+    <h2>M19-G1 — tema global e dark mode</h2>
+    <p><strong>Aprovado em 02/09/2026.</strong> Paleta oficial (8 tons) consistente nos 3 apps — as 4 tonalidades "alt" que faltavam em <code>apps/portal</code> foram adicionadas sem renomear tokens existentes.</p>
+    <p>Alternador manual claro/escuro (<code>ThemeToggle</code> por app, <code>localStorage['cc-theme']</code>, sem tocar Supabase/sessão/tenant) sempre vence a preferência do sistema; script inline no <code>&lt;head&gt;</code> de cada app evita flash.</p>
+    <p><code>platform</code> 165/165, <code>portal</code> 60/60, <code>site</code> 9/9; type-check, lint e build limpos nos 3. Nenhuma migration ou dado remoto alterado.</p>
+  </section>
 </body>
 </html>

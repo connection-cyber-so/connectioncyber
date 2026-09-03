@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useLanguage } from '@/context/LanguageContext';
 import { mainNav, routes } from '@/config/routes';
 import LanguageSwitcher from './LanguageSwitcher';
+import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
   const { t } = useLanguage();
@@ -41,6 +42,7 @@ export default function Header() {
         </nav>
 
         <div style={styles.actions}>
+          <ThemeToggle />
           <LanguageSwitcher />
           <Link href={routes.login} className="btn btn-primary" style={styles.ctaBtn}>
             {t('nav.loginCta')}

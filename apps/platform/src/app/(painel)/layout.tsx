@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { isPlatformStaff } from '@/lib/staff';
 import { LogoutButton } from '@/components/LogoutButton';
 import { SidebarNav } from '@/components/SidebarNav';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 // Layout compartilhado por todo o painel autenticado (dashboard + módulos).
 // /login fica fora deste route group — não leva topbar/menu/rodapé.
@@ -32,6 +33,7 @@ export default async function PainelLayout({ children }: { children: React.React
             </span>
           </Link>
           <div className="pf-topbar-right">
+            <ThemeToggle />
             <LogoutButton />
           </div>
         </header>
@@ -69,6 +71,7 @@ export default async function PainelLayout({ children }: { children: React.React
               Sessão ativa como <strong>{user?.email}</strong>
             </div>
           </div>
+          <ThemeToggle />
           <LogoutButton />
         </div>
       </header>
