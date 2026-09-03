@@ -20,7 +20,13 @@ Thumbs.db
 .idea/
 
 # Vercel
-.vercel
+.vercel/
 
+# Local audit outputs
+.docs/AUDITORIA-AUTOMATIZADA.txt
 .vercel
 .env*.local
+
+# Backup routine (scripts/backup-connectioncyber-staging.ps1)
+logs/
+config/paths.json
