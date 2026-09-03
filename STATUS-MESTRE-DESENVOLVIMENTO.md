@@ -350,7 +350,10 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
 | M13 | Fiscal e certificado A1 | Motor global validado; piloto pendente | Contratos, schemas, assinatura, estados, SOAP/TLS e perfis tributários fail-closed | Retomar validação individual após confirmação do contador em 31/08/2026; emissão real permanece bloqueada. |
 | M14 | Engenharia reversa e importador | Fundação concluída em staging | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | 0031 aplicada; 96/96 pós-aplicação; execução com fonte real transferida aos portões individuais do M15. |
-| M15 | Piloto e implantação por cliente | G3 aprovado no staging com rollback | Migração simulada, corte e ondas individuais | 371 testes locais; preflight e 30 asserções remotas concluídas; zero resíduos; usuários reais e produção bloqueados. |
+| M15 | Piloto e implantação por cliente | G0–G11 concluídos em staging | Jornada visual sintética consolidada (cadastro→catálogo→estoque→PDV→caixa→financeiro) e preparação local de hipercare | Sintético/local encerrado; depende do M18 para persistência real. UAT com usuário real e produção seguem bloqueados. |
+| M16 | Capacidades por tenant e industrialização multiempresa | G0–G8 concluídos em staging | Contrato canônico de capacidades, motor fail-closed, migration 0032, painel administrativo e simulador de ondas | 0032 aplicada e validada em staging; ativação de capacidade por tenant real depende do piloto. |
+| M17 | Jornada persistente server-side | G0–G12 concluídos em staging | Autorização server-side, cadastro/catálogo/estoque/PDV/caixa/financeiro com repositório local, migration 0033 | 0033 aplicada e validada em staging; backend persistente pronto, consumido pelo M18. |
+| M18 | Persistência visual e piloto Mania de Modas | G0–G21 concluídos em staging; **G22 pendente de ação externa** | Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034, provisionamento do tenant piloto (Mania de Modas) | 0034 aplicada; tenant/estabelecimento/membership/convite criados em staging (`M18_G21_PROVISIONING_OK`). G22 trava em interação humana: usuário-piloto precisa aceitar o convite e cadastrar MFA antes da primeira jornada visual real. |
 
 ## 8. Critérios globais de validação
 
@@ -385,17 +388,20 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
-### M15-G2 — ensaio ponta a ponta totalmente sintético
+### M18-G22 — ativação controlada do acesso do usuário-piloto
 
-Próxima sequência automática:
+Definido em `RELATORIO-M18-G21-PROVISIONAMENTO-PILOTO-STAGING.md` como próximo portão após o
+provisionamento do tenant Mania de Modas (`M18_G21_PROVISIONING_OK`). **Bloqueado em ação
+externa** — exige interação do usuário convidado, não é automatizável:
 
-1. preparar tenant e identidades exclusivamente sintéticos e descartáveis;
-2. provar cross-tenant negativo e perfis MEI, ME e LTDA;
-3. percorrer cadastro, catálogo, estoque, venda, caixa e financeiro;
-4. confirmar fiscal e produção fail-closed;
-5. reconciliar, executar rollback e comprovar zero resíduos.
+1. confirmar que o convite Auth foi entregue e segue pendente de aceite pelo usuário-piloto;
+2. usuário-piloto aceita o convite e conclui o cadastro de senha;
+3. usuário-piloto cadastra MFA (obrigatório para `owner`; sessão exige AAL2);
+4. validar login real com AAL2 e acesso ao portal restrito ao próprio tenant;
+5. executar a primeira jornada visual (leitura) com a sessão real, ainda somente em staging.
 
-Importação de backup real, criação de usuários, credenciais, fiscal, domínio público, pagamentos e produção permanecem em portões separados.
+Importação de backup real, dados fiscais, domínio público, pagamentos e produção permanecem em
+portões separados e bloqueados.
 
 ## 11. Histórico do documento
 
