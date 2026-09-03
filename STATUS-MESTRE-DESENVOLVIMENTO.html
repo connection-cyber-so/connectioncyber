@@ -437,5 +437,12 @@
     <p>Cobrem identidade do clone (<code>staging</code>, sem <code>docs/</code>), governança de execução automática, comandos por app/pacote (sem workspace raiz, pin Node 22), os três apps Next.js e seus modelos de acesso, o padrão de módulo de <code>apps/platform/src/features</code>, os pacotes de contrato em <code>packages/*</code> e a governança de migrations do Supabase. A regra ADHD-Friendly Output foi preservada integralmente no topo de ambos os arquivos; <code>AGENTS.md</code> é uma cópia idêntica de <code>CLAUDE.md</code>.</p>
     <p>Commit <code>be30281</code> na branch <code>staging</code>, publicado em <code>origin/staging</code> (<code>dcf647b..be30281</code>). Nenhum código de aplicação, schema, migration ou dado alterado; apenas documentação.</p>
   </section>
+  <section>
+    <h2>Correção — CI "Quality gates" desbloqueado</h2>
+    <p><strong>Aprovado em 02/09/2026.</strong> Todo run de CI da branch <code>staging</code> estava <code>failure</code> desde 30/08/2026, independente do conteúdo do commit — falha estrutural pré-existente.</p>
+    <p>Causa 1: cinco rotas de <code>apps/platform</code> (<code>/alimentacao</code>, <code>/atendimento</code>, <code>/bancos</code>, <code>/servicos</code>, <code>/vendas</code>) não declaravam <code>export const dynamic='force-dynamic'</code>, então o Next.js tentava pré-renderizar em build time e falhava sem as variáveis Supabase do runner. Corrigido com a mesma diretiva das demais rotas.</p>
+    <p>Causa 2: <code>nfe_v4.00.xsd</code> e <code>xmldsig-core-schema_v1.01.xsd</code> em <code>packages/fiscal-contract</code> sofreram drift de line-ending (CRLF local via <code>core.autocrlf</code>), divergindo do hash SHA-256 oficial em <code>schema-manifest.json</code>. Bytes restaurados a partir do <code>PL_010e_v1.02.zip</code> oficial; <code>.gitattributes</code> criado para impedir recorrência.</p>
+    <p>Local: <code>platform</code> 161/161 + build limpo sem env vars; <code>fiscal-contract</code> 234/234; type-check e lint limpos. Remoto: commit <code>bba6f34</code>, run <code>33714605809</code> concluído <code>success</code> nos 8 jobs. Nenhuma migration ou dado alterado.</p>
+  </section>
 </body>
 </html>

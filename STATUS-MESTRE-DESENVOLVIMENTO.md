@@ -950,3 +950,30 @@ Ao concluir qualquer portão, adicionar uma entrada ao histórico contendo:
   (`dcf647b..be30281`).
 - Nenhum código de aplicação, schema, migration ou dado alterado; apenas documentação.
 - Estado: aprovado.
+
+## Correção — CI "Quality gates" desbloqueado (02/09/2026)
+
+- Diagnóstico: `gh run list` mostrou todo run da branch `staging` como `failure` desde
+  30/08/2026 (inclusive os dois pushes de documentação anteriores), sem relação com o
+  conteúdo de cada commit — falha estrutural pré-existente, não causada por este trabalho.
+- Causa 1 (`apps/platform`, job `platform`, etapa `npm run build`): cinco rotas
+  (`/alimentacao`, `/atendimento`, `/bancos`, `/servicos`, `/vendas`) não declaravam
+  `export const dynamic='force-dynamic'` — diferente de todas as demais rotas de
+  `(painel)`. O Next.js tentava pré-renderizar em build time, batendo em
+  `Error: Supabase não configurado` no runner do GitHub Actions (sem
+  `NEXT_PUBLIC_SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). Corrigido adicionando
+  a mesma diretiva usada nas demais rotas.
+- Causa 2 (`packages/fiscal-contract`, job `critical-contracts (fiscal-contract)`, teste
+  `hash oficial confere`): `nfe_v4.00.xsd` e `xmldsig-core-schema_v1.01.xsd` sofreram drift
+  de line-ending (CRLF local via `core.autocrlf=true` de quem commitou, divergindo do LF
+  gravado no blob do Git) — hash SHA-256 deixava de bater com `schema-manifest.json`.
+  Bytes restaurados a partir do `PL_010e_v1.02.zip` oficial já versionado (hash do ZIP
+  sempre conferiu); `.gitattributes` criado marcando `packages/fiscal-contract/schemas/**`
+  como `-text` para impedir recorrência em qualquer máquina.
+- Evidência local antes do commit: `platform` 161/161 testes + build limpo sem variáveis de
+  ambiente (reproduz o runner); `fiscal-contract` 234/234; type-check e lint limpos.
+- Evidência remota: commit `bba6f34` — run `33714605809` do "Quality gates" concluído
+  `success` nos 8 jobs (`platform`, `portal`, `site`, `security-static`,
+  `critical-contracts` × fiscal-contract/device-protocol/import-contract/pilot-journey).
+- Nenhuma migration, schema de banco ou dado alterado; escopo é código de aplicação e
+  arquivo de schema oficial restaurado ao original. Estado: aprovado.
