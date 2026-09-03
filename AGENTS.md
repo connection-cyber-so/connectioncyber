@@ -104,6 +104,15 @@ The three apps intentionally do **not** converge on one stack — each app's REA
 own routing-model decision. Don't "fix" `apps/site` to App Router or vice versa without reading
 that history first.
 
+**Every route under `apps/platform/src/app/(painel)/*` must export
+`export const dynamic = 'force-dynamic';`.** Without it, Next.js tries to statically prerender
+the page at build time; the CI runner has no `NEXT_PUBLIC_SUPABASE_URL`/
+`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, so any page that calls `createClient()`/
+`requireCurrentTenantId()` outside a try/catch throws and fails the whole build (this broke CI
+on `staging` for several days undetected — see the "Correção — CI" entry in
+`STATUS-MESTRE-DESENVOLVIMENTO.md` dated 02/09/2026). Copy the pattern from an existing page in
+that folder when adding a new one.
+
 ### `apps/platform` feature-module pattern
 
 Business modules live under `src/features/<module>/` as `actions.ts` (Server Actions),
@@ -124,7 +133,14 @@ Apps consume these as the source of truth for validation/business rules rather t
 re-implementing them:
 
 - `fiscal-contract` — NF-e/SEFAZ (M13): SOAP/TLS, A1 certificate custody, authorization cycle,
-  tax profiles, pilot preflight.
+  tax profiles, pilot preflight. Its `schemas/nfe/010e_v1.02/` tree holds the official SEFAZ XSD
+  package byte-for-byte (hashes pinned in `schema-manifest.json`, tested against them). Root
+  `.gitattributes` marks `packages/fiscal-contract/schemas/** -text` so Git never normalizes
+  their line endings — a machine with `core.autocrlf=true` had silently rewritten two of them,
+  breaking the hash check in CI only (see the "Correção — CI" entry in
+  `STATUS-MESTRE-DESENVOLVIMENTO.md` dated 02/09/2026). If a schema hash test ever fails, re-
+  extract the file from the checked-in `PL_010e_v1.02.zip` — don't hand-edit the `.xsd` or the
+  manifest.
 - `capability-contract` — per-tenant module/feature capability gating (M16), fail-closed engine.
 - `import-contract` — legacy data import/idempotent ledger (M14).
 - `persistent-journey-contract` — server-side authorized end-to-end journey contract (M17).
@@ -152,3 +168,13 @@ files in sibling folders — check for and add all that apply before considering
 
 `config/security-headers.js` defines the CSP/HSTS/frame headers shared by the Next.js apps
 (stricter — no `'unsafe-eval'`, adds HSTS — when `VERCEL_ENV === 'production'`).
+
+### CI
+
+`.github/workflows/quality.yml` ("Quality gates") runs on every push to `staging`: `site`,
+`platform`, `portal` each do `npm ci` → `npm test` → `type-check` → `lint` → `build`; a
+`critical-contracts` matrix job runs `npm test` for `fiscal-contract`, `device-protocol`,
+`import-contract`, `pilot-journey`; plus a `security-static` job. Check it with
+`gh run list --branch staging` / `gh run view <id>` — a run failing doesn't necessarily mean the
+pushed commit broke it (it went red for several unrelated days once, see above); confirm by
+reading the actual failed step's log (`gh run view <id> --log-failed`) rather than assuming.
