@@ -479,5 +479,11 @@
     <p>16 testes pgTAP positivo/negativo; suíte local completa (20 arquivos, 0001–0035) sem regressão. Preflight remoto <code>M19_0035_PREFLIGHT_OK</code>; dry-run transacional <code>M19_0035_TRANSACTION_16_OF_16_ROLLBACK</code> com zero resíduo.</p>
     <p><strong>Aplicação persistente confirmada</strong> via <code>npx supabase db push --linked</code> (autorizado pelo usuário) — histórico remoto 0001–0035 alinhado. UI (engrenagem no portal) é a Fase 3 restante. Produção não acessada.</p>
   </section>
+  <section>
+    <h2>M19-G4 — engrenagem de identidade visual no portal</h2>
+    <p><strong>Aprovado em 03/09/2026.</strong> Nova tela <code>/configuracoes/aparencia</code>: cor e logo do tenant, mesmo idioma 100% servidor + formulário sem JS já usado no app. Escrita real só pela RPC <code>erp_set_tenant_branding</code>; tenant sempre vem da sessão, nunca de input do formulário.</p>
+    <p><code>lib/branding.ts</code> recalcula a checagem de permissão só pra decidir se a engrenagem aparece — a fronteira de segurança continua sendo a RLS/RPC do banco. Leitura falha aberto (cosmético); escrita falha fechado (RPC). Cor do tenant sobrepõe <code>--orange</code>/<code>--orange-alt</code> via <code>&lt;style&gt;</code> injetado, revalidado no servidor.</p>
+    <p><code>portal</code> 75/75 testes (16 novos), type-check, lint e build limpos. Nenhuma migration nova.</p>
+  </section>
 </body>
 </html>

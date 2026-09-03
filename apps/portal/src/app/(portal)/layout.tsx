@@ -3,7 +3,10 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { Brand } from '@/components/Brand';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { canManageBranding, loadTenantBranding } from '@/lib/branding';
 import { loadPortalAccess } from '@/lib/portal-context';
+import { createClient } from '@/lib/supabase/server';
+import { isValidHexColor } from '@/domain/branding';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -20,16 +23,39 @@ export default async function PortalLayout({ children }: { children: ReactNode }
     redirect('/');
   }
 
+  const supabase = await createClient();
+  const [branding, canEditBranding] = await Promise.all([
+    loadTenantBranding(supabase, access.membership.tenantId),
+    canManageBranding(supabase, {
+      membershipId: access.membership.id,
+      tenantId: access.membership.tenantId,
+    }),
+  ]);
+  // M19-G4 — só --orange/--orange-alt são sobrepostos; --orange-soft (tint
+  // derivado) fica no tom global porque calcular um tint correto de um hex
+  // arbitrário está fora do escopo desta gate. Revalidado aqui mesmo já
+  // validado na escrita (defesa em profundidade, nunca confia só no banco).
+  const tenantAccentStyle =
+    branding.primaryColor && isValidHexColor(branding.primaryColor)
+      ? `:root{--orange:${branding.primaryColor};--orange-alt:${branding.primaryColor};}`
+      : null;
+
   return (
     <div className="portal-shell">
+      {tenantAccentStyle ? <style>{tenantAccentStyle}</style> : null}
       <header className="portal-topbar">
-        <Brand />
+        <Brand logoUrl={branding.logoUrl} />
         <div className="session-summary">
           <span>Empresa ativa</span>
           <strong>{access.membership.tenantName}</strong>
         </div>
         <div className="topbar-actions">
           <ThemeToggle />
+          {canEditBranding ? (
+            <Link href="/configuracoes/aparencia" className="button ghost compact" aria-label="Configurações de aparência">
+              ⚙️ Aparência
+            </Link>
+          ) : null}
           {access.host.kind === 'central' ? (
             <form method="post" action="/auth/clear-membership">
               <button className="button ghost compact" type="submit">Trocar empresa</button>

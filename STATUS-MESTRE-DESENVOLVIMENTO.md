@@ -1102,3 +1102,30 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
   usuário) — histórico remoto `0001–0035` alinhado. UI que consome esta migration (engrenagem
   de configuração no portal) é a Fase 3 restante, ainda não implementada.
 - Produção não acessada; nenhum dado de cliente criado.
+
+## M19-G4 — engrenagem de identidade visual no portal (03/09/2026)
+
+- Nova tela `apps/portal` `/configuracoes/aparencia`: dono/admin do tenant define cor
+  principal (`<input type="color">`, zero JS) e logo (`<input type="url">`), no mesmo idioma
+  100% servidor + formulário sem JS já usado em todo o app (`select-membership`/`route.ts`
+  como referência) — nenhum client Supabase novo introduzido.
+- Escrita real passa só pela RPC `erp_set_tenant_branding` (migration `0035`); o novo route
+  handler (`auth/set-branding/route.ts`) revalida formato no servidor mesmo já validado no
+  browser, resolve o tenant sempre da sessão (nunca de input do formulário), e devolve erro
+  genérico sem distinguir "sem permissão" de "formato recusado".
+  `apps/portal/src/lib/branding.ts` recalcula a mesma checagem de permissão da RLS só pra
+  decidir se a engrenagem *aparece* — a fronteira de segurança continua sendo a RLS/RPC no
+  banco, independente do que essa função conclui (falso positivo aqui só mostraria um botão
+  que a RPC recusaria em seguida, nunca uma falha real).
+- Leitura de branding (`loadTenantBranding`) falha aberto pro padrão global em qualquer erro —
+  é dado cosmético, nunca pode derrubar a renderização do portal.
+- `Brand.tsx` aceita `logoUrl` opcional; cor do tenant sobrepõe só `--orange`/`--orange-alt`
+  via `<style>` injetado no layout (revalidado no servidor antes de renderizar) — `--orange-soft`
+  fica no tom global, calcular tint de hex arbitrário ficou fora de escopo.
+- Fora de escopo (documentado, não implementado): upload de logo via Supabase Storage — a
+  `0035` só suporta URL `https://`.
+- `apps/portal`: 75/75 testes (16 novos: 7 de validação pura de cor/URL, 9 de asserção textual
+  garantindo same-origin check, revalidação server-side, RPC como único caminho de escrita e
+  ausência de `service_role` em toda a feature), type-check, lint e build limpos.
+- Nenhuma migration nova; nenhum dado remoto alterado além do que o próprio usuário salvar
+  pela tela (ninguém salvou nada ainda — feature nova, staging sem uso real até aqui).
