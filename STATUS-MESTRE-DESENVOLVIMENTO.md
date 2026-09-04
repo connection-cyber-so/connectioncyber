@@ -1345,13 +1345,19 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
   `/configuracoes/seguranca` (papel `owner` já tem `requires_mfa=true` desde o provisionamento);
   (3) ele de fato escanear o QR e confirmar o código — só aí a sessão chega em `aal2` de verdade
   e o G22 fecha por completo.
-- **Achado ao validar o item (1)**: commit `46bacff` chegou em `staging` remoto, CI 8/8 verde,
-  Vercel reportou deploy `success` (22:02:09 UTC) — mas o domínio real
-  (`portal.connectioncyber.com.br`) continuou servindo build antiga (`curl` sem sessão em
-  `/configuracoes/seguranca` respondeu `404`, cache batendo com ~13:20 UTC, horas antes deste
-  deploy). "Deploy concluído" na Vercel não é o mesmo fato que "promovido ao domínio real" —
-  confirmado com o usuário que ele ainda não viu o QR. Motivou a adoção formal do **Protocolo
-  Staging-First** (`PARECER-TECNICO-PROTOCOLO-STAGING-FIRST.md`/`.html`, regra nova em
-  `GOVERNANCA-EXECUCAO-AUTOMATICA.md`) — checklist do novo M-Gate Versionamento exige confirmar
-  a promoção real, não só o status de build. G22 permanece aberto até essa promoção ser
-  confirmada e o piloto repetir o teste.
+- **Achado ao validar o item (1), depois CONFIRMADO por print do painel da Vercel**: commit
+  `46bacff` chegou em `staging` remoto, CI 8/8 verde, Vercel reportou deploy `success` (22:02:09
+  UTC) — mas o domínio real (`portal.connectioncyber.com.br`) continuou servindo build antiga
+  (`curl` sem sessão em `/configuracoes/seguranca` respondeu `404`, cache batendo com ~13:20 UTC,
+  horas antes deste deploy). Print de `vercel.com/connectioncyberso/~/deployments` confirma a
+  causa exata: o deployment do commit do MFA está `Ready` mas com badge **Preview**; o badge
+  **Production** (o que fica no domínio real) ainda aponta pro commit `61fab9e` — o da correção
+  de convite, de ~12h antes, sem nenhum código do MFA. Ou seja, o build nunca foi promovido, não
+  é falha de build nem bug do código. "Deploy `success`" na Vercel não é o mesmo fato que
+  "promovido a Production" — motivou a adoção formal do **Protocolo Staging-First**
+  (`PARECER-TECNICO-PROTOCOLO-STAGING-FIRST.md`/`.html`, regra nova em
+  `GOVERNANCA-EXECUCAO-AUTOMATICA.md`), cujo M-Gate Versionamento agora exige confirmar a
+  promoção real, não só o status de build. Ação corretiva: promover manualmente o deployment do
+  commit `46bacff` do projeto `connectioncyber-portal` a Production pelo painel da Vercel — só
+  então o gate de MFA passa a existir na sessão real do piloto. G22 permanece aberto até essa
+  promoção acontecer e o piloto repetir o teste.
