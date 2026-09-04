@@ -1129,6 +1129,31 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
 - Nenhuma migration nova; nenhum dado remoto alterado além do que o próprio usuário salvar
   pela tela (ninguém salvou nada ainda — feature nova, staging sem uso real até aqui).
 
+## Portão 0 — publicação do apps/portal e ativação do domínio da Mania de Modas (04/09/2026)
+
+- `apps/portal` publicado pela primeira vez (projeto Vercel `connectioncyber-portal`, staging
+  como backend — ver commit `ba47173`), com dois bugs reais corrigidos no processo (Framework
+  Preset nulo, variável de ambiente corrompida por um erro de pipe na CLI).
+- **Conflito real encontrado e resolvido**: a Hostinger já tinha um subdomínio próprio
+  (`Sites da Web → Subdomínios`) e um registro DNS específico para `maniademoda`, apontando
+  pra hospedagem própria da Hostinger — tinha prioridade sobre o CNAME curinga
+  (`*.connectioncyber.com.br → cname.vercel-dns.com`) por regra de DNS (registro específico
+  sempre vence curinga, mesmo de tipo diferente). Removido pelo usuário na Zona DNS.
+- Confirmado em 3 fontes independentes, sem cache, que o DNS corrigido propagou: nameserver
+  autoritativo, resolvedor público (8.8.8.8) e resolvedor nativo do Windows.
+- SSL emitido pela Vercel após registrar `maniademoda.connectioncyber.com.br` explicitamente
+  como domínio do projeto (o curinga sozinho não disparou a emissão em ~20 min).
+- **Última peça**: linha em `public.erp_tenant_domains` pro tenant Mania de Modas nunca tinha
+  sido gravada (tenant/membership/convite existiam desde M18-G21, mas nenhum domínio). Sem
+  ela, DNS+SSL certos ainda devolviam 404 de propósito (`classifyPortalHostname` correto,
+  `portal_resolve_host` sem linha pra casar). Inserida via `supabase db query --linked`
+  (escrita de dado, não ação de ciclo de vida — Management API em Major Outage no momento não
+  bloqueou, conforme `PARECER-INCIDENTES-SUPABASE-STATUS.md`).
+- **Confirmado**: `https://maniademoda.connectioncyber.com.br/login` responde 200, mostra
+  "Entrar em Mania de Modas", SSL válido. Portão 0 do manual de ativação concluído por completo.
+- Próximo: M18-G22 (dono aceita o convite + MFA) agora tem, pela primeira vez, um endereço real
+  pra abrir — antes disso era literalmente impossível, mesmo com o convite na caixa de entrada.
+
 ## M19-G5 — roteamento de login por papel, sem lookup de e-mail (03/09/2026)
 
 - `apps/site` `/login` virou seletor de 3 caminhos, mantendo o form de aluno original como um

@@ -486,6 +486,12 @@
     <p><code>portal</code> 75/75 testes (16 novos), type-check, lint e build limpos. Nenhuma migration nova.</p>
   </section>
   <section>
+    <h2>Portão 0 — publicação do apps/portal e ativação do domínio da Mania de Modas</h2>
+    <p><strong>Concluído em 04/09/2026.</strong> Conflito real encontrado e resolvido: a Hostinger já tinha subdomínio + registro DNS próprios pra <code>maniademoda</code> (apontando pra hospedagem dela), com prioridade sobre o curinga por regra de DNS. Removido pelo usuário; DNS confirmado propagado em 3 fontes independentes sem cache.</p>
+    <p>SSL emitido após registrar o domínio explicitamente no projeto Vercel. Última peça: linha em <code>erp_tenant_domains</code> nunca tinha sido gravada — sem ela, DNS/SSL certos ainda devolviam 404 de propósito. Inserida via <code>supabase db query --linked</code> (escrita de dado, não afetada pelo Major Outage da Management API do momento).</p>
+    <p><strong>Confirmado</strong>: <code>https://maniademoda.connectioncyber.com.br/login</code> responde 200, mostra "Entrar em Mania de Modas". M18-G22 agora tem, pela primeira vez, um endereço real pra abrir.</p>
+  </section>
+  <section>
     <h2>M19-G5 — roteamento de login por papel, sem lookup de e-mail</h2>
     <p><strong>Aprovado em 03/09/2026.</strong> <code>apps/site</code> <code>/login</code> virou seletor de 3 caminhos: aluno/academy (autentica ali, redirect agora validado por allowlist), equipe (endereço do platform como texto, não link — preserva "sem link público"), empresa (slug/hostname, navega pro portal próprio onde a autenticação real acontece).</p>
     <p>Desenho rejeitado por completude: endpoint público resolvendo tenant por e-mail pré-login — oráculo de enumeração de conta, primeiro uso de <code>service_role</code> pré-auth em <code>apps/site</code> fora de webhook. Nenhuma migration ou endpoint novo criado. <code>buildCompanyPortalLoginUrl</code> é 100% client-side, zero rede.</p>
