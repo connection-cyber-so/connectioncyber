@@ -156,7 +156,7 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "https://portal.connectioncyber.com.br"
+site_url = "https://portal.connectioncyber.com.br/auth/confirm"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
@@ -165,11 +165,19 @@ site_url = "https://portal.connectioncyber.com.br"
 # pra localhost:3000 de verdade, um access_token real vazou na URL. Corrigido
 # pros hosts reais de apps/portal; apps/site e apps/platform tem os proprios
 # fluxos de login por senha, sem depender de redirect de e-mail por enquanto.
+# M18-G22 — segundo incidente (04/09): botao "Send magic link" do Studio nao
+# aceita redirect_to custom, sempre usa o site_url puro — que apontava pra
+# raiz do dominio (sem handler de hash token). site_url passou a apontar
+# direto pra /auth/confirm (unico jeito de cobrir qualquer acao disparada
+# pelo Studio, nao so as nossas chamadas de API). Wildcard abaixo cobre
+# portal + qualquer subdominio de tenant (inclusive maniademoda) numa linha
+# so — a entrada exata do maniademoda e a de localhost:3021 foram removidas
+# durante a correcao manual no Studio (04/09) e nao foram restauradas: nao
+# tem sido usado dev local com fluxo de e-mail ate agora. Restaurar aqui se
+# precisar testar magic-link/invite localmente.
 additional_redirect_urls = [
   "https://portal.connectioncyber.com.br/auth/confirm",
-  "https://maniademoda.connectioncyber.com.br/auth/confirm",
-  "https://*.connectioncyber.com.br/auth/confirm",
-  "http://127.0.0.1:3021/auth/confirm"
+  "https://*.connectioncyber.com.br/auth/confirm"
 ]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600

@@ -1248,3 +1248,46 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
   tocado nesta gate).
 - Fecha o M19 (Fases 1–4 completas: tema/dark mode, redesign do painel, branding por tenant,
   roteamento de login).
+
+## Incidente e correção 2 — botão do Studio ignorava `/auth/confirm`, membership ativada (04/09/2026)
+
+- **Segundo vazamento de token, mesma classe de falha**: convite corrigido reenviado (dono já
+  confirmado por ter clicado no link vazado do incidente anterior — GoTrue recusa reenviar
+  convite pra usuário já confirmado), então usado **magic link** via Supabase Studio em vez de
+  API. O botão **"Send magic link" do Studio não aceita `redirect_to` customizado** — sempre usa
+  o `site_url` puro do projeto. Como `site_url` apontava só pra raiz do domínio
+  (`https://portal.connectioncyber.com.br`, sem `/auth/confirm`), o link caiu no dashboard raiz
+  com o token no fragmento da URL; middleware não-autenticado redirecionou pra `/login`
+  preservando o fragmento (o servidor nunca vê `#...`) — token exposto de novo, colado em texto
+  solto de novo. **Ação imediata**: `POST /auth/v1/logout?scope=global` com o próprio token
+  vazado — `204`, confirmado revogado.
+- **Causa raiz real**: `site_url` era só a raiz do domínio, não a página que trata o hash. Ações
+  disparadas pelo Studio (convite, magic link, recovery) nunca respeitam `redirect_to` — só as
+  chamadas feitas via API com o parâmetro explícito respeitavam (é por isso que o convite
+  original, corrigido via `Fix-PilotOwnerEmail.ps1` com `redirect_to` na chamada, funcionou até
+  a validação; o clique via Studio, sem esse parâmetro, não).
+- **Correção** (config, aplicada manualmente no Supabase Studio — `supabase config push` via
+  CLI ficou bloqueado pelo classificador de permissão do Claude Code neste ambiente, mesmo após
+  liberar `Bash` em `/permissions`; contornado com edição direta em
+  Authentication → URL Configuration):
+  - `site_url`: `https://portal.connectioncyber.com.br` →
+    `https://portal.connectioncyber.com.br/auth/confirm` — agora qualquer ação do Studio sem
+    `redirect_to` cai direto na página que sabe tratar o token, não mais na raiz.
+  - `additional_redirect_urls` (chamado de "Redirect URLs" na UI do Studio): durante a correção
+    manual, os 4 valores anteriores foram apagados por engano e só 1 recolocado
+    (`portal.connectioncyber.com.br/auth/confirm`); restaurado adicionando o curinga
+    `https://*.connectioncyber.com.br/auth/confirm` (cobre portal + `maniademoda` + qualquer
+    tenant futuro numa entrada só). Ficou com 2 entradas no remoto — `config.toml` local
+    ajustado pra bater exatamente com isso (removida a entrada exata de `maniademoda`, redundante
+    com o curinga, e a de `127.0.0.1:3021`, sem uso de dev local com fluxo de e-mail até agora;
+    comentário no arquivo registra como restaurar se precisar).
+- **Teste real de ponta a ponta, confirmado por print**: novo magic link enviado → e-mail
+  recebido → clique cai em `/auth/confirm` limpo (sem token visível na tela) → senha definida →
+  redireciona pro dashboard real do portal (`portal.connectioncyber.com.br/dashboard`) com
+  "Empresa ativa: Mania de Modas" e "Contexto validado".
+- **Confirmado no banco**: `erp_tenant_memberships.status = 'active'` pro dono real (antiga
+  membership com e-mail errado permanece `'revoked'`, histórico preservado). Piloto da Mania de
+  Modas está com acesso real funcionando de ponta a ponta.
+- **Pendência aberta**: `git`/`config.toml` e o remoto ficaram alinhados manualmente desta vez;
+  se um `config push` futuro for tentado, conferir que o diff mostrado bate exatamente com essas
+  2 entradas antes de confirmar — mesma lição do incidente anterior, reforçada.
