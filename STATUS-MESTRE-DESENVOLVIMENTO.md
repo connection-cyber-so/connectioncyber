@@ -1345,3 +1345,13 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
   `/configuracoes/seguranca` (papel `owner` já tem `requires_mfa=true` desde o provisionamento);
   (3) ele de fato escanear o QR e confirmar o código — só aí a sessão chega em `aal2` de verdade
   e o G22 fecha por completo.
+- **Achado ao validar o item (1)**: commit `46bacff` chegou em `staging` remoto, CI 8/8 verde,
+  Vercel reportou deploy `success` (22:02:09 UTC) — mas o domínio real
+  (`portal.connectioncyber.com.br`) continuou servindo build antiga (`curl` sem sessão em
+  `/configuracoes/seguranca` respondeu `404`, cache batendo com ~13:20 UTC, horas antes deste
+  deploy). "Deploy concluído" na Vercel não é o mesmo fato que "promovido ao domínio real" —
+  confirmado com o usuário que ele ainda não viu o QR. Motivou a adoção formal do **Protocolo
+  Staging-First** (`PARECER-TECNICO-PROTOCOLO-STAGING-FIRST.md`/`.html`, regra nova em
+  `GOVERNANCA-EXECUCAO-AUTOMATICA.md`) — checklist do novo M-Gate Versionamento exige confirmar
+  a promoção real, não só o status de build. G22 permanece aberto até essa promoção ser
+  confirmada e o piloto repetir o teste.
