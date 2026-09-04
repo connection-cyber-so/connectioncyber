@@ -2,13 +2,15 @@ import { createBrowserClient } from '@supabase/ssr';
 import { env, isSupabaseConfigured } from '@/config/env';
 
 /**
- * M18-G22 — primeiro uso de client Supabase no browser neste app. Só existe
- * pra uma coisa: /auth/confirm ler o token que o Supabase Auth manda no
+ * M18-G22 — client Supabase no browser deste app, com dois usos, ambos
+ * exceções deliberadas ao padrão 100% formulário + Route Handler do resto
+ * do app: (1) /auth/confirm lê o token que o Supabase Auth manda no
  * fragmento da URL (#access_token=...) em convite/link mágico — fragmento
  * nunca chega ao servidor (Server Component/Route Handler não veem
- * `location.hash`), então essa etapa é obrigatoriamente client-side. Todo
- * o resto do app continua 100% formulário sem JS + Route Handler
- * (ver apps/portal/src/app/auth/*), sem outro uso deste client.
+ * `location.hash`), então essa etapa é obrigatoriamente client-side; (2)
+ * SecurityMfaPanel (tela /configuracoes/seguranca) cadastra/valida TOTP —
+ * enroll/challenge/verify só fazem sentido contra a sessão viva no
+ * navegador, com reação imediata a código errado sem reload de página.
  */
 export function createClient() {
   if (!isSupabaseConfigured) {

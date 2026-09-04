@@ -1,12 +1,15 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { Brand } from '@/components/Brand';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { canManageBranding, loadTenantBranding } from '@/lib/branding';
 import { loadPortalAccess } from '@/lib/portal-context';
+import { getCurrentAal, membershipRequiresAal2 } from '@/lib/mfa';
 import { createClient } from '@/lib/supabase/server';
 import { isValidHexColor } from '@/domain/branding';
+import { decideMfaGate, MFA_SECURITY_PATH } from '@/domain/mfa-gate';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -24,13 +27,27 @@ export default async function PortalLayout({ children }: { children: ReactNode }
   }
 
   const supabase = await createClient();
-  const [branding, canEditBranding] = await Promise.all([
+  const pathname = (await headers()).get('x-cc-pathname') ?? '/';
+  const [branding, canEditBranding, requiresAal2, currentAal] = await Promise.all([
     loadTenantBranding(supabase, access.membership.tenantId),
     canManageBranding(supabase, {
       membershipId: access.membership.id,
       tenantId: access.membership.tenantId,
     }),
+    membershipRequiresAal2(supabase, {
+      membershipId: access.membership.id,
+      tenantId: access.membership.tenantId,
+    }),
+    getCurrentAal(supabase),
   ]);
+
+  // M18-G22 — papel exige MFA (ex.: owner) e a sessão ainda não chegou em
+  // aal2: desvia pra tela de segurança antes de qualquer módulo. Não é a
+  // autorização real (isso é RLS/RPC no banco) — só evita que a pessoa
+  // chegue numa tela que o servidor recusaria de qualquer jeito.
+  if (decideMfaGate({ requiresAal2, currentLevel: currentAal, pathname }) === 'redirect-to-security') {
+    redirect(MFA_SECURITY_PATH);
+  }
   // M19-G4 — só --orange/--orange-alt são sobrepostos; --orange-soft (tint
   // derivado) fica no tom global porque calcular um tint correto de um hex
   // arbitrário está fora do escopo desta gate. Revalidado aqui mesmo já
@@ -51,6 +68,9 @@ export default async function PortalLayout({ children }: { children: ReactNode }
         </div>
         <div className="topbar-actions">
           <ThemeToggle />
+          <Link href="/configuracoes/seguranca" className="button ghost compact" aria-label="Segurança da conta">
+            🔐 Segurança
+          </Link>
           {canEditBranding ? (
             <Link href="/configuracoes/aparencia" className="button ghost compact" aria-label="Configurações de aparência">
               ⚙️ Aparência

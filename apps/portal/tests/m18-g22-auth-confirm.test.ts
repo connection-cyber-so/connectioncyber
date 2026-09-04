@@ -23,7 +23,7 @@ test('ativa a membership via RPC depois de definir a senha — não é automáti
   assert.match(page, /\.rpc\('erp_accept_pending_memberships_v1'\)/);
 });
 
-test('client Supabase do browser é exclusivo desta página — nenhum outro lugar do portal deveria precisar dele', () => {
+test('client Supabase do browser nunca referencia service_role', () => {
   assert.match(client, /createBrowserClient/);
   assert.doesNotMatch(client, /service_role/i);
 });

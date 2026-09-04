@@ -353,7 +353,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M15 | Piloto e implantação por cliente | G0–G11 concluídos em staging | Jornada visual sintética consolidada (cadastro→catálogo→estoque→PDV→caixa→financeiro) e preparação local de hipercare | Sintético/local encerrado; depende do M18 para persistência real. UAT com usuário real e produção seguem bloqueados. |
 | M16 | Capacidades por tenant e industrialização multiempresa | G0–G8 concluídos em staging | Contrato canônico de capacidades, motor fail-closed, migration 0032, painel administrativo e simulador de ondas | 0032 aplicada e validada em staging; ativação de capacidade por tenant real depende do piloto. |
 | M17 | Jornada persistente server-side | G0–G12 concluídos em staging | Autorização server-side, cadastro/catálogo/estoque/PDV/caixa/financeiro com repositório local, migration 0033 | 0033 aplicada e validada em staging; backend persistente pronto, consumido pelo M18. |
-| M18 | Persistência visual e piloto Mania de Modas | G0–G21 concluídos em staging; **G22 parcialmente concluído** | Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034, provisionamento do tenant piloto (Mania de Modas) | 0034 aplicada; tenant/estabelecimento/membership/convite criados em staging (`M18_G21_PROVISIONING_OK`). G22: convite aceito, senha definida, `erp_tenant_memberships.status='active'` confirmado no banco, login real ponta a ponta validado (04/09/2026, dois incidentes de vazamento de token corrigidos no processo). Falta: owner cadastrar MFA/TOTP, validar sessão AAL2 e executar a primeira jornada visual real — sem isso o portão não fecha. |
+| M18 | Persistência visual e piloto Mania de Modas | G0–G21 concluídos em staging; **G22 parcialmente concluído** | Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034, provisionamento do tenant piloto (Mania de Modas) | 0034 aplicada; tenant/estabelecimento/membership/convite criados em staging (`M18_G21_PROVISIONING_OK`). G22: convite aceito, senha definida, `erp_tenant_memberships.status='active'` confirmado no banco, login real ponta a ponta validado (04/09/2026, dois incidentes de vazamento de token corrigidos no processo). Tela de cadastro/step-up de MFA (`/configuracoes/seguranca`) implementada e validada localmente (86/86, type-check/lint/build limpos) — ainda não publicada nem usada pelo piloto. Falta: push pro remoto, deploy, owner cadastrar MFA/TOTP de verdade, validar sessão AAL2 e executar a primeira jornada visual real — sem isso o portão não fecha. |
 | M19 | Redesign visual + roteamento de login | **G0–G5 concluídos** | Tema global/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), engrenagem de branding no portal (G4), roteamento de login por papel sem lookup de e-mail (G5) | Programa concluído. `platform` 165/165, `portal` 75/75, `site` 19/19; type-check/lint/build limpos nos 3. Uma migration nova (0035), aplicada em staging com preflight+dry-run+push. |
 
 ## 8. Critérios globais de validação
@@ -412,10 +412,12 @@ usuário convidado, não é automatizável:
    confirmado no banco; login real ponta a ponta testado e confirmado por print
    (04/09/2026) — dashboard do portal mostra "Empresa ativa: Mania de Modas", "Contexto
    validado";
-3. ⬜ usuário-piloto cadastra MFA (obrigatório para `owner`; sessão exige AAL2) — **não
-   confirmado ainda**;
-4. ⬜ validar login real com AAL2 (não só senha) e acesso ao portal restrito ao próprio
-   tenant — **não confirmado ainda**;
+3. 🔶 tela de cadastro de MFA implementada e validada localmente
+   (`/configuracoes/seguranca`, ver seção "tela de MFA/TOTP implementada" acima) — **falta o
+   usuário-piloto de fato escanear o QR e confirmar o código em staging**;
+4. 🔶 gate automático redireciona qualquer sessão `aal1` do `owner` pra lá antes de qualquer
+   módulo — implementado e testado (`decideMfaGate`, 86/86) — **falta a validação AAL2 real
+   acontecer**, depende do item 3;
 5. ⬜ executar a primeira jornada visual (leitura) com a sessão real, ainda somente em
    staging — **não confirmado ainda**.
 
@@ -1300,3 +1302,46 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
 - **Pendência aberta**: `git`/`config.toml` e o remoto ficaram alinhados manualmente desta vez;
   se um `config push` futuro for tentado, conferir que o diff mostrado bate exatamente com essas
   2 entradas antes de confirmar — mesma lição do incidente anterior, reforçada.
+
+## M18-G22 — tela de MFA/TOTP implementada; falta o piloto usar de verdade (04/09/2026)
+
+- **Achado que motivou esta gate**: nenhum app tinha `supabase.auth.mfa` em lugar nenhum —
+  `erp_roles.requires_mfa` (migration 0018, já `true` pro papel `owner` da Mania de Modas desde
+  o provisionamento na 0034) nunca era checado por ninguém. Login funcionava, sessão ficava em
+  `aal1` pra sempre, e não existia rota nenhuma em `apps/portal` onde a pessoa pudesse cadastrar
+  um segundo fator — o requisito de MFA do dono estava só no schema, nunca aplicado na prática.
+- **Implementado em `apps/portal`**:
+  - `src/domain/mfa-gate.ts` — função pura `decideMfaGate` (papel exige aal2? sessão já está em
+    aal2? já está na própria tela de segurança, pra não formar loop?) → `allow` ou
+    `redirect-to-security`. Zero I/O, testada isolada.
+  - `src/lib/mfa.ts` — `membershipRequiresAal2` (mesma leitura de `erp_membership_roles` →
+    `erp_roles.requires_mfa` que `canManageBranding` já fazia pra branding, agora pra MFA) e
+    `getCurrentAal` (`supabase.auth.mfa.getAuthenticatorAssuranceLevel()`). Os dois **fail-closed
+    ao contrário de `canManageBranding`**: erro assume que aal2 É exigido e NÃO foi satisfeito —
+    a direção mais restritiva, nunca a mais permissiva (trava com teste dedicado).
+  - `(portal)/layout.tsx` — aplica o gate em toda rota autenticada (novo header
+    `x-cc-pathname` propagado pelo middleware, mesmo mecanismo já usado pra `x-cc-portal-host`);
+    redireciona pra `/configuracoes/seguranca` sem alterar nenhuma autorização real de dado —
+    isso continua sendo só RLS/RPC no banco.
+  - `/configuracoes/seguranca` (nova rota) + `components/SecurityMfaPanel.tsx` — cadastro (QR +
+    segredo manual + código de confirmação) e step-up (login futuro já com fator verificado,
+    exige só o código) num único painel, via `enroll`/`challengeAndVerify`. **Segundo (e único
+    outro) lugar do app que usa o client Supabase do browser**, mesma classe de exceção do
+    `/auth/confirm` (M18-G22 anterior): a interação — mostrar QR, reagir a código errado sem
+    reload — só faz sentido contra a sessão viva no navegador; todo o resto do app continua
+    servidor + formulário.
+  - Link "🔐 Segurança" adicionado à topbar do portal pra qualquer membro ativar MFA por conta
+    própria, mesmo quando não é exigido pelo papel.
+- **Testes**: `tests/m18-g22-mfa-security.test.ts` (novo) — as 4 combinações de `decideMfaGate`,
+  guarda-varredura confirmando que só `auth/confirm/page.tsx` e `SecurityMfaPanel.tsx` importam
+  o client do browser (qualquer novo import precisa ser adicionado ali de propósito, nunca por
+  acidente), e trava textual do fail-closed em `lib/mfa.ts`. `apps/portal` 86/86 (80 anteriores +
+  6 novos), type-check, lint e build limpos (`next build` local — `npm test`/`build` com hook de
+  versão do Node bloqueados neste ambiente por Node 26 instalado vs. `>=22 <23` pinado; rodado
+  direto via `tsx`/`next` pra contornar, mesmo binário que a CI usa).
+- **Ainda não fechou o portão**: isto é infraestrutura testada localmente, não a ação real do
+  usuário-piloto. Faltam, na ordem: (1) commit chegar em `staging` remoto e o Vercel publicar;
+  (2) dono da Mania de Modas logar de novo e ser redirecionado sozinho pra
+  `/configuracoes/seguranca` (papel `owner` já tem `requires_mfa=true` desde o provisionamento);
+  (3) ele de fato escanear o QR e confirmar o código — só aí a sessão chega em `aal2` de verdade
+  e o G22 fecha por completo.

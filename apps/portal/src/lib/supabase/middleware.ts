@@ -7,6 +7,11 @@ export async function updatePortalSession(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   const normalizedHostname = normalizeHostname(request.nextUrl.hostname);
   requestHeaders.set('x-cc-portal-host', normalizedHostname ?? 'invalid');
+  // M18-G22 — o gate de MFA (decideMfaGate) precisa saber em qual rota a
+  // Server Component já está pra não redirecionar a própria tela de
+  // segurança pra ela mesma (loop infinito). Server Components não recebem
+  // pathname de outro jeito — mesmo mecanismo já usado pra x-cc-portal-host.
+  requestHeaders.set('x-cc-pathname', request.nextUrl.pathname);
 
   let response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set('Cache-Control', 'private, no-store');
