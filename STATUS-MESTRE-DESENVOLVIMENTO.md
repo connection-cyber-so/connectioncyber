@@ -1129,6 +1129,26 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
 - Nenhuma migration nova; nenhum dado remoto alterado além do que o próprio usuário salvar
   pela tela (ninguém salvou nada ainda — feature nova, staging sem uso real até aqui).
 
+## Correção — e-mail errado do dono-piloto substituído (04/09/2026)
+
+- O e-mail coletado na coleta protegida original (M18-G20/G21) estava digitado errado — a
+  pessoa certa nunca recebeu o convite; o e-mail confirmado em 02/09 pertencia a uma caixa
+  errada, nunca usada pra entrar (login/MFA zero desde a criação).
+- Correção pelo mesmo mecanismo de coleta protegida: `Collect-PilotProvisioningProtected.ps1`
+  rodado de novo pelo usuário com o e-mail correto (nunca digitado em chat), seguido de novo
+  script `apps/platform/scripts/Fix-PilotOwnerEmail.ps1` (`-PreflightOnly` depois `-Apply`).
+- Convite novo enviado ao e-mail correto; membership+papel `owner` novos criados via
+  PostgREST com `service_role` (ignora RLS por padrão, sem precisar de RPC nova só pra isto).
+- **Achado real do schema, não bug**: a tentativa de apagar o usuário antigo foi recusada pela
+  Auth API (`23503`, FK violation) — `erp_identity_provisioning_steps` referencia esse
+  `user_id` sem cascata, de propósito, porque é histórico real de auditoria do provisionamento
+  original. Comportamento correto: preservar auditoria em vez de permitir apagar. Fallback
+  seguro aplicado — usuário antigo mantido inerte, membership dele marcada `revoked` (não
+  apagada). Script atualizado para fazer esse fallback automaticamente da próxima vez.
+- Estado final: exatamente uma membership `owner` viva (e-mail correto, `invited`, aguardando
+  aceite) por tenant; a antiga preservada como `revoked` para rastreabilidade.
+- Nenhum dado de auditoria apagado; produção não acessada.
+
 ## Portão 0 — publicação do apps/portal e ativação do domínio da Mania de Modas (04/09/2026)
 
 - `apps/portal` publicado pela primeira vez (projeto Vercel `connectioncyber-portal`, staging

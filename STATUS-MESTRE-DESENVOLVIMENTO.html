@@ -486,6 +486,12 @@
     <p><code>portal</code> 75/75 testes (16 novos), type-check, lint e build limpos. Nenhuma migration nova.</p>
   </section>
   <section>
+    <h2>Correção — e-mail errado do dono-piloto substituído</h2>
+    <p><strong>Concluído em 04/09/2026.</strong> O e-mail coletado na coleta protegida original (M18-G20/G21) estava digitado errado — confirmado em 02/09, mas por uma caixa errada, nunca usada pra entrar (login/MFA zero). Corrigido pelo mesmo mecanismo de coleta protegida (nunca digitado em chat) + novo script <code>Fix-PilotOwnerEmail.ps1</code>.</p>
+    <p><strong>Achado real do schema, não bug</strong>: apagar o usuário antigo foi recusado pela Auth API (FK violation) — <code>erp_identity_provisioning_steps</code> referencia esse <code>user_id</code> sem cascata, de propósito, por ser auditoria real do provisionamento. Fallback seguro: usuário antigo mantido inerte, membership marcada <code>revoked</code>, não apagada.</p>
+    <p>Estado final: exatamente uma membership <code>owner</code> viva (e-mail correto, aguardando aceite); a antiga preservada como <code>revoked</code>. Nenhum dado de auditoria apagado.</p>
+  </section>
+  <section>
     <h2>Portão 0 — publicação do apps/portal e ativação do domínio da Mania de Modas</h2>
     <p><strong>Concluído em 04/09/2026.</strong> Conflito real encontrado e resolvido: a Hostinger já tinha subdomínio + registro DNS próprios pra <code>maniademoda</code> (apontando pra hospedagem dela), com prioridade sobre o curinga por regra de DNS. Removido pelo usuário; DNS confirmado propagado em 3 fontes independentes sem cache.</p>
     <p>SSL emitido após registrar o domínio explicitamente no projeto Vercel. Última peça: linha em <code>erp_tenant_domains</code> nunca tinha sido gravada — sem ela, DNS/SSL certos ainda devolviam 404 de propósito. Inserida via <code>supabase db query --linked</code> (escrita de dado, não afetada pelo Major Outage da Management API do momento).</p>
