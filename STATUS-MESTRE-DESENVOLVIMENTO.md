@@ -1129,6 +1129,54 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
 - Nenhuma migration nova; nenhum dado remoto alterado além do que o próprio usuário salvar
   pela tela (ninguém salvou nada ainda — feature nova, staging sem uso real até aqui).
 
+## Incidente e correção — convite redirecionava pra localhost, token vazou (04/09/2026)
+
+- **Achado de segurança real**: ao clicar no convite corrigido, o Supabase Auth redirecionou
+  o navegador pra `http://localhost:3000/#access_token=...` (não pra nenhum host real) — um
+  `access_token`/`refresh_token` válidos da conta do dono ficaram expostos na URL, capturados
+  em print e colados em texto solto. **Ação imediata**: sessão revogada globalmente
+  (`POST /auth/v1/logout?scope=global` usando o próprio token vazado contra si mesmo, único
+  uso dele depois de exposto) — `204`, confirmado.
+- **Causa raiz**: o `site_url` do projeto Supabase de staging nunca tinha sido configurado —
+  ficou no padrão de desenvolvimento (`http://localhost:3000`) desde sempre. O convite original
+  (M18-G20/G21) não passou `redirect_to` explícito, então o Auth usou esse padrão. Segundo
+  problema: `apps/portal` nunca teve rota nenhuma pra receber esse token — Supabase Auth entrega
+  o token no **fragmento** da URL (`#access_token=...`), que nunca chega ao servidor (Server
+  Component/Route Handler não veem `location.hash`), então processar isso é obrigatoriamente
+  client-side. O app inteiro até aqui era 100% formulário sem JS.
+- **Terceiro problema, mais profundo**: mesmo com login funcionando perfeitamente, nada no
+  sistema jamais fazia `erp_tenant_memberships.status` sair de `'invited'` pra `'active'` —
+  `decidePortalAccess`/`isMembershipActive` exige `status='active'`; sem essa transição, a
+  pessoa teria sessão válida e ainda assim receberia `forbidden` pra sempre.
+- **Correção** (código): `apps/portal/src/lib/supabase/client.ts` (primeiro client Supabase no
+  browser deste app — só serve pra isto), `apps/portal/src/app/auth/confirm/page.tsx` (lê o
+  fragmento, chama `setSession`, limpa a URL do histórico, guia a pessoa a definir senha, chama
+  a RPC nova pra ativar a membership). Migration `0036_m18_accept_membership_invite.sql` — RPC
+  `erp_accept_pending_memberships_v1()` (`security definer`, sempre escopada a `auth.uid()`,
+  não recebe parâmetro — não há como ativar membership de outro usuário). 7 testes pgTAP
+  (positivo/negativo/isolamento entre usuários/idempotência), suíte local completa 22/22
+  arquivos sem regressão, preflight e dry-run remoto (`M18_0036_TRANSACTION_7_OF_7_ROLLBACK`)
+  antes da aplicação persistente. `apps/portal` 80/80 testes, type-check, lint, build limpos.
+- **Correção** (config): `supabase/config.toml` `[auth]` `site_url` →
+  `https://portal.connectioncyber.com.br`; `additional_redirect_urls` cobrindo
+  `portal.connectioncyber.com.br`, `maniademoda.connectioncyber.com.br` e o curinga
+  `*.connectioncyber.com.br`, todos em `/auth/confirm`.
+- **Quase-incidente na aplicação da config**: `supabase config push` não aplica só o campo
+  pedido — sincroniza o `[auth]` inteiro do `config.toml` contra o remoto. O arquivo local tinha
+  valores obsoletos nunca antes sincronizados (`mfa.totp.enroll_enabled`/`verify_enabled` em
+  `false`, `email.enable_confirmations` em `false`, OTP mais curto/frequente) que **foram
+  aplicados de verdade no primeiro push**, desligando cadastro de MFA e confirmação de e-mail
+  no staging por um período — descoberto no diff do push seguinte (mostrou o remoto ainda com
+  os valores antigos "corretos" sendo substituídos pelos novos "errados" outra vez, provando que
+  o primeiro push persistiu). Corrigido revertendo esses campos no `config.toml` pros valores
+  reais (`true`/`true`/`true`/OTP restaurado) e reaplicando — confirmado `up_to_date` em todos
+  os serviços depois, e `mailer_autoconfirm:false` confirmado ao vivo via
+  `/auth/v1/settings`. **Lição registrada**: `config push` nunca deve ser usado pra mudar um
+  campo isolado sem primeiro conferir que o resto do arquivo local reflete o estado real
+  pretendido do remoto — não é uma operação cirúrgica.
+- Nenhuma migration remota faltou verificação; incidente do Management API do Supabase
+  (`PARECER-INCIDENTES-SUPABASE-STATUS.md`) não impediu nenhuma das operações desta gate.
+
 ## Correção — e-mail errado do dono-piloto substituído (04/09/2026)
 
 - O e-mail coletado na coleta protegida original (M18-G20/G21) estava digitado errado — a
