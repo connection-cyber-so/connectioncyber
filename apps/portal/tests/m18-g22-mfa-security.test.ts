@@ -71,3 +71,22 @@ test('gate de MFA no layout usa erro fail-closed: erro assume aal2 exigido/não 
   assert.match(mfaLib, /catch\s*\{\s*return true;\s*\}/);
   assert.match(mfaLib, /catch\s*\{\s*return 'aal1';\s*\}/);
 });
+
+// M18-G22 — achado real em produção: qr_code vem como SVG cru, sempre com
+// cores em hex (fill="#..."). Sem encodeURIComponent, o primeiro "#" vira
+// fragmento da data: URL e trunca a imagem ali — quebra silenciosa, sem erro
+// nenhum no console, só um ícone de imagem quebrada (piloto viu isto ao vivo).
+test('QR code do TOTP é URL-encoded antes de virar src de imagem (evita truncar no primeiro "#" de uma cor hex)', () => {
+  const panel = readFileSync(new URL('../src/components/SecurityMfaPanel.tsx', import.meta.url), 'utf8');
+  assert.match(panel, /data:image\/svg\+xml;utf-8,\$\{encodeURIComponent\(enrollData\.qrCode\)\}/);
+});
+
+// M18-G22 — segundo achado real: a API de MFA recusa um novo enroll() de
+// TOTP enquanto um fator anterior, mesmo não verificado, ainda existir.
+// Sem limpar o resíduo, uma segunda tentativa (ex.: depois do QR quebrado
+// acima) trava pra sempre com "Não foi possível iniciar o cadastro".
+test('cadastro limpa fator TOTP não verificado de tentativa anterior antes de pedir um QR novo', () => {
+  const panel = readFileSync(new URL('../src/components/SecurityMfaPanel.tsx', import.meta.url), 'utf8');
+  assert.match(panel, /factor_type === 'totp' && factor\.status === 'unverified'/);
+  assert.match(panel, /supabase\.auth\.mfa\.unenroll\(\{ factorId: staleTotp\.id \}\)/);
+});

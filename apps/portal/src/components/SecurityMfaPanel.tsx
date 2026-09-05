@@ -67,6 +67,19 @@ export function SecurityMfaPanel({ requiresAal2 }: { requiresAal2: boolean }) {
     setError(null);
     setStep('enrolling');
     const supabase = createClient();
+
+    // A API de MFA recusa um segundo enroll() de TOTP enquanto um fator
+    // anterior, mesmo não verificado, ainda existir ("Ativar" de novo depois
+    // de um QR que falhou trava pra sempre sem isto). Limpa qualquer
+    // resíduo de tentativa anterior antes de pedir um QR novo.
+    const { data: existing } = await supabase.auth.mfa.listFactors();
+    const staleTotp = existing?.all.find(
+      (factor) => factor.factor_type === 'totp' && factor.status === 'unverified'
+    );
+    if (staleTotp) {
+      await supabase.auth.mfa.unenroll({ factorId: staleTotp.id });
+    }
+
     const { data, error: enrollError } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
     if (enrollError || !data) {
       setError('Não foi possível iniciar o cadastro. Tente de novo.');
@@ -147,9 +160,14 @@ export function SecurityMfaPanel({ requiresAal2 }: { requiresAal2: boolean }) {
       {(step === 'verify-new' || step === 'verifying-new') && enrollData ? (
         <form onSubmit={handleVerifyNew} className="form-stack">
           <p className="lead">Escaneie o QR code no seu app autenticador:</p>
+          {/* qr_code vem como SVG cru (não codificado) — a doc da Supabase sugere só
+              prefixar "data:image/svg+xml;utf-8,", mas o SVG do QR sempre tem cores em
+              hex (fill="#000000"): sem escapar, o primeiro "#" vira fragmento da URL e
+              trunca a imagem ali, quebrando silenciosamente (confirmado em produção,
+              piloto viu o alt-text no lugar do QR). encodeURIComponent evita isto. */}
           {/* eslint-disable-next-line @next/next/no-img-element -- SVG gerado em runtime pela API de MFA, não uma imagem estática pra next/image otimizar. */}
           <img
-            src={`data:image/svg+xml;utf-8,${enrollData.qrCode}`}
+            src={`data:image/svg+xml;utf-8,${encodeURIComponent(enrollData.qrCode)}`}
             alt="QR code para cadastro do autenticador"
             width={200}
             height={200}
