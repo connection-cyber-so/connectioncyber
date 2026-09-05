@@ -353,7 +353,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M15 | Piloto e implantação por cliente | G0–G11 concluídos em staging | Jornada visual sintética consolidada (cadastro→catálogo→estoque→PDV→caixa→financeiro) e preparação local de hipercare | Sintético/local encerrado; depende do M18 para persistência real. UAT com usuário real e produção seguem bloqueados. |
 | M16 | Capacidades por tenant e industrialização multiempresa | G0–G8 concluídos em staging | Contrato canônico de capacidades, motor fail-closed, migration 0032, painel administrativo e simulador de ondas | 0032 aplicada e validada em staging; ativação de capacidade por tenant real depende do piloto. |
 | M17 | Jornada persistente server-side | G0–G12 concluídos em staging | Autorização server-side, cadastro/catálogo/estoque/PDV/caixa/financeiro com repositório local, migration 0033 | 0033 aplicada e validada em staging; backend persistente pronto, consumido pelo M18. |
-| M18 | Persistência visual e piloto Mania de Modas | G0–G21 concluídos em staging; **G22 parcialmente concluído** | Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034, provisionamento do tenant piloto (Mania de Modas) | 0034 aplicada; tenant/estabelecimento/membership/convite criados em staging (`M18_G21_PROVISIONING_OK`). G22: convite aceito, senha definida, `erp_tenant_memberships.status='active'` confirmado no banco, login real ponta a ponta validado (04/09/2026, dois incidentes de vazamento de token corrigidos no processo). Tela de cadastro/step-up de MFA (`/configuracoes/seguranca`) implementada e validada localmente (86/86, type-check/lint/build limpos) — ainda não publicada nem usada pelo piloto. Falta: push pro remoto, deploy, owner cadastrar MFA/TOTP de verdade, validar sessão AAL2 e executar a primeira jornada visual real — sem isso o portão não fecha. |
+| M18 | Persistência visual e piloto Mania de Modas | **G0–G22 concluídos em staging** | Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034/0036, provisionamento e ativação completa do tenant piloto (Mania de Modas) | 0034/0036 aplicadas; tenant/estabelecimento/membership/convite criados (`M18_G21_PROVISIONING_OK`); G22 fechado 04/09/2026 — convite aceito, senha definida, MFA/TOTP cadastrado, sessão AAL2 validada e primeira jornada visual real (dashboard, leitura) confirmadas por print do próprio usuário-piloto. Pendência cosmética não bloqueante: renderização do `<img>` do QR code (fallback de segredo manual funcionou). |
 | M19 | Redesign visual + roteamento de login | **G0–G5 concluídos** | Tema global/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), engrenagem de branding no portal (G4), roteamento de login por papel sem lookup de e-mail (G5) | Programa concluído. `platform` 165/165, `portal` 75/75, `site` 19/19; type-check/lint/build limpos nos 3. Uma migration nova (0035), aplicada em staging com preflight+dry-run+push. |
 
 ## 8. Critérios globais de validação
@@ -397,32 +397,35 @@ pendente neste programa — eventual redesign bespoke por tela individual do `ap
 (fora de escopo do G2) ou upload de logo via Storage (fora de escopo do G4) ficam para um
 portão futuro, só se solicitados.
 
-### M18-G22 — ativação controlada do acesso do usuário-piloto (parcialmente concluído, ação externa restante)
-
-Único portão pendente no momento — independente do M19, que está concluído.
+### M18-G22 — ativação controlada do acesso do usuário-piloto (✅ CONCLUÍDO — 04/09/2026)
 
 Definido em `RELATORIO-M18-G21-PROVISIONAMENTO-PILOTO-STAGING.md` como próximo portão após o
-provisionamento do tenant Mania de Modas (`M18_G21_PROVISIONING_OK`). Depende de interação do
-usuário convidado, não é automatizável:
+provisionamento do tenant Mania de Modas (`M18_G21_PROVISIONING_OK`). Todos os 5 critérios
+confirmados por print, na sessão real do usuário-piloto:
 
 1. ✅ convite Auth entregue e aceito pelo usuário-piloto (após corrigir e-mail errado e dois
    incidentes de vazamento de token no processo de entrega — ambos revogados imediatamente e
    corrigidos na raiz, ver seções "Incidente e correção" e "Incidente e correção 2" acima);
 2. ✅ usuário-piloto concluiu o cadastro de senha; `erp_tenant_memberships.status='active'`
-   confirmado no banco; login real ponta a ponta testado e confirmado por print
-   (04/09/2026) — dashboard do portal mostra "Empresa ativa: Mania de Modas", "Contexto
-   validado";
-3. 🔶 tela de cadastro de MFA implementada e validada localmente
-   (`/configuracoes/seguranca`, ver seção "tela de MFA/TOTP implementada" acima) — **falta o
-   usuário-piloto de fato escanear o QR e confirmar o código em staging**;
-4. 🔶 gate automático redireciona qualquer sessão `aal1` do `owner` pra lá antes de qualquer
-   módulo — implementado e testado (`decideMfaGate`, 86/86) — **falta a validação AAL2 real
-   acontecer**, depende do item 3;
-5. ⬜ executar a primeira jornada visual (leitura) com a sessão real, ainda somente em
-   staging — **não confirmado ainda**.
+   confirmado no banco; login real ponta a ponta testado e confirmado por print;
+3. ✅ MFA/TOTP cadastrado de verdade pelo usuário-piloto em `/configuracoes/seguranca` — o QR
+   code em si não renderizou no navegador dele (bug à parte, ver "Pendência cosmética" abaixo),
+   mas o campo de fallback ("Ou digite manualmente: `<segredo>`") funcionou exatamente para isto
+   e ele completou o cadastro por ali;
+4. ✅ sessão validada em AAL2 — print mostra "Autenticação em duas etapas — Ativa nesta sessão /
+   Sessão validada com autenticação em duas etapas";
+5. ✅ primeira jornada visual real executada — redirecionado automaticamente pro
+   `/dashboard`, "Contexto validado", shell M03 renderizado em modo leitura com a sessão real do
+   dono da Mania de Modas.
 
-Portão fecha quando 3–5 forem confirmados. Importação de backup real, dados fiscais, domínio
-público, pagamentos e produção permanecem em
+**Pendência cosmética, não bloqueia o portão**: o `<img>` do QR code continua não renderizando
+no navegador do piloto mesmo depois do fix de `encodeURIComponent` (commit `f9fd237`) — a causa
+exata ainda não foi confirmada (candidatos: `qr_code` vindo em formato diferente do esperado, ou
+o deployment daquele commit ainda não promovido a Production quando ele testou). Não impede
+cadastro nem uso — o campo de segredo manual é a alternativa padrão de qualquer app TOTP e
+resolveu na prática. Investigar como melhoria, não como bloqueio.
+
+Importação de backup real, dados fiscais, domínio público, pagamentos e produção permanecem em
 portões separados e bloqueados.
 
 ## 11. Histórico do documento
@@ -1361,3 +1364,35 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
   commit `46bacff` do projeto `connectioncyber-portal` a Production pelo painel da Vercel — só
   então o gate de MFA passa a existir na sessão real do piloto. G22 permanece aberto até essa
   promoção acontecer e o piloto repetir o teste.
+
+## M18-G22 — FECHADO: MFA cadastrado, AAL2 validado, primeira jornada real (04/09/2026)
+
+- **Confirmado por prints do próprio usuário-piloto, nesta ordem**: tela `/configuracoes/seguranca`
+  mostrando "Obrigatória pro seu papel" com QR (quebrado no navegador dele — ver abaixo) e o
+  campo "Ou digite manualmente: `<segredo>`" → piloto cadastrou o segredo manual no app
+  autenticador, digitou o código de 6 dígitos → card virou "Ativa nesta sessão / Sessão validada
+  com autenticação em duas etapas" → redirecionado sozinho pro `/dashboard`, "Contexto validado".
+  Os 5 critérios do G22 (ver seção acima) estão todos confirmados.
+- **QR code segue quebrado mesmo após o fix de `encodeURIComponent` (commit `f9fd237`)**: o
+  fallback de segredo manual — que é padrão em qualquer app TOTP, não uma solução alternativa
+  frágil — resolveu na prática, então isto não bloqueia o portão. Causa exata ainda não
+  isolada; candidatos a investigar quando houver prioridade: (a) o commit `f9fd237` ainda não
+  tinha sido promovido a Production quando o piloto testou (mesma classe de problema da seção
+  anterior, viraria não-problema após promover); (b) o `qr_code` devolvido pela API de MFA para
+  este ambiente vem em formato diferente do documentado pela Supabase. Sem reprodução controlada
+  ainda — registrado como débito técnico menor, não reaberto o gate por causa disto.
+- **Pergunta do usuário, respondida aqui**: a mensagem "O shell M03 está em modo somente leitura.
+  Cada módulo será liberado após seu portão de validação." **não tem relação com MFA/G22**. São
+  dois eixos independentes de "validação" no projeto:
+  - **G22 (o que acabou de ser feito)** valida **quem** está entrando — identidade da pessoa
+    (senha + segundo fator). É sobre a sessão.
+  - **M03 read-only + módulos M05–M08 travados** é sobre **o que** o portal pode mostrar —
+    cada módulo de negócio (Cadastros, Estoque, Vendas, Financeiro) já está construído e testado
+    em staging com dados fictícios (ex.: M05 44/44 asserções, ver §7), mas **nenhum tem dado real
+    da Mania de Modas ainda**. Ativar um módulo de verdade pro piloto é um processo à parte —
+    `§9. Processo de migração por cliente` (receber backup real, restaurar isolado, extrair,
+    transformar, carregar, reconciliar, aceite do cliente, corte) — e depende do M14/M15, não do
+    M18. Login seguro é pré-requisito pra chegar até aqui; não é o mesmo portão que libera dado.
+- Fecha efetivamente o M18. Próximo módulo em aberto no roteiro (§7): retomar M13 (fiscal/A1,
+  "motor global validado; piloto pendente") ou iniciar a migração de dados real da Mania de
+  Modas (M14/M15) — nenhum dos dois foi autorizado ainda nesta sessão.
