@@ -1523,6 +1523,29 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
   `visual-persistence-contract` 52/52; `visual-persistence-supabase-adapter` 51/51.
 - Relatórios completos: `RELATORIO-M20-G3-TELAS-EM-ABAS.md`,
   `RELATORIO-M20-G4-SELETOR-ESTABELECIMENTO.md`.
-- M20 (G0-G4) fecha aqui. Próximo módulo em aberto no roteiro (§7): retomar M13 (fiscal/A1) ou
-  a migração de dados real de um cliente (M14/M15) — agora com cadastro fiscal/comercial pronto
-  pra receber dado de verdade.
+
+## M20-G5 — preparação para a reforma tributária IBS/CBS (07/09/2026)
+
+- A pedido do usuário: "o que já dá pra implementar da reforma tributária no cadastro de
+  produto/empresa?". Resposta extraída direto do XSD oficial da SEFAZ já fixado e
+  hash-verificado no projeto (`packages/fiscal-contract/schemas/nfe/010e_v1.02`, pacote
+  publicado 10/07/2026), não de memória — evita informação desatualizada num tema regulatório.
+- Migration `0039`: duas colunas nullable em `erp_item_fiscal_data` — `cst_ibs_cbs` (CST do
+  IBS/CBS, 3 dígitos, paralelo e distinto do CST/CSOSN do ICMS já existente) e `cclass_trib`
+  (Código de Classificação Tributária, 6 dígitos). Deliberadamente **fora** desta gate:
+  alíquotas/valores de IBS/CBS (2026 é fase de teste, sem valor estável) e o grupo de Imposto
+  Seletivo (só relevante pra bebida alcoólica/cigarro — vertical "Adega" do M20-G2). A tabela
+  oficial de significado de cada `cClassTrib` é anexo da LC 214/25, não vem no XSD — mesma regra
+  do NCM/CSOSN hoje: aguarda contador.
+- Mockup (aba Fiscal do produto) ganhou a seção "Reforma tributária (IBS/CBS)" com selo "novo ·
+  opcional em 2026".
+- **Validado**: banco local religado só pra este teste (tinha sido parado por pedido de memória);
+  0037/0038 aplicadas de verdade primeiro (nunca tinham sido persistentes ali), dry-run 10/10
+  pgTAP, aplicação real + rollback real testados, depois **revertidas 0039/0038/0037 em
+  sequência** devolvendo o banco exatamente a 0034 e o container parado de novo ao final.
+- Relatório completo: `RELATORIO-M20-G5-REFORMA-TRIBUTARIA-IBS-CBS.md`.
+- Marcador: `M20_0039_TRANSACTION_10_OF_10_ROLLBACK`.
+
+M20 (G0-G5) fecha aqui. Próximo módulo em aberto no roteiro (§7): retomar M13 (fiscal/A1) ou
+a migração de dados real de um cliente (M14/M15) — agora com cadastro fiscal/comercial pronto
+pra receber dado de verdade.
