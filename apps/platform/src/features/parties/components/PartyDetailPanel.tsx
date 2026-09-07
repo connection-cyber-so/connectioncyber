@@ -1,5 +1,5 @@
 'use client';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';import { useFormStatus } from 'react-dom';
 import { addPartyAddressAction, addPartyContactAction, addPartyDocumentAction, type PartyActionState } from '../actions';
 import type { PartyAddress, PartyContact, PartyDocument } from '../types';
 
@@ -15,7 +15,7 @@ const addressLabels: Record<PartyAddress['type'], string> = { main: 'Principal',
 
 // M20-G3 — aba Documentos: lista + mini-formulário anexado à pessoa já criada.
 function DocumentsSection({ partyId, documents }: { partyId: string; documents: PartyDocument[] }) {
-  const [state, action] = useFormState(addPartyDocumentAction, initial);
+  const [state, action] = useActionState(addPartyDocumentAction, initial);
   return (
     <div className="pf-detail-section">
       <h4>Documentos</h4>
@@ -39,7 +39,7 @@ function DocumentsSection({ partyId, documents }: { partyId: string; documents: 
 
 // M20-G3 — aba Contatos.
 function ContactsSection({ partyId, contacts }: { partyId: string; contacts: PartyContact[] }) {
-  const [state, action] = useFormState(addPartyContactAction, initial);
+  const [state, action] = useActionState(addPartyContactAction, initial);
   return (
     <div className="pf-detail-section">
       <h4>Contatos</h4>
@@ -63,7 +63,7 @@ function ContactsSection({ partyId, contacts }: { partyId: string; contacts: Par
 
 // M20-G3 — aba Endereços.
 function AddressesSection({ partyId, addresses }: { partyId: string; addresses: PartyAddress[] }) {
-  const [state, action] = useFormState(addPartyAddressAction, initial);
+  const [state, action] = useActionState(addPartyAddressAction, initial);
   return (
     <div className="pf-detail-section">
       <h4>Endereços</h4>

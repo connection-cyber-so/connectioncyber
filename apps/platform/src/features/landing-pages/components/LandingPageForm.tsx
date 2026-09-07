@@ -1,7 +1,7 @@
 'use client';
 
 // Adaptado de cc-commerce-studio/features/landing-pages/components/LandingPageForm.tsx
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';import { useFormStatus } from 'react-dom';
 import { createLandingPageAction, type CreateLandingPageActionState } from '../actions';
 import type { Offer } from '@/features/offers/types';
 
@@ -17,7 +17,7 @@ function SubmitButton() {
 }
 
 export function LandingPageForm({ offers }: { offers: Offer[] }) {
-  const [state, formAction] = useFormState(createLandingPageAction, initialState);
+  const [state, formAction] = useActionState(createLandingPageAction, initialState);
 
   if (offers.length === 0) {
     return (

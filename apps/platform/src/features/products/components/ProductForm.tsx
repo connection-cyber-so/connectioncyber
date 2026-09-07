@@ -2,7 +2,7 @@
 
 // Adaptado de cc-commerce-studio/features/products/components/ProductForm.tsx — sem
 // seletor de marca (brands ainda não migrado) e sem tenant_id/workspace_id hidden.
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';import { useFormStatus } from 'react-dom';
 import { createProductAction, type CreateProductActionState } from '../actions';
 
 const initialState: CreateProductActionState = { error: null, success: false };
@@ -17,7 +17,7 @@ function SubmitButton() {
 }
 
 export function ProductForm() {
-  const [state, formAction] = useFormState(createProductAction, initialState);
+  const [state, formAction] = useActionState(createProductAction, initialState);
 
   return (
     <div className="pf-content-card">

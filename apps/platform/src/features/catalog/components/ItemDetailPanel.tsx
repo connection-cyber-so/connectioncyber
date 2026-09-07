@@ -1,5 +1,5 @@
 'use client';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';import { useFormStatus } from 'react-dom';
 import { setItemCommercialAction, setItemFiscalAction, type CatalogState } from '../actions';
 import type { ItemCommercialData, ItemFiscalData, VerticalAttributeRequirement } from '../types';
 
@@ -12,7 +12,7 @@ function Submit({ label }: { label: string }) {
 // M20-G1/G3 — aba Fiscal: NCM/CEST/origem/CST-CSOSN/alíquotas/peso, ver
 // PARECER-TECNICO-M20-G0 seção 6 (tabela satélite erp_item_fiscal_data).
 function FiscalSection({ itemId, current }: { itemId: string; current: ItemFiscalData | undefined }) {
-  const [state, action] = useFormState(setItemFiscalAction, initial);
+  const [state, action] = useActionState(setItemFiscalAction, initial);
   return (
     <div className="pf-detail-section">
       <h4>Fiscal</h4>
@@ -48,7 +48,7 @@ function FiscalSection({ itemId, current }: { itemId: string; current: ItemFisca
 
 // M20-G1/G3 — aba Comercial: custo/margem/preço sugerido/estoque mínimo/reposição.
 function CommercialSection({ itemId, current }: { itemId: string; current: ItemCommercialData | undefined }) {
-  const [state, action] = useFormState(setItemCommercialAction, initial);
+  const [state, action] = useActionState(setItemCommercialAction, initial);
   return (
     <div className="pf-detail-section">
       <h4>Comercial</h4>

@@ -1,5 +1,5 @@
 'use client';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';import { useFormStatus } from 'react-dom';
 import { setEstablishmentVerticalAction, type EstablishmentActionState } from '../actions';
 import type { LocalEstablishment } from '@/features/persistence/local';
 import type { BusinessVertical } from '@/features/catalog/types';
@@ -12,7 +12,7 @@ function Submit() {
 
 // M20-G2/G4 — atribui a vertical de negócio (M20-G2) a cada estabelecimento (M20-G4).
 export function EstablishmentVerticalForm({ establishments, verticals }: { establishments: LocalEstablishment[]; verticals: BusinessVertical[] }) {
-  const [state, action] = useFormState(setEstablishmentVerticalAction, initial);
+  const [state, action] = useActionState(setEstablishmentVerticalAction, initial);
   if (!establishments.length) return null;
   return (
     <section className="pf-content-card">

@@ -2,7 +2,7 @@
 
 // Adaptado de cc-commerce-studio/features/video-script-engine/components/VideoScriptForm.tsx
 import { useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';import { useFormStatus } from 'react-dom';
 import { createVideoScriptAction, generateVideoScriptAction, type CreateVideoScriptActionState } from '../actions';
 import type { Offer } from '@/features/offers/types';
 
@@ -18,7 +18,7 @@ function SubmitButton() {
 }
 
 export function VideoScriptForm({ offers }: { offers: Offer[] }) {
-  const [state, formAction] = useFormState(createVideoScriptAction, initialState);
+  const [state, formAction] = useActionState(createVideoScriptAction, initialState);
   const [offerId, setOfferId] = useState(offers[0]?.id ?? '');
   const [script, setScript] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);

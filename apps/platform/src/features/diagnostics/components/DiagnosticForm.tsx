@@ -5,7 +5,7 @@
 // não usa Tailwind; ver apps/platform/README.md). Sem input hidden de tenant_id/workspace_id
 // — a action deriva o tenant da sessão (ver features/diagnostics/actions.ts).
 import { useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';import { useFormStatus } from 'react-dom';
 import { createDiagnosticAction, generateDiagnosticSummaryAction, type CreateDiagnosticActionState } from '../actions';
 
 const initialState: CreateDiagnosticActionState = { error: null, success: false };
@@ -20,7 +20,7 @@ function SubmitButton() {
 }
 
 export function DiagnosticForm({ projectId }: { projectId: string }) {
-  const [state, formAction] = useFormState(createDiagnosticAction, initialState);
+  const [state, formAction] = useActionState(createDiagnosticAction, initialState);
   const [canaisDigitais, setCanaisDigitais] = useState('');
   const [publicoAlvo, setPublicoAlvo] = useState('');
   const [concorrentes, setConcorrentes] = useState('');
