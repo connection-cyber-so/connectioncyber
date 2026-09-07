@@ -528,5 +528,11 @@
     <p><strong>Dois bugs reais pegos pela validação e corrigidos</strong>: (1) <code>numeric(6,4)</code> não cabia o default <code>icms_base_percent=100</code> — corrigido para <code>numeric(7,4)</code>; (2) a chave <code>fiscal.read</code> já existia desde a 0030 (M13, documento/NF-e) com significado diferente — renomeado para <code>fiscal.item.read</code>/<code>fiscal.item.manage</code>, permissão original restaurada.</p>
     <p><strong>Validado</strong>: dry-run <code>begin;...rollback;</code> com 32 de 32 pgTAP (20 estrutural + 12 adversarial), zero resíduo. Aplicação real + rollback real testados no mesmo banco local descartável, estado restaurado exatamente. <strong>Não aplicado em staging nem produção</strong> — falta credencial (nem MCP Supabase nem <code>service_role</code>/<code>DATABASE_URL</code> local apontam pro projeto certo hoje). Marcador: <code>M20_0037_TRANSACTION_32_OF_32_ROLLBACK</code>.</p>
   </section>
+  <section>
+    <h2>M20-G2 — verticais de segmento + atributos exigidos por item</h2>
+    <p><strong>Concluído em 07/09/2026, sem interferência do usuário a pedido dele.</strong> Correção de auditoria achada só ao desenhar esta gate: <code>erp_segment_profiles</code> (5 perfis largos de módulo/capacidade) já existe desde a migration 0016 (M16) — o G0 original não tinha visto. Não tornou a gate redundante: aquilo resolve "quais módulos", esta gate resolve o eixo mais fino de "quais campos extras" (validade de casa de bolos, teor alcoólico de adega).</p>
+    <p>Migration 0038: <code>erp_business_verticals</code> (14 verticais, cada uma ligada a um dos 5 perfis existentes) + <code>erp_vertical_attribute_requirements</code> (template de atributo, sem FK direta pro EAV por-tenant) + <code>erp_establishments.vertical_code</code>. Seed com conteúdo real, não placeholder.</p>
+    <p><strong>Validado</strong>: 29 de 29 pgTAP (20 estrutural + 9 adversarial) no mesmo Postgres local do G1, zero resíduo, aplicação real + rollback real testados. Staging remoto não tocado. Marcador: <code>M20_0038_TRANSACTION_29_OF_29_ROLLBACK</code>.</p>
+  </section>
 </body>
 </html>

@@ -1464,3 +1464,31 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
   `supabase/tests/0037_....test.sql` (+ `.adversarial.test.sql`),
   `supabase/validation/build-0037-transaction.mjs`.
 - Marcador: `M20_0037_TRANSACTION_32_OF_32_ROLLBACK`.
+
+## M20-G2 — verticais de segmento + atributos exigidos por item (07/09/2026)
+
+- Executado sem interferência do usuário, a pedido dele, logo após o G1.
+- **Correção de auditoria achada só ao desenhar esta gate**: o G0 original não tinha visto que
+  `erp_segment_profiles`/`erp_segment_profile_capabilities`/`erp_tenant_segment_profiles` já
+  existem desde a migration `0016` (M16) — 5 perfis largos já mapeados pra módulos/capacidades.
+  Não tornou a gate redundante: aquilo resolve "quais módulos", esta gate resolve "quais campos
+  extras" (eixo mais fino, ex.: validade de casa de bolos, teor alcoólico de adega) — os 5
+  perfis largos são grossos demais pra essa granularidade. Parecer G0 corrigido com nota.
+- Migration `0038`: `erp_business_verticals` (catálogo global, 14 verticais confirmadas no G0,
+  cada uma com FK opcional pra um dos 5 `erp_segment_profiles` existentes) +
+  `erp_vertical_attribute_requirements` (template de atributo por vertical — sem FK direta pra
+  `erp_attributes`, que é por-tenant; materialização real fica pra um portão de provisionamento
+  futuro) + `erp_establishments.vertical_code` (coluna nova, nullable).
+- Seed real: 14 verticais + 13 requisitos de atributo com conteúdo genuíno (não placeholder) —
+  `casa_de_bolos`→`validade_dias` obrigatório, `adega`→`teor_alcoolico`+`volume_ml`,
+  `loja_calcados`→`numeracao`, etc.
+- Erro de contagem próprio (não bug de schema): planejou `plan(21)` no pgTAP estrutural com só 20
+  instruções escritas — dry-run acusou "planned 30 but ran 29" de cara, corrigido pra 20+9=29.
+- **Validado**: dry-run **29 de 29 pgTAP** no mesmo Postgres local do G1
+  (`supabase_db_connectioncyber`, staging remoto não tocado), zero resíduo. Aplicação real +
+  rollback real testados no mesmo banco descartável, estado restaurado exatamente.
+- Não aplicado em staging/produção (mesma limitação de credencial do G1).
+- Arquivos: `supabase/migrations/0038_m20_business_verticals.sql`, preflight, rollback, 2 arquivos
+  de teste, `build-0038-transaction.mjs`. Relatório completo em
+  `RELATORIO-M20-G2-VERTICAIS-SEGMENTO.md`.
+- Marcador: `M20_0038_TRANSACTION_29_OF_29_ROLLBACK`.

@@ -38,6 +38,7 @@ resto deste parecer, é uma ação independente sua.
 | Segmento restaurante | M10 `erp_food_tabs`, `erp_dining_tables`, `erp_kitchen_tickets`, `erp_modifiers`, ficha técnica/rendimento (`erp_recipe_yields`) | Construído e testado (72/72), sem dado real |
 | Produto com receita/composição (Casa de Bolos: fabrica e vende) | `erp_item_compositions` + `erp_item_composition_lines` (BOM/receita/kit), `erp_stock_lots.manufactured_at`/`expires_at` (data de fabricação e validade por lote) | Schema pronto, sem tela |
 | Campos que só existem para certos segmentos (óleo de motor vs. óleo de fritura) | `erp_attributes` + `erp_attribute_values` + `erp_item_attribute_values` — EAV genérico já implementado, com tipos option/text/number/boolean | Schema pronto, **sem conceito de "segmento" para acionar automaticamente o grupo certo de atributos** |
+| **Correção de auditoria (achada só ao desenhar o M20-G2, não estava neste G0 original)**: "quais módulos um segmento típico usa" | `erp_segment_profiles`/`erp_segment_profile_capabilities`/`erp_tenant_segment_profiles` **já existem desde a migration `0016` (M16)** — 5 perfis largos (`retail_general`, `apparel_stationery`, `workshop`, `food_service`, `professional_services`) já mapeados pra módulos/capacidades. Esta auditoria não tinha visto isso. | Pronto — não é redundante recriar; o M20-G2 criou uma camada mais fina (`erp_business_verticals`, 14 itens) por cima, pra "quais campos extras", que é um problema diferente |
 | Código de barras + código interno | `erp_item_identifiers` (`type in gtin/ean13/ean8/internal/sku/supplier`) | Schema pronto |
 
 Isto muda o diagnóstico: **a fundação não está fraca — está sem acabamento.** M05/M06/M09/M10
@@ -95,7 +96,7 @@ permanece fora de escopo o tempo todo.
 |---|---|---|---|
 | M20-G0 | Este parecer — auditoria, lacunas, decisão de segmento e representação | Feito (hoje) | Sua leitura e aceite |
 | M20-G1 | Migration `0037`: campos fiscais + comerciais em `erp_catalog_items` (ou tabela satélite `erp_item_fiscal_data` / `erp_item_commercial_data`, a definir por normalização), preflight, rollback, pgTAP | 3-4h | Nenhuma até preflight local passar |
-| M20-G2 | Tabela `erp_business_segments` + `erp_segment_attribute_requirements` ligando segmento a atributos EAV obrigatórios/opcionais; seed com a lista confirmada na seção 6 | 2-3h | Nenhuma — lista já confirmada em 07/09/2026 |
+| M20-G2 | ✅ Concluído (07/09/2026). `erp_business_verticals` + `erp_vertical_attribute_requirements` (migration `0038`), 14 verticais seedadas, 29/29 pgTAP. Ver `RELATORIO-M20-G2-VERTICAIS-SEGMENTO.md` | Feito | — |
 | M20-G3 | Reescrita das telas de cadastro (`PartyForm`, `ItemForm`) em abas — Dados/Documentos/Contatos/Endereços para pessoa; Geral/Fiscal/Comercial/Estoque/Atributos do segmento para produto — replicando a cobertura de campo do SICNET | 1-2 dias | Revisão visual sua ao final (é a parte que você vai usar todo dia) |
 | M20-G4 | Seletor de estabelecimento (individual/todos) nas telas que já têm `establishment_id` no banco (estoque, vendas, OS) | 4-6h | Nenhuma até preflight local passar |
 | M20-G5 | Provisionamento dos tenants iGreen e Nipponflex (2 tenants, Opção C — sem schema novo), entram na fila de onboarding depois de Mania de Modas | 30min de schema (nenhum) + tempo normal de onboarding por cliente | Desbloqueado — decisão já tomada em 07/09/2026 |
