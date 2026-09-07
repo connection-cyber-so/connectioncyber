@@ -1,6 +1,6 @@
 import test from'node:test';import assert from'node:assert/strict';import{AUTHORITY_FIELDS,COMMAND_BOUNDARIES,CONTRACT_VERSION,PUBLIC_ERRORS,READ_MODELS,SECRET_FIELDS,THREAT_MODEL,UX_STATES,toPublicError,transitionUx,validateBrowserPayload,validateVisualPersistenceContract}from'../src/index.mjs';
-test('versão canônica M18 é fixa',()=>assert.equal(CONTRACT_VERSION,'M18-VISUAL-1.0'));
-test('contrato cobre sete comandos',()=>assert.equal(Object.keys(COMMAND_BOUNDARIES).length,7));
+test('versão canônica M20 é fixa',()=>assert.equal(CONTRACT_VERSION,'M20-VISUAL-2.0'));
+test('contrato cobre treze comandos',()=>assert.equal(Object.keys(COMMAND_BOUNDARIES).length,13));
 test('cada comando usa RPC v1',()=>assert.equal(Object.values(COMMAND_BOUNDARIES).every(x=>x.rpc.endsWith('_v1')),true));
 test('cada comando mapeia tela',()=>assert.equal(Object.values(COMMAND_BOUNDARIES).every(x=>x.screen.startsWith('/')),true));
 test('cada comando exige releitura',()=>assert.equal(Object.values(COMMAND_BOUNDARIES).every(x=>x.refresh.length>0),true));
@@ -30,4 +30,6 @@ test('erro nunca ativa retry automático',()=>assert.equal(toPublicError('TEMPOR
 test('detalhe inseguro não é exposto',()=>assert.equal(toPublicError('INTERNAL_FAILURE','select * from secret').detailExposed,false));
 test('modelo contém dez ameaças',()=>assert.equal(THREAT_MODEL.length,10));
 test('ameaças têm controle e teste',()=>assert.equal(THREAT_MODEL.every(x=>x.control&&x.test),true));
-test('contrato integral é válido',()=>assert.deepEqual(validateVisualPersistenceContract(),{valid:true,findings:[],version:'M18-VISUAL-1.0',commands:7,readModels:11,threats:10,remoteAccessed:false,productionAccessed:false}));
+test('contrato integral é válido',()=>assert.deepEqual(validateVisualPersistenceContract(),{valid:true,findings:[],version:'M20-VISUAL-2.0',commands:13,readModels:19,threats:10,remoteAccessed:false,productionAccessed:false}));
+test('seis comandos novos do M20-G3/G4 existem',()=>assert.equal(['party.document.add','party.contact.add','party.address.add','catalog.item.fiscal.set','catalog.item.commercial.set','establishment.vertical.set'].every(name=>Boolean(COMMAND_BOUNDARIES[name])),true));
+test('oito read models novos do M20-G3/G4 existem',()=>assert.equal(['party-documents','party-contacts','party-addresses','item-fiscal-data','item-commercial-data','business-verticals','vertical-attribute-requirements','establishments'].every(name=>Boolean(READ_MODELS[name])),true));

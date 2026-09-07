@@ -1,5 +1,5 @@
-export type CommandName='party.create'|'catalog.item.create'|'inventory.receive'|'cash.open'|'sale.complete'|'finance.receivable.settle'|'cash.close';
-export type ReadModelName='parties'|'catalog-items'|'stock-balance'|'stock-movements'|'open-cash-sessions'|'sales'|'financial-entries'|'installments'|'financial-summary'|'cash-history'|'dashboard-summary';
+export type CommandName='party.create'|'catalog.item.create'|'inventory.receive'|'cash.open'|'sale.complete'|'finance.receivable.settle'|'cash.close'|'party.document.add'|'party.contact.add'|'party.address.add'|'catalog.item.fiscal.set'|'catalog.item.commercial.set'|'establishment.vertical.set';
+export type ReadModelName='parties'|'catalog-items'|'stock-balance'|'stock-movements'|'open-cash-sessions'|'sales'|'financial-entries'|'installments'|'financial-summary'|'cash-history'|'dashboard-summary'|'party-documents'|'party-contacts'|'party-addresses'|'item-fiscal-data'|'item-commercial-data'|'business-verticals'|'vertical-attribute-requirements'|'establishments';
 export type Json=string|number|boolean|null|Json[]|{[key:string]:Json};
 export interface RpcTransport{rpc(rpc:string,args:{p_tenant_id:string;p_request_id:string;p_payload_hash:string;p_payload:Record<string,Json>}):Promise<Json>;read(contract:{key:ReadModelName;screen:string;source:string;tenantFilter:'server-resolved';empty:string},tenantId:string):Promise<Json>;}
 export interface PublicError{code:string;message:string;retryWriteAutomatically:false;detailExposed:false;unsafeDetailRecorded:false;unsafeDetailLength:number;}

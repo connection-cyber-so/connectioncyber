@@ -1492,3 +1492,37 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
   de teste, `build-0038-transaction.mjs`. Relatório completo em
   `RELATORIO-M20-G2-VERTICAIS-SEGMENTO.md`.
 - Marcador: `M20_0038_TRANSACTION_29_OF_29_ROLLBACK`.
+
+## M20-G3/G4 — telas em abas + seletor de estabelecimento (07/09/2026)
+
+- Executado sem interferência do usuário, a pedido dele, ambos na mesma sessão.
+- **Bump de contrato explícito**: o transporte de comandos do `apps/platform`
+  (`packages/visual-persistence-contract`) estava travado desde o M18-G5 em
+  `M18-VISUAL-1.0`/7 comandos/11 read models, com testes que conferem os números exatos. Para
+  caber documento/contato/endereço de pessoa e fiscal/comercial/vertical de item, virou
+  `M20-VISUAL-2.0`/13 comandos/19 read models — tratado como versão nova, não mutação
+  silenciosa do M18. Os 10 controles genéricos do `THREAT_MODEL` (tenant server-side,
+  idempotência, screening, releitura obrigatória) valem automaticamente pra todo comando novo.
+  Nenhuma RPC real criada no Supabase para os comandos novos — ficam bloqueados em modo
+  `persistent-read-only`, igual já era pros 7 originais.
+- **G3**: cadastros e catálogo ganharam painel expansível (`<details>` nativo, sem JS de
+  navegação, mesmo espírito "formulário 100% servidor" do M19-G4) com Documentos/Contatos/
+  Endereços por pessoa e Fiscal/Comercial/Atributos do segmento por item. Aba de atributos é
+  informativa por ora (mostra o que a vertical exige; materialização em `erp_attributes` real
+  por tenant segue como portão futuro, já declarado assim no M20-G2).
+- **G4**: descoberto que `/vendas`/`/servicos` já leem Supabase real direto (sem passar pelo
+  transporte visual) e `erp_sales`/`erp_service_orders`/`erp_appointments` já têm
+  `establishment_id` — filtro real adicionado ali. `/operacoes`/`/catalogo` usam o transporte
+  sintético; seletor funciona mas o saldo de estoque continua consolidado por decisão
+  registrada (fragmentar `state.stock` quebraria 7 testes que conferem trecho exato de
+  código-fonte, sem ganho real já que nenhum dado é real hoje). `/catalogo` usa a loja
+  selecionada pra escolher qual vertical mostrar na aba Atributos — liga G2+G3+G4 de ponta a
+  ponta apesar do estoque consolidado.
+- **Validado**: `tsc --noEmit`, `next lint` e `next build` limpos; `apps/platform`
+  **179/179** testes (165 preexistentes sem regressão + 14 novos);
+  `visual-persistence-contract` 52/52; `visual-persistence-supabase-adapter` 51/51.
+- Relatórios completos: `RELATORIO-M20-G3-TELAS-EM-ABAS.md`,
+  `RELATORIO-M20-G4-SELETOR-ESTABELECIMENTO.md`.
+- M20 (G0-G4) fecha aqui. Próximo módulo em aberto no roteiro (§7): retomar M13 (fiscal/A1) ou
+  a migração de dados real de um cliente (M14/M15) — agora com cadastro fiscal/comercial pronto
+  pra receber dado de verdade.

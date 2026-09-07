@@ -534,5 +534,12 @@
     <p>Migration 0038: <code>erp_business_verticals</code> (14 verticais, cada uma ligada a um dos 5 perfis existentes) + <code>erp_vertical_attribute_requirements</code> (template de atributo, sem FK direta pro EAV por-tenant) + <code>erp_establishments.vertical_code</code>. Seed com conteúdo real, não placeholder.</p>
     <p><strong>Validado</strong>: 29 de 29 pgTAP (20 estrutural + 9 adversarial) no mesmo Postgres local do G1, zero resíduo, aplicação real + rollback real testados. Staging remoto não tocado. Marcador: <code>M20_0038_TRANSACTION_29_OF_29_ROLLBACK</code>.</p>
   </section>
+  <section>
+    <h2>M20-G3/G4 — telas em abas + seletor de estabelecimento</h2>
+    <p><strong>Concluído em 07/09/2026, sem interferência do usuário a pedido dele.</strong> Bump explícito do contrato de comandos travado desde o M18-G5 (<code>M18-VISUAL-1.0</code>/7 comandos/11 read models → <code>M20-VISUAL-2.0</code>/13 comandos/19 read models) — tratado como versão nova, não mutação silenciosa. Nenhuma RPC real criada no Supabase para os comandos novos, que ficam bloqueados em modo persistente-somente-leitura igual aos 7 originais.</p>
+    <p><strong>G3</strong>: cadastros e catálogo ganharam painel expansível (<code>&lt;details&gt;</code> nativo, sem JS de navegação) com Documentos/Contatos/Endereços por pessoa e Fiscal/Comercial/Atributos do segmento por item — aba de atributos é informativa por ora, materialização real segue portão futuro já declarado no M20-G2.</p>
+    <p><strong>G4</strong>: <code>/vendas</code>/<code>/servicos</code> já liam Supabase real direto — filtro por <code>establishment_id</code> real adicionado. <code>/operacoes</code>/<code>/catalogo</code> usam o transporte sintético; seletor funciona mas o saldo de estoque segue consolidado por decisão registrada (evitar quebrar 7 testes de trecho exato de código sem ganho real). <code>/catalogo</code> usa a loja selecionada pra escolher a vertical da aba Atributos — liga G2+G3+G4 de ponta a ponta.</p>
+    <p><strong>Validado</strong>: <code>tsc --noEmit</code>, <code>next lint</code> e <code>next build</code> limpos; <code>apps/platform</code> 179/179 testes (165 preexistentes + 14 novos); <code>visual-persistence-contract</code> 52/52; <code>visual-persistence-supabase-adapter</code> 51/51. M20 (G0-G4) fecha aqui.</p>
+  </section>
 </body>
 </html>

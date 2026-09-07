@@ -1,17 +1,19 @@
 import 'server-only';
 import type { CommandName, Json, ReadModelName, VisualPersistenceClient } from '../../../../../packages/visual-persistence-contract/src/server-client.mjs';
 import type { SupabaseLike } from '../../../../../packages/visual-persistence-supabase-adapter/src/index.mjs';
-import type { Party } from '@/features/parties/types';
-import type { CatalogItem, Unit } from '@/features/catalog/types';
+import type { Party, PartyAddress, PartyContact, PartyDocument } from '@/features/parties/types';
+import type { BusinessVertical, CatalogItem, ItemCommercialData, ItemFiscalData, Unit, VerticalAttributeRequirement } from '@/features/catalog/types';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentTenantId } from '@/lib/tenant';
 import { createPersistentVisualClient } from './persistent';
 import { resolveVisualPersistenceMode, selectVisualPersistence } from './selector.mjs';
 import {
-  listLocalCash, listLocalCatalogItems, listLocalParties, listLocalReceivables,
-  listLocalSales, listLocalStock, listLocalUnits, localDashboard,
+  listLocalCash, listLocalCatalogItems, listLocalItemCommercialData, listLocalItemFiscalData,
+  listLocalBusinessVerticals, listLocalEstablishments, listLocalParties, listLocalPartyAddresses,
+  listLocalPartyContacts, listLocalPartyDocuments, listLocalReceivables,
+  listLocalSales, listLocalStock, listLocalUnits, listLocalVerticalAttributeRequirements, localDashboard,
   localPersistenceClient, prepareLocalSale, prepareLocalSettlement,
-  type LocalCashRow, type LocalReceivable, type LocalSaleRow, type LocalStockRow
+  type LocalCashRow, type LocalEstablishment, type LocalReceivable, type LocalSaleRow, type LocalStockRow
 } from './local';
 
 type Dashboard = Awaited<ReturnType<typeof localDashboard>>;
@@ -27,6 +29,16 @@ type VisualFacade = {
   dashboard(): Promise<Dashboard>;
   prepareSale: typeof prepareLocalSale;
   prepareSettlement: typeof prepareLocalSettlement;
+  // M20-G3
+  listPartyDocuments(): Promise<PartyDocument[]>;
+  listPartyContacts(): Promise<PartyContact[]>;
+  listPartyAddresses(): Promise<PartyAddress[]>;
+  listItemFiscalData(): Promise<ItemFiscalData[]>;
+  listItemCommercialData(): Promise<ItemCommercialData[]>;
+  listBusinessVerticals(): Promise<BusinessVertical[]>;
+  listVerticalAttributeRequirements(): Promise<VerticalAttributeRequirement[]>;
+  // M20-G4
+  listEstablishments(): Promise<LocalEstablishment[]>;
 };
 
 const blockedError = Object.freeze({ code: 'CAPABILITY_REQUIRED', message: 'Este recurso está disponível somente para leitura.', retryWriteAutomatically: false as const, detailExposed: false as const, unsafeDetailRecorded: false as const, unsafeDetailLength: 0 });
@@ -47,7 +59,12 @@ async function readPersistent<T>(model: ReadModelName): Promise<T> {
 }
 
 const denyPreparation = async () => { throw Object.assign(new Error('PERSISTENT_WRITES_DISABLED'), { code: 'PERSISTENT_WRITES_DISABLED' }); };
-const syntheticFacade: VisualFacade = Object.freeze({ client: localPersistenceClient, listCash: listLocalCash, listCatalogItems: listLocalCatalogItems, listParties: listLocalParties, listReceivables: listLocalReceivables, listSales: listLocalSales, listStock: listLocalStock, listUnits: listLocalUnits, dashboard: localDashboard, prepareSale: prepareLocalSale, prepareSettlement: prepareLocalSettlement });
+const syntheticFacade: VisualFacade = Object.freeze({ client: localPersistenceClient, listCash: listLocalCash, listCatalogItems: listLocalCatalogItems, listParties: listLocalParties, listReceivables: listLocalReceivables, listSales: listLocalSales, listStock: listLocalStock, listUnits: listLocalUnits, dashboard: localDashboard, prepareSale: prepareLocalSale, prepareSettlement: prepareLocalSettlement,
+  listPartyDocuments: listLocalPartyDocuments, listPartyContacts: listLocalPartyContacts, listPartyAddresses: listLocalPartyAddresses,
+  listItemFiscalData: listLocalItemFiscalData, listItemCommercialData: listLocalItemCommercialData,
+  listBusinessVerticals: listLocalBusinessVerticals, listVerticalAttributeRequirements: listLocalVerticalAttributeRequirements,
+  listEstablishments: listLocalEstablishments,
+});
 const persistentReadOnlyFacade: VisualFacade = Object.freeze({
   client: blockedClient,
   async listCash() { const rows = await readPersistent<LocalCashRow[]>('open-cash-sessions'); return rows[0] ?? null; },
@@ -59,7 +76,15 @@ const persistentReadOnlyFacade: VisualFacade = Object.freeze({
   listUnits: listLocalUnits,
   dashboard: () => readPersistent<Dashboard>('dashboard-summary'),
   prepareSale: denyPreparation as typeof prepareLocalSale,
-  prepareSettlement: denyPreparation as typeof prepareLocalSettlement
+  prepareSettlement: denyPreparation as typeof prepareLocalSettlement,
+  listPartyDocuments: () => readPersistent<PartyDocument[]>('party-documents'),
+  listPartyContacts: () => readPersistent<PartyContact[]>('party-contacts'),
+  listPartyAddresses: () => readPersistent<PartyAddress[]>('party-addresses'),
+  listItemFiscalData: () => readPersistent<ItemFiscalData[]>('item-fiscal-data'),
+  listItemCommercialData: () => readPersistent<ItemCommercialData[]>('item-commercial-data'),
+  listBusinessVerticals: () => readPersistent<BusinessVertical[]>('business-verticals'),
+  listVerticalAttributeRequirements: () => readPersistent<VerticalAttributeRequirement[]>('vertical-attribute-requirements'),
+  listEstablishments: () => readPersistent<LocalEstablishment[]>('establishments'),
 });
 
 function selectedFacade() {
@@ -83,4 +108,15 @@ export const prepareVisualSale: typeof prepareLocalSale = (...args) => selectedF
 export const prepareVisualSettlement: typeof prepareLocalSettlement = (...args) => selectedFacade().facade.prepareSettlement(...args);
 export const visualPersistenceMode = 'M18-G12 · feature flag server-side · persistência somente leitura · comandos remotos bloqueados';
 
-export type { LocalCashRow as VisualCashRow, LocalReceivable as VisualReceivable } from './local';
+// M20-G3
+export const listVisualPartyDocuments = () => selectedFacade().facade.listPartyDocuments();
+export const listVisualPartyContacts = () => selectedFacade().facade.listPartyContacts();
+export const listVisualPartyAddresses = () => selectedFacade().facade.listPartyAddresses();
+export const listVisualItemFiscalData = () => selectedFacade().facade.listItemFiscalData();
+export const listVisualItemCommercialData = () => selectedFacade().facade.listItemCommercialData();
+export const listVisualBusinessVerticals = () => selectedFacade().facade.listBusinessVerticals();
+export const listVisualVerticalAttributeRequirements = () => selectedFacade().facade.listVerticalAttributeRequirements();
+// M20-G4
+export const listVisualEstablishments = () => selectedFacade().facade.listEstablishments();
+
+export type { LocalCashRow as VisualCashRow, LocalEstablishment as VisualEstablishment, LocalReceivable as VisualReceivable } from './local';
