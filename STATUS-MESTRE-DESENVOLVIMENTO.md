@@ -1396,3 +1396,71 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
 - Fecha efetivamente o M18. Próximo módulo em aberto no roteiro (§7): retomar M13 (fiscal/A1,
   "motor global validado; piloto pendente") ou iniciar a migração de dados real da Mania de
   Modas (M14/M15) — nenhum dos dois foi autorizado ainda nesta sessão.
+
+## M20-G0 — auditoria do legado + estrutura de cadastro universal/segmento (07/09/2026)
+
+- Usuário pausou M14/M15 (migração real) por dúvida técnica de orientação no `apps/platform` —
+  virou auditoria completa: 28 prints do sistema legado **SICNET** instalado nesta máquina
+  (`Downloads\DadosConnectionCyber\menssagens\`) comparados campo a campo contra o schema real
+  (`supabase/migrations/0016/0021/0022/0025/0026`, `packages/fiscal-contract`).
+- **Achado de segurança independente**: um dos prints (`NFCeConfInformacao.png`) expunha em
+  texto puro o CSC de uma NFC-e de produção, salvo em `Downloads/` — reportado ao usuário,
+  ação de mover/rotacionar é dele, não bloqueia o resto da auditoria.
+- **Diagnóstico**: a fundação multiempresa/segmento (M05/M06/M09/M10) já está pronta e testada
+  em staging (44 a 96 pgTAP por gate) — oficina, restaurante, receita/ficha técnica, multi-CNPJ
+  via `tenant`→N `erp_establishments`, EAV genérico (`erp_attributes`) já cobrem o que o usuário
+  descreveu. As lacunas reais: zero campo fiscal (NCM/CST-CSOSN/ICMS/IPI/peso) e zero campo
+  comercial (custo/margem/estoque mínimo) em `erp_catalog_items`; formulários da UI
+  (`PartyForm.tsx`, `CatalogForms.tsx`) são esqueleto de aceite de gate, não tela de uso.
+- Relatório completo com matriz de prontidão, riscos e sequência M20-G0 a G7 em
+  `PARECER-TECNICO-M20-G0-CADASTROS-ESTRUTURAIS-SEGMENTOS.md` (+ artifact HTML publicado).
+- **Três decisões fechadas pelo usuário nesta sessão**: (1) dado fiscal em tabela satélite
+  `erp_item_fiscal_data`, não coluna direta em `erp_catalog_items`; (2) representação legal de
+  marca terceira (iGreen Energy, Nipponflex) = Opção C, **2 tenants separados**, dono
+  ConnectionCyber, mesmo processo de onboarding de qualquer cliente (entram na fila depois de
+  Mania de Modas); (3) lista de 14 segmentos de negócio confirmada para seed futuro do M20-G2.
+- M20-G1 liberado. Nenhuma migration, tela ou tabela alterada nesta etapa — só leitura e decisão.
+
+## M20-G1 — migration 0037: dados fiscais e comerciais por item (07/09/2026)
+
+- Executado sem interferência do usuário a pedido dele, após G0. Escopo: só a migration
+  (`erp_item_fiscal_data`, `erp_item_commercial_data`), preflight, rollback e pgTAP — G2
+  (segmentos), G3 (telas) e G4 (seletor de estabelecimento) continuam pendentes, propositalmente
+  fora do escopo desta etapa.
+- **Bloqueio de ambiente encontrado e resolvido**: nem o conector Supabase MCP (ligado a outro
+  projeto, `portal-teologico-os`), nem o `.env.local` (só chave `anon`, sem `service_role`/
+  `DATABASE_URL`) permitiam validar contra staging. Usuário ligou o Docker Desktop — havia uma
+  stack Supabase local já provisionada (`supabase_db_connectioncyber`, container
+  `supabase/postgres:17.6.1.155`, porta 54322) parada em `0034`. Validação rodou ali, não em
+  staging — zero contato com o projeto remoto nesta gate.
+- **Dois bugs reais pegos pela validação, corrigidos antes de fechar o portão**:
+  1. `icms_rate`/`icms_base_percent`/`ipi_rate`/`fcp_rate` declarados `numeric(6,4)` — o default
+     `icms_base_percent=100` estourava a precisão (100.0000 precisa de 7 dígitos, não 6).
+     Corrigido para `numeric(7,4)` nas quatro colunas.
+  2. A chave de permissão `fiscal.read` já existia desde a migration `0030` (M13, fiscal de
+     **documento**/NF-e — "Consulta documentos fiscais do tenant"), com significado diferente do
+     que esta gate ia usar (classificação fiscal do **item**). O `on conflict...do update` do
+     0037 teria sobrescrito a descrição de uma permissão já usada em 7 policies do M13. Renomeado
+     para `fiscal.item.read`/`fiscal.item.manage` em todos os arquivos da gate; a permissão
+     `fiscal.read` original foi restaurada com o texto exato da 0030 depois de ter sido apagada
+     por engano durante a investigação.
+  3. Dois erros de teste (não da migration): `throws_ok` usado com 3 argumentos foi interpretado
+     pelo pgTAP como (sql, código, **mensagem exata esperada**), não (sql, código, descrição) —
+     corrigido para a forma de 2 argumentos (sql, código). E a asserção de `updated_at` comparava
+     `updated_at > created_at`, que nunca é verdade dentro de uma única transação (`now()` fica
+     congelado no início dela) — trocada por checagem estrutural do trigger (bits `tgtype`).
+- **Validado**: dry-run completo dentro de `begin;...rollback;` — **32 de 32 pgTAP** (20
+  estrutural + 12 adversarial: NCM inválido, CST/CSOSN cruzado, custo negativo, peso líquido >
+  bruto, ponto de reposição abaixo do mínimo, item de outro tenant rejeitado pela FK composta,
+  duplicidade, `anon` sem privilégio, cascade ao apagar item). Zero resíduo confirmado após.
+  Aplicação real + rollback real testados em seguida no mesmo banco local descartável — restaura
+  exatamente o estado anterior (`fiscal.read` intacto, histórico de migration em `0034`).
+- **Não aplicado em staging nem produção.** Aplicação persistente remota fica para um portão
+  futuro (equivalente ao M20-G7 do parecer), que exige credencial de staging que esta sessão não
+  tem hoje (nem MCP nem `service_role`/`DATABASE_URL` local).
+- Arquivos desta gate: `supabase/migrations/0037_m20_item_fiscal_commercial_data.sql`,
+  `supabase/preflight/0037_..._preflight.sql`,
+  `supabase/rollback/0037_....rollback.sql`,
+  `supabase/tests/0037_....test.sql` (+ `.adversarial.test.sql`),
+  `supabase/validation/build-0037-transaction.mjs`.
+- Marcador: `M20_0037_TRANSACTION_32_OF_32_ROLLBACK`.
