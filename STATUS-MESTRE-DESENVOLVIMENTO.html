@@ -546,5 +546,49 @@
     <p><strong>Concluído em 07/09/2026, a pedido do usuário.</strong> Resposta extraída direto do XSD oficial da SEFAZ já fixado e hash-verificado no projeto (pacote <code>010e_v1.02</code>, publicado 10/07/2026), não de memória. Migration <code>0039</code>: duas colunas nullable em <code>erp_item_fiscal_data</code> — <code>cst_ibs_cbs</code> (3 dígitos) e <code>cclass_trib</code> (6 dígitos), paralelas ao CST/CSOSN do ICMS já existente. Alíquotas e o grupo de Imposto Seletivo ficam fora de propósito — sem valor estável em 2026 (fase de teste) e tabela oficial de códigos é anexo separado da LC 214/25.</p>
     <p><strong>Validado</strong>: dry-run 10/10 pgTAP, aplicação real + rollback real testados no banco local descartável, depois revertido 0039/0038/0037 em sequência devolvendo o banco exatamente a 0034 e o container parado de novo. M20 (G0-G5) fecha aqui.</p>
   </section>
+  <section>
+    <h2>M20-G6 — cadastro real elevado a tela de uso + Mania de Modas sem migração</h2>
+    <p><strong>Concluído em 07/09/2026.</strong> Usuário confirmou: não existe backup real do sistema legado da Mania de Modas — cliente segue como <strong>cadastro novo do zero</strong>, não migração. O §9 (processo de migração por cliente, 11 passos) não se aplica a este cliente; M14 (importador) fica sem execução aqui, mas continua como capacidade genérica do produto.</p>
+    <p>Resolve o achado do M20-G0 ("<code>PartyForm.tsx</code>/<code>CatalogForms.tsx</code> são esqueleto de aceite de gate, não tela de uso"): novo <code>src/domain/br-documents.mjs</code> com CPF/CNPJ dígito verificador real (mod-11), telefone com máscara, CEP com busca automática (ViaCEP), tipo Serviço/Taxa/Vale trava "Controla estoque" ao vivo. Nenhuma migration/RLS mudou.</p>
+    <p><strong>Validado</strong>: <code>tsc</code> 0 erros, 192/192 testes (179 + 13 novos), <code>eslint</code> limpo. <strong>Bloqueio confirmado, não resolvido neste gate</strong>: MCP do Supabase preso a projeto errado, sem <code>service_role key</code> — migrations 0037-0039 só validadas em Docker local, nunca aplicadas em staging real.</p>
+  </section>
+  <section>
+    <h2>M20-G7 — 0037/0038/0039 aplicadas em staging real via Supabase CLI</h2>
+    <p><strong>Concluído em 07/09/2026, pelo próprio usuário</strong> (passo a passo comando a comando). Instalou o Supabase CLI, gerou Personal Access Token (dois obstáculos no caminho: token "Read-only" gerado por engano, depois token granular novo recusado por <code>supabase link</code>/<code>db push</code> — contornado com legacy token, revogado após uso) e aplicou as 3 migrations pendentes em staging real (<code>ozvylnaipubrmaadikvk</code>).</p>
+    <p><strong>Confirmado em staging real</strong>: <code>erp_business_verticals</code> com 14 linhas; <code>erp_item_fiscal_data</code> com <code>cst_ibs_cbs</code>/<code>cclass_trib</code>. Vertical <code>moda</code> atribuída ao estabelecimento real da Mania de Modas (estava <code>null</code>) via SQL Editor do Dashboard. <strong>M20 (G0-G7) fecha em staging real</strong> — schema fiscal/comercial/vertical e telas de cadastro prontos; falta só a digitação real dos primeiros clientes/produtos.</p>
+  </section>
+  <section>
+    <h2>Parecer — acesso real para Mania de Modas + Casa de Bolos + MEI</h2>
+    <p><strong>07/09/2026.</strong> Usuário pediu plano de ação pra dar acesso real de cadastro à Mania de Modas e a dois clientes novos (Casa de Bolos — Eliana Souza Farias Alves, CNPJ 26.223.863/0001-11; MEI Aldo Augusto Ribeiro + MEI Eliane Aparecida Moreira Ribeiro, celular/informática, duas lojas geridas juntas). <strong>Achado crítico</strong>: nenhuma tela de cadastro grava dado real ainda — <code>persistentVisualWritesEnabled=false</code> (hardcoded) e <code>apps/platform</code> é staff-only por desenho; o app que o cliente loga (<code>apps/portal</code>) tinha o módulo Cadastros travado.</p>
+    <p>Parecer completo em <code>PARECER-TECNICO-ACESSO-REAL-CLIENTES-MANIA-CASA-BOLOS-MEI.md</code>. Duas trilhas definidas (A: habilitar escrita real; B: abrir cadastro real no <code>apps/portal</code>) — usuário autorizou as duas pra execução autônoma.</p>
+  </section>
+  <section>
+    <h2>M21-G1 (Trilha A) — escrita real habilitada nos comandos do M20</h2>
+    <p><strong>Concluído em 07-08/09/2026, sem interferência do usuário a pedido dele.</strong> Migration <code>0040</code>: cria de verdade as 6 funções SQL dos comandos do M20 que só existiam de nome no contrato desde o M20-G3, amplia o envelope idempotente do M17 de 7 para 13 tipos de comando, registra a permissão <code>establishments.manage</code> (única tabela do M20 sem via de escrita) + policy defensiva.</p>
+    <p><code>RPC_ALLOWLIST</code> do adaptador: 7→13. <code>selectVisualPersistence()</code> ganha branch real pra <code>mode:'persistent'</code> (antes recusava incondicionalmente) — <strong>padrão do ambiente continua <code>synthetic</code></strong>. 4 testes travados de segurança atualizados deliberadamente (mesmo padrão do bump de <code>CONTRACT_VERSION</code> do M20-G3).</p>
+    <p><strong>Validado</strong>: dry-run 59/59 pgTAP (45 estrutural + 14 adversarial, incluindo isolamento cross-tenant real com <code>auth.uid()</code> simulado); aplicação real + rollback real testados. 193/193 + 55/55 + 52/52 testes JS. Fora do alcance sem ação do usuário: aplicar <code>0040</code> em staging e setar <code>SERVER_VISUAL_PERSISTENCE_MODE=persistent</code>.</p>
+  </section>
+  <section>
+    <h2>M21-G2 (Trilha B, fatia 1) — cadastro real de pessoas em apps/portal</h2>
+    <p><strong>Concluído em 08/09/2026.</strong> Achado corrigido primeiro: <code>erp_prepare_pilot_provisioning_v1</code> (M18/0034) já concede todas as permissões ativas ao papel <code>owner</code> na hora de provisionar um tenant — só a Mania de Modas (provisionada antes de <code>fiscal.item.manage</code>/<code>establishments.manage</code> existirem) ficou pra trás. Migration <code>0041</code> reconcilia isso genericamente (qualquer papel <code>owner</code>, qualquer permissão ativa faltando).</p>
+    <p>Primeira tela real de cadastro no app que o cliente loga: <code>(portal)/cadastros</code> + <code>nova-pessoa/route.ts</code>, mesmo idioma de <code>auth/set-branding/route.ts</code> já existente — escrita pelo comando idempotente real <code>party.create</code>. Menu "Cadastros" deixa de ser texto travado ("Previsto para M05").</p>
+    <p><strong>Validado</strong>: dry-run 0041 9/9 pgTAP; 105/105 testes (<code>tsx --test</code>). Fora do alcance sem ação do usuário: aplicar <code>0041</code> em staging e deploy do <code>apps/portal</code>.</p>
+  </section>
+  <section>
+    <h2>M21-G3 — corrige o layout real de Cadastros pro padrão já validado</h2>
+    <p><strong>Concluído em 08/09/2026.</strong> Usuário identificou que a tela real (M21-G2) usava o design system genérico do portal em vez do layout validado em 5 rodadas de PDF sobre <code>cadastros-tela-unica.html</code> (header-bar com contador, campos agrupados, bordas <code>#0A1F33</code>, painel lateral com abas). Nova <code>cadastros.css</code> (namespaced <code>.cc-classic</code>), página reconstruída, 3 rotas novas (<code>novo-documento</code>, <code>novo-contato</code>, <code>novo-endereco</code>) escrevendo pelos comandos reais do M21-G1.</p>
+    <p>Máscara CPF/CNPJ e busca de CEP via <code>addEventListener</code> — corrigido um bug real de handler-como-string em JSX antes de qualquer commit. <strong>Validado</strong>: 122/122 testes.</p>
+  </section>
+  <section>
+    <h2>M21-G4 — switcher Cliente/Produto/Empresa + regra de empresa como pré-requisito</h2>
+    <p><strong>Concluído em 08/09/2026.</strong> Usuário pediu regra de negócio: dado da empresa é a fonte usada por qualquer processo (fiscal, cadastro, venda) — deveria vir primeiro. <code>/cadastros</code> ganhou switcher (<code>?tipo=cliente|produto|empresa</code>), aba <strong>Empresa</strong> real (lê <code>client.read('establishments')</code>, dado gravado desde o M18-G21), e aviso — não bloqueio — quando CNPJ/razão social estão incompletos.</p>
+    <p>Aba Produto: aviso honesto de que ainda não grava de verdade — falta <code>unit.create</code>/leitura de <code>units</code> no transporte real. <strong>Validado</strong>: 126/126 testes.</p>
+  </section>
+  <section>
+    <h2>M21-G5 — mesmo switcher/Empresa levado pro apps/platform</h2>
+    <p><strong>Concluído em 08/09/2026, a pedido do usuário</strong> ("sim" — consistência visual entre os dois apps). <code>CadastroSwitchBar</code> reaproveitado em <code>/cadastros</code>, <code>/catalogo</code> e <code>/empresa</code> (nova) do <code>apps/platform</code>; CSS compartilhado <code>src/styles/cc-classic.css</code> cobre só o chrome — conteúdo interno (<code>PartyForm</code>/<code>CatalogForms</code>) continua com o <code>.pf-*</code> já elevado no M20-G6.</p>
+    <p><code>LocalEstablishment</code> ganhou <code>legal_name</code>/<code>cnpj</code> opcionais pra bater com o adaptador real. <strong>Validado</strong>: 200/200 testes. Sem deploy — <code>apps/platform</code> não tem projeto Vercel próprio, só roda local.</p>
+    <p><strong>Estado ao pausar (08/09/2026, fim de sessão)</strong>: portal em produção (commit <code>77d69ea</code>) com Cliente/Empresa reais; platform local com o mesmo switcher. Pendências abertas: Produto real (falta <code>unit.create</code>), edição de CNPJ/razão social da empresa (hoje só leitura), e um erro intermitente de sessão ("Acesso restrito"/"JWT issued at future") no <code>apps/platform</code> local — resolvido por relogin nas duas vezes em que apareceu, causa raiz não investigada (suspeita de relógio do sistema/expiração de sessão, não código desta sessão).</p>
+  </section>
 </body>
 </html>
