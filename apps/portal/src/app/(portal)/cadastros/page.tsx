@@ -22,6 +22,7 @@ type PartyRow = {
 type DocumentRow = { id: string; party_id: string; type: string; number: string; issuer: string | null };
 type ContactRow = { id: string; party_id: string; type: string; value: string; is_primary: boolean };
 type AddressRow = { id: string; party_id: string; type: string; postal_code: string | null; street: string; number: string | null; district: string | null; city: string; state_code: string | null };
+type EstablishmentRow = { id: string; code: string; kind: string; legal_name: string | null; trade_name: string; cnpj: string | null; vertical_code: string | null; active: boolean };
 
 const ROLE_LABELS: Record<string, string> = {
   customer: 'Cliente', supplier: 'Fornecedor', employee: 'Funcionário', buyer: 'Comprador',
@@ -53,9 +54,21 @@ export default async function CadastrosPage({ searchParams }: PageProps) {
   if (access.kind !== 'authorized') redirect('/login');
 
   const client = await getPortalVisualClient();
-  const partiesResult = await client.read('parties');
+  const [partiesResult, establishmentsResult] = await Promise.all([
+    client.read('parties'),
+    client.read('establishments'),
+  ]);
   const parties = (partiesResult.ok ? (partiesResult.data as PartyRow[]) : []) ?? [];
   const activeCount = parties.filter((p) => p.active).length;
+  const establishments = (establishmentsResult.ok ? (establishmentsResult.data as EstablishmentRow[]) : []) ?? [];
+  const establishment = establishments[0] ?? null;
+  // M21-G4 — regra pedida pelo usuário: dado da empresa é a fonte de qualquer processo
+  // (fiscal, cadastro, venda). Hoje é um AVISO (nudge), não um bloqueio rígido — o
+  // provisionamento (M18-G21) já grava CNPJ/razão social pra clientes existentes como a
+  // Mania de Modas; bloquear de verdade quem já está completo seria regressão, não gate.
+  const empresaIncompleta = !establishment || !establishment.cnpj || !establishment.legal_name;
+
+  const tipo = typeof params.tipo === 'string' && ['cliente', 'produto', 'empresa'].includes(params.tipo) ? params.tipo : 'cliente';
 
   const selectedId = typeof params.party === 'string' ? params.party : null;
   const selectedParty = selectedId ? parties.find((p) => p.id === selectedId) ?? null : null;
@@ -63,7 +76,7 @@ export default async function CadastrosPage({ searchParams }: PageProps) {
   let documents: DocumentRow[] = [];
   let contacts: ContactRow[] = [];
   let addresses: AddressRow[] = [];
-  if (selectedParty) {
+  if (selectedParty && tipo === 'cliente') {
     const [docsResult, contactsResult, addressesResult] = await Promise.all([
       client.read('party-documents'),
       client.read('party-contacts'),
@@ -83,22 +96,78 @@ export default async function CadastrosPage({ searchParams }: PageProps) {
       <div className="window">
         <div className="header-bar">
           <div className="header-title">
-            <div className="eyebrow">{access.membership.tenantName} · Cliente</div>
-            <h1>{selectedParty ? 'Cadastro de pessoa' : 'Novo cadastro'}</h1>
+            <div className="eyebrow">ConnectionCyber · Cadastros ERP</div>
+            <h1>{tipo === 'empresa' ? 'Cadastro da empresa' : tipo === 'produto' ? 'Cadastro de produto' : selectedParty ? 'Cadastro de pessoa' : 'Novo cadastro'}</h1>
           </div>
-          <a className="act-btn primary" href="/cadastros">+ Incluir</a>
+          <div className="switch-bar">
+            <a className={`switch-btn${tipo === 'cliente' ? ' on' : ''}`} href="/cadastros?tipo=cliente">Cadastro de cliente</a>
+            <a className={`switch-btn${tipo === 'produto' ? ' on' : ''}`} href="/cadastros?tipo=produto">Cadastro de produto</a>
+            <a className={`switch-btn${tipo === 'empresa' ? ' on' : ''}`} href="/cadastros?tipo=empresa">Empresa</a>
+          </div>
           <span className="spacer"></span>
-          <span className="pill strong">{parties.length} cadastro(s)</span>
+          {tipo === 'cliente' ? <span className="pill strong">{parties.length} cadastro(s)</span> : null}
         </div>
 
+        {empresaIncompleta && tipo !== 'empresa' ? (
+          <div className="gate-banner">
+            Os dados da empresa ({access.membership.tenantName}) ainda não estão completos — são a fonte usada por
+            qualquer processo (fiscal, vendas, cadastro). <a href="/cadastros?tipo=empresa">Completar agora →</a>
+          </div>
+        ) : null}
+
+        {tipo === 'cliente' ? (
         <div className="counter-row">
           <div className="tot"><span className="k">Cadastros</span><b>{parties.length}</b></div>
           <div className="ativ"><span className="k">Ativos</span><b>{activeCount}</b></div>
         </div>
+        ) : null}
 
         {success ? <div className="alert" role="status">Salvo com sucesso.</div> : null}
         {ERROR_MESSAGES[errorCode] ? <div className="alert danger" role="alert">{ERROR_MESSAGES[errorCode]}</div> : null}
 
+        {tipo === 'produto' ? (
+          <div className="main-fields">
+            <div className="grp">
+              <p className="grp-label">Cadastro de produto</p>
+              <p className="hint">
+                Esta tela ainda não está pronta pra gravar de verdade: falta a unidade de medida
+                (UN, KG...) — hoje não existe leitura nem criação de unidade no transporte real,
+                só no ambiente sintético interno. É o próximo gate técnico antes de liberar Produto
+                aqui. Cliente e Empresa já gravam de verdade.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
+        {tipo === 'empresa' ? (
+          <div className="main-fields">
+            <div className="grp">
+              <p className="grp-label">Dados da empresa emitente</p>
+              {establishment ? (
+                <>
+                  <div className="row r2">
+                    <div className="field"><label>Razão social</label><input value={establishment.legal_name ?? ''} disabled placeholder="Não informado" /></div>
+                    <div className="field"><label>Nome fantasia</label><input value={establishment.trade_name} disabled /></div>
+                  </div>
+                  <div className="row r2">
+                    <div className="field"><label>CNPJ</label><input value={establishment.cnpj ?? ''} disabled placeholder="Não informado" /></div>
+                    <div className="field"><label>Segmento</label><input value={establishment.vertical_code ?? ''} disabled placeholder="Não definido" /></div>
+                  </div>
+                  <p className="hint">
+                    Edição de CNPJ/razão social ainda não tem tela própria (dado sensível, muda só
+                    por suporte por enquanto). O que aparece aqui é o que já está gravado desde o
+                    provisionamento.
+                  </p>
+                </>
+              ) : (
+                <p className="hint">Nenhum estabelecimento encontrado pra este tenant.</p>
+              )}
+            </div>
+          </div>
+        ) : null}
+
+        {tipo === 'cliente' ? (
+        <>
         <div className="body-grid">
           <div className="main-fields">
             {selectedParty ? (
@@ -232,6 +301,8 @@ export default async function CadastrosPage({ searchParams }: PageProps) {
             ))
           )}
         </div>
+        </>
+        ) : null}
 
         <div className="status-bar"><span>Grava direto no banco — não é uma demonstração</span></div>
       </div>

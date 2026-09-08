@@ -1724,3 +1724,27 @@ antes de construir mais telas.
 
 `git push` + promover o novo deploy do `apps/portal` a produção (mesmo passo do M21-G2) pra
 esta correção de layout ir ao ar. Depois: Catálogo (produto) no `apps/portal`, mesmo padrão.
+
+## M21-G4 — switcher Cliente/Produto/Empresa + regra de empresa como pré-requisito (08/09/2026)
+
+- Usuário apontou divergência real: a tela ainda faltava o switcher Cliente/Produto/Empresa
+  do topo do layout validado, e pediu regra de negócio: dado da empresa é a fonte usada por
+  qualquer processo (fiscal, cadastro, venda) — deveria vir primeiro.
+- `/cadastros` ganhou o switcher (`?tipo=cliente|produto|empresa`), aba **Empresa** real
+  (lê `client.read('establishments')` — dado de verdade da Mania de Modas, gravado desde o
+  provisionamento M18-G21), e um **aviso** (não bloqueio) quando CNPJ/razão social estão
+  incompletos, apontando pra aba Empresa.
+- **Decisão registrada, não pergunta**: implementado como aviso (nudge), não bloqueio rígido
+  de navegação — travar quem já está completo (Mania de Modas já tem CNPJ) seria regressão.
+  Se o usuário quiser bloqueio de verdade em algum módulo específico, é ajuste pontual daqui.
+- **Aba Produto**: aviso honesto de que ainda não grava de verdade — falta unidade de medida
+  (`erp_units`) no transporte real (`READ_MODELS`/`RPC_ALLOWLIST` não têm leitura nem comando
+  de criar unidade; só existe no transporte síntetico do `apps/platform`). Não finge
+  funcionar — é o próximo gate técnico antes de liberar Produto de verdade no portal.
+- Validado: `tsc` 0 erros, `npx tsx --test` 126/126 (122 + 4 novos), `eslint` 0 avisos.
+
+### Próxima ação autorizável
+
+Fechar Produto de verdade (comando `unit.create` + leitura `units` no transporte real) —
+maior gap técnico restante da Trilha B. Depois disso, Produto no `apps/portal` fica no
+mesmo padrão de Cliente/Empresa.

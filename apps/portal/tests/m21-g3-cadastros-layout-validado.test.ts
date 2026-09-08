@@ -41,6 +41,30 @@ test('painel de documentos/contatos/endereços só aparece com uma pessoa seleci
   assert.match(page, /selectedParty \? \(/);
 });
 
+// M21-G4 — switcher Cliente/Produto/Empresa (mesmo padrão do topo de
+// cadastros-tela-unica.html) e regra de dado de empresa como pré-requisito.
+test('switcher Cliente/Produto/Empresa existe, mesmo padrão do layout validado', () => {
+  assert.match(page, /Cadastro de cliente<\/a>/);
+  assert.match(page, /Cadastro de produto<\/a>/);
+  assert.match(page, /tipo=empresa">Empresa<\/a>/);
+});
+
+test('Empresa lê o estabelecimento real (client.read), nunca tabela direta', () => {
+  assert.match(page, /client\.read\('establishments'\)/);
+  assert.doesNotMatch(page, /\.from\('erp_establishments'\)/);
+});
+
+test('Produto avisa honestamente que ainda não grava (falta unidade real), não finge funcionar', () => {
+  assert.match(page, /unidade de medida/);
+  assert.doesNotMatch(page, /action="\/cadastros\/novo-produto"/);
+});
+
+test('aviso de empresa incompleta aponta pra aba empresa e não bloqueia navegação', () => {
+  assert.match(page, /empresaIncompleta/);
+  assert.match(page, /gate-banner/);
+  assert.doesNotMatch(page, /if \(empresaIncompleta\)[^]*redirect\(/);
+});
+
 for (const [name, route] of [['novo-documento', docRoute], ['novo-contato', contactRoute], ['novo-endereco', addressRoute]] as const) {
   test(`route ${name} faz same-origin check e revalida no servidor`, () => {
     assert.match(route, /isSameOriginRequest/);
