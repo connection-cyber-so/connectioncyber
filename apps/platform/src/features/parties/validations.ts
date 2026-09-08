@@ -1,5 +1,8 @@
 import { z } from 'zod';
-export const partySchema=z.object({kind:z.enum(['person','organization']),legal_name:z.string().trim().min(2,'Informe um nome com pelo menos 2 caracteres.').max(180),trade_name:z.string().trim().max(180).optional(),tax_id:z.string().trim().regex(/^(\d{11}|\d{14})$/,'CPF/CNPJ deve conter 11 ou 14 dígitos.').optional().or(z.literal('')),role:z.enum(['customer','supplier','employee','buyer','sales_rep','technician','carrier','other'])});
+import { isValidTaxId } from '@/domain/br-documents.mjs';
+// M20-G6 — dígito verificador real (mod-11), não só contagem de dígitos; mesma lib do
+// formulário (PartyForm.tsx), aqui como a validação que de fato manda.
+export const partySchema=z.object({kind:z.enum(['person','organization']),legal_name:z.string().trim().min(2,'Informe um nome com pelo menos 2 caracteres.').max(180),trade_name:z.string().trim().max(180).optional(),tax_id:z.string().trim().regex(/^(\d{11}|\d{14})$/,'CPF/CNPJ deve conter 11 ou 14 dígitos.').refine(v=>v==='' || isValidTaxId(v),'CPF/CNPJ com dígito verificador inválido.').optional().or(z.literal('')),role:z.enum(['customer','supplier','employee','buyer','sales_rep','technician','carrier','other'])});
 // M20-G3 — abas Documentos/Contatos/Endereços.
 export const partyDocumentSchema=z.object({party_id:z.string().uuid(),type:z.enum(['cpf','cnpj','rg','passport','other']),number:z.string().trim().min(3,'Informe o número do documento.').max(40),issuer:z.string().trim().max(80).optional(),issued_at:z.string().trim().optional(),expires_at:z.string().trim().optional()});
 export const partyContactSchema=z.object({party_id:z.string().uuid(),type:z.enum(['email','phone','mobile','whatsapp','website','other']),value:z.string().trim().min(3,'Informe o contato.').max(254),label:z.string().trim().max(60).optional(),is_primary:z.boolean()});

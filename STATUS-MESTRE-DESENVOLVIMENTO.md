@@ -1549,3 +1549,29 @@ redesenho bespoke do conteúdo interno de cada tela individual **não** foi feit
 M20 (G0-G5) fecha aqui. Próximo módulo em aberto no roteiro (§7): retomar M13 (fiscal/A1) ou
 a migração de dados real de um cliente (M14/M15) — agora com cadastro fiscal/comercial pronto
 pra receber dado de verdade.
+
+## M20-G6 — cadastro real elevado a "tela de uso" + Mania de Modas sem backup legado (07/09/2026)
+
+- Usuário confirmou: **não existe backup real do sistema legado da Mania de Modas** — só os
+  prints do SICNET já usados como referência visual no M20-G0. Decisão: Mania de Modas segue
+  como **cliente novo, cadastro do zero**, não como migração.
+- `§9. Processo de migração por cliente` (11 passos, receber-backup→corte) não se aplica a este
+  cliente — não há origem pra extrair. Continua valendo para o próximo cliente que chegar com
+  backup real. M14 (importador) fica sem execução para Mania de Modas, mas continua como
+  capacidade genérica do produto (fundação concluída em staging desde 29/08/2026).
+- Achado do M20-G0 resolvido: `PartyForm.tsx`/`CatalogForms.tsx` eram "esqueleto de aceite de
+  gate, não tela de uso". Agora: CPF/CNPJ com dígito verificador real mod-11 (`src/domain/br-
+  documents.mjs`, novo, 13 testes) ao vivo no formulário e no servidor (`parties/validations.ts`);
+  telefone com máscara em Contatos; CEP com busca automática de endereço (ViaCEP) em Endereços;
+  tipo Serviço/Taxa/Vale trava "Controla estoque" na hora, sem esperar o servidor rejeitar.
+- Validado: `tsc --noEmit` 0 erros, `node --test` **192/192** (179 pré-existentes intactos + 13
+  novos), `eslint` 0 avisos. `next build` não executado (processos node ativos na máquina —
+  risco já materializado 2x nesta sessão de corromper `.next` de um dev server ao vivo).
+- Relatório completo: `RELATORIO-M20-G6-CADASTRO-REAL-CLIENTE-NOVO.md`.
+- **Bloqueio de credencial confirmado (não é deste gate)**: o MCP do Supabase neste ambiente
+  está preso a um projeto errado (`portal-teologico-os`), mesma classe de problema já registrada
+  pro MCP do Vercel; `.env.local` sem `service_role key`. As migrations `0037`/`0038`/`0039`
+  (fiscal/comercial/vertical) só foram validadas em Docker local descartável, nunca aplicadas no
+  Supabase de staging real — sem isso, nenhuma tela de fiscal/comercial/vertical grava dado de
+  verdade no tenant da Mania de Modas. Resolver isso é a próxima ação, e só o usuário resolve
+  (reconectar o MCP certo, passar a `service_role key`, ou aplicar as migrations manualmente).
