@@ -1666,3 +1666,37 @@ pra execução autônoma: *"autorizo Trilha A + Trilha B pra execução autônom
 
 Trilha B — abrir o M05 real em `apps/portal` (o app que o cliente loga), reaproveitando a
 mesma camada de serviço/validação do M20/M21-G1. Já autorizada, ainda não iniciada.
+
+## M21-G2 (Trilha B, primeira fatia) — cadastro real de pessoas em apps/portal (08/09/2026)
+
+- Escopo: só Cliente/Fornecedor (pessoas) nesta fatia — Catálogo (produto) e edição de
+  dados da empresa ficam pro próximo gate.
+- **Achado corrigido primeiro**: `erp_prepare_pilot_provisioning_v1` (M18/0034) já concede
+  automaticamente todas as permissões ativas ao papel `owner` na hora de provisionar um
+  tenant — Casa de Bolos e o MEI nascem prontos quando forem provisionados. Só a Mania de
+  Modas (provisionada no M18-G21, antes de `fiscal.item.manage`/`establishments.manage`
+  existirem) ficou pra trás. Migration `0041_m21_g2_backfill_owner_permissions.sql`
+  reconcilia isso de forma genérica (qualquer papel `owner`, qualquer permissão ativa
+  faltando), não hardcoded pras duas de hoje. Dry-run 9/9 pgTAP; aplicação real + rollback
+  real testados local (efeito zero ali — Mania de Modas só existe em staging).
+- `apps/portal`: `src/domain/br-documents.ts` (CPF/CNPJ mod-11, duplicado de propósito do
+  `apps/platform` — apps são independentes), `src/features/persistence/writable.ts`
+  (primeira escrita real do portal, sem modo síntetico — vai direto pro transporte que
+  grava, tenant só de `loadPortalAccess()` autorizado), `(portal)/cadastros/page.tsx` +
+  `(portal)/cadastros/nova-pessoa/route.ts` (mesmo idioma do `auth/set-branding/route.ts`
+  já existente: same-origin, redirect 303, tenant nunca de formulário — só a escrita passa
+  pelo comando idempotente real `erp_command_create_party_v1` em vez de RPC simples).
+  Menu lateral: "Cadastros" deixa de ser texto travado ("Previsto para M05") e vira link.
+- Validado: `tsc --noEmit` 0 erros; `npx tsx --test` **105/105** (88 pré-existentes + 10 +
+  7 novos); `eslint` 0 avisos. `next build` não executado (mesma cautela dos gates
+  anteriores).
+- Relatório completo: `RELATORIO-M21-G2-TRILHA-B-CADASTRO-REAL-PORTAL.md`.
+- **Fora do alcance sem ação do usuário**: aplicar `0041` em staging real e fazer o deploy
+  do `apps/portal` com escrita habilitada — sem isso a tela existe no código mas não muda
+  nada pra Mania de Modas de verdade ainda.
+
+### Próxima ação autorizável
+
+Fechar a Trilha B com Catálogo (produto) no `apps/portal`, mesmo padrão desta fatia — ou
+priorizar aplicar `0040`/`0041` em staging e validar esta tela com a Mania de Modas real
+antes de construir mais telas.

@@ -95,7 +95,7 @@ export default async function PortalLayout({ children }: { children: ReactNode }
           </div>
           <nav aria-label="Módulos do portal">
             <Link className="nav-item active" href="/dashboard">Início</Link>
-            <span className="nav-item pending">Cadastros <small>M05</small></span>
+            <Link className="nav-item" href="/cadastros">Cadastros</Link>
             <span className="nav-item pending">Estoque <small>M06</small></span>
             <span className="nav-item pending">Vendas <small>M07</small></span>
             <span className="nav-item pending">Financeiro <small>M08</small></span>
