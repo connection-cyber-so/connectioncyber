@@ -1575,3 +1575,50 @@ pra receber dado de verdade.
   Supabase de staging real — sem isso, nenhuma tela de fiscal/comercial/vertical grava dado de
   verdade no tenant da Mania de Modas. Resolver isso é a próxima ação, e só o usuário resolve
   (reconectar o MCP certo, passar a `service_role key`, ou aplicar as migrations manualmente).
+
+## M20-G7 — 0037/0038/0039 aplicadas em staging real via Supabase CLI (07/09/2026)
+
+- Usuário resolveu o bloqueio de credencial do G6 sozinho: instalou o Supabase CLI
+  (`npm install -g supabase`, v2.117.0), gerou um Personal Access Token no Dashboard e aplicou
+  as 3 migrations pendentes no projeto de staging real (`ozvylnaipubrmaadikvk`).
+- **Dois obstáculos de token no caminho, resolvidos**: (1) primeiro token gerado com o preset
+  "Read-only" — sem permissão de escrita, teria falhado no `db push`; revogado antes de usar,
+  print com a chave em texto puro apagado do disco. (2) segundo token, com Database em
+  read-write granular (11/11 capacidades) e Project em read (8/8), foi recusado pelo próprio
+  `supabase link` (`Authorization failed for the access token and project ref pair`) — o CLI
+  ainda não suporta bem o modelo novo de token granular do Supabase para esses comandos.
+  Contornado usando **legacy token** (acesso total à conta, revogado logo após o uso).
+- Sequência executada e validada passo a passo: `supabase login --token ...` → `supabase link
+  --project-ref ozvylnaipubrmaadikvk` → `supabase db push --dry-run` (confirmou exatamente as 3
+  migrations esperadas, nenhuma outra) → `supabase db push` (aplicou as 3) → `supabase db query
+  --linked` de verificação.
+- **Confirmado em staging real**: `select count(*) from erp_business_verticals` → **14** (as 14
+  verticais de negócio do M20-G2); `erp_item_fiscal_data` tem as colunas `cst_ibs_cbs` e
+  `cclass_trib` (reforma tributária do M20-G5).
+- Com isso, o bloqueio registrado no M20-G6 está resolvido: as telas reais de Fiscal/Comercial/
+  Atributos do segmento (`ItemDetailPanel.tsx`, M20-G3) agora têm as tabelas reais por trás
+  delas no staging que o app usa de verdade.
+- Marcador: `M20_0037_0038_0039_APPLIED_STAGING_REAL`.
+
+### Próxima ação autorizável — concluída
+
+Confirmado via SQL Editor do Dashboard (sem token/CLI): `erp_establishments.vertical_code`
+do estabelecimento real da Mania de Modas (`c97ecef3-29ee-481e-a5c1-a56b10282651`, "Mania de
+Moda") estava `null` (esperado — tenant provisionado no M18-G21, antes do M20 existir).
+Usuário atualizou para `'moda'` diretamente pelo SQL Editor. Confirmado por segunda leitura.
+
+## M20 fecha aqui (G0–G7)
+
+Cadeia completa fechada em staging real: G0 auditoria/decisões → G1 dado fiscal/comercial →
+G2 verticais de negócio → G3 telas em abas → G4 seletor de estabelecimento → G5 reforma
+tributária IBS/CBS → G6 formulários elevados a tela de uso → G7 as três migrations aplicadas
+de verdade em staging + vertical `moda` atribuída ao estabelecimento real da Mania de Modas.
+
+**Estado real agora**: tenant, estabelecimento, schema fiscal/comercial/vertical e telas de
+cadastro (cliente/fornecedor/produto) prontos em staging real. Não falta nenhuma peça técnica
+para começar a digitar clientes e produtos reais da Mania de Modas pelo `apps/platform` — só
+falta a digitação em si (não é migração, é cadastro do zero, decisão já registrada no G6).
+
+Próximo módulo em aberto no roteiro (§7): retomar M13 (fiscal/A1, piloto pendente confirmação
+do contador) ou seguir com a ativação operacional real da Mania de Modas (M15) começando pela
+digitação dos primeiros clientes/produtos.
