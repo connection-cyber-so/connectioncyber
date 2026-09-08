@@ -13,10 +13,16 @@ begin
     'erp_command_open_cash_v1(uuid,text,text,jsonb)',
     'erp_command_complete_sale_v1(uuid,text,text,jsonb)',
     'erp_command_settle_receivable_v1(uuid,text,text,jsonb)',
-    'erp_command_close_cash_v1(uuid,text,text,jsonb)'
+    'erp_command_close_cash_v1(uuid,text,text,jsonb)',
+    'erp_command_add_party_document_v1(uuid,text,text,jsonb)',
+    'erp_command_add_party_contact_v1(uuid,text,text,jsonb)',
+    'erp_command_add_party_address_v1(uuid,text,text,jsonb)',
+    'erp_command_set_item_fiscal_data_v1(uuid,text,text,jsonb)',
+    'erp_command_set_item_commercial_data_v1(uuid,text,text,jsonb)',
+    'erp_command_set_establishment_vertical_v1(uuid,text,text,jsonb)'
   ]) as required(name)
   where to_regprocedure('public.' || name) is null;
-  if missing is not null then raise exception 'missing M18 RPCs: %', missing; end if;
+  if missing is not null then raise exception 'missing M18/M21 RPCs: %', missing; end if;
 
   select string_agg(name, ', ' order by name) into missing
   from unnest(array[
@@ -61,7 +67,10 @@ begin
     'erp_command_create_party_v1(uuid,text,text,jsonb)','erp_command_create_catalog_item_v1(uuid,text,text,jsonb)',
     'erp_command_receive_inventory_v1(uuid,text,text,jsonb)','erp_command_open_cash_v1(uuid,text,text,jsonb)',
     'erp_command_complete_sale_v1(uuid,text,text,jsonb)','erp_command_settle_receivable_v1(uuid,text,text,jsonb)',
-    'erp_command_close_cash_v1(uuid,text,text,jsonb)'
+    'erp_command_close_cash_v1(uuid,text,text,jsonb)',
+    'erp_command_add_party_document_v1(uuid,text,text,jsonb)','erp_command_add_party_contact_v1(uuid,text,text,jsonb)',
+    'erp_command_add_party_address_v1(uuid,text,text,jsonb)','erp_command_set_item_fiscal_data_v1(uuid,text,text,jsonb)',
+    'erp_command_set_item_commercial_data_v1(uuid,text,text,jsonb)','erp_command_set_establishment_vertical_v1(uuid,text,text,jsonb)'
   ]) as required(name)
   where not has_function_privilege('authenticated', 'public.' || name, 'EXECUTE') or has_function_privilege('anon', 'public.' || name, 'EXECUTE');
   if missing is not null then raise exception 'unsafe RPC grants: %', missing; end if;

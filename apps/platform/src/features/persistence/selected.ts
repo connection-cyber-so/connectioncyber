@@ -65,6 +65,15 @@ const syntheticFacade: VisualFacade = Object.freeze({ client: localPersistenceCl
   listBusinessVerticals: listLocalBusinessVerticals, listVerticalAttributeRequirements: listLocalVerticalAttributeRequirements,
   listEstablishments: listLocalEstablishments,
 });
+// M21-G1 ("Trilha A") — cliente que de fato executa comandos contra o Supabase, em vez
+// de recusar tudo como `blockedClient`. Continua derivando tenant da sessão via
+// getCurrentTenantId() (nunca de formulário/query string) e usa o mesmo `createClient()`
+// de sempre, com a sessão do próprio usuário autenticado (chave anônima + cookies).
+const persistentWritableClient: VisualPersistenceClient = Object.freeze({
+  execute: (command: CommandName, payload: Record<string, Json>, options?: { requestId?: string }) => persistentClient().then(client => client.execute(command, payload, options)),
+  read: (model: ReadModelName) => persistentClient().then(client => client.read(model))
+});
+
 const persistentReadOnlyFacade: VisualFacade = Object.freeze({
   client: blockedClient,
   async listCash() { const rows = await readPersistent<LocalCashRow[]>('open-cash-sessions'); return rows[0] ?? null; },
@@ -87,9 +96,13 @@ const persistentReadOnlyFacade: VisualFacade = Object.freeze({
   listEstablishments: () => readPersistent<LocalEstablishment[]>('establishments'),
 });
 
+// Mesmas leituras do modo somente leitura (ler não muda com a capacidade de escrever) —
+// só o `client` troca, de `blockedClient` (recusa tudo) para o transporte real acima.
+const persistentWritableFacade: VisualFacade = Object.freeze({ ...persistentReadOnlyFacade, client: persistentWritableClient });
+
 function selectedFacade() {
   const mode = resolveVisualPersistenceMode(process.env.SERVER_VISUAL_PERSISTENCE_MODE);
-  return selectVisualPersistence<VisualFacade>({ mode, synthetic: syntheticFacade, persistentReadOnly: persistentReadOnlyFacade });
+  return selectVisualPersistence<VisualFacade>({ mode, synthetic: syntheticFacade, persistentReadOnly: persistentReadOnlyFacade, persistentWritable: persistentWritableFacade });
 }
 
 export const visualPersistenceClient: VisualPersistenceClient = Object.freeze({
@@ -106,7 +119,15 @@ export const listVisualUnits = () => selectedFacade().facade.listUnits();
 export const visualDashboard = () => selectedFacade().facade.dashboard();
 export const prepareVisualSale: typeof prepareLocalSale = (...args) => selectedFacade().facade.prepareSale(...args);
 export const prepareVisualSettlement: typeof prepareLocalSettlement = (...args) => selectedFacade().facade.prepareSettlement(...args);
-export const visualPersistenceMode = 'M18-G12 · feature flag server-side · persistência somente leitura · comandos remotos bloqueados';
+// M21-G1 — o rótulo agora reflete o modo de verdade resolvido do ambiente, em vez de um
+// texto fixo que sempre dizia "comandos remotos bloqueados" mesmo com escrita real ligada.
+const resolvedVisualPersistenceMode = resolveVisualPersistenceMode(process.env.SERVER_VISUAL_PERSISTENCE_MODE);
+export const visualPersistenceMode = resolvedVisualPersistenceMode === 'persistent'
+  ? 'M21-G1 · escrita real habilitada · comandos gravam no Supabase'
+  : resolvedVisualPersistenceMode === 'persistent-read-only'
+    ? 'M18-G12 · feature flag server-side · persistência somente leitura · comandos remotos bloqueados'
+    : 'M18-G12 · feature flag server-side · síntetico em memória · comandos remotos bloqueados';
+export const isWritePersistenceEnabled = resolvedVisualPersistenceMode === 'persistent';
 
 // M20-G3
 export const listVisualPartyDocuments = () => selectedFacade().facade.listPartyDocuments();

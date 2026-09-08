@@ -19,14 +19,23 @@ test('dublê sintético é selecionado sem acesso remoto', () => {
   const result = selectVisualPersistence({ mode: 'synthetic', synthetic: facade });
   assert.equal(result.facade, facade);
   assert.equal(result.remote, false);
-  assert.equal(persistentVisualWritesEnabled, false);
 });
 
-test('modo persistente de escrita falha fechado antes de tocar o dublê', () => {
-  let touched = false;
-  const persistent = Object.defineProperty({}, 'client', { get() { touched = true; return {}; } });
-  assert.throws(() => selectVisualPersistence({ mode: 'persistent', persistentReadOnly: persistent }), error => error.code === 'PERSISTENT_WRITES_DISABLED');
-  assert.equal(touched, false);
+// M21-G1: usuário autorizou "Trilha A" — escrita real deixa de ser bloqueio incondicional.
+// O que continua fail-closed: sem `persistentWritable` configurado, `mode:'persistent'`
+// ainda recusa (segundo teste abaixo) — a mudança é que agora existe um caminho de
+// sucesso quando o transporte é fornecido, não mais um bloqueio hardcoded.
+test('modo persistente de escrita usa o dublê fornecido e marca writes:true', () => {
+  const persistent = Object.freeze({ marker: 'writable' });
+  const result = selectVisualPersistence({ mode: 'persistent', persistentWritable: persistent });
+  assert.equal(result.facade, persistent);
+  assert.equal(result.remote, true);
+  assert.equal(result.writes, true);
+  assert.equal(persistentVisualWritesEnabled, true);
+});
+
+test('modo persistente de escrita sem dublê configurado continua fail-closed', () => {
+  assert.throws(() => selectVisualPersistence({ mode: 'persistent' }), error => error.code === 'PERSISTENT_WRITABLE_TRANSPORT_UNAVAILABLE');
 });
 
 test('modo ausente ou desconhecido é recusado', () => {

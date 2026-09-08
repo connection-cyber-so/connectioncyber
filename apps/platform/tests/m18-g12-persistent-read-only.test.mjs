@@ -7,11 +7,16 @@ const selected = readFileSync(new URL('../src/features/persistence/selected.ts',
 const envExample = readFileSync(new URL('../.env.local.example', import.meta.url), 'utf8');
 const validation = readFileSync(new URL('../../../supabase/validation/m18_g12_persistent_read_only.sql', import.meta.url), 'utf8');
 
-test('flag server-side aceita somente sintético e persistente read-only', () => {
+// M21-G1: 'persistent' passa a ser um modo válido (Trilha A, autorização explícita do
+// usuário) — deixa de estar na lista do que sempre falhava. O padrão do ambiente
+// continua 'synthetic' (ver .env.local.example); isto só prova que o valor é aceito
+// quando alguém o define de propósito.
+test('flag server-side aceita sintético, persistente read-only e persistente', () => {
   assert.equal(resolveVisualPersistenceMode(), 'synthetic');
   assert.equal(resolveVisualPersistenceMode('synthetic'), 'synthetic');
   assert.equal(resolveVisualPersistenceMode('persistent-read-only'), 'persistent-read-only');
-  for (const value of ['persistent', 'remote', 'true', 'production']) assert.throws(() => resolveVisualPersistenceMode(value), error => error.code === 'PERSISTENCE_MODE_INVALID');
+  assert.equal(resolveVisualPersistenceMode('persistent'), 'persistent');
+  for (const value of ['remote', 'true', 'production']) assert.throws(() => resolveVisualPersistenceMode(value), error => error.code === 'PERSISTENCE_MODE_INVALID');
 });
 
 test('seleção read-only declara remoto sem escrita', () => {
@@ -41,10 +46,10 @@ test('leituras persistentes derivam sessão e tenant no servidor', () => {
   assert.doesNotMatch(selected, /serviceRole|service_role|SUPABASE_SECRET/);
 });
 
-test('flag não é pública nem possui modo de escrita', () => {
+test('flag não é pública e o padrão do ambiente continua sintético', () => {
   assert.match(envExample, /SERVER_VISUAL_PERSISTENCE_MODE=synthetic/);
   assert.doesNotMatch(envExample, /NEXT_PUBLIC_VISUAL_PERSISTENCE_MODE/);
-  assert.match(envExample, /synthetic \| persistent-read-only/);
+  assert.match(envExample, /synthetic \| persistent-read-only \| persistent/);
 });
 
 test('validação remota é somente leitura e não chama RPC', () => {

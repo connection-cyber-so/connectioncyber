@@ -1,5 +1,8 @@
 import{normalizeReadModel}from'./normalizers.mjs';
-const RPC_ALLOWLIST=Object.freeze(['erp_command_create_party_v1','erp_command_create_catalog_item_v1','erp_command_receive_inventory_v1','erp_command_open_cash_v1','erp_command_complete_sale_v1','erp_command_settle_receivable_v1','erp_command_close_cash_v1']);
+// M21-G1: 6 comandos novos habilitados (7→13) — cada um tem função SQL real desde a
+// migration 0040 (erp_command_add_party_document_v1 etc.), autorização explícita do
+// usuário pra "Trilha A" (habilitar escrita real). Ver RELATORIO-M21-G1-*.md.
+const RPC_ALLOWLIST=Object.freeze(['erp_command_create_party_v1','erp_command_create_catalog_item_v1','erp_command_receive_inventory_v1','erp_command_open_cash_v1','erp_command_complete_sale_v1','erp_command_settle_receivable_v1','erp_command_close_cash_v1','erp_command_add_party_document_v1','erp_command_add_party_contact_v1','erp_command_add_party_address_v1','erp_command_set_item_fiscal_data_v1','erp_command_set_item_commercial_data_v1','erp_command_set_establishment_vertical_v1']);
 const RPC_NAMES=new Set(RPC_ALLOWLIST);
 const READ_PLANS=Object.freeze({
  'erp_parties:/cadastros':{table:'erp_parties',columns:'id,tenant_id,kind,legal_name,trade_name,tax_id,active,created_at,erp_party_roles(role,active)',eq:['active',true],order:['created_at',{ascending:false}],limit:100},

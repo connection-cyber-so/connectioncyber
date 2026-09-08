@@ -1622,3 +1622,47 @@ falta a digitação em si (não é migração, é cadastro do zero, decisão já
 Próximo módulo em aberto no roteiro (§7): retomar M13 (fiscal/A1, piloto pendente confirmação
 do contador) ou seguir com a ativação operacional real da Mania de Modas (M15) começando pela
 digitação dos primeiros clientes/produtos.
+
+## PARECER — acesso real para Mania de Modas + Casa de Bolos + MEI (07/09/2026)
+
+Usuário pediu plano de ação pra dar acesso real de cadastro à Mania de Modas e a dois clientes
+novos (Casa de Bolos — Eliana Souza Farias Alves, CNPJ 26.223.863/0001-11; MEI Aldo Augusto
+Ribeiro + MEI Eliane Aparecida Moreira Ribeiro, celular/informática, duas lojas geridas
+juntas). **Achado crítico que mudou o plano**: nenhuma tela de cadastro grava dado real ainda
+— `persistentVisualWritesEnabled=false` (hardcoded) e `apps/platform` é staff-only por
+desenho; o app que o cliente loga (`apps/portal`) tem o módulo Cadastros travado ("Previsto
+para M05", card sem link). Parecer completo:
+`PARECER-TECNICO-ACESSO-REAL-CLIENTES-MANIA-CASA-BOLOS-MEI.md`. Duas trilhas novas definidas
+(A: habilitar escrita real; B: abrir M05 real no `apps/portal`) — usuário autorizou as duas
+pra execução autônoma: *"autorizo Trilha A + Trilha B pra execução autônoma agora"*.
+
+## M21-G1 (Trilha A) — escrita real habilitada nos comandos do M20 (07-08/09/2026)
+
+- Migration `0040_m21_g1_write_commands_m20.sql`: cria de verdade as 6 funções SQL dos
+  comandos do M20 que só existiam de nome no contrato (`erp_command_add_party_document_v1`
+  e mais 5), amplia o envelope idempotente do M17 de 7 para 13 tipos de comando, registra a
+  permissão `establishments.manage` (única tabela do M20 sem nenhuma via de escrita) e sua
+  policy de UPDATE defensiva.
+- `RPC_ALLOWLIST` do adapter: 7→13. `selectVisualPersistence()` ganha branch real pra
+  `mode:'persistent'` (antes recusava incondicionalmente) — **padrão do ambiente continua
+  `synthetic`**, ativar de verdade exige variável de ambiente explícita fora deste código.
+- 4 testes travados (segurança) atualizados deliberadamente, mesmo padrão do bump de
+  `CONTRACT_VERSION` no M20-G3 — provam o caminho de sucesso E que a falta do transporte
+  certo continua fail-closed.
+- **Validado**: banco local religado só pro teste; 0035-0039 aplicadas de verdade primeiro
+  (nunca tinham sido persistentes ali); dry-run 0040 **59/59 pgTAP** (45 estrutural + 14
+  adversarial, incluindo isolamento cross-tenant real com `auth.uid()` simulado); aplicação
+  real + rollback real testados; container parado de novo ao final. `tsc` 0 erros; testes JS
+  193/193 (`apps/platform`, era 192) + 55/55 (adapter, era 53) + 52/52 (contract, inalterado);
+  `eslint` limpo. `next build` não executado (mesma cautela do M20-G6).
+- Relatório completo: `RELATORIO-M21-G1-TRILHA-A-ESCRITA-REAL.md`.
+- **Fora do alcance sem ação do usuário**: aplicar 0040 em staging real (`supabase db push`,
+  mesmo passo a passo já feito pras 0037-0039); setar
+  `SERVER_VISUAL_PERSISTENCE_MODE=persistent` no Vercel real; e mesmo depois disso, só
+  platform staff usa os comandos novos (nenhuma permissão anexada a papel de tenant ainda —
+  isso é trabalho da Trilha B).
+
+### Próxima ação autorizável
+
+Trilha B — abrir o M05 real em `apps/portal` (o app que o cliente loga), reaproveitando a
+mesma camada de serviço/validação do M20/M21-G1. Já autorizada, ainda não iniciada.
