@@ -1700,3 +1700,27 @@ mesma camada de serviço/validação do M20/M21-G1. Já autorizada, ainda não i
 Fechar a Trilha B com Catálogo (produto) no `apps/portal`, mesmo padrão desta fatia — ou
 priorizar aplicar `0040`/`0041` em staging e validar esta tela com a Mania de Modas real
 antes de construir mais telas.
+
+## M21-G3 — layout real de Cadastros corrigido pro padrão validado (08/09/2026)
+
+- 0040/0041 aplicadas em staging real pelo usuário (mesmo passo a passo do CLI já usado);
+  confirmado: 13 comandos reais, papel `owner` da Mania de Modas com `fiscal.item.manage`/
+  `establishments.manage`. `SERVER_VISUAL_PERSISTENCE_MODE=persistent` configurado no
+  `.env.local` do `apps/platform` (não existe projeto Vercel próprio pra esse app — só roda
+  local); confirmado no `/cadastros` local: "M21-G1 · escrita real habilitada". `apps/portal`
+  promovido a produção com o commit do M21-G2 — confirmado ao vivo com login real da Mania
+  de Modas.
+- Usuário identificou que a tela real de `/cadastros` não seguia o layout validado nas 5
+  rodadas de PDF sobre `cadastros-tela-unica.html` — corrigido: nova `cadastros.css`
+  (namespaced `.cc-classic`, paleta/bordas `#0A1F33` do layout original), página
+  reconstruída com header-bar/counter-row/grp-row-field/side-tabs, 3 rotas novas
+  (`novo-documento`, `novo-contato`, `novo-endereco`) escrevendo pelos comandos reais do
+  M21-G1, máscara CPF/CNPJ e busca de CEP via `addEventListener` (corrigido um bug real de
+  handler-como-string em JSX antes de qualquer commit).
+- Validado: `tsc` 0 erros, `npx tsx --test` 122/122 (105 + 17 novos), `eslint` 0 avisos.
+- Relatório: `RELATORIO-M21-G3-LAYOUT-CADASTROS-VALIDADO.md`.
+
+### Próxima ação autorizável
+
+`git push` + promover o novo deploy do `apps/portal` a produção (mesmo passo do M21-G2) pra
+esta correção de layout ir ao ar. Depois: Catálogo (produto) no `apps/portal`, mesmo padrão.
