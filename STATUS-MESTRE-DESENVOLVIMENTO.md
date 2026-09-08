@@ -1771,3 +1771,33 @@ mesmo padrão de Cliente/Empresa.
 - Validado: `tsc --noEmit` 0 erros, `node --test` 200/200 (193 + 7 novos), `eslint` 0
   avisos. `next build` não executado (mesma cautela dos gates anteriores). Sem deploy —
   `apps/platform` não tem projeto Vercel próprio, só roda local.
+
+## M21-G6 — provisionamento real preparado pra Casa de Bolos + Loja da Benção (08/09/2026)
+
+- Usuário autorizou provisionar Casa de Bolos + MEI (Aldo Augusto Ribeiro/Eliane Aparecida
+  Moreira Ribeiro, tenant combinado "Loja da Benção") de ponta a ponta. Dois achados
+  bloqueavam a execução direta: (1) faltava Inscrição Estadual dos 3 CNPJs — só a da Casa
+  de Bolos (`626873540110`) foi confirmada até agora, faltam Aldo/Eliane; (2) o
+  provisionamento real usado na Mania de Modas (`erp_prepare_pilot_provisioning_v1`, M18,
+  migration 0034) só cria 1 tenant + 1 estabelecimento por execução — não suporta o desenho
+  "1 tenant/2 estabelecimentos" já confirmado pra Loja da Benção.
+- Construída a extensão: nova migration `0042` com
+  `erp_prepare_pilot_establishment_v1(p_tenant_slug, p_request)`, mesmo desenho fail-closed/
+  idempotente do M18, anexando estabelecimento+dono a um tenant já existente sem recriar
+  tenant/papéis/capacidades. Reaproveita sem alteração
+  `erp_record_pilot_auth_identity_v1`/`erp_finalize_pilot_identity_v1`.
+- Achado durante a validação (corrigido na mesma migration): o índice único
+  `erp_establishments_tenant_state_registration_unique` (0034) tratava o literal `'ISENTO'`
+  como IE real — dois estabelecimentos isentos no mesmo tenant colidiam. Nunca apareceu
+  antes porque nenhum tenant tinha 2 estabelecimentos até este gate. Corrigido: índice
+  único agora exclui o literal `'ISENTO'`.
+- Validado inteiramente em stack Supabase **local** (Docker, `supabase db reset --local` +
+  transação `begin;...rollback;` via `psql`) — zero escrita em staging real. 22/22 pgTAP
+  (8 estruturais + 14 adversariais/funcionais), marcador
+  `M21_G6_0042_TRANSACTION_22_OF_22_ROLLBACK`. Stack local parado ao final.
+- Relatório completo: `RELATORIO-M21-G6-EXTENSAO-PROVISIONAMENTO-MULTI-ESTABELECIMENTO.md`.
+- **Bloqueado pra aplicar em staging real**: Supabase MCP desta sessão preso a projeto de
+  outra conta (mesmo problema já documentado pro Vercel MCP); CLI local linkada ao projeto
+  certo (`ozvylnaipubrmaadikvk`) mas sem sessão autenticada (precisa de legacy token novo do
+  usuário — gotcha já documentado). Falta ainda IE de Aldo e Eliane. Nada foi escrito em
+  staging real neste gate.
