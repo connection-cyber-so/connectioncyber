@@ -1748,3 +1748,26 @@ esta correção de layout ir ao ar. Depois: Catálogo (produto) no `apps/portal`
 Fechar Produto de verdade (comando `unit.create` + leitura `units` no transporte real) —
 maior gap técnico restante da Trilha B. Depois disso, Produto no `apps/portal` fica no
 mesmo padrão de Cliente/Empresa.
+
+## M21-G5 — mesmo switcher/Empresa levado pro apps/platform (08/09/2026)
+
+- Usuário confirmou (`sim`) querer o mesmo switcher/layout do M21-G4 também no
+  `apps/platform` ("Painel interno"), não só no portal.
+- `CadastroSwitchBar` (novo componente) reaproveitado nas 3 páginas reais:
+  `/cadastros`, `/catalogo` e `/empresa` (nova). CSS compartilhado
+  `src/styles/cc-classic.css` cobre o chrome (header-bar/switch-bar/counter-row) — o
+  conteúdo interno de cada página (`PartyForm`/`CatalogForms` etc.) continua com o
+  `.pf-*` já elevado no M20-G6, sem reescrever componentes já testados.
+- `/empresa` (nova): lê `listVisualEstablishments()` de verdade, mostra razão social/CNPJ/
+  segmento do estabelecimento ativo — mesma limitação documentada no portal (edição de
+  CNPJ/razão social ainda não tem comando; só leitura por enquanto).
+- `LocalEstablishment` (tipo do transporte sintético) ganhou `legal_name`/`cnpj` opcionais
+  pra bater com o que o adaptador real já retornava — sem quebrar o seed sintético
+  existente (que nunca teve esses campos).
+- Mesma regra de aviso do M21-G4: banner (não bloqueio) em `/cadastros` quando a empresa
+  está incompleta, apontando pra `/empresa`.
+- `SidebarNav.tsx` e `redirect.mjs` (allowlist de redirect seguro) atualizados com a rota
+  nova.
+- Validado: `tsc --noEmit` 0 erros, `node --test` 200/200 (193 + 7 novos), `eslint` 0
+  avisos. `next build` não executado (mesma cautela dos gates anteriores). Sem deploy —
+  `apps/platform` não tem projeto Vercel próprio, só roda local.

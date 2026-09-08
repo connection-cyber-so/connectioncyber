@@ -8,7 +8,7 @@ const unit: Unit = { id: '00000000-0000-4000-8000-000000000001', code: 'UN', nam
 
 // M20-G2 — catálogo global de verticais/atributos exigidos (mesmo seed da migration
 // 0038), fixo aqui porque no transporte sintético não existe leitura real de banco.
-export interface LocalEstablishment{id:string;code:string;trade_name:string;vertical_code:string|null}
+export interface LocalEstablishment{id:string;code:string;trade_name:string;vertical_code:string|null;legal_name?:string|null;cnpj?:string|null}
 export const BUSINESS_VERTICALS: BusinessVertical[] = [
   { code:'moda', name:'Moda/vestuário', description:'Roupas, acessórios e calçados em geral.', segment_profile_key:'apparel_stationery', active:true },
   { code:'oficina', name:'Oficina (mecânica/CFTV/elétrica/solar)', description:'Manutenção, instalação e reparo com peças e mão de obra.', segment_profile_key:'workshop', active:true },

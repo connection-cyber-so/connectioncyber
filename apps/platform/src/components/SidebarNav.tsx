@@ -22,6 +22,7 @@ const GROUPS = [
     items: [
       { href: '/cadastros', label: 'Cadastros ERP' },
       { href: '/catalogo', label: 'Catálogo universal' },
+      { href: '/empresa', label: 'Empresa' },
     ],
   },
   {

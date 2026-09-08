@@ -1,5 +1,5 @@
 const ALLOWED_PATHS = new Set([
-  '/', '/cadastros', '/catalogo', '/operacoes', '/vendas', '/pdv', '/financeiro', '/bancos',
+  '/', '/cadastros', '/catalogo', '/empresa', '/operacoes', '/vendas', '/pdv', '/financeiro', '/bancos',
   '/servicos', '/alimentacao', '/atendimento', '/identidades', '/tenants', '/diagnostics',
   '/landing-pages', '/offers', '/products', '/video-scripts'
 ]);
