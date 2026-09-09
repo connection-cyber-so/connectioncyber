@@ -153,7 +153,7 @@ re-implementing them:
 
 ### Supabase: migration governance, not just `migrations/`
 
-`supabase/migrations/*.sql` is one linear numbered schema (currently `0001`–`0034`) for the
+`supabase/migrations/*.sql` is one linear numbered schema (currently `0001`–`0042`) for the
 single shared project. Every migration from `0029` on is expected to ship alongside matching
 files in sibling folders — check for and add all that apply before considering a migration done:
 
