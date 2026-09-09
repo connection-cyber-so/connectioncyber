@@ -1832,3 +1832,9 @@ mesmo padrão de Cliente/Empresa.
   `RELATORIO-M21-G7-PROVISIONAMENTO-REAL-CASA-DE-BOLOS-LOJA-DA-BENCAO.md`.
 - Pendência: Produto/Catálogo real segue indisponível pros 3 estabelecimentos (mesma
   limitação do M21-G4/G5 — falta `unit.create`).
+- **Achado pós-provisionamento (09/09/2026)**: os 3 responsáveis caíram em `/sem-empresa`
+  ao logar — membership nasce `invited`, só vira `active` via `/auth/confirm`
+  (M18-G22/`erp_accept_pending_memberships_v1`), e os 3 foram direto pro login sem
+  completar esse redirect. Corrigido com `UPDATE` manual; confirmado nas 4 empresas
+  (as 3 novas + Mania de Modas). Risco pra próximos clientes documentado — vale gate
+  futuro pra ativação mais resiliente (ex.: ativar no primeiro login, não só via confirm).

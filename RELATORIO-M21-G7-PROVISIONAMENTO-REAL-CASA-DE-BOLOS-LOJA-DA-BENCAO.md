@@ -83,6 +83,27 @@ usuários Auth reais (convidados por e-mail), 3 memberships `owner`. SMTP custom
 (Resend) ativado para o projeto — efeito permanente, vale para todo envio de Auth futuro.
 Nenhuma produção (`main`) tocada.
 
+## Achado pós-provisionamento (09/09/2026) — membership travada em `invited`
+
+Os 3 responsáveis definiram senha pelo convite normalmente, mas ao logar caíram em
+`/sem-empresa` ("Sua conta ainda não possui empresa autorizada"). Causa: `erp_tenant_memberships`
+nasce com `status='invited'` (por desenho do M18, `erp_finalize_pilot_identity_v1`) e só vira
+`'active'` via `erp_accept_pending_memberships_v1()` (M18-G22, migration `0036`), chamada pela
+página `/auth/confirm` — o redirect que sai do link de e-mail. Os 3 parecem ter ido direto pro
+login em vez de completar esse redirect (mesmo padrão de comportamento nas 3 contas).
+
+Corrigido com `UPDATE erp_tenant_memberships SET status='active' WHERE user_id IN (...)`,
+direto no SQL Editor — mesmo efeito que a função faria, aplicado manualmente porque a função
+exige `auth.uid()` (sessão do próprio usuário), que a equipe não tem. Confirmado depois: as 4
+empresas (as 3 novas + Mania de Modas, como controle) mostrando "Contexto validado" no
+dashboard.
+
+**Risco pra próximos clientes**: este passo (`/auth/confirm` → ativação da membership) não é
+automático nem óbvio pro usuário final — qualquer cliente futuro que não siga o link de e-mail
+até o fim vai cair no mesmo "sem-empresa" e precisar do mesmo ajuste manual. Vale um gate
+futuro pra tornar a ativação mais resiliente (ex.: ativar automaticamente no primeiro login
+bem-sucedido, não só via `/auth/confirm`).
+
 ## Pendências (documentadas, não bloqueiam o que já está no ar)
 
 - Produto/Catálogo real ainda não existe no `apps/portal` para nenhum dos 3 estabelecimentos
