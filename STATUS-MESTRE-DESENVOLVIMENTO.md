@@ -1801,3 +1801,34 @@ mesmo padrão de Cliente/Empresa.
   certo (`ozvylnaipubrmaadikvk`) mas sem sessão autenticada (precisa de legacy token novo do
   usuário — gotcha já documentado). Falta ainda IE de Aldo e Eliane. Nada foi escrito em
   staging real neste gate.
+
+## M21-G7 — provisionamento real: Casa de Bolos + Loja da Benção (08/09/2026)
+
+- Usuário gerou o token, aplicou a migration `0042` em staging real (`supabase db push`) e
+  confirmou Aldo/Eliane isentos de IE. Execução real de ponta a ponta autorizada.
+- Script PowerShell bateu num bloqueio do próprio Supabase (`Forbidden use of secret API key
+  in browser`) — em vez de mascarar isso alterando cabeçalho da requisição (evitado de
+  propósito), a execução migrou pro **SQL Editor do painel**, chamando as mesmas funções
+  RPC diretamente com `set_config('request.jwt.claim.role','service_role',true)`.
+- Achado no meio do caminho: uma tentativa isolada (`-casadebolos-v1`) retornou resultado
+  aparentemente bem-sucedido mas não deixou rastro nenhum no banco — causa raiz não
+  identificada (branch única confirmada). Resolvido reexecutando (`-v2`) com verificação
+  dentro da mesma transação/mesmo clique a partir daí.
+- Limite de e-mail padrão do Supabase esgotado no meio dos convites — corrigido
+  configurando SMTP próprio (Resend, já usado no projeto) em Authentication → Emails, sobe
+  de 3 pra 30 e-mails/hora, efeito permanente pra qualquer envio de Auth futuro.
+- Lacuna real encontrada: `erp_prepare_pilot_provisioning_v1` (M18) nunca grava
+  `erp_establishments.vertical_code` (coluna só existe desde a `0038`, depois da `0034`) —
+  corrigido com `UPDATE` pontual pros 2 estabelecimentos criados por ela nesta rodada; a
+  função nova do M21-G6 já recebe `verticalCode` como campo obrigatório.
+- **Resultado confirmado no banco**: Casa de Bolos Aconchego (1 tenant, 1 estabelecimento,
+  1 membership owner+MFA) e Loja da Benção (1 tenant combinado, 2 estabelecimentos —
+  Unidade1-Aldo e Unidade2-Eliane —, 2 memberships owner+MFA, confirmado
+  `total_memberships=2` no mesmo tenant). Os 3 convidados por e-mail, cada um define a
+  própria senha.
+- Dado real (CNPJ/e-mail) nunca entrou no repositório — todo SQL com dado real foi salvo
+  fora do Git, em `C:\Users\joaqu\Downloads\DadosConnectionCyber\ArquvosSqlsC\`, por
+  instrução do usuário. Relatório completo:
+  `RELATORIO-M21-G7-PROVISIONAMENTO-REAL-CASA-DE-BOLOS-LOJA-DA-BENCAO.md`.
+- Pendência: Produto/Catálogo real segue indisponível pros 3 estabelecimentos (mesma
+  limitação do M21-G4/G5 — falta `unit.create`).
