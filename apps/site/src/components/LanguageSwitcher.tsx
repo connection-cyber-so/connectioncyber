@@ -1,16 +1,17 @@
 import React from 'react';
-import { useLanguage, Locale } from '@/context/LanguageContext';
+import { useLanguage, type Locale } from '@/context/LanguageContext';
 
 const OPTIONS: { value: Locale; label: string }[] = [
   { value: 'pt-BR', label: 'PT' },
   { value: 'en-US', label: 'EN' },
+  { value: 'es-419', label: 'ES' },
 ];
 
 export default function LanguageSwitcher() {
   const { locale, setLocale } = useLanguage();
 
   return (
-    <div style={styles.wrapper} role="group" aria-label="Seletor de idioma">
+    <div style={styles.wrapper} role="group" aria-label="Idioma / Language">
       {OPTIONS.map((opt) => (
         <button
           key={opt.value}

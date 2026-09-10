@@ -15,7 +15,8 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit --incremental false",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/*.test.mjs"
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/*.test.mjs",
+    "test:i18n": "node scripts/test-i18n-parity.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

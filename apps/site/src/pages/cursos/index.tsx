@@ -43,7 +43,7 @@ const FALLBACK_COURSES: Course[] = [
 ];
 
 export default function CursosPage() {
-  const { t } = useLanguage();
+  const { t, getTranslation } = useLanguage();
   const [courses, setCourses] = useState<Course[]>(FALLBACK_COURSES);
   const [source, setSource] = useState<'supabase' | 'demo'>('demo');
 
@@ -78,7 +78,7 @@ export default function CursosPage() {
           <h1>{t('courses.title')}</h1>
           <p style={{ fontSize: '1.05rem' }}>{t('courses.subtitle')}</p>
           <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-            {(t('courses.modalities') as string[]).map((m) => (
+            {getTranslation<string[]>('courses.modalities').map((m) => (
               <span key={m} className="badge">
                 {m}
               </span>

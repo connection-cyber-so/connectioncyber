@@ -8,9 +8,9 @@ import { routes } from '@/config/routes';
 import { clientPortfolio } from '@/config/clients';
 
 export default function HomePage() {
-  const { t } = useLanguage();
-  const services = t('services.items') as { title: string; description: string; bullets: string[] }[];
-  const differentiators = t('home.differentiators') as string[];
+  const { t, getTranslation } = useLanguage();
+  const services = getTranslation<{ title: string; description: string; bullets: string[] }[]>('services.items');
+  const differentiators = getTranslation<string[]>('home.differentiators');
 
   return (
     <Layout>
