@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const docDir = path.join(root, 'staging/knowledge-base');
+const docVersion = '0.1.1';
 const escape = (s) =>
   s
     .replaceAll('&', '&amp;')
@@ -34,7 +35,7 @@ const hashes = Object.fromEntries(
     createHash('sha256').update(fs.readFileSync(p, 'utf8').replaceAll('\r\n', '\n')).digest('hex'),
   ]),
 );
-const manifest = JSON.stringify({ version: '0.1.0', files: hashes }, null, 2) + '\n';
+const manifest = JSON.stringify({ version: docVersion, files: hashes }, null, 2) + '\n';
 const check = process.argv.includes('--check');
 let failed = false;
 function output(p, value) {
@@ -57,7 +58,7 @@ for (const file of walk(docDir).filter((p) => p.endsWith('.md'))) {
     escape(title) +
     '</title><style>body{margin:40px auto;padding:0 24px;max-width:1050px;font:16px/1.7 system-ui;color:#14222d}header{border-bottom:5px solid #f6851f}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}footer{border-top:2px solid #1e9680}</style><header><h1>' +
     escape(title) +
-    '</h1><p>Versão 0.1.0 · Fonte Markdown canônica · Conteúdo equivalente</p></header><main><pre>' +
+    `</h1><p>Versão ${docVersion} · Fonte Markdown canônica · Conteúdo equivalente</p></header><main><pre>` +
     escape(md) +
     '</pre></main><footer>ConnectionCyber · Tecnologia que traz conhecimento e gestão</footer></html>\n';
   output(file.replace(/\.md$/, '.html'), html);

@@ -1,4 +1,4 @@
-# M22 — Biblioteca Técnica — Operação 0.1.0
+# M22 — Biblioteca Técnica — Operação 0.1.1
 
 ## 1. Preparar
 
@@ -38,13 +38,16 @@ npm.cmd run kb:docs
 npm.cmd run kb:docs:check
 ~~~
 
-## 3. Configurar staging após revisão
+## 3. Estado atual do staging
 
-Não executado nesta entrega. Aplicação remota, criação de assinatura, atribuição de papel e deploy exigem autorização do responsável. Manter KNOWLEDGE_BASE_ENABLED ausente/false até concluir a sequência.
+Executado em 14/09/2026, somente no projeto `ozvylnaipubrmaadikvk`: preflight, dump local do esquema, dry-run e aplicação exclusiva da migration 0043. O histórico 0001–0043 ficou alinhado. Foram criadas três contas sintéticas em tenant isolado, com memberships e entitlements temporários até 21/09/2026. Os dois curadores possuem `knowledge.manage`, exigem MFA e tiveram TOTP/AAL2 verificado; o assinante não possui permissão administrativa.
 
-- Aplicar exclusivamente migration 0043 após confirmar projeto de staging e preflight. Executar a verificação pós-aplicação e testes adversariais contra o Supabase completo de staging.
-- Provisionar kb_entitlements somente para usuário com membership ativa e assinatura comercial confirmada. Campos: tenant_id, user_id, status active, starts_at, ends_at e external_reference opaca. Não tratar matrícula histórica do site como assinatura automaticamente.
-- Atribuir a permissão knowledge.manage por erp_role_permissions a um papel apropriado. Manter MFA. Testar com dois curadores independentes e um assinante comum.
+As credenciais sintéticas ficam criptografadas por Windows DPAPI na pasta privada da execução e não entram no repositório, relatórios ou logs. Não reutilizar essas contas em produção. Renovar a expiração somente durante homologação autorizada.
+
+Manter `KNOWLEDGE_BASE_ENABLED` ausente/false até concluir a jornada de Preview abaixo.
+
+- Para assinaturas reais futuras, provisionar `kb_entitlements` somente após confirmação comercial. Não tratar matrícula histórica do site como assinatura automaticamente.
+- Manter `knowledge.manage` em papel privilegiado com MFA. Preservar a revisão independente: o curador que produziu/editou conteúdo não pode liberá-lo em M4.
 - Se IA for desejada, cadastrar KB_GEMINI_API_KEY e KB_GEMINI_MODEL somente no servidor. Validar o contrato de retenção do provedor e autorização de envio de conteúdo. A falta dessas configurações não impede classificação manual.
 - Ativar KNOWLEDGE_BASE_ENABLED=true no portal de staging e validar o fluxo inteiro: entrada, classificação, aplicação, destino, liberação, favorito, nota, download, suspensão da assinatura e nova revisão.
 

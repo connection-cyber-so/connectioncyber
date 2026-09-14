@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>M22 — Biblioteca Técnica — Evidências locais 0.1.0</title><style>body{margin:40px auto;padding:0 24px;max-width:1050px;font:16px/1.7 system-ui;color:#14222d}header{border-bottom:5px solid #f6851f}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}footer{border-top:2px solid #1e9680}</style><header><h1>M22 — Biblioteca Técnica — Evidências locais 0.1.0</h1><p>Versão 0.1.0 · Fonte Markdown canônica · Conteúdo equivalente</p></header><main><pre># M22 — Biblioteca Técnica — Evidências locais 0.1.0
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>M22 — Biblioteca Técnica — Evidências 0.1.1</title><style>body{margin:40px auto;padding:0 24px;max-width:1050px;font:16px/1.7 system-ui;color:#14222d}header{border-bottom:5px solid #f6851f}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}footer{border-top:2px solid #1e9680}</style><header><h1>M22 — Biblioteca Técnica — Evidências 0.1.1</h1><p>Versão 0.1.1 · Fonte Markdown canônica · Conteúdo equivalente</p></header><main><pre># M22 — Biblioteca Técnica — Evidências 0.1.1
 
 Data: 13/09/2026. Base: b7f0dde5416bfff4186b6f50f93e877359ca3461.
 
@@ -21,18 +21,22 @@ Migration aditiva 0043, sete tabelas com RLS, RPC transacional, bucket privado, 
 
 ## Limites da evidência
 
-Não houve teste de navegador com sessão real, Supabase completo, Storage HTTP, IA externa, CI remoto ou Preview Vercel. Não houve aplicação de migrations remotas, alteração de pagamentos, concessão de assinaturas ou deploy. O teste de PostgreSQL não deve ser descrito como homologação remota.
+Em 14/09/2026, a migration 0043 foi aplicada somente ao Supabase staging `ozvylnaipubrmaadikvk`, depois de preflight, dry-run e dump local do esquema. O histórico remoto ficou alinhado de 0001 a 0043. Foram confirmados bucket privado, 12 policies, um tenant sintético, três memberships, três entitlements ativos e dois grants `knowledge.manage`.
 
-O Docker daemon estava indisponível; Node 22.23.2 foi instalado isoladamente na pasta de trabalho. O Node global permaneceu inalterado. Uma tentativa de build foi bloqueada por limite de uso na revisão automática; após o usuário instruir prosseguir, a nova execução foi aceita.
+Foram criadas três identidades sintéticas sem envio de e-mail: dois curadores e um assinante. Em sessões reais do Supabase Auth, cada curador ficou com `access=false/manage=false` em AAL1 e `access=true/manage=true` após cadastro e verificação TOTP em AAL2. O assinante ficou com `access=true/manage=false` em AAL1. As memberships e assinaturas sintéticas expiram em 21/09/2026. As credenciais foram protegidas localmente com Windows DPAPI e não aparecem neste documento.
+
+Ainda não houve teste de navegador, Storage HTTP, IA externa, CI remoto ou Preview Vercel nesta etapa. Não houve alteração de pagamentos ou deploy. A validação remota atual cobre schema, policies, Auth, MFA, membership, papel e entitlement; não deve ser descrita como homologação completa do portal.
+
+Na entrega local inicial, o Docker daemon estava indisponível e Node 22.23.2 foi instalado isoladamente na pasta de trabalho. Em 14/09/2026 o Docker estava disponível e o dump remoto foi concluído. O Node global permaneceu inalterado.
 
 ## Riscos residuais para ativação
 
-- Revisar policies Storage existentes no ambiente remoto, inclusive grants permissivos fora deste módulo.
-- Provisionar assinatura e permissionamento com evidência comercial; não há reconciliação automática com Mercado Pago neste módulo.
+- Executar a jornada M0–M4 e Storage HTTP pelo Preview com dois curadores independentes.
+- Integrar entitlement comercial somente após idempotência e reconciliação com Mercado Pago; as três assinaturas atuais são fixtures temporárias.
 - Configurar modelo/chave de IA e validar consentimento/retorno real.
 - Inspeção de malware é responsabilidade do operador, com evidência antes de M4.
 - Usar 3 MiB por upload; mídia maior por referência. O histórico da interface é limitado aos registros mais recentes, mantendo todos no banco.
 - URLs assinadas têm janela de validade de 60 segundos. Métrica de download representa autorização emitida.
 
-Resultado: implementação validada localmente, com ativação remota pendente. Não declarar M4 de produção concluído.
+Resultado: implementação local e fronteira de autorização homologadas no Supabase staging; portal/Storage/IA ainda pendentes. Não declarar M4 de produção concluído.
 </pre></main><footer>ConnectionCyber · Tecnologia que traz conhecimento e gestão</footer></html>
