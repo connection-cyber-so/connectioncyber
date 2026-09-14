@@ -24,6 +24,7 @@ Thumbs.db
 
 # Local audit outputs
 .docs/AUDITORIA-AUTOMATIZADA.txt
+supabase/validation/*.generated.sql
 .vercel
 .env*.local
 
