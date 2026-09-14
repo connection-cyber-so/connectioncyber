@@ -6,13 +6,10 @@ export async function suggestClassification(item: Item) {
   const key = process.env.KB_GEMINI_API_KEY;
   const model = process.env.KB_GEMINI_MODEL;
   if (!key || !model || !/^[a-zA-Z0-9.-]+$/.test(model)) throw new Error('KB_AI_UNCONFIGURED');
-  const response = await fetch(
-    'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent',
-    {
+  const request = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
       cache: 'no-store',
-      signal: AbortSignal.timeout(20000),
       body: JSON.stringify({
         systemInstruction: {
           parts: [
@@ -40,10 +37,18 @@ export async function suggestClassification(item: Item) {
           temperature: 0.1,
         },
       }),
-    },
-  );
-  if (!response.ok) {
-    console.error('KB_AI_PROVIDER_RESPONSE', response.status);
+    } satisfies RequestInit;
+  let response: Response | null = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    response = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent',
+      { ...request, signal: AbortSignal.timeout(12000) },
+    );
+    if (response.ok || ![429, 500, 502, 503, 504].includes(response.status)) break;
+    if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** attempt));
+  }
+  if (!response || !response.ok) {
+    console.error('KB_AI_PROVIDER_RESPONSE', response?.status ?? 'NO_RESPONSE');
     throw new Error('KB_AI_UNAVAILABLE');
   }
   const result = await response.json();
