@@ -149,7 +149,11 @@ export const loadPortalAccess = cache(async (): Promise<PortalLoadResult> => {
       memberships,
       selectedMembershipId: cookieStore.get(ACTIVE_MEMBERSHIP_COOKIE)?.value,
     });
-  } catch {
+  } catch (error) {
+    console.error(
+      'PORTAL_ACCESS_LOAD_FAILED',
+      error instanceof Error ? error.message : 'UNKNOWN_ERROR'
+    );
     return { kind: 'service-unavailable' };
   }
 });
