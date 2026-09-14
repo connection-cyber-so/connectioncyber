@@ -40,11 +40,15 @@ export async function suggestClassification(item: Item) {
     } satisfies RequestInit;
   let response: Response | null = null;
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent',
-      { ...request, signal: AbortSignal.timeout(12000) },
-    );
-    if (response.ok || ![429, 500, 502, 503, 504].includes(response.status)) break;
+    try {
+      response = await fetch(
+        'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent',
+        { ...request, signal: AbortSignal.timeout(8000) },
+      );
+    } catch {
+      response = null;
+    }
+    if (response && (response.ok || ![429, 500, 502, 503, 504].includes(response.status))) break;
     if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** attempt));
   }
   if (!response || !response.ok) {
