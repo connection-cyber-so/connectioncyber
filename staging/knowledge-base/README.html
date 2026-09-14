@@ -1,0 +1,38 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Biblioteca Técnica — M22 — versão 0.1.0</title><style>body{margin:40px auto;padding:0 24px;max-width:1050px;font:16px/1.7 system-ui;color:#14222d}header{border-bottom:5px solid #f6851f}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}footer{border-top:2px solid #1e9680}</style><header><h1>Biblioteca Técnica — M22 — versão 0.1.0</h1><p>Versão 0.1.0 · Fonte Markdown canônica · Conteúdo equivalente</p></header><main><pre># Biblioteca Técnica — M22 — versão 0.1.0
+
+## 1. Preparar — inventário de 13/09/2026
+
+Estado: validado localmente; ativação remota pendente. Não liberado para produção.
+
+- connectioncyber: branch staging, ahead 1/behind 236; alterações preexistentes. O nome da pasta não comprova ambiente de produção.
+- connectioncyber-staging: branch staging, HEAD b7f0dde5416bfff4186b6f50f93e877359ca3461; arquivos não rastreados preexistentes preservados.
+- connectioncyber-validacao: HEAD destacado, árvore limpa no inventário.
+- Três Next.js independentes. Portal App Router/React 18/Next 15.5.21, serviços Supabase SSR com JWT do usuário.
+- Identidade: hostname verificado, tenant ativo, membership vigente, MFA conforme papel. Sem bypass de staff.
+- Migrations até 0042. Nenhum módulo Biblioteca ou contrato de assinatura recorrente encontrado nas migrations; enrollments do site não equivalem a assinatura do portal.
+- Node padrão 26, projeto requer 22. Docker daemon indisponível no inventário.
+
+## 2. Executar — decisões e escopo
+
+Código canônico em apps/portal/src/features/knowledge-base; interface /biblioteca no portal e administração por permissão knowledge.manage com MFA. Migration aditiva 0043. Sem mudança de produção, pagamentos, remotes ou arquivos preexistentes alheios.
+
+Assinatura: entitlement por tenant e usuário com validade e referência externa, somente provisionável por backend confiável após confirmação comercial. Nenhuma assinatura concedida por formulário ou por alegação do cliente. Sem vínculo automático ao webhook legado de matrícula.
+
+Gates de CONTEÚDO (distintos dos gates de desenvolvimento): M0 Entrada → M1 Classificação → M2 Aplicação → M3 GitHub → M4 Liberação. Nova revisão retorna a M0; revisão otimista e bloqueio de linha impedem aprovação concorrente obsoleta. Autor não libera seu próprio material. Histórico e auditoria append-only para clientes.
+
+Catálogo por tenant, sem compartilhamento entre empresas implícito. Assinante lê somente M4, autor acompanha sua entrada, curador gerencia o tenant. Permissões não substituem assinatura. Sem autoatribuição de knowledge.manage.
+
+Critérios de aceite: autorização também em cada serviço/RPC; RLS para metadados/versões/favoritos/avaliações/arquivos; zero DML direto nos registros governados; revisão auditada; filtros paginados; arquivos privados; validação de URLs; IA somente sugestão revisável; documentação MD/HTML gerada e verificável; testes, tipos, lint e build.
+
+## 3. Validar
+
+Portal: 131 testes; PostgreSQL: 41 asserções; tipos, lint e build aprovados. Consulte VALIDACAO.md. Banco local/Storage e Preview precisam de evidência separada; teste estático não comprova RLS em execução.
+
+## 4. Registrar
+
+Documentação canônica Markdown. scripts/knowledge-base-docs.mjs gera HTML escapado e manifesto SHA256 do módulo. --check falha se documentação gerada divergir. CI deve executar a verificação em alterações do módulo.
+
+## 5. Liberar
+
+Feature flag KNOWLEDGE_BASE_ENABLED=true somente após migration, permissões e entitlement de staging provisionados pelo operador. Padrão desligado. Rollback operacional: desativar flag; preservar dados e usar forward-fix. Sem db push, push Git ou deploy nesta tarefa.
+</pre></main><footer>ConnectionCyber · Tecnologia que traz conhecimento e gestão</footer></html>

@@ -96,6 +96,7 @@ export default async function PortalLayout({ children }: { children: ReactNode }
           <nav aria-label="Módulos do portal">
             <Link className="nav-item active" href="/dashboard">Início</Link>
             <Link className="nav-item" href="/cadastros">Cadastros</Link>
+            {process.env.KNOWLEDGE_BASE_ENABLED === 'true' && <Link className="nav-item" href="/biblioteca">Biblioteca Técnica</Link>}
             <span className="nav-item pending">Estoque <small>M06</small></span>
             <span className="nav-item pending">Vendas <small>M07</small></span>
             <span className="nav-item pending">Financeiro <small>M08</small></span>

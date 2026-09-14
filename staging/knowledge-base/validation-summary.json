@@ -1,0 +1,32 @@
+[
+  {
+    "name": "portal-tests",
+    "exit": 0,
+    "seconds": 3
+  },
+  {
+    "name": "database-tests",
+    "exit": 0,
+    "seconds": 2
+  },
+  {
+    "name": "portal-typecheck",
+    "exit": 0,
+    "seconds": 4
+  },
+  {
+    "name": "portal-lint",
+    "exit": 0,
+    "seconds": 3
+  },
+  {
+    "name": "portal-build",
+    "exit": 0,
+    "seconds": 17
+  },
+  {
+    "name": "documentation",
+    "exit": 0,
+    "seconds": 1
+  }
+]

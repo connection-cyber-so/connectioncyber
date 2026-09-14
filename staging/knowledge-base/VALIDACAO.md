@@ -1,0 +1,37 @@
+# M22 — Biblioteca Técnica — Evidências locais 0.1.0
+
+Data: 13/09/2026. Base: b7f0dde5416bfff4186b6f50f93e877359ca3461.
+
+## Etapa 1 — Inventário
+
+Três diretórios lidos. Cópia principal divergente e alterada; cópia staging alinhada à referência local origin/staging; validação em detached HEAD. Nenhum fetch foi feito para inferir estado remoto. Arquivos preexistentes não rastreados preservados. Apenas a cópia staging foi alterada.
+
+## Etapa 2 — Implementação
+
+Migration aditiva 0043, sete tabelas com RLS, RPC transacional, bucket privado, UI do portal, serviços, adaptador Gemini, permissões e assinatura com negação por padrão. Arquivos, snapshots e evidências ficam associados às revisões.
+
+## Etapa 3 — Testes e análise estática
+
+- Portal: 131/131 testes aprovados, incluindo cinco novos testes de contrato.
+- TypeScript: tsc --noEmit --incremental false aprovado.
+- Lint: sem erros ou avisos ESLint.
+- Banco: 41 asserções funcionais/adversariais aprovadas em PGlite, usando helpers de autorização originais e schema pré-requisito sintético. Migration executada integralmente no laboratório.
+- Build: Next.js 15.5.21 compilado, rotas /biblioteca e /api/knowledge-base presentes. Build final completo aprovado após os ajustes, incluindo a rota protegida de snapshots históricos.
+- Documentação: geração e --check aprovados; manifesto normaliza quebras de linha para Windows/Linux.
+
+## Limites da evidência
+
+Não houve teste de navegador com sessão real, Supabase completo, Storage HTTP, IA externa, CI remoto ou Preview Vercel. Não houve aplicação de migrations remotas, alteração de pagamentos, concessão de assinaturas ou deploy. O teste de PostgreSQL não deve ser descrito como homologação remota.
+
+O Docker daemon estava indisponível; Node 22.23.2 foi instalado isoladamente na pasta de trabalho. O Node global permaneceu inalterado. Uma tentativa de build foi bloqueada por limite de uso na revisão automática; após o usuário instruir prosseguir, a nova execução foi aceita.
+
+## Riscos residuais para ativação
+
+- Revisar policies Storage existentes no ambiente remoto, inclusive grants permissivos fora deste módulo.
+- Provisionar assinatura e permissionamento com evidência comercial; não há reconciliação automática com Mercado Pago neste módulo.
+- Configurar modelo/chave de IA e validar consentimento/retorno real.
+- Inspeção de malware é responsabilidade do operador, com evidência antes de M4.
+- Usar 3 MiB por upload; mídia maior por referência. O histórico da interface é limitado aos registros mais recentes, mantendo todos no banco.
+- URLs assinadas têm janela de validade de 60 segundos. Métrica de download representa autorização emitida.
+
+Resultado: implementação validada localmente, com ativação remota pendente. Não declarar M4 de produção concluído.
