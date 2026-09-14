@@ -1,5 +1,5 @@
 {
-  "version": "0.1.1",
+  "version": "0.1.2",
   "files": {
     "apps/portal/src/app/(portal)/biblioteca/[id]/page.tsx": "8f5908a4d5e9513ecf2e5348c467736d1d4f92c48cf77ff4b69742c854ac44c8",
     "apps/portal/src/app/(portal)/biblioteca/[id]/versoes/[revision]/page.tsx": "85f815db1c1cdb1bdfd34946d1282815b05973fbb623bff89a904c5d880c34a5",
@@ -9,7 +9,7 @@
     "apps/portal/src/app/(portal)/biblioteca/page.tsx": "2b5a8e4d2025ebdbaeb23654fcdfc5b8d39b89cf096c66fb6a6a302b7eb3582d",
     "apps/portal/src/app/api/knowledge-base/[id]/download/route.ts": "14035991a1cd8182bc7f7bea63f05238c891db2e6a681885c103b5eb29b35780",
     "apps/portal/src/app/api/knowledge-base/route.ts": "f3b6bfdd9961545920a1ea08c5de91f699f6b87ccbeb377cd593dede33cfe03f",
-    "apps/portal/src/features/knowledge-base/ai.ts": "a430e92c4678faf0596e48f8fd1c86fc9c1fc59af6bd174fd5223a23984d1265",
+    "apps/portal/src/features/knowledge-base/ai.ts": "d69b629431441cf73bd08940a94880a161b68a949831603936b877b6a0ab6da3",
     "apps/portal/src/features/knowledge-base/components.tsx": "efd4cbdb2daf47a7c763175cb60e97668d12c44c2e48569628da52b28b7acc8f",
     "apps/portal/src/features/knowledge-base/messages.ts": "e30566b29b9f8ce5ce63709656a6eaff009a197ecc9fdac5cd2ae14b17b6b373",
     "apps/portal/src/features/knowledge-base/service.ts": "28000805d73a13815c085101c8f855a2fc18ab03e336c75424500808739f4320",
@@ -19,7 +19,7 @@
     "packages/knowledge-base-validation/package-lock.json": "8aad57228fda1aab854920e0c2da8025c7324b8feb1fa9af284a68f2833b853c",
     "packages/knowledge-base-validation/package.json": "9f04fa73d7a50c4b03644109dfd70a4db5728c273b681eeec27c3e4feba35fb2",
     "packages/knowledge-base-validation/tests/knowledge-base.test.mjs": "e469ac89a0e9c598553633abed7e3f9f1392119768ceec5ab2bd2416c890383b",
-    "scripts/knowledge-base-docs.mjs": "1bc838bce01542e81c350d12cc65e633f49c38a4b81874dd201de7260d729d79",
+    "scripts/knowledge-base-docs.mjs": "6be2044ac792790e4192823a6798e45b86dc5f8315b0f8d8c4fb1945ab24a54a",
     "supabase/migrations/0043_m22_knowledge_base.sql": "4bdd3ded3fc909466eb0902c42f7ff8f657bbc51788968a7e875b1af934d5c64",
     "supabase/preflight/0043_m22_knowledge_base_preflight.sql": "e8f78c651eaa4cd32781164cc74a5f451aa79f55cae5befdb16cb3c49a34d9bb",
     "supabase/rollback/0043_m22_knowledge_base.rollback.sql": "a577094997a459ba0c5072d03dc71670a5ff532f3a59acb52580cdaa0766db5b",

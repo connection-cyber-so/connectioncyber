@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>M22 — Biblioteca Técnica — Operação 0.1.1</title><style>body{margin:40px auto;padding:0 24px;max-width:1050px;font:16px/1.7 system-ui;color:#14222d}header{border-bottom:5px solid #f6851f}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}footer{border-top:2px solid #1e9680}</style><header><h1>M22 — Biblioteca Técnica — Operação 0.1.1</h1><p>Versão 0.1.1 · Fonte Markdown canônica · Conteúdo equivalente</p></header><main><pre># M22 — Biblioteca Técnica — Operação 0.1.1
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>M22 — Biblioteca Técnica — Operação 0.1.2</title><style>body{margin:40px auto;padding:0 24px;max-width:1050px;font:16px/1.7 system-ui;color:#14222d}header{border-bottom:5px solid #f6851f}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}footer{border-top:2px solid #1e9680}</style><header><h1>M22 — Biblioteca Técnica — Operação 0.1.2</h1><p>Versão 0.1.2 · Fonte Markdown canônica · Conteúdo equivalente</p></header><main><pre># M22 — Biblioteca Técnica — Operação 0.1.2
 
 ## 1. Preparar
 
@@ -44,18 +44,18 @@ Executado em 14/09/2026, somente no projeto `ozvylnaipubrmaadikvk`: preflight, d
 
 As credenciais sintéticas ficam criptografadas por Windows DPAPI na pasta privada da execução e não entram no repositório, relatórios ou logs. Não reutilizar essas contas em produção. Renovar a expiração somente durante homologação autorizada.
 
-Manter `KNOWLEDGE_BASE_ENABLED` ausente/false até concluir a jornada de Preview abaixo.
+`KNOWLEDGE_BASE_ENABLED=true` está ativo somente no Preview da branch staging. Manter ausente/false em produção até o gate específico de promoção.
 
 - Para assinaturas reais futuras, provisionar `kb_entitlements` somente após confirmação comercial. Não tratar matrícula histórica do site como assinatura automaticamente.
 - Manter `knowledge.manage` em papel privilegiado com MFA. Preservar a revisão independente: o curador que produziu/editou conteúdo não pode liberá-lo em M4.
 - Se IA for desejada, cadastrar KB_GEMINI_API_KEY e KB_GEMINI_MODEL somente no servidor. Validar o contrato de retenção do provedor e autorização de envio de conteúdo. A falta dessas configurações não impede classificação manual.
-- Ativar KNOWLEDGE_BASE_ENABLED=true no portal de staging e validar o fluxo inteiro: entrada, classificação, aplicação, destino, liberação, favorito, nota, download, suspensão da assinatura e nova revisão.
+- Repetir periodicamente o smoke test do Gemini. Respostas 429/5xx e timeouts são repetidas com limite; após esgotar tentativas, usar classificação manual e registrar o incidente sem interromper M0–M4.
 
 O módulo não cobra, não cria assinatura no Mercado Pago e não altera webhook de matrícula. A integração comercial futura deve preencher/revogar o entitlement somente após validação server-side do evento, idempotência e reconciliação. A ausência dessa integração é explícita: o acesso começa negado.
 
 ## 4. Validar e registrar
 
-Executar jornadas via navegador/Supabase de staging para confirmar cookies, host, MFA, RLS, Storage HTTP, URLs assinadas, consentimento Gemini, origem dos formulários e persistência. Os testes embarcados validam PostgreSQL/RLS com pré-requisitos sintéticos e helpers originais; não simulam o serviço HTTP de Storage nem o deploy Vercel.
+A homologação de 14/09/2026 confirmou cookies, host, MFA/AAL2, RLS, Storage HTTP, URL assinada, origem dos formulários, persistência, M0–M4, revisão independente, favorito, avaliação e download no Preview. O teste Gemini confirmou configuração, consentimento e trilha de auditoria; a geração externa terminou em 503 do provedor e deve ser repetida quando o serviço normalizar.
 
 Arquivos em quarentena: baixar para laboratório isolado; conferir SHA256 e tamanho; inspecionar malware, direitos e segredos; registrar evidência verificável; aprovar/rejeitar com outro curador. Não alegar inspeção antimalware automática.
 
@@ -65,5 +65,5 @@ Reservas pendentes de upload podem ser rejeitadas pelo curador. O histórico man
 
 Rollback operacional imediato: desativar KNOWLEDGE_BASE_ENABLED. Para interromper também RPCs diretos, usar o rollback não destrutivo fornecido, que revoga EXECUTE de kb_command. Para bloqueio de leitura de um usuário, suspender seu entitlement pelo backend autorizado. URLs assinadas já emitidas duram no máximo 60 segundos.
 
-Reativar a permissão EXECUTE somente após correção e testes. Preferir forward-fix a DROP. Não há promoção, push, PR, merge ou deploy automático nesta entrega. Produção mantém processo próprio: revisão, backup, autorização e smoke test no domínio real.
+Reativar a permissão EXECUTE somente após correção e testes. Preferir forward-fix a DROP. A branch staging e o Preview foram publicados; produção mantém processo próprio: revisão, backup, autorização e smoke test no domínio real.
 </pre></main><footer>ConnectionCyber · Tecnologia que traz conhecimento e gestão</footer></html>

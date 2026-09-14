@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const docDir = path.join(root, 'staging/knowledge-base');
-const docVersion = '0.1.1';
+const docVersion = '0.1.2';
 const escape = (s) =>
   s
     .replaceAll('&', '&amp;')
