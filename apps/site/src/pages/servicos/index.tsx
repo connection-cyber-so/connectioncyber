@@ -6,8 +6,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { routes } from '@/config/routes';
 
 export default function ServicosPage() {
-  const { t } = useLanguage();
-  const services = t('services.items') as { title: string; description: string; bullets: string[] }[];
+  const { t, getTranslation } = useLanguage();
+  const services = getTranslation<{ title: string; description: string; bullets: string[] }[]>('services.items');
 
   return (
     <Layout title={t('services.title')} description={t('services.subtitle')}>
