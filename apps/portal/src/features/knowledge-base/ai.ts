@@ -42,7 +42,10 @@ export async function suggestClassification(item: Item) {
       }),
     },
   );
-  if (!response.ok) throw new Error('KB_AI_UNAVAILABLE');
+  if (!response.ok) {
+    console.error('KB_AI_PROVIDER_RESPONSE', response.status);
+    throw new Error('KB_AI_UNAVAILABLE');
+  }
   const result = await response.json();
   const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
   if (typeof text !== 'string' || text.length > 15000) throw new Error('KB_AI_INVALID_RESULT');
