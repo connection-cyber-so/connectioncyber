@@ -93,7 +93,7 @@ export default async function EnvioContadorPage({
       {erroMensagem ? <div className="alert danger">{erroMensagem}</div> : null}
 
       {!accountant ? (
-        <form className="form-stack" action="/fiscal/contador" method="post" encType="multipart/form-data">
+        <form className="form-stack" action="/fiscal/contador/acoes" method="post" encType="multipart/form-data">
           <input type="hidden" name="acao" value="publicar" />
           <label>
             Competencia (mes de referencia)
@@ -154,7 +154,7 @@ export default async function EnvioContadorPage({
                   </ul>
 
                   {accountant && pkg.status === 'ready' ? (
-                    <form action="/fiscal/contador" method="post" encType="application/x-www-form-urlencoded">
+                    <form action="/fiscal/contador/acoes" method="post" encType="application/x-www-form-urlencoded">
                       <input type="hidden" name="acao" value="ack" />
                       <input type="hidden" name="tenant_id" value={pkg.tenant_id} />
                       <input type="hidden" name="package_id" value={pkg.id} />
@@ -171,7 +171,7 @@ export default async function EnvioContadorPage({
                   ) : null}
 
                   {!accountant && pkg.status !== 'void' ? (
-                    <form action="/fiscal/contador" method="post" encType="application/x-www-form-urlencoded">
+                    <form action="/fiscal/contador/acoes" method="post" encType="application/x-www-form-urlencoded">
                       <input type="hidden" name="acao" value="void" />
                       <input type="hidden" name="tenant_id" value={pkg.tenant_id} />
                       <input type="hidden" name="package_id" value={pkg.id} />
