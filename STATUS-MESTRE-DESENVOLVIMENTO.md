@@ -569,6 +569,12 @@ a produção do portal opera em modo homologação enquanto o M23 é staging-fir
 `qfggetvashdxyuvlhihq` exige aplicar as migrations 0044–0048 lá (portão próprio, regra 4.2).
 `.vercelignore` adicionado para arquivos locais/agentes não subirem nos deploys.
 
+Follow-up (28/09): `decidePortalAccess` passou a honrar `erp_tenant_memberships.is_default`
+como fallback quando não há cookie de empresa (antes o campo era órfão no portal) — a conta
+`connectioncyberso` ganhou membership + papel `admin` (97 permissões) no tenant ConnectionCyber
+e `is_default` trocou para ConnectionCyber (Mania continua acessível por "Trocar empresa");
+portal 151/151.
+
 **Próxima ação: M23-G3 — cobrança/conteúdo** (sob demanda).
 
 ### M19 — concluído (G0–G5)

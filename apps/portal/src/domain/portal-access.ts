@@ -66,6 +66,9 @@ export function decidePortalAccess(input: DecidePortalAccessInput): PortalAccess
   const selected = eligible.find((membership) => membership.id === input.selectedMembershipId);
   if (selected) return { kind: 'authorized', host: input.host, membership: selected };
   if (eligible.length === 0) return { kind: 'no-membership', host: input.host };
+
+  const preferred = eligible.find((membership) => membership.isDefault);
+  if (preferred) return { kind: 'authorized', host: input.host, membership: preferred };
   if (eligible.length === 1) return { kind: 'authorized', host: input.host, membership: eligible[0] };
 
   return {

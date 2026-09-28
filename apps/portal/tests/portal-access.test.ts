@@ -107,13 +107,57 @@ test('portal central entra direto com uma membership', () => {
   );
 });
 
+test('portal central abre na membership padrão quando há várias sem cookie', () => {
+  const decision = decidePortalAccess({
+    host: centralHost,
+    userId: 'user-a',
+    memberships: [
+      membership({ id: 'membership-b', tenantId: 'tenant-b', tenantName: 'Beta', isDefault: false }),
+      membership({ id: 'membership-a', tenantId: 'tenant-a', tenantName: 'Alfa', isDefault: true }),
+    ],
+    now,
+  });
+  assert.equal(decision.kind, 'authorized');
+  if (decision.kind === 'authorized') assert.equal(decision.membership.id, 'membership-a');
+});
+
+test('membership padrão inativa não atrapalha a ativa', () => {
+  const decision = decidePortalAccess({
+    host: centralHost,
+    userId: 'user-a',
+    memberships: [
+      membership({
+        id: 'membership-b',
+        tenantId: 'tenant-b',
+        tenantName: 'Beta',
+        isDefault: true,
+        status: 'suspended',
+      }),
+      membership({ id: 'membership-a', tenantId: 'tenant-a', isDefault: false }),
+    ],
+    now,
+  });
+  assert.equal(decision.kind, 'authorized');
+  if (decision.kind === 'authorized') assert.equal(decision.membership.id, 'membership-a');
+});
+
 test('portal central exige seleção ordenada quando há várias memberships', () => {
   const decision = decidePortalAccess({
     host: centralHost,
     userId: 'user-a',
     memberships: [
-      membership({ id: 'membership-b', tenantId: 'tenant-b', tenantName: 'Beta' }),
-      membership({ id: 'membership-a', tenantId: 'tenant-a', tenantName: 'Alfa' }),
+      membership({
+        id: 'membership-b',
+        tenantId: 'tenant-b',
+        tenantName: 'Beta',
+        isDefault: false,
+      }),
+      membership({
+        id: 'membership-a',
+        tenantId: 'tenant-a',
+        tenantName: 'Alfa',
+        isDefault: false,
+      }),
     ],
     now,
   });
