@@ -100,7 +100,10 @@ export default async function PortalLayout({ children }: { children: ReactNode }
             <Link className="nav-item" href="/cadastros">Cadastros</Link>
             {process.env.KNOWLEDGE_BASE_ENABLED === 'true' && <Link className="nav-item" href="/biblioteca">Biblioteca Técnica</Link>}
             {academy.access ? (
-              <Link className="nav-item" href="/academia">Academia</Link>
+              <>
+                <Link className="nav-item" href="/academia">Academia</Link>
+                <Link className="nav-item" href="/treinamento">Treinamento</Link>
+              </>
             ) : (
               <span className="nav-item pending">Academia <small>M23</small></span>
             )}

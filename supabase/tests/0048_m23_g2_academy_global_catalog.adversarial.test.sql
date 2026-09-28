@@ -68,7 +68,7 @@ select is((select r->>'escopo' from m23g2_course),'global','staff cria curso glo
 select is((select r->>'publico' from m23g2_course),'true','curso global nasce ligado para todos');
 select is((select count(*) from public.academy_tenant_courses
   where course_id=(select (r->>'id')::uuid from m23g2_course)
-    and tenant_id in ('92000000-0000-4000-8000-000000000001','92000000-0000-4000-8000-000000000002','92000000-0000-4000-8000-000000000003')),3::bigint,'sincronia liga as 3 empresas dos fixtures');
+    and tenant_id in ('92000000-0000-4000-8000-000000000001','92000000-0000-4000-8000-000000000002','92000000-0000-4000-8000-000000000003')),2::bigint,'sincronia liga so as empresas com a capacidade (C e D; E fica de fora)');
 insert into m23g2_module select public.academy_command('92000000-0000-4000-8000-000000000001','add_module',
  (select (r->>'id')::uuid from m23g2_course),'{"titulo":"Aula 1 - Introducao","tipo":"video","duracao_min":10}'::jsonb);
 select is((select r->>'tenant_id' from m23g2_module),'92000000-0000-4000-8000-000000000001','modulo nasce no dono do curso, nao na empresa chamadora');
@@ -137,7 +137,8 @@ select is((select count(*) from public.academy_tenant_courses
 select throws_ok($$select public.academy_command('92000000-0000-4000-8000-000000000002','unlink_course',(select (r->>'id')::uuid from m23g2_course),'{}'::jsonb)$$,'42501','ACADEMY_COURSE_NOT_LINKED','desvincular sem vinculo rejeitado');
 select set_config('request.jwt.claim.sub','93000000-0000-4000-8000-000000000005',true);
 select set_config('request.jwt.claims','{"sub":"93000000-0000-4000-8000-000000000005","role":"authenticated","aal":"aal1"}',true);
-select is((select count(*) from public.academy_courses),0::bigint,'sem vinculo o catalogo de D volta a ficar vazio');
+select is((select count(*) from public.academy_courses
+  where id in ((select (r->>'id')::uuid from m23g2_course),(select (r->>'id')::uuid from m23g2_local))),0::bigint,'sem vinculo o catalogo de D volta a ficar vazio');
 
 -- Isolamento e sem DML direto.
 select set_config('request.jwt.claim.sub','93000000-0000-4000-8000-000000000003',true);
@@ -150,7 +151,8 @@ do $$ declare hit boolean:=false; begin
  if not hit then raise exception 'M23_G2: authenticated escreveu em academy_tenant_courses'; end if;
 end $$;
 select ok(true,'authenticated nao escreve academy_tenant_courses diretamente');
-select is((select count(*) from public.academy_courses),2::bigint,'aluno de C ve o global alvo + o curso do proprio tenant');
+select is((select count(*) from public.academy_courses
+  where id in ((select (r->>'id')::uuid from m23g2_course),(select (r->>'id')::uuid from m23g2_local))),2::bigint,'aluno de C ve o global alvo + o curso do proprio tenant');
 
 select * from finish();
 rollback;

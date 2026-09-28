@@ -143,6 +143,28 @@ export async function listCuratorCatalog(
   return { courses: (data ?? []) as AcademyCatalogCourse[], links };
 }
 
+// M23-G3 — Treinamento: cursos vinculados e publicados agrupados pela origem do alvo que
+// os trouxe (do seu sistema = alvo_sistema do curso; gerais = publico ou vertical).
+export async function listTrainingCourses(
+  supabase: PortalClient,
+  tenantId: string
+): Promise<{ sistema: AcademyCatalogCourse[]; gerais: AcademyCatalogCourse[] }> {
+  const linked = await listLinkedCourseIds(supabase, tenantId);
+  if (linked.length === 0) return { sistema: [], gerais: [] };
+  const { data, error } = await supabase
+    .from('academy_courses')
+    .select(CATALOG_COLUMNS)
+    .in('id', linked)
+    .eq('status', 'publicado')
+    .order('titulo', { ascending: true });
+  if (error) return { sistema: [], gerais: [] };
+  const rows = (data ?? []) as AcademyCatalogCourse[];
+  return {
+    sistema: rows.filter((row) => row.alvo_sistema !== null),
+    gerais: rows.filter((row) => row.alvo_sistema === null),
+  };
+}
+
 // M23-G2 — descoberta do catálogo global: a RLS (0048) só devolve o que o gestor
 // pode ver (staff vê tudo; gestor enxerga globais para poder vincular).
 export async function listGlobalCatalog(

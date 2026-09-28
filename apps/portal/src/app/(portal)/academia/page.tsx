@@ -58,6 +58,9 @@ export default async function AcademiaPage({ searchParams }: PageProps) {
           <h1>Academia</h1>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          {context.access ? (
+            <Link className="button ghost compact" href="/treinamento">Treinamento</Link>
+          ) : null}
           {context.manage ? (
             <Link className="button ghost compact" href="/academia/admin">Catálogo</Link>
           ) : null}
