@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parecer técnico — M23 Academia: modelo lógico (curso único x curso por empresa)</title>
+<style>
+  :root{--navy:#0b2545;--blue:#123a63;--orange:#f6851f;--teal:#0f9b8e;--red:#d94141;--line:#dfe6ee;--muted:#5b6b7c;--white:#fff;--soft:#f5f8fb}
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.6 Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--navy);background:var(--soft)}
+  header{background:var(--navy);color:#fff;padding:34px 22px}
+  header h1{margin:0 0 6px;font-size:1.7rem}
+  header p{margin:0;color:#c8d8e8;max-width:900px}
+  main{max-width:1080px;margin:0 auto;padding:26px 22px 60px}
+  section{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:22px;margin:20px 0}
+  h2{margin:0 0 6px;font-size:1.25rem}
+  h3{margin:22px 0 8px;font-size:1rem;color:var(--blue)}
+  .sub{margin:0 0 16px;color:var(--muted);font-size:.95rem}
+  .answer{background:#fff7ec;border-left:5px solid var(--orange);padding:14px 16px;border-radius:8px;font-size:1.05rem}
+  .diagram{display:grid;gap:12px;margin:14px 0}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch;justify-content:center}
+  .box{flex:1 1 240px;border:2px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;text-align:center}
+  .box b{display:block;margin-bottom:4px}
+  .box small{color:var(--muted);font-size:.85rem;line-height:1.45;display:block}
+  .box.you{border-color:var(--navy);background:var(--navy);color:#fff}
+  .box.you small{color:#c8d8e8}
+  .box.ok{border-color:var(--teal);background:#effaf8}
+  .box.warn{border-color:var(--orange);background:#fff7ec}
+  .box.bad{border-color:var(--red);background:#fff1f1}
+  .arrow{text-align:center;font-size:1.5rem;color:var(--orange);line-height:1}
+  .flow{display:grid;gap:10px;max-width:560px;margin:0 auto}
+  .step{border:2px solid var(--line);border-radius:10px;padding:10px 14px;text-align:center;background:#fff}
+  .step.q{border-color:var(--blue);background:#eef4fb;font-weight:700}
+  .branch{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .branch>div{flex:1 1 210px;border-radius:10px;padding:9px 12px;text-align:center;font-size:.95rem}
+  .yes{border:2px solid var(--teal);background:#effaf8}
+  .no{border:2px solid var(--red);background:#fff1f1}
+  .tag{display:inline-block;background:var(--orange);color:#fff;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:800;letter-spacing:.06em}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.95rem}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:var(--navy);color:#fff}
+  .cards{display:flex;gap:14px;flex-wrap:wrap}
+  .card{flex:1 1 280px;border:2px solid var(--line);border-radius:12px;padding:16px;background:#fff}
+  .card h4{margin:0 0 8px;font-size:1.05rem}
+  .card.a{border-color:var(--orange)}
+  .card.b{border-color:var(--teal)}
+  .card.c{border-color:var(--blue)}
+  .card .badge{font-size:.72rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:20px;background:var(--line);color:var(--navy)}
+  .card.b .badge{background:#d8f3ef;color:#0a6f66}
+  .card ul{margin:8px 0 0;padding-left:18px}
+  .card li{margin-bottom:5px;font-size:.93rem}
+  .check{color:var(--teal);font-weight:800}
+  .cross{color:var(--red);font-weight:800}
+  footer{color:var(--muted);font-size:.85rem;text-align:center;padding:10px 0 30px}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:.9em}
+</style>
+</head>
+<body>
+<header>
+  <h1>Academia — como a lógica funciona (e as 3 formas de ter o mesmo curso para todos os clientes)</h1>
+  <p>Parecer técnico M23 · diagrams do modelo atual e das opções · feito para decisão, não para código.</p>
+</header>
+<main>
+
+<section>
+  <span class="tag">RESPOSTA DIRETA</span>
+  <h2 style="margin-top:10px">Hoje cada cliente tem a <i>sua</i> academia, com cursos criados dentro da empresa dele</h2>
+  <p class="answer">
+    Um curso hoje pertence a <b>uma única empresa</b> (regra do banco: <code>academy_courses.tenant_id</code> é obrigatório).
+    Ou seja, se você quiser o mesmo curso em 100 clientes, hoje precisa <b>criar 100 cópias</b> — e atualizar 100 vezes.
+    <b>Você não precisa se confundir:</b> dá para inverter isso (curso existe1×, as empresas só “ligam” ele);
+    é a <b>opção B/C</b> lá embaixo, e exige uma mudança no modelo de dados (uma migration nova + tela de catálogo).
+  </p>
+</section>
+
+<section>
+  <h2>1. O que existe hoje <span class="tag">MODELO ATUAL</span></h2>
+  <p class="sub">O curso mora dentro da empresa. Por isso eu criei o mesmo curso 3 vezes no staging (Casa de Bolos, Loja da Benção, Mania de Modas).</p>
+  <div class="diagram">
+    <div class="row">
+      <div class="box you"><b>Você — ConnectionCyber</b><small>dona da plataforma. Publica os conteúdos que quiser.</small></div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="row">
+      <div class="box"><b>Empresa A<br>Casa de Bolos</b><small>curso “Atalhos de Teclado” <b>cópia 1</b><br>módulos, matrículas e notas dela</small></div>
+      <div class="box"><b>Empresa B<br>Loja da Benção</b><small>curso “Atalhos de Teclado” <b>cópia 2</b><br>módulos, matrículas e notas dela</small></div>
+      <div class="box"><b>Empresa C<br>Mania de Modas</b><small>curso “Atalhos de Teclado” <b>cópia 3</b><br>módulos, matrículas e notas dela</small></div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="row">
+      <div class="box ok"><b>Alunos de cada empresa</b><small>só enxergam a academia da empresa onde têm vínculo. Nunca mistura dado de cliente com cliente.</small></div>
+    </div>
+  </div>
+  <p class="sub"><b>Consequência:</b> 100 clientes = 100 criações e 100 atualizações do mesmo curso. Escala mal.</p>
+</section>
+
+<section>
+  <h2>2. O caminho de quem entra no portal <span class="tag">FLUXO</span></h2>
+  <p class="sub">Isso responde sua dúvida “basta estar na plataforma?”: <b>não basta</b>. Precisa de vínculo + a chave do curso ligada na empresa.</p>
+  <div class="flow">
+    <div class="step">Pessoa abre <b>localhost:3021/academia</b> e faz login (e-mail + senha)</div>
+    <div class="step q">Tem membership ativa em alguma empresa?</div>
+    <div class="branch">
+      <div class="no"><b>NÃO</b><br>vai para <code>/sem-empresa</code> (foi o caso da conta connectioncyberso)</div>
+      <div class="yes"><b>SIM</b><br>entra na empresa (ou escolhe, se tiver mais de uma)</div>
+    </div>
+    <div class="step q">A empresa tem a chave <b>academy.courses = ativa</b>?</div>
+    <div class="branch">
+      <div class="no"><b>NÃO</b><br>área da Academia fica oculta/bloqueada naquele cliente</div>
+      <div class="yes"><b>SIM</b><br>vê a lista de cursos liberados para a empresa</div>
+    </div>
+    <div class="step q">A pessoa se <b>matricula</b> no curso?</div>
+    <div class="branch">
+      <div class="yes"><b>SIM</b><br>vê os módulos e o progresso ficam salvos por pessoa</div>
+      <div class="no"><b>NÃO</b><br>fica só no catálogo, sem histórico</div>
+    </div>
+    <div class="step" style="border-color:var(--teal);background:#effaf8"><b>Fim:</b> progresso é individual e sempre isolado por empresa (RLS)</div>
+  </div>
+</section>
+
+<section>
+  <h2>3. As 3 formas de ter “o mesmo curso para todos” <span class="tag">ESCOLHA</span></h2>
+  <div class="cards">
+    <div class="card a">
+      <span class="badge">Opção A — como está hoje</span>
+      <h4>Curso copiado por empresa</h4>
+      <ul>
+        <li>Você cria o curso dentro de cada cliente.</li>
+        <li class="cross">100 clientes = 100 cópias</li>
+        <li class="cross">Mudou1 item → refaz em todas</li>
+        <li class="check">Nenhuma mudança de sistema</li>
+        <li>Bom só para poucos clientes e cursos diferentes.</li>
+      </ul>
+    </div>
+    <div class="card b">
+      <span class="badge">Opção B — recomendada</span>
+      <h4>Catálogo único + “liga/desliga” por empresa</h4>
+      <ul>
+        <li>O curso existe <b>1 vez só</b>, na ConnectionCyber.</li>
+        <li>Cada empresa só <b>ativa</b> os cursos que quer oferecer.</li>
+        <li class="check">Atualizou1 vez → todos os clientes veem atualizado</li>
+        <li class="check">100 clientes = 1 clique para liberar em todos</li>
+        <li>Exige migration nova + tela “Catálogo” na curadoria.</li>
+      </ul>
+    </div>
+    <div class="card c">
+      <span class="badge">Opção C — híbrida</span>
+      <h4>Catálogo global + cursos próprios do cliente</h4>
+      <ul>
+        <li>Seus cursos padrão (B) <b>mais</b> cursos que cada cliente cria sozinho.</li>
+        <li class="check">Cliente treina o uso do sistema dele com o curso dele</li>
+        <li class="check">Você treina todo mundo com o seu conteúdo</li>
+        <li>Esforço de implementação um pouco maior que B.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Comparação rápida</h3>
+  <table>
+    <tr><th>Cenário (20 clientes, 1 curso)</th><th>Hoje (A)</th><th>B (catálogo único)</th><th>C (híbrido)</th></tr>
+    <tr><td>Criações do curso</td><td class="cross">20</td><td class="check">1</td><td class="check">1 + o que cada um criar</td></tr>
+    <tr><td>Atualizar o conteúdo</td><td class="cross">20 vezes</td><td class="check">1 vez</td><td class="check">1 vez (seus) / 1 por cliente (deles)</td></tr>
+    <tr><td>Aluno vê curso sem nada a ver com o sistema dele</td><td>só se você copiar</td><td>só se você ativar na empresa</td><td>só se você ativar</td></tr>
+    <tr><td>Trabalho para implementar</td><td class="check">nenhum (já está pronto)</td><td>médio (migration + tela)</td><td>médio-alto</td></tr>
+    <tr><td>Dado de cliente misturado com outro cliente</td><td class="check">nunca</td><td class="check">nunca</td><td class="check">nunca</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>4. Detalhe importante sobre “treinamento do sistema que eu desenvolvi para ele”</h2>
+  <p class="sub">
+    Você pode usar a <b>mesma Academia</b> para as duas coisas, sem confusão de marca:
+    <b>(1)</b> cursos seus, gerais (ex.: “Atalhos de teclado”, “Segurança da senha”), liberados a todos;
+    <b>(2)</b> cursos específicos do produto que você entregou àquele cliente (ex.: “Como usar o sistema X da Empresa Y”),
+    criados só naquela empresa — ou também no catálogo, se forem iguais para todos.
+    A separação é feita por <b>categoria</b> (ex.: <code>plataforma</code> x <code>cliente</code>) e pela ativação por empresa.
+  </p>
+</section>
+
+<footer>
+  Arquivo: <code>PARECER-TECNICO-M23-ACADEMY-MODELO-LOGICO.html</code> · staging connectioncyber (ozvylnaipubrmaadikvk) · 28/09/2026
+</footer>
+</main>
+</body>
+</html>

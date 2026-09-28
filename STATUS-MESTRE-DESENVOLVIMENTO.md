@@ -355,6 +355,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M17 | Jornada persistente server-side | G0–G12 concluídos em staging | Autorização server-side, cadastro/catálogo/estoque/PDV/caixa/financeiro com repositório local, migration 0033 | 0033 aplicada e validada em staging; backend persistente pronto, consumido pelo M18. |
 | M18 | Persistência visual e piloto Mania de Modas | **G0–G22 concluídos em staging** | Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034/0036, provisionamento e ativação completa do tenant piloto (Mania de Modas) | 0034/0036 aplicadas; tenant/estabelecimento/membership/convite criados (`M18_G21_PROVISIONING_OK`); G22 fechado 04/09/2026 — convite aceito, senha definida, MFA/TOTP cadastrado, sessão AAL2 validada e primeira jornada visual real (dashboard, leitura) confirmadas por print do próprio usuário-piloto. Pendência cosmética não bloqueante: renderização do `<img>` do QR code (fallback de segredo manual funcionou). |
 | M19 | Redesign visual + roteamento de login | **G0–G5 concluídos** | Tema global/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), engrenagem de branding no portal (G4), roteamento de login por papel sem lookup de e-mail (G5) | Programa concluído. `platform` 165/165, `portal` 75/75, `site` 19/19; type-check/lint/build limpos nos 3. Uma migration nova (0035), aplicada em staging com preflight+dry-run+push. |
+| M23 | Portal de ensino (Academia) | **G0–G2 concluídos em staging** | Núcleo único + 2 portas: migration 0044 (capacidade, permissões, 5 tabelas RLS fail-closed, comando único de cursos/matrículas/progresso), correção do 42501 do catálogo público, 0045 (drift do hook de signup `public.handle_new_user`), 0046 (e-mail da identidade alinhado ao Auth), 0047 (trigger de sincronização `auth.users.email` → `public.users.email`), G1 porta 1 em `apps/portal` (catálogo, matrícula e progresso por `academy_command`) e G2 catálogo global + vínculo por tenant (migration 0048, modelo C+, tela `/academia/admin`, consolidação de dados 3→1) | Validação transacional remota 32/32 com `ROLLBACK` e resíduo zero; `db push` exclusivo da 0044 (histórico 0001–0044); pós-apply + 18/18 + 14/14 remotos; REST anônimo `42501 → 200`; 0045 (11/11, 0 identidades órfãs), 0046 (4/4, 0 divergências de e-mail) e 0047 (7/7, 1 trigger, `anon` sem execução) aplicadas; G2: transação **49/49** `ROLLBACK` local+remoto, pós-apply **24/24 + 25/25** remotos, **0048 aplicada** (histórico 0001–0048), REST anônimo 200, `platform` 253/253, `portal` 149/149 + tsc/lint/build, 1 curso global com 8 módulos e **5/5 empresas vinculadas**; capacidade `academy.courses` ativa nos 5 tenants e `academy.manage` no papel `owner`. Cobrança e conteúdo ficam em G3. |
 
 ## 8. Critérios globais de validação
 
@@ -388,6 +389,175 @@ Cada módulo deve demonstrar, quando aplicável:
 11. repetir o processo individualmente para o próximo cliente.
 
 ## 10. Próxima ação autorizável
+
+### M23-G0 — fundação da Academia (✅ CONCLUÍDO EM STAGING — 27/09/2026)
+
+Núcleo único + 2 portas aprovado pelo usuário; G0 entregou a migration aditiva
+`0044_m23_academy_foundation.sql` (capacidade `academy.courses`, permissões
+`academy.read`/`academy.manage`, 5 tabelas com RLS fail-closed, comando único
+`public.academy_command` e grants que corrigem o `42501` do catálogo público).
+
+Executado em 27/09/2026 com a autorização explícita do usuário para as duas escritas:
+
+1. **Validação transacional remota** no projeto `ozvylnaipubrmaadikvk`: preflight
+   `M23_G0_PREFLIGHT_OK`, transação com `ROLLBACK` em **32/32 pgTAP**
+   (`M23_G0_0044_TRANSACTION_32_OF_32_ROLLBACK`), preflight repetido OK e
+   `count(0044) = 0` — resíduo zero. REST anônimo antes: **401/42501** nas 3 tabelas.
+2. **Aplicação persistente**: `db push --dry-run` escolheu somente a 0044, `db push`
+   aplicou (histórico `0001…0044`), `m23_g0_post_apply.sql` OK, **18/18** estruturais e
+   **14/14** adversariais remotos, preflight passou a recusar, REST anônimo depois:
+   **200 sem 42501**.
+
+Local reexecutado após o ajuste de seed: 32/32 com `ROLLBACK`, 18/18, 14/14 e
+`apps/platform` 214/214 naquele instante. Evidências em
+`RELATORIO-M23-G0-FUNDACAO-ACADEMY.md` e em `staging/logs/m23-g0-remote-20260927-*.log`.
+
+### M23-G0.1 — correção do drift de identidade (migration 0045) (✅ APLICADA EM STAGING — 27/09/2026)
+
+Achado no G0 e aprovado pelo usuário em 27/09/2026: `public.handle_new_user()` do
+staging gravava em `public.profiles` (template) e não em `public.users`, divergindo das
+migrations 0003/0018 — o cadastro via Auth não criava identidade no ERP (1 órfã:
+`connectioncyberso@gmail.com`). Corrigido com a migration aditiva
+`0045_handle_new_user_drift_fix.sql` (reafirma a definição da 0018, garante o hook e
+repara órfãs, tudo idempotente e não destrutivo):
+
+1. preflight remoto `M23_HYGIENE_0045_PREFLIGHT_OK` (drift presente, 1 órfã, hook ativo);
+2. validação transacional remota: `M23_HYGIENE_0045_TRANSACTION_11_OF_11_ROLLBACK`,
+   preflight repetido OK e drift ainda presente → resíduo zero;
+3. `db push --dry-run` escolheu somente a 0045 → `db push` aplicou (histórico `0001…0045`);
+4. pós-apply remoto: **11/11**, `still_drift = false`, `writes_users = true`,
+   `orphans_pending = 0`, `search_path=""`, `anon` sem execução, `public.profiles`
+   preservado (1 linha, intocada), preflight passou a recusar `migration 0045 ja aplicada`;
+5. local: preflight → transação **11/11** com `ROLLBACK` → `db push --local` → **11/11**;
+   `apps/platform` **224/224** (10 testes estáticos novos).
+
+Rollback de contingência: `supabase/rollback/0045_handle_new_user_drift_fix.rollback.sql`
+(restaura a definição legada do template — só em emergência, pois reabre o bug).
+Evidências em `staging/logs/m23-hygiene-0045-remote-*.log`.
+
+### M23-G0.2 — alinhamento de e-mail da identidade (migration 0046) (✅ APLICADA EM STAGING — 27/09/2026)
+
+Causa da divergência: a identidade `61b57707-…` nasceu em 01/09/2026 com
+`joaquimmscoelho@gmail.com`; o e-mail foi trocado no Auth e confirmado em 02/09
+(`joaquimmscoelhoam@gmail.com`) e **não existe hook de UPDATE** — só o de INSERT da
+0003/0018 —, então `public.users.email` ficou defasado. Aprovado pelo usuário e corrigido
+com `0046_identity_email_alignment.sql` (apenas `UPDATE public.users`, idempotente, com
+guarda contra e-mail duplicado):
+
+1. preflight `M23_HYGIENE_0046_PREFLIGHT_OK` (`target_in_auth/target_in_users = true`, `divergences = 1`);
+2. transação `M23_HYGIENE_0046_TRANSACTION_4_OF_4_ROLLBACK` e preflight seguinte OK
+   (`divergences = 1`) → resíduo zero;
+3. `db push --dry-run` escolheu somente a 0046 → aplicada (histórico `0001…0046`);
+4. pós-apply: **4/4**, `divergences = 0`, `users_email = auth_email =
+   joaquimmscoelhoam@gmail.com`, `rows_with_email = 1`, preflight passou a recusar;
+5. local: preflight → transação **4/4** com `ROLLBACK` → `db push --local` → **4/4**;
+   `apps/platform` **230/230**.
+
+Rollback: `supabase/rollback/0046_identity_email_alignment.rollback.sql`. Evidências em
+`staging/logs/m23-hygiene-0046-remote-*.log`.
+
+### M23-G0.3 — sincronismo contínuo de e-mail (migration 0047) (✅ APLICADA EM STAGING — 27/09/2026)
+
+Fechou o gap da 0046 (troca de e-mail no Auth não propagava para `public.users`).
+`supabase/migrations/0047_sync_auth_email_trigger.sql` (aditiva, transacional) cria
+`public.sync_auth_email()` (`security definer`, `search_path = ''`, sem execução para
+`anon/authenticated`) e o trigger `on_auth_user_email_changed`
+(`after update of email on auth.users`, `when (old.email is distinct from new.email)`),
+que normaliza em minúsculas, só grava quando houver divergência e recria a identidade
+ausente (self-heal do drift). Evidência:
+
+1. preflight `M23_HYGIENE_0047_PREFLIGHT_OK` (`function_present/trigger_present = false`);
+2. transação `M23_HYGIENE_0047_TRANSACTION_7_OF_7_ROLLBACK` e preflight seguinte OK
+   → resíduo zero;
+3. `db push --dry-run` escolheu somente a 0047 → aplicada (histórico `0001…0047`);
+4. pós-apply: **7/7**, `sync_triggers = 1`, `search_path=""`, `anon_can_execute = false`,
+   `divergences = 0`, preflight passou a recusar;
+5. local: preflight → transação **7/7** com `ROLLBACK` → `db push --local` → **7/7**;
+   `apps/platform` **237/237**.
+
+Rollback: `supabase/rollback/0047_sync_auth_email_trigger.rollback.sql`. Evidências em
+`staging/logs/m23-hygiene-0047-remote-*.log`.
+
+### M23-G1.1 — porta 1 da Academia no portal (✅ ENTREGUE E ATIVADA EM STAGING — 27/09/2026)
+
+Inventário: `apps/portal` não tinha nenhuma tela de curso — o catálogo legado é
+`apps/site/src/pages/cursos/index.tsx` (lê `public.courses` com fallback demo).
+
+Entregue em `apps/portal` (sem migration e sem `db push`):
+
+- `src/app/(portal)/academia/page.tsx` — catálogo publicado + minhas matrículas com barra de progresso;
+- `src/app/(portal)/academia/[courseId]/page.tsx` — detalhe com módulos, conclusão e cancelamento de matrícula;
+- rotas POST `matricular`, `concluir-modulo`, `cancelar-matricula` (`src/features/academy/form-action.ts`): same-origin, UUID validado, tenant sempre da membership e escrita exclusiva via `rpc('academy_command')`;
+- `src/features/academy/service.ts` (leitura RLS da 0044) e domínio puro `src/domain/academy.ts` (contexto fail-closed, clamp de progresso, regras de matrícula/conclusão);
+- nav de `(portal)/layout.tsx` gateada por `academy_context` (link quando `access`, item pendente `M23` quando não).
+
+Validação local em `apps/portal`: **140/140**, `tsc --noEmit` limpo, `next lint` sem avisos e
+`next build` compilando as 5 rotas `/academia*`.
+
+Ativação em staging (escritas de dados aprovadas pelo usuário em 27/09/2026):
+
+1. `erp_tenant_capabilities`: `academy.courses = active` nos 5 tenants ativos (`source='migration'`, `contract_version=1`, `evidence_hash` = SHA-256 da 0044 `ba8b62c1…72c58e`) → `erp_security.academy_capability = true` em todos;
+2. `erp_role_permissions`: backfill idêntico ao da 0041 (todas as permissões ativas para o papel `owner`) → `academy.read` e `academy.manage` presentes nos 3 tenants com papel `owner`;
+3. simulação de sessão do dono da Mania de Modas (`role=authenticated`, `aal=aal1`): `academy_context` → `access=true, manage=true, capability=true` e leitura RLS de `academy_courses` OK.
+
+Conteúdo semead (escrita aprovada): o mini curso **"Atalhos de Teclado — Windows e Office"**
+(`F:\Projetos\connectioncyber-documentacao\minicursos\Mini Curso Atalhos de Teclado – Windows e Office.md`)
+foi criado **via `academy_command`** na sessão do `owner` de cada tenant e publicado com
+**8 módulos** (M0–M6 + encerramento, `conteudo_ref = academy:atalhos/modulo-N`) em
+**Casa de Bolos, Loja da Benção e Mania de Modas** — SQL idempotente em
+`staging/seed/m23-g1-seed-curso-atalhos.sql`. Biblioteca M22 (só papéis `kb-*`) e
+ConnectionCyber (sem membros) ficaram de fora por não terem `academy.manage` ativo.
+Prova ponta a ponta com `ROLLBACK` (sessão do dono da Mania de Modas, `role=authenticated`):
+curso visível pela RLS → `enroll` → `complete_module` → matrícula `ativa` com
+`progresso = 12.50` (1 de 8 módulos) → transação revertida (resíduo zero).
+
+**Próxima ação (à época): M23-G1.2 — porta 2 (curadoria: criar/publicar curso e módulos)** —
+executada como **M23-G2 no modelo C+ aprovado** (catálogo global + vínculo por tenant), ver
+próxima seção.
+
+### M23-G2 — catálogo global + vínculo por tenant (✅ CONCLUÍDO EM STAGING — 28/09/2026)
+
+Modelo C+ aprovado em `PARECER-TECNICO-M23-ACADEMY-IMPLEMENTACAO-CPLUS.html` (3 decisões:
+leitura do aluno por select+policy; só a plataforma cria/edita curso global — `is_platform_staff`
+com papel `admin`/`suporte`; curso global nasce `publico=true`, ligado para toda empresa).
+
+Migration aditiva `0048_m23_g2_academy_global_catalog.sql` (aplicada em staging em 28/09/2026):
+
+- colunas `escopo`/`alvo_sistema`/`alvo_vertical`/`publico` + 4 constraints em `academy_courses`;
+- tabela `academy_tenant_courses` (PK `tenant_id+course_id`, `origem auto|manual`, RLS só SELECT);
+- `academy_sync_links` (definer, `search_path=''`) + gatilhos de curso/`tenant_modules`/`tenants`
+  → vínculo automático por alvo, preservando o vínculo manual;
+- leitura por vínculo (`academy_course_read`/`academy_module_read`) com exceção de descoberta:
+  gestor (`academy.manage`) enxerga o catálogo global para poder vincular; aluno fica gated;
+- FKs compostas → simples (matrícula/progresso/evento pertencem à empresa do aluno; `modules`
+  mantém a composta do dono);
+- `academy_command` reescrito: resolve curso por id (aceita global), módulos nascem no dono,
+  matrícula/conclusão exigem vínculo ativo, ações novas `link_course`/`unlink_course`/
+  `set_course_targets` (erros `ACADEMY_PLATFORM_REQUIRED`, `ACADEMY_GLOBAL_TARGET_REQUIRED`,
+  `ACADEMY_LINK_ONLY_GLOBAL`, `ACADEMY_LINK_AUTO`, `ACADEMY_COURSE_NOT_LINKED`,
+  `ACADEMY_TARGET_ONLY_GLOBAL`);
+- `academy_context` passa a expor `staff` (fail-closed no parse).
+
+Portão validado de ponta a ponta: preflight, transação **49/49** com `ROLLBACK` e resíduo zero
+(local e remoto), pós-apply **24/24 + 25/25** remotos, preflight passou a recusar, REST anônimo
+200; `apps/platform` **253/253**, `apps/portal` **149/149** + `tsc`/`lint`/`build` limpos.
+Runner `supabase/validation/run-0048-remote.ps1` (logs `staging/logs/m23-g2-remote-*.log`).
+
+Portal (`apps/portal`): catálogo do aluno resolve por vínculo (`listLinkedCourseIds` → `.in` em
+`academy_courses`), módulos por `course_id`, nova tela `/academia/admin` (gate `context.manage`,
+link na página da Academia) com criar/publicar/novo módulo/vincular/desvincular/alvos — tudo via
+`public.academy_command` em `features/academy/admin-action.ts` (same-origin, UUID, allowlist de
+campos, tenant sempre da membership). Curadoria descobre globais pela RLS de gestor (select +
+policy, sem RPC — decisão 1 honrada).
+
+Dados 3→1 consolidados (`staging/seed/m23-g2-consolida-catalogo-global.sql`, validado localmente
+com fixture: ramo normal + colisão de PK + reexecução no-op): os 3 cursos réplica do G1 viraram
+**1 curso global publicado** com 8 módulos, **5/5 empresas vinculadas** (`origem=auto`),
+matrícula+progresso da Mania migrados, 0 órfãos. Prova RLS com usuário real não-staff (dono da
+Mania): 1 curso global + 8 módulos visíveis, 1 vínculo, `academy_context` → `staff=false`.
+
+**Próxima ação: deploy do portal** (catálogo/curadoria no ar) e, se solicitado, M23-G3 —
+cobrança/conteúdo.
 
 ### M19 — concluído (G0–G5)
 
@@ -1853,3 +2023,36 @@ Entrega: migration aditiva 0043 aplicada exclusivamente no projeto ozvylnaipubrm
 Resultado: homologação M0–M4 concluída no Preview. O adaptador Gemini, consentimento e auditoria foram exercitados; o modelo descontinuado foi atualizado e falhas 429/5xx/timeouts agora possuem repetição segura. O provedor respondeu 503 mesmo após as tentativas finais, portanto a classificação manual permanece operacional e a IA externa segue como dependência degradável. Promoção, produção e integração comercial exigem gates separados. Rollback não destrutivo documentado.
 
 <!-- M22-KB-END -->
+
+<!-- M23-ACADEMY-START -->
+## M23 — Portal de ensino (Academia) — fundação G0 0.1.0
+
+Atualização: 27/09/2026. Estado: **G0 concluído — 0044 (academia), 0045 (drift do hook de signup), 0046 (e-mail da identidade) e 0047 (sincronismo de e-mail via trigger) aplicadas no Supabase staging `ozvylnaipubrmaadikvk` (histórico 0001–0047) + G1 porta 1 (catálogo/matrícula/progresso) entregue em `apps/portal` e ativada no staging; produção intocada.**
+
+Decisão aprovada pelo usuário: núcleo único + 2 portas — fase 1 = `apps/portal` para os clientes ERP existentes, fase 2 = `apps/site` B2C. Nenhum novo repositório, banco ou fork por cliente.
+
+Escopo do G0 (migration aditiva `0044_m23_academy_foundation.sql`): capacidade `academy.courses` no catálogo fail-closed, permissões `academy.read` e `academy.manage`, 5 tabelas (`academy_courses`, `academy_modules`, `academy_enrollments`, `academy_progress`, `academy_events`) com RLS e nenhum DML para clientes, helpers `erp_security.academy_capability/academy_access/academy_manage`, `public.academy_context` e o comando único `public.academy_command` (create_course, update_course, publish_course, add_module, enroll, unenroll, complete_module) com rate limit de 120 ações por minuto, serialização por advisory lock e recálculo transacional de progresso. A mesma migration concede `select` em `courses`, `products` e `cms_content` para `anon, authenticated`, corrigindo o erro `42501 permission denied for table courses` que o `/cursos` encontra hoje (catálogo público cai no fallback demo).
+
+Evidência local: preflight `M23_G0_PREFLIGHT_OK`; transação gerada `supabase/validation/0044_transaction.generated.sql` em transação única com **32/32 pgTAP** (18 estruturais + 14 adversariais) e marcador `M23_G0_0044_TRANSACTION_32_OF_32_ROLLBACK`; preflight repetido logo depois (resíduo zero); suítes isoladas 18/18 e 14/14; `apps/platform` 214/214 naquele instante (hoje **237/237**, com os 23 testes estáticos das higienizações 0045/0046/0047) e type-check limpo; parse SQL real (libpg_query) aprovado.
+
+Evidência remota (27/09/2026, autorizada pelo usuário), via `supabase/validation/run-0044-remote.ps1`:
+
+- Fase validate: histórico `0001…0043`; REST anônimo **antes** = HTTP 401 com `42501` em `courses`/`products`/`cms_content`; preflight OK; transação com `ROLLBACK` em **32/32** (`M23_G0_0044_TRANSACTION_32_OF_32_ROLLBACK`); preflight seguinte OK e `count(0044) = 0` → nenhum resíduo.
+- Fase apply: `db push --dry-run` escolheu **somente** `0044_m23_academy_foundation.sql`; `db push` aplicou; `m23_g0_post_apply.sql` OK (5 tabelas RLS, 5 policies somente SELECT, `authenticated` sem DML, `anon` sem execução, capability e permissões ativas, 4 funções); **18/18** estruturais e **14/14** adversariais remotos (`finish()` sem relato de falha); preflight passou a recusar `migration 0044 ja aplicada`; histórico final `0001…0044`; REST anônimo **depois** = **HTTP 200 sem 42501**.
+
+Hashes SHA-256: migração `BA8B62C1…E72C58E`, transação `05CC13DD…923F12C8`, builder `E40DCAA5…103E0263`. Logs em `staging/logs/m23-g0-remote-20260927-{174458-validate,174845-apply,175334-verify}.log`. Relatório: `RELATORIO-M23-G0-FUNDACAO-ACADEMY.md`.
+
+Higiene de identidade (migration aditiva `0045_handle_new_user_drift_fix.sql`, aprovada pelo usuário em 27/09/2026): o staging gravava o resultado do hook de signup em `public.profiles` (template) e não em `public.users`, então o cadastro via Auth não criava identidade no ERP (1 órfã: `connectioncyberso@gmail.com`). Evidência: preflight remoto `M23_HYGIENE_0045_PREFLIGHT_OK` (drift presente, 1 órfã); transação com `ROLLBACK` em **11/11** (`M23_HYGIENE_0045_TRANSACTION_11_OF_11_ROLLBACK`) e preflight seguinte OK (resíduo zero); `db push --dry-run` escolheu **somente** a 0045; aplicada (histórico `0001…0045`); pós-apply **11/11**, `still_drift = false`, `orphans_pending = 0`, `public.profiles` preservado, preflight recusando `migration 0045 ja aplicada`; local preflight → transação 11/11 com `ROLLBACK` → `db push --local` → 11/11. Hashes SHA-256: migração `3ED2612A…C179383`, transação `1304B8A0…7E57EA902`, teste `F4DB1BCA…B66E3803A`. Logs em `staging/logs/m23-hygiene-0045-remote-*.log`. Rollback de contingência: `supabase/rollback/0045_handle_new_user_drift_fix.rollback.sql`.
+
+Higiene de identidade — e-mail da identidade (migration aditiva `0046_identity_email_alignment.sql`, aprovada pelo usuário em 27/09/2026): a identidade `61b57707-…` nasceu em 01/09/2026 com `joaquimmscoelho@gmail.com`; o e-mail foi trocado no Auth e confirmado em 02/09 (`joaquimmscoelhoam@gmail.com`) e não há hook de UPDATE, então `public.users.email` ficou defasado. Evidência: preflight `M23_HYGIENE_0046_PREFLIGHT_OK` (`divergences = 1`); transação `M23_HYGIENE_0046_TRANSACTION_4_OF_4_ROLLBACK` e preflight seguinte OK (`divergences = 1`) → resíduo zero; `db push --dry-run` escolheu **somente** a 0046; aplicada (histórico `0001…0046`); pós-apply **4/4**, `divergences = 0`, `users_email = auth_email`, `rows_with_email = 1`, preflight recusando; local preflight → 4/4 com `ROLLBACK` → `db push --local` → 4/4. Hashes SHA-256: migração `4DE25274…C2AFCD3`, transação `1F945628…BDF5C0`, teste `42B63EF7…6C5E311`. Logs em `staging/logs/m23-hygiene-0046-remote-*.log`. Rollback: `supabase/rollback/0046_identity_email_alignment.rollback.sql`.
+
+Higiene de identidade — sincronismo de e-mail (migration aditiva `0047_sync_auth_email_trigger.sql`, aprovada pelo usuário em 27/09/2026): a 0046 corrigiu a divergência pontual, mas ainda não havia propagação automática quando o e-mail é trocado no Auth. Criou `public.sync_auth_email()` (`security definer`, `search_path = ''`, `revoke` de `anon/authenticated`) e o trigger `on_auth_user_email_changed` (`after update of email on auth.users`, `when old.email is distinct from new.email`), com normalização em minúsculas, escrita apenas quando houver divergência e recriação da identidade ausente. Evidência: preflight `M23_HYGIENE_0047_PREFLIGHT_OK` (`function_present/trigger_present = false`); transação `M23_HYGIENE_0047_TRANSACTION_7_OF_7_ROLLBACK` e preflight seguinte OK → resíduo zero; `db push --dry-run` escolheu **somente** a 0047; aplicada (histórico `0001…0047`); pós-apply **7/7**, `sync_triggers = 1`, `search_path=""`, `anon_can_execute = false`, `divergences = 0`, preflight recusando; local preflight → 7/7 com `ROLLBACK` → `db push --local` → 7/7. Hashes SHA-256: migração `9821059A…EB8FB5`, transação `85E3E82E…D763C849`, teste `452B2D28…324CE6F8C`. Logs em `staging/logs/m23-hygiene-0047-remote-*.log`. Rollback: `supabase/rollback/0047_sync_auth_email_trigger.rollback.sql`.
+
+G1 porta 1 — Academia no portal do cliente (27/09/2026, sem migration): inventário mostrou que `apps/portal` não tinha nenhuma tela de curso (o legado é `apps/site/src/pages/cursos/index.tsx`). Foram entregues `src/app/(portal)/academia/page.tsx` (catálogo + minhas matrículas), `src/app/(portal)/academia/[courseId]/page.tsx` (módulos, conclusão, cancelamento), as rotas POST `matricular`/`concluir-modulo`/`cancelar-matricula` (`features/academy/form-action.ts`: same-origin, UUID validado, tenant da membership, escrita só por `rpc('academy_command')`), `features/academy/service.ts` (leitura RLS da 0044), `domain/academy.ts` (fail-closed) e o item de nav gateado por `academy_context`. Validação local: `apps/portal` **140/140**, `tsc` limpo, `next lint` sem avisos, `next build` com as 5 rotas `/academia*`. Ativação remota aprovada: `academy.courses = active` nos 5 tenants ativos (`evidence_hash` = SHA-256 da 0044), backfill das permissões ativas ao papel `owner` (mesmo SQL da 0041) e simulação de sessão do dono da Mania de Modas devolvendo `academy_context = {access:true, manage:true, capability:true}` com leitura RLS OK. Conteúdo: o mini curso "Atalhos de Teclado — Windows e Office" (fonte em `connectioncyber-documentacao\minicursos`) foi criado via `academy_command` e publicado com 8 módulos em Casa de Bolos, Loja da Benção e Mania de Modas (`staging/seed/m23-g1-seed-curso-atalhos.sql`), com ensaio completo de matrícula e conclusão em transação revertida (`progresso = 12.50`, resíduo zero).
+
+Ambiente: Docker Desktop ligado e stack Supabase local `supabase_db_connectioncyber` (PostgreSQL 17.6) usada e **parada** após este gate (histórico local 0001–0047 via `supabase db push --local`); autenticação remota com o token `connectioncyber-cli-m23` (org connection-cyber-so, Organization + Database read-write, expira em 7 dias) via `supabase login`/`db link --project-ref ozvylnaipubrmaadikvk`.
+
+Riscos e limites residuais: drift do hook de signup **corrigido** (0045), e-mail da identidade **corrigido** (0046) e sincronismo **instalado** (0047); se o e-mail novo já pertencer a outra identidade, a troca no Auth falha por unicidade (impede duplicidade); contas de teste no staging (`connectioncyberso@gmail.com`, criada em 18/09/2026 sem login, sem tenant/membership) e sintéticos `*@connectioncyber.com.br`; `academy.manage` exige AAL1 (endurecimento para AAL2 fica para portão futuro); não há ainda cobrança/assinatura, upload de mídia, trilhas nem conteúdo — escopos do G1+; o `/cursos` continua lendo `public.courses` legado até o G1 migrar a tela; token de staging revogável a qualquer momento.
+
+Próxima ação: **M23-G1.2 — porta 2 (curadoria no `apps/portal`: criar/publicar curso e módulos)**, começando pelo primeiro curso de demonstração para validar a porta 1 ponta a ponta no navegador.
+<!-- M23-ACADEMY-END -->
