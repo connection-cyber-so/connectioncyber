@@ -4,7 +4,7 @@
 
 **Ambiente de trabalho:** staging
 
-**Atualizado em:** 02/09/2026
+**Atualizado em:** 28/09/2026
 
 **Versão do documento:** 2.3.1
 
@@ -361,6 +361,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M17 | Jornada persistente server-side | G0–G12 concluídos em staging | Autorização server-side, cadastro/catálogo/estoque/PDV/caixa/financeiro com repositório local, migration 0033 | 0033 aplicada e validada em staging; backend persistente pronto, consumido pelo M18. |
 | M18 | Persistência visual e piloto Mania de Modas | **G0–G22 concluídos em staging** | Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034/0036, provisionamento e ativação completa do tenant piloto (Mania de Modas) | 0034/0036 aplicadas; tenant/estabelecimento/membership/convite criados (`M18_G21_PROVISIONING_OK`); G22 fechado 04/09/2026 — convite aceito, senha definida, MFA/TOTP cadastrado, sessão AAL2 validada e primeira jornada visual real (dashboard, leitura) confirmadas por print do próprio usuário-piloto. Pendência cosmética não bloqueante: renderização do `<img>` do QR code (fallback de segredo manual funcionou). |
 | M19 | Redesign visual + roteamento de login | **G0–G5 concluídos** | Tema global/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), engrenagem de branding no portal (G4), roteamento de login por papel sem lookup de e-mail (G5) | Programa concluído. `platform` 165/165, `portal` 75/75, `site` 19/19; type-check/lint/build limpos nos 3. Uma migration nova (0035), aplicada em staging com preflight+dry-run+push. |
+| M24 | Envio fiscal ao contador | **G0 aplicado em staging (28/09/2026)** | Pacote fiscal mensal (XML+DANFE) com manifesto SHA-256, recibo do contador e auditoria `logs_access`: migration 0050 (papel `contador`, 3 tabelas RLS, permissão `fiscal.deliver`, 5 RPCs, bucket `fiscal-deliveries`), rota `/fiscal/contador` no portal (publicar/recibo/anulação) e substituição do AnyDesk | Transação **61/61** `ROLLBACK` + resíduo zero; **0050 aplicada** (histórico 0001–0050); pós-apply `M24_POST_APPLY_OK`; **36/36 + 25/25** remotos; regressão 0049 **12/12 + 24/24**; REST anônimo 200; portal lint/tsc/**155/155**; produção intocada. |
 | M23 | Portal de ensino (Academia) | **G0–G3 concluídos em staging** | Núcleo único + 2 portas: migration 0044 (capacidade, permissões, 5 tabelas RLS fail-closed, comando único de cursos/matrículas/progresso), correção do 42501 do catálogo público, 0045 (drift do hook de signup `public.handle_new_user`), 0046 (e-mail da identidade alinhado ao Auth), 0047 (trigger de sincronização `auth.users.email` → `public.users.email`), G1 porta 1 em `apps/portal` (catálogo, matrícula e progresso por `academy_command`) e G2 catálogo global + vínculo por tenant (migration 0048, modelo C+, tela `/academia/admin`, consolidação de dados 3→1) | Validação transacional remota 32/32 com `ROLLBACK` e resíduo zero; `db push` exclusivo da 0044 (histórico 0001–0044); pós-apply + 18/18 + 14/14 remotos; REST anônimo `42501 → 200`; 0045 (11/11, 0 identidades órfãs), 0046 (4/4, 0 divergências de e-mail) e 0047 (7/7, 1 trigger, `anon` sem execução) aplicadas; G2: transação **49/49** `ROLLBACK` local+remoto, pós-apply **24/24 + 25/25** remotos, **0048 aplicada** (histórico 0001–0048), REST anônimo 200, `platform` 253/253, `portal` 149/149 + tsc/lint/build, 1 curso global com 8 módulos e **5/5 empresas vinculadas**; capacidade `academy.courses` ativa nos 5 tenants e `academy.manage` no papel `owner`. G3 ativação automática: corte de capacidade em `academy_sync_links` + gatilhos em `erp_tenant_capabilities`/`erp_tenant_capability_exceptions` (migration 0049), transação **36/36** `ROLLBACK` local+remoto, **0049 aplicada** (histórico 0001–0049), pós-apply + **12/12 + 24/24** e regressão 0048 **24/24 + 25/25** remotos, rota `/treinamento` ("do seu sistema" + "gerais") no portal, `platform` 265/265, `portal` 155/155 + tsc/lint. |
 
 ## 8. Critérios globais de validação
@@ -584,6 +585,20 @@ portal 151/151.
 
 **M23-G3 concluído (28/09):** ativação automática por capacidade (migration **0049** aplicada, histórico 0001–0049) + rota `/treinamento` no portal ("do seu sistema" + "gerais"). Gate: transação **36/36** `ROLLBACK` local+remoto, pós-apply, testes **12/12 + 24/24** e regressão 0048 **24/24 + 25/25** remotos, REST anônimo 200, `platform` 265/265, `portal` 155/155 + tsc/lint, CI verde (commit `7026ba2`), deploy de produção `dpl` Ready (smoke `/login` 200, `/treinamento` 307). Seed `tenant_modules` por vertical aplicado no staging (Mania 3, Casa de Bolos 3, Loja da Benção 3, KB homologação os 8; ConnectionCyber os 4 originais) — 5/5 empresas vinculadas ao curso público. Sem próxima ação pendente neste programa.
 
+### M24-G0 — envio fiscal ao contador (✅ APLICADO EM STAGING — 28/09/2026)
+
+Sequência autorizada pelo usuário ("M24 → M25 → R-003 → M14 lote real, de ponta a ponta").
+Migration **0050** aplicada exclusivamente no staging (histórico 0001–0050): papel
+`contador`, 3 tabelas com RLS, permissão `fiscal.deliver`, 5 RPCs auditadas em
+`logs_access`, bucket `fiscal-deliveries` com 5 policies; portal `/fiscal/contador`
+(publicar upload + recibo + anulação, link na navegação). Gate: transação **61/61**
+`ROLLBACK` local+remoto com resíduo zero, pós-apply `M24_POST_APPLY_OK`, testes
+**36/36 + 25/25** remotos, regressão 0049 **12/12 + 24/24**, REST anônimo 200, portal
+lint/tsc/**155/155**. Observação: o repositório estava vinculado ao projeto de **produção**
+(`qfg`) após a promoção e foi **relinkado ao staging** (`ozvy`) antes do push. Documentos:
+`PARECER-TECNICO-M24-ENVIO-CONTADOR.md`, `RELATORIO-M24-G0-ENTREGA-LOCAL.md`.
+**Próxima ação: M25** (assinatura Mercado Pago + auto-provisionamento).
+
 ### Promoção staging→produção — concluída (28/09/2026)
 
 Autorizada pelo usuário ("Promover staging→produção"). Backups dos dois projetos em
@@ -697,6 +712,7 @@ portões separados e bloqueados.
 | 6.6.0 | 29/08/2026 | M15-G0 | Matriz de prontidão, riscos, critérios de aceite e onze portões determinísticos definidos para a Mania de Moda. | Preparação sintética liberada; UAT real e produção bloqueadas até segurança, backup, fiscal, dispositivos, fonte e operação serem aprovados. |
 | 6.7.0 | 30/08/2026 | M15-G1 | Baseline local auditada em Auth, MFA, rede, segredos, dependências, CI/CD, headers, backup, observabilidade e runbooks. | 316 testes e zero vulnerabilidades runtime; 5 críticos, 6 altos e 4 médios; UAT real reprovada e remediação local R1 liberada. |
 | 6.8.0 | 30/08/2026 | M15-G1-R1 | Headers compartilhados, redirect fail-closed, Node 22, CI expandido, seeds opt-in e três runbooks implementados. | 337/337, TypeScript, ESLint e três builds aprovados; M15-G2 sintético liberado; remoto e produção intocados. |
+| 7.0.0 | 28/09/2026 | M24-G0 | Pacote fiscal mensal ao contador (migration 0050, rota `/fiscal/contador`, auditoria `logs_access`) substituindo o envio por AnyDesk; artefatos de gate (preflight, transação, pós-apply, runner). | 61/61 transacional `ROLLBACK` + resíduo zero; 0050 aplicada em staging (histórico 0001–0050); 36/36 + 25/25 remotos; regressão 0049 12/12 + 24/24; portal 155/155 + lint/tsc; produção intocada; repo relinkado de `qfg` para `ozvy`. |
 
 ## 12. Protocolo de atualização futura
 
