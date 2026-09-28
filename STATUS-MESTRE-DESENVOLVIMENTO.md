@@ -65,7 +65,7 @@ Se uma etapa falhar, o desenvolvimento permanece no mesmo portão. Nenhum erro s
 - Branch `staging`: desenvolvimento e validação.
 - `apps/site`: site institucional e páginas públicas.
 - `apps/platform`: painel interno da equipe ConnectionCyber.
-- `apps/portal`: portal/ERP de clientes criado no M03, ainda sem projeto/domínio Vercel próprio.
+- `apps/portal`: portal/ERP de clientes criado no M03; projeto Vercel `connectioncyber-portal` (root `apps/portal`, domínio `portal.connectioncyber.com.br`).
 - `packages/core`: regras compartilhadas; ainda sem núcleo ERP implementado.
 
 Não serão criados novos repositórios, bancos ou forks de aplicação por cliente como padrão. Cada empresa será um tenant isolado na plataforma comum. A migração e o corte serão individuais por cliente.
@@ -556,8 +556,20 @@ com fixture: ramo normal + colisão de PK + reexecução no-op): os 3 cursos ré
 matrícula+progresso da Mania migrados, 0 órfãos. Prova RLS com usuário real não-staff (dono da
 Mania): 1 curso global + 8 módulos visíveis, 1 vínculo, `academy_context` → `staff=false`.
 
-**Próxima ação: deploy do portal** (catálogo/curadoria no ar) e, se solicitado, M23-G3 —
-cobrança/conteúdo.
+**Deploy concluído (28/09/2026, autorizado pelo usuário)**: `vercel deploy --prod` publicou a árvore
+de `staging` em `portal.connectioncyber.com.br` (`dpl_CfyaZbBK3B3JM9brQgBqjZrkVRD4`,
+`target=production`, `Ready`); smoke anônimo: `/login` 200, `/` 307 → `/login`, `/academia` e
+`/academia/admin` 307 → `/login` (eram 404 no build de produção de 20 dias). Preview da branch
+`staging` continua automático a cada push no alias `connectioncyber-portal-git-staging-…`, mas o
+alias `*.vercel.app` não é host central (`PORTAL_CENTRAL_HOSTS=portal.connectioncyber.com.br`) e
+responde 404 em `/academia` por política de host — para testar logado, usar o domínio real.
+Exceção autorizada: produção servida da árvore de `staging` sem merge em `main` (231 commits na
+frente); as três envs da Vercel (Production/Preview/Development) apontam para o Supabase staging —
+a produção do portal opera em modo homologação enquanto o M23 é staging-first, mover para
+`qfggetvashdxyuvlhihq` exige aplicar as migrations 0044–0048 lá (portão próprio, regra 4.2).
+`.vercelignore` adicionado para arquivos locais/agentes não subirem nos deploys.
+
+**Próxima ação: M23-G3 — cobrança/conteúdo** (sob demanda).
 
 ### M19 — concluído (G0–G5)
 
