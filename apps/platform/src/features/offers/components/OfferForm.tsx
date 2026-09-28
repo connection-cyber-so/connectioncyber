@@ -3,7 +3,7 @@
 // Adaptado de cc-commerce-studio/features/offer-engine/components/OfferForm.tsx —
 // sem seletor de marca (brands não migrado), sem tenant_id hidden.
 import { useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';import { useFormStatus } from 'react-dom';
 import { createOfferAction, generateOfferCopyAction, type CreateOfferActionState } from '../actions';
 import type { MpiProduct } from '@/features/products/types';
 
@@ -19,7 +19,7 @@ function SubmitButton() {
 }
 
 export function OfferForm({ products }: { products: MpiProduct[] }) {
-  const [state, formAction] = useFormState(createOfferAction, initialState);
+  const [state, formAction] = useActionState(createOfferAction, initialState);
   const [productId, setProductId] = useState(products[0]?.id ?? '');
   const [copy, setCopy] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);

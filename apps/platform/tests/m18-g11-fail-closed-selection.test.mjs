@@ -1,0 +1,61 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import { persistentVisualWritesEnabled, resolveVisualPersistenceMode, selectVisualPersistence } from '../src/features/persistence/selector.mjs';
+
+const root = new URL('../src/', import.meta.url);
+const read = path => readFileSync(new URL(path, root), 'utf8');
+const selected = read('features/persistence/selected.ts');
+const screenPaths = [
+  'app/(painel)/page.tsx', 'app/(painel)/cadastros/page.tsx', 'app/(painel)/catalogo/page.tsx',
+  'app/(painel)/operacoes/page.tsx', 'app/(painel)/pdv/page.tsx', 'app/(painel)/financeiro/page.tsx',
+  'features/parties/actions.ts', 'features/catalog/actions.ts', 'features/operations/actions.ts',
+  'features/sales/actions.ts', 'features/finance/actions.ts'
+];
+const screens = screenPaths.map(read).join('\n');
+
+test('dublê sintético é selecionado sem acesso remoto', () => {
+  const facade = Object.freeze({ marker: 'double' });
+  const result = selectVisualPersistence({ mode: 'synthetic', synthetic: facade });
+  assert.equal(result.facade, facade);
+  assert.equal(result.remote, false);
+});
+
+// M21-G1: usuário autorizou "Trilha A" — escrita real deixa de ser bloqueio incondicional.
+// O que continua fail-closed: sem `persistentWritable` configurado, `mode:'persistent'`
+// ainda recusa (segundo teste abaixo) — a mudança é que agora existe um caminho de
+// sucesso quando o transporte é fornecido, não mais um bloqueio hardcoded.
+test('modo persistente de escrita usa o dublê fornecido e marca writes:true', () => {
+  const persistent = Object.freeze({ marker: 'writable' });
+  const result = selectVisualPersistence({ mode: 'persistent', persistentWritable: persistent });
+  assert.equal(result.facade, persistent);
+  assert.equal(result.remote, true);
+  assert.equal(result.writes, true);
+  assert.equal(persistentVisualWritesEnabled, true);
+});
+
+test('modo persistente de escrita sem dublê configurado continua fail-closed', () => {
+  assert.throws(() => selectVisualPersistence({ mode: 'persistent' }), error => error.code === 'PERSISTENT_WRITABLE_TRANSPORT_UNAVAILABLE');
+});
+
+test('modo ausente ou desconhecido é recusado', () => {
+  assert.throws(() => selectVisualPersistence(), error => error.code === 'PERSISTENCE_MODE_INVALID');
+  assert.throws(() => selectVisualPersistence({ mode: 'auto', synthetic: {} }), error => error.code === 'PERSISTENCE_MODE_INVALID');
+  assert.throws(() => resolveVisualPersistenceMode('auto'), error => error.code === 'PERSISTENCE_MODE_INVALID');
+});
+
+test('dublê sintético ausente é recusado', () => {
+  assert.throws(() => selectVisualPersistence({ mode: 'synthetic' }), error => error.code === 'SYNTHETIC_TRANSPORT_UNAVAILABLE');
+});
+
+test('fachada selecionada fixa modo sintético sem ambiente ou Supabase', () => {
+  assert.match(selected, /SERVER_VISUAL_PERSISTENCE_MODE/);
+  assert.doesNotMatch(selected, /NEXT_PUBLIC_VISUAL|serviceRole|service_role/);
+  assert.match(selected, /comandos remotos bloqueados/);
+});
+
+test('todas as telas e ações usam somente a fachada selecionada', () => {
+  assert.match(screens, /features\/persistence\/selected/);
+  assert.doesNotMatch(screens, /features\/persistence\/(local|persistent)/);
+  assert.doesNotMatch(screens, /createClient|@supabase\/supabase-js/);
+});

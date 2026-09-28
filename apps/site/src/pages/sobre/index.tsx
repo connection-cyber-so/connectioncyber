@@ -3,8 +3,8 @@ import Layout from '@/components/Layout';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function SobrePage() {
-  const { t } = useLanguage();
-  const values = t('about.values') as string[];
+  const { t, getTranslation } = useLanguage();
+  const values = getTranslation<string[]>('about.values');
 
   return (
     <Layout title={t('about.title')} description={t('about.intro')}>

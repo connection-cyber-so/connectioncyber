@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parecer de implementação — M23-G2/G3 · Academia modelo C+ (catálogo global + vínculo automático)</title>
+<style>
+  :root{--navy:#0b2545;--blue:#123a63;--orange:#f6851f;--teal:#0f9b8e;--red:#d94141;--purple:#5b3fa8;--line:#dfe6ee;--muted:#5b6b7c;--white:#fff;--soft:#f5f8fb}
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.6 Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--navy);background:var(--soft)}
+  header{background:var(--navy);color:#fff;padding:32px 22px}
+  header h1{margin:0 0 6px;font-size:1.6rem}
+  header p{margin:0;color:#c8d8e8;max-width:960px}
+  main{max-width:1100px;margin:0 auto;padding:26px 22px 60px}
+  section{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:22px;margin:20px 0}
+  h2{margin:0 0 6px;font-size:1.22rem}
+  h3{margin:20px 0 8px;font-size:1rem;color:var(--blue)}
+  .sub{margin:0 0 14px;color:var(--muted);font-size:.94rem}
+  .tag{display:inline-block;background:var(--orange);color:#fff;border-radius:20px;padding:2px 10px;font-size:.73rem;font-weight:800;letter-spacing:.06em}
+  .tag.g{background:var(--teal)}
+  .tag.b{background:var(--blue)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch;justify-content:center}
+  .box{flex:1 1 240px;border:2px solid var(--line);border-radius:10px;padding:11px 13px;background:#fff;font-size:.92rem;text-align:center}
+  .box b{display:block;margin-bottom:3px}
+  .box small{color:var(--muted);font-size:.83rem;line-height:1.45;display:block}
+  .box.you{border-color:var(--navy);background:var(--navy);color:#fff}.box.you small{color:#c8d8e8}
+  .box.new{border-color:var(--teal);background:#effaf8}
+  .box.old{border-color:var(--line);background:var(--soft)}
+  .box.blue{border-color:var(--blue);background:#eef4fb}
+  .box.warn{border-color:var(--orange);background:#fff7ec}
+  .box.purple{border-color:var(--purple);background:#f3effc}
+  .arrow{text-align:center;font-size:1.4rem;color:var(--orange);line-height:1}
+  .flow{display:grid;gap:9px;max-width:640px;margin:0 auto}
+  .step{border:2px solid var(--line);border-radius:10px;padding:9px 13px;text-align:center;background:#fff;font-size:.94rem}
+  .step.q{border-color:var(--blue);background:#eef4fb;font-weight:700}
+  .branch{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .branch>div{flex:1 1 210px;border-radius:10px;padding:8px 12px;text-align:center;font-size:.89rem}
+  .yes{border:2px solid var(--teal);background:#effaf8}
+  .no{border:2px solid var(--red);background:#fff1f1}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.92rem}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--navy);color:#fff}
+  .check{color:var(--teal);font-weight:800}
+  .cross{color:var(--red);font-weight:800}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:.87em}
+  ul,ol{margin:6px 0;padding-left:20px}li{margin-bottom:5px;font-size:.93rem}
+  .gate{border-left:6px solid var(--teal);background:#effaf8;padding:12px 16px;border-radius:8px;margin-top:10px}
+  .gate h4{margin:0 0 6px;font-size:1.02rem}
+  .decision{border-left:6px solid var(--orange);background:#fff7ec;padding:12px 16px;border-radius:8px;margin-top:10px}
+  footer{color:var(--muted);font-size:.85rem;text-align:center;padding:10px 0 30px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Parecer de implementação — Academia modelo C+ (catálogo global + ativação automática)</h1>
+  <p>M23-G2 (catálogo e vínculo) e M23-G3 (automático e tela Treinamento). <b>Somente análise: nenhum código, tabela ou dado foi alterado por este documento.</b></p>
+</header>
+<main>
+
+<section>
+  <span class="tag">ESCOPO</span>
+  <h2 style="margin-top:10px">O que este parecer detalha</h2>
+  <p class="sub">Modelo C+ aprovado por você em 28/09/2026. Aqui: como as tabelas ficam, quem lê o quê (RLS), o que muda na tela, como migrar os dados atuais e em que ordem executar — com critérios de aceite por portão.</p>
+  <table>
+    <tr><th>Fora do escopo (decisão separada)</th><th>Motivo</th></tr>
+    <tr><td>Venda ao público / carrinho / pagamento (B2C)</td><td>Afeta <code>preco</code>, checkout e nota fiscal; entra como M24. A Camada 1 (catálogo) que ele exige já está prevista aqui.</td></tr>
+    <tr><td>App nativo embutido no ERP do cliente</td><td>Rota <code>/treinamento</code> + deep-link resolvem; app próprio só se houver demanda real.</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>1. Modelo de dados alvo <span class="tag b">DIAGRAMA</span></h2>
+  <p class="sub">Verde = tabela nova. Cinza = mantida. Laranja = coluna nova. O isolamento aluno↔cliente continua garantido pelas tabelas de baixo (elas <b>não</b> mudam de significado).</p>
+
+  <div class="row">
+    <div class="box you" style="flex:1 1 100%"><b>CAMADA 1 — CONTEÚDO (existe 1x)</b>
+      <small><code>public.academy_courses</code> — <b>dono</b> passa a ser a ConnectionCyber quando o curso for global</small></div>
+  </div>
+  <div class="arrow">▼</div>
+  <div class="row">
+    <div class="box warn"><b>academy_courses (colunas novas)</b>
+      <small><code>escopo</code> <i>global | tenant</i><br><code>alvo_sistema</code> (module_key, ex.: <code>desenvolvimento-sistemas</code>)<br><code>alvo_vertical</code> (ex.: <code>varejo-moda-calcados</code>)<br><code>publico</code> (boolean — libera a toda empresa com a chave ligada)<br>Hoje: <code>tenant_id NOT NULL</code> + 8 módulos por cópia</small></div>
+    <div class="box new"><b>academy_tenant_courses (NOVA)</b>
+      <small><code>tenant_id</code> + <code>course_id</code> (PK dupla)<br><code>origem</code> <i>auto | manual</i><br><code>ativo</code> boolean<br>= “esta empresa oferece este curso”</small></div>
+    <div class="box new"><b>academy_sync_links() (NOVA)</b>
+      <small>recalcula os vínculos <code>auto</code> quando muda curso, capacidade da empresa, <code>vertical</code> ou <code>tenant_modules</code>. Registros <code>manual</code> são preservados.</small></div>
+  </div>
+  <div class="arrow">▼</div>
+  <div class="row">
+    <div class="box old"><b>academy_modules</b><small>fica com o dono do curso (1x, não 3x). UNIQUE <code>(tenant_id, course_id, ordem)</code> continua válido.</small></div>
+    <div class="box old"><b>academy_enrollments</b><small><code>tenant_id</code> = empresa do aluno. <code>course_id</code> passa a apontar para o curso global. <b>Não muda.</b></small></div>
+    <div class="box old"><b>academy_progress</b><small>idem: progresso é da pessoa naquela empresa. <b>Não muda.</b></small></div>
+    <div class="box old"><b>academy_events</b><small>auditoria por empresa. <b>Não muda.</b></small></div>
+  </div>
+</section>
+
+<section>
+  <h2>2. Quem lê o quê (RLS) <span class="tag b">FLUXOGRAMA</span></h2>
+  <p class="sub">As policies de <code>enrollments</code>/<code>progress</code>/<code>events</code> <b>continuam iguais</b>. As de <code>courses</code>/<code>modules</code> passam a perguntar “existe vínculo ativo com uma empresa deste aluno E aquela empresa tem acesso?”. O portal sempre filtra pelo vínculo da empresa ativa.</p>
+  <div class="flow">
+    <div class="step">Aluno logado pede a lista de cursos da empresa ativa</div>
+    <div class="step q">Tem vínculo ativo em <code>academy_tenant_courses</code> para ESTA empresa?</div>
+    <div class="branch">
+      <div class="no"><b>NÃO</b> → curso não aparece</div>
+      <div class="yes"><b>SIM</b> → continua</div>
+    </div>
+    <div class="step q">A empresa tem <code>academy.courses</code> ativa (capacidade) E o aluno é membro dela?</div>
+    <div class="branch">
+      <div class="no"><b>NÃO</b> → não aparece (sem vazamento entre clientes)</div>
+      <div class="yes"><b>SIM</b> → <b>curso visível</b></div>
+    </div>
+    <div class="step q">Quer se matricular?</div>
+    <div class="branch">
+      <div class="yes"><b>SIM</b> → <code>academy_command('enroll')</code> valida de novo o vínculo e grava <code>tenant_id</code> = empresa do aluno</div>
+      <div class="no"><b>NÃO</b> → fica no catálogo</div>
+    </div>
+    <div class="step" style="border-color:var(--teal);background:#effaf8"><b>Invariante mantido:</b> matrícula e progresso nunca são globais — são sempre da pessoa naquela empresa.</div>
+  </div>
+  <div class="decision">
+    <b>Decisão 1 (precisa do seu ok):</b> leitura do catálogo continua por <i>select</i> direto (padrão do portal hoje) com a policy acima, ou passa a ser só por RPC <code>academy_catalog(p_tenant)</code>?
+    <br>• <b>Recomendo select + policy</b> — menos mudança no front, mesmo padrão de hoje.
+    <br>• Efeito colateral aceito: um aluno que está em 2 empresas vê a <i>união</i> dos vínculos numa consulta sem filtro; o portal filtra pela empresa ativa, então na tela nunca mistura.
+  </div>
+</section>
+
+<section>
+  <h2>3. O que muda em cada peça <span class="tag b">IMPACTO</span></h2>
+  <div class="row">
+    <div class="box blue"><b>Banco (1 migration nova)</b>
+      <small>• +4 colunas em <code>academy_courses</code><br>• +tabela <code>academy_tenant_courses</code> (RLS + grants no padrão 0044)<br>• +função <code>academy_sync_links()</code> + gatilhos<br>• policies de <code>courses</code>/<code>modules</code> reescritas<br>• <code>academy_command</code>: validações por vínculo + ações novas</small></div>
+    <div class="box blue"><b>academy_command — ações</b>
+      <small><b>novas:</b> <code>link_course</code>, <code>unlink_course</code> (só empresa, só curso global) · <code>set_course_targets</code> (só staff/plataforma)<br><b>mudam:</b> <code>create_course</code> aceita <code>escopo</code> (global só staff) · <code>publish/add_module/update</code> resolvem curso global também · <code>enroll/complete_module</code> exigem vínculo ativo</small></div>
+    <div class="box blue"><b>Portal (curadoria + aluno)</b>
+      <small>• consulta de cursos/matrículas passa a usar o vínculo da empresa ativa<br>• nova tela <b>Catálogo</b> (curador): criar global, alvos, ligar/desligar empresas<br>• botão <b>Treinamento</b> agrupa “do seu sistema” + “gerais”<br>• inalterado: login, membership, capacidade, RLS, <code>academy_context</code></small></div>
+  </div>
+</section>
+
+<section>
+  <h2>4. Migração dos dados de hoje <span class="tag g">DADOS REAIS</span></h2>
+  <p class="sub">Situação atual no staging (28/09): 3 cursos (1 por empresa) × 8 módulos cada; 1 matrícula + 1 progresso em Mania de Modas; 32 eventos.</p>
+  <div class="flow">
+    <div class="step">1. Escolher a cópia <b>canônica</b> (recomendo a da Casa de Bolos) e marcá-la <code>escopo='global'</code>, dono = ConnectionCyber</div>
+    <div class="step">2. Apagar as outras 2 cópias (Loja da Benção e Mania de Modas) junto com os 16 módulos duplicados</div>
+    <div class="step">3. Criar os vínculos: 3 empresas → curso global (<code>origem='auto'</code>, <code>ativo=true</code>)</div>
+    <div class="step">4. Apontar a matrícula e o progresso existentes (Mania) para o id canônico — nada é perdido</div>
+    <div class="step" style="border-color:var(--teal);background:#effaf8"><b>Conferência:</b> cada empresa vê 1 curso, 8 módulos, Mania mantém 1 matrícula/progresso</div>
+  </div>
+</section>
+
+<section>
+  <h2>5. Sequência de portões <span class="tag g">EXECUÇÃO</span></h2>
+
+  <div class="gate">
+    <h4>M23-G2 — catálogo global + vínculo (faz tudo junto, validação antes de valer)</h4>
+    <ul>
+      <li><b>Entregas:</b> migration (colunas, tabela, sync, policies, <code>academy_command</code>), migração dos 3 cursos, tela <b>Catálogo</b> na curadoria, testes.</li>
+      <li><b>Validação obrigatória:</b> dry-run com <code>rollback</code> → preflight → push → pgTAP/adversarial (0044 refeito no modelo novo) → teste estático da migration → <code>apps/platform</code> (hoje 237 testes) → <code>apps/portal</code> (hoje 140) + <code>type-check</code>/<code>lint</code>/<code>build</code> → conferência de dados no staging.</li>
+      <li><b>Aceite:</b> aluno da Mania vê o mesmo curso que o da Casa de Bolos, matricula e progride, sem ver dado do outro cliente.</li>
+    </ul>
+  </div>
+
+  <div class="gate">
+    <h4>M23-G3 — ativação automática + tela “Treinamento”</h4>
+    <ul>
+      <li><b>Entregas:</b> gatilhos de sincronia (curso, capacidade, <code>vertical</code>, <code>tenant_modules</code>), regra de alvo (<code>publico</code>/<code>alvo_sistema</code>/<code>alvo_vertical</code>), rota <code>/treinamento</code> agrupando trilhas, lançamento de <code>tenant_modules</code> dos clientes reais.</li>
+      <li><b>Aceite:</b> novo curso com <code>publico=true</code> aparece em todas as empresas com a chave ligada <b>sem</b> ninguém copiar nada; curso com <code>alvo_sistema='X'</code> aparece só nas empresas que usam X.</li>
+    </ul>
+  </div>
+
+  <p class="sub" style="margin-top:14px"><b>Estimativas (contando validação completa):</b> M23-G2 ≈ 90 min de execução assistida · M23-G3 ≈ 60 min. Os dois só começam após o seu ok neste parecer.</p>
+</section>
+
+<section>
+  <h2>6. Riscos e decisões pendentes <span class="tag">ANTES DE EXECUTAR</span></h2>
+  <div class="decision">
+    <b>Decisão 1</b> — leitura do catálogo por <i>select</i> + policy (recomendado) ou só por RPC.
+  </div>
+  <div class="decision">
+    <b>Decisão 2</b> — quem pode criar curso <b>global</b>: só a equipe da plataforma (<code>is_platform_staff</code>, recomendo) ou também qualquer dono de empresa com <code>academy.manage</code>.
+  </div>
+  <div class="decision">
+    <b>Decisão 3</b> — padrão de um curso global novo: já nascer <code>publico=true</code> (recomendo, é o seu objetivo “todo mundo tem”) ou nascer desligado e você ligar empresa a empresa.
+  </div>
+  <ul style="margin-top:12px">
+    <li><b>Risco técnico baixo:</b> o sync automático pode ligar/desligar curso em massa — por isso ele só mexe em vínculos <code>origem='auto'</code> e nunca apaga matrícula.</li>
+    <li><b>Risco de dado:</b> zero perda — cursos, módulos, matrícula e progresso atuais são remanejados numa transação única com conferência pós-commit.</li>
+    <li><b>Fora do alcance do RLS:</b> ninguém lê curso sem vínculo; <code>enroll</code> valida de novo no servidor (não confia no front).</li>
+  </ul>
+</section>
+
+<footer>
+  Arquivo: <code>PARECER-TECNICO-M23-ACADEMY-IMPLEMENTACAO-CPLUS.html</code> · base: migration 0044 + staging ozvylnaipubrmaadikvk · 28/09/2026 · sem alteração de código
+</footer>
+</main>
+</body>
+</html>

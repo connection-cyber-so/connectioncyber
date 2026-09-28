@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "date": "2026-08-30",
+  "scope": "local_only_no_remote_mutation",
+  "decision": "blocked_for_real_uat",
+  "summary": { "critical": 5, "high": 6, "medium": 4, "runtimeVulnerabilities": 0, "passingTests": 316, "blockedSuites": 1 },
+  "findings": [
+    { "id": "M15-S01", "severity": "critical", "area": "auth", "finding": "signup enabled, email confirmation disabled, weak password baseline and privileged MFA disabled in local baseline", "remediation": "harden Auth and prove privileged AAL2 before real users" },
+    { "id": "M15-S02", "severity": "critical", "area": "backup", "finding": "no measured restore drill, RPO or RTO", "remediation": "define targets and execute an isolated restore drill" },
+    { "id": "M15-S03", "severity": "critical", "area": "database_network", "finding": "local configuration models unrestricted database CIDRs and no SSL enforcement", "remediation": "audit hosted settings and approve restrictions in a separate remote gate" },
+    { "id": "M15-S04", "severity": "critical", "area": "identity", "finding": "real UAT would precede validated MFA enrollment and recovery runbooks", "remediation": "keep real identities blocked until enrollment, recovery and break-glass tests pass" },
+    { "id": "M15-S05", "severity": "critical", "area": "observability", "finding": "no operational alerting, incident ownership or immutable pilot audit export", "remediation": "implement health checks, alerts, ownership and incident runbooks" },
+    { "id": "M15-S06", "severity": "high", "area": "web_headers", "finding": "platform and portal lack the security-header baseline already present on site", "remediation": "share CSP, anti-framing, nosniff, referrer and permissions policy" },
+    { "id": "M15-S07", "severity": "high", "area": "redirect", "finding": "platform login consumes redirect without an explicit internal-path allowlist", "remediation": "centralize and test a fail-closed redirect validator" },
+    { "id": "M15-S08", "severity": "high", "area": "ci", "finding": "CI omits protocol, fiscal, import and Supabase migration test packages", "remediation": "add all critical packages and SQL static gates to CI" },
+    { "id": "M15-S09", "severity": "high", "area": "supply_chain", "finding": "GitHub Actions use floating major tags instead of immutable commit SHAs", "remediation": "pin actions by SHA and document update cadence" },
+    { "id": "M15-S10", "severity": "high", "area": "environment", "finding": "local execution is Node 26 while applications require Node 22", "remediation": "standardize Node 22 with version file and preflight" },
+    { "id": "M15-S11", "severity": "high", "area": "seeding", "finding": "database reset seeding remains enabled and historical fixture risk is documented", "remediation": "separate synthetic lab seeds from pilot reset policy" },
+    { "id": "M15-S12", "severity": "medium", "area": "csp", "finding": "site CSP permits inline script and style", "remediation": "plan nonce/hash adoption without blocking the synthetic rehearsal" },
+    { "id": "M15-S13", "severity": "medium", "area": "secrets", "finding": "platform environment template requests a server secret not used by current runtime paths", "remediation": "remove unnecessary secret surface or document an isolated server-only consumer" },
+    { "id": "M15-S14", "severity": "medium", "area": "ci", "finding": "CI has no dependency audit, secret scan, concurrency cancellation or generated-artifact guard", "remediation": "add deterministic read-only security gates" },
+    { "id": "M15-S15", "severity": "medium", "area": "portal_tests", "finding": "portal suite cannot run under unsupported Node 26 local runtime", "remediation": "repeat under Node 22 and require parity with CI" }
+  ],
+  "remediationWaves": [
+    { "id": "R1", "mode": "local", "items": ["web headers", "redirect allowlist", "Node 22 preflight", "CI expansion", "seed isolation", "runbook templates"] },
+    { "id": "R2", "mode": "remote_read_only", "items": ["hosted Auth posture", "network restrictions", "SSL", "advisors", "backup capabilities", "Vercel environment inventory"] },
+    { "id": "R3", "mode": "remote_mutation_separate_authorization", "items": ["Auth hardening", "MFA enablement", "network restrictions", "observability integrations", "backup plan changes"] },
+    { "id": "R4", "mode": "synthetic_rehearsal", "items": ["cross-tenant", "recovery", "alerts", "restore", "rollback", "performance"] }
+  ]
+}

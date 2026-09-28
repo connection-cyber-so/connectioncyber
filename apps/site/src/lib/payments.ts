@@ -1,5 +1,6 @@
-import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
-import { env, isMercadoPagoConfigured } from '@/config/env';
+import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
+import { env, isMercadoPagoEnabled } from '@/config/env';
+import { validateMercadoPagoWebhookSignature } from './webhookSignature';
 
 /**
  * Módulo de pagamentos — Mercado Pago.
@@ -8,9 +9,9 @@ import { env, isMercadoPagoConfigured } from '@/config/env';
  */
 
 function getClient(): MercadoPagoConfig {
-  if (!isMercadoPagoConfigured) {
+  if (!isMercadoPagoEnabled) {
     throw new Error(
-      'Mercado Pago não configurado. Preencha MERCADOPAGO_ACCESS_TOKEN no .env.local'
+      'Mercado Pago indisponível neste ambiente.'
     );
   }
   return new MercadoPagoConfig({ accessToken: env.mercadoPago.accessToken });
@@ -76,6 +77,7 @@ export async function getPaymentStatus(paymentId: string) {
     status: result.status,
     externalReference: result.external_reference,
     transactionAmount: result.transaction_amount,
+    currencyId: result.currency_id,
   };
 }
 
@@ -85,12 +87,13 @@ export async function getPaymentStatus(paymentId: string) {
  * ao ativar credenciais reais de produção.
  * https://www.mercadopago.com.br/developers/pt/docs/your-integrations/notifications/webhooks
  */
-export function isValidWebhookSignature(_headers: Record<string, string | string[] | undefined>): boolean {
-  if (!env.mercadoPago.webhookSecret) {
-    // Sem segredo configurado ainda: aceitar em desenvolvimento, mas alertar.
-    console.warn('[payments] MERCADOPAGO_WEBHOOK_SECRET não configurado — validação de assinatura desativada.');
-    return true;
-  }
-  // TODO: implementar validação HMAC real com o segredo quando disponível.
-  return true;
+export function isValidWebhookSignature(
+  headers: Record<string, string | string[] | undefined>,
+  dataId: string,
+): boolean {
+  return validateMercadoPagoWebhookSignature({
+    headers,
+    dataId,
+    secret: env.mercadoPago.webhookSecret,
+  });
 }

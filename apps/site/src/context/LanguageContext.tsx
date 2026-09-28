@@ -1,49 +1,81 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import ptBR from '@/i18n/pt-BR.json';
 import enUS from '@/i18n/en-US.json';
+import es419 from '@/i18n/es-419.json';
+import { DEFAULT_LOCALE, isLocale, LOCALE_STORAGE_KEY, type Locale } from '@/i18n/config';
 
-export type Locale = 'pt-BR' | 'en-US';
+type TranslationValue = string | TranslationValue[] | { [key: string]: TranslationValue };
 
-const dictionaries: Record<Locale, Record<string, any>> = {
+const dictionaries: Record<Locale, TranslationValue> = {
   'pt-BR': ptBR,
   'en-US': enUS,
+  'es-419': es419,
 };
 
 interface LanguageContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (path: string) => any;
+  t: (path: string) => string;
+  getTranslation: <T extends TranslationValue>(path: string) => T;
 }
 
 const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
 
-function resolvePath(dict: Record<string, any>, path: string): any {
-  return path.split('.').reduce<any>((acc, key) => (acc == null ? acc : acc[key]), dict);
+function resolvePath(dict: TranslationValue, path: string): TranslationValue | undefined {
+  return path.split('.').reduce<TranslationValue | undefined>((current, key) => {
+    if (current === undefined || typeof current !== 'object' || Array.isArray(current)) {
+      return undefined;
+    }
+    return current[key];
+  }, dict);
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('pt-BR');
+  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
 
-  const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('cc-locale', next);
-      document.documentElement.lang = next;
+  useEffect(() => {
+    try {
+      const storedLocale = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+      const initialLocale = isLocale(storedLocale) ? storedLocale : DEFAULT_LOCALE;
+      setLocaleState(initialLocale);
+      document.documentElement.lang = initialLocale;
+    } catch {
+      document.documentElement.lang = DEFAULT_LOCALE;
     }
   }, []);
 
-  const t = useCallback(
-    (path: string) => {
-      const value = resolvePath(dictionaries[locale], path);
-      return value ?? path;
-    },
-    [locale]
-  );
+  const setLocale = useCallback((next: Locale) => {
+    setLocaleState(next);
+    try {
+      window.localStorage.setItem(LOCALE_STORAGE_KEY, next);
+      document.documentElement.lang = next;
+    } catch {
+      // O idioma continua funcional em memória quando o armazenamento é bloqueado.
+    }
+  }, []);
 
-  const value = useMemo(() => ({ locale, setLocale, t }), [locale, setLocale, t]);
+  const t = useCallback((path: string): string => {
+    const value = resolvePath(dictionaries[locale], path);
+    return typeof value === 'string' ? value : path;
+  }, [locale]);
+
+  const getTranslation = useCallback(<T extends TranslationValue,>(path: string): T => {
+    const value = resolvePath(dictionaries[locale], path);
+    if (value === undefined) {
+      throw new Error(`Tradução estruturada não encontrada: ${path}`);
+    }
+    return value as T;
+  }, [locale]);
+
+  const value = useMemo(
+    () => ({ locale, setLocale, t, getTranslation }),
+    [locale, setLocale, t, getTranslation],
+  );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }
+
+export type { Locale } from '@/i18n/config';
 
 export function useLanguage() {
   const ctx = useContext(LanguageContext);

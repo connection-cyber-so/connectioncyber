@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useLanguage } from '@/context/LanguageContext';
 import { mainNav, routes } from '@/config/routes';
 import LanguageSwitcher from './LanguageSwitcher';
+import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
   const { t } = useLanguage();
@@ -14,7 +16,7 @@ export default function Header() {
     <header style={styles.header}>
       <div className="container" style={styles.inner}>
         <Link href={routes.home} style={styles.brand} onClick={() => setOpen(false)}>
-          <img src="/logo.png" alt="ConnectionCyber" style={styles.logo} />
+          <Image src="/logo.png" alt="ConnectionCyber" width={34} height={34} style={styles.logo} priority />
           <span style={styles.brandText}>{t('brand.name')}</span>
         </Link>
 
@@ -40,6 +42,7 @@ export default function Header() {
         </nav>
 
         <div style={styles.actions}>
+          <ThemeToggle />
           <LanguageSwitcher />
           <Link href={routes.login} className="btn btn-primary" style={styles.ctaBtn}>
             {t('nav.loginCta')}

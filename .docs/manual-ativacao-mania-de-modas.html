@@ -1,0 +1,551 @@
+<!doctype html>
+<title>Ativação Mania de Modas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --paper:#eef1f2; --surface:#ffffff; --surface-2:#f4f6f7;
+    --ink:#101a26; --muted:#576973; --faint:#8698a1;
+    --line:#dbe2e5; --line-strong:#c3cdd1;
+    --accent:#1e9680; --accent-ink:#0d6b5a; --accent-tint:#e4f3f0;
+    --ok:#2c9c48; --ok-tint:#e7f6ea; --ok-ink:#1c6b30;
+    --warn:#f6851f; --warn-tint:#fef1e3; --warn-ink:#a3540d;
+    --danger:#e01f27; --danger-tint:#fceaeb; --danger-ink:#a3151b;
+    --shadow:0 1px 2px rgba(16,26,38,.04), 0 6px 20px -8px rgba(16,26,38,.12);
+    --serif:'Fraunces', 'Iowan Old Style', 'Palatino Linotype', serif;
+    --sans:'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+    --mono:'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0b1119; --surface:#121a24; --surface-2:#0e151d;
+      --ink:#eef3f5; --muted:#9fb0b8; --faint:#6c7d86;
+      --line:#26333d; --line-strong:#344350;
+      --accent:#3db8a1; --accent-ink:#8fe3d3; --accent-tint:#122822;
+      --ok:#4cb853; --ok-tint:#122a1a; --ok-ink:#7fd98c;
+      --warn:#f8961d; --warn-tint:#2c2013; --warn-ink:#ffb35e;
+      --danger:#ef5a5f; --danger-tint:#2c1516; --danger-ink:#ff9296;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 24px -8px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0b1119; --surface:#121a24; --surface-2:#0e151d;
+    --ink:#eef3f5; --muted:#9fb0b8; --faint:#6c7d86;
+    --line:#26333d; --line-strong:#344350;
+    --accent:#3db8a1; --accent-ink:#8fe3d3; --accent-tint:#122822;
+    --ok:#4cb853; --ok-tint:#122a1a; --ok-ink:#7fd98c;
+    --warn:#f8961d; --warn-tint:#2c2013; --warn-ink:#ffb35e;
+    --danger:#ef5a5f; --danger-tint:#2c1516; --danger-ink:#ff9296;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 24px -8px rgba(0,0,0,.5);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans);
+    font-size:15.5px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--accent-tint); color:var(--accent-ink)}
+  a{color:var(--accent-ink)}
+
+  .wrap{max-width:840px; margin:0 auto; padding:56px 24px 120px}
+
+  header.top{margin-bottom:40px}
+  .eyebrow{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--accent-ink); font-weight:600; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:7px; height:7px; border-radius:50%; background:var(--accent); flex:none}
+  h1{
+    font-family:var(--serif); font-weight:600; font-size:2.55rem; line-height:1.08;
+    margin:.4em 0 .3em; letter-spacing:-.01em; text-wrap:balance;
+  }
+  .dek{color:var(--muted); font-size:1.05rem; max-width:62ch; margin:0 0 6px}
+  .meta-line{
+    display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:18px; font-size:13px;
+    color:var(--faint); font-family:var(--mono);
+  }
+  .meta-line b{color:var(--muted); font-weight:600}
+
+  /* ---- status strip ---- */
+  .status-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px;
+    margin:28px 0 8px;
+  }
+  .stat{
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; box-shadow:var(--shadow);
+  }
+  .stat .label{font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--faint); font-weight:600}
+  .stat .value{font-family:var(--serif); font-size:1.2rem; font-weight:600; margin-top:4px}
+  .stat .sub{font-size:12.5px; color:var(--muted); margin-top:2px; font-family:var(--mono)}
+  .chip{
+    display:inline-flex; align-items:center; gap:6px; padding:2px 9px 3px; border-radius:999px;
+    font-size:11.5px; font-weight:600; font-family:var(--mono); letter-spacing:.02em;
+  }
+  .chip.ok{background:var(--ok-tint); color:var(--ok-ink)}
+  .chip.warn{background:var(--warn-tint); color:var(--warn-ink)}
+  .chip.danger{background:var(--danger-tint); color:var(--danger-ink)}
+  .chip::before{content:''; width:6px; height:6px; border-radius:50%; background:currentColor}
+
+  /* ---- section / gate ---- */
+  section.gate{margin-top:52px}
+  .gate-head{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+  .gate-num{
+    font-family:var(--serif); font-weight:600; font-size:1.7rem; color:var(--accent-ink);
+    flex:none;
+  }
+  .gate-head h2{font-family:var(--serif); font-weight:600; font-size:1.5rem; margin:0; letter-spacing:-.01em}
+  .gate-sub{color:var(--muted); margin:0 0 22px; max-width:66ch; font-size:.98rem}
+  .gate-status{margin-left:auto}
+
+  ol.steps{list-style:none; margin:0; padding:0; counter-reset:step}
+  ol.steps > li{
+    counter-increment:step; position:relative; padding:0 0 22px 40px; border-left:2px solid var(--line);
+    margin-left:11px;
+  }
+  ol.steps > li:last-child{border-left-color:transparent; padding-bottom:2px}
+  ol.steps > li::before{
+    content:counter(step); position:absolute; left:-11px; top:0; width:22px; height:22px;
+    border-radius:50%; background:var(--surface); border:2px solid var(--accent);
+    color:var(--accent-ink); font-family:var(--mono); font-size:11.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  ol.steps h3{margin:0 0 5px; font-size:1rem; font-weight:600}
+  ol.steps p{margin:0 0 8px; color:var(--muted)}
+  ol.steps p:last-child{margin-bottom:0}
+
+  code, .k{
+    font-family:var(--mono); font-size:.86em; background:var(--surface-2);
+    border:1px solid var(--line); border-radius:5px; padding:.05em .38em;
+  }
+  pre{
+    font-family:var(--mono); font-size:.83rem; background:var(--surface-2); color:var(--ink);
+    border:1px solid var(--line); border-radius:9px; padding:14px 16px; overflow-x:auto;
+    margin:10px 0 4px; line-height:1.55;
+  }
+  pre code{background:none; border:none; padding:0}
+
+  .note{
+    border:1px solid var(--line); border-left:3px solid var(--accent); background:var(--surface);
+    border-radius:0 9px 9px 0; padding:12px 16px; margin:12px 0; font-size:.92rem; color:var(--muted);
+    box-shadow:var(--shadow);
+  }
+  .note b{color:var(--ink)}
+  .note.warn{border-left-color:var(--warn)}
+  .note.warn b{color:var(--warn-ink)}
+  .note.danger{border-left-color:var(--danger)}
+  .note.danger b{color:var(--danger-ink)}
+
+  /* ---- checklist (persisted) ---- */
+  .checklist{
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow); overflow:hidden; margin:14px 0 4px;
+  }
+  .check-item{
+    display:flex; align-items:flex-start; gap:12px; padding:13px 16px;
+    border-bottom:1px solid var(--line);
+  }
+  .check-item:last-child{border-bottom:none}
+  .check-item input[type=checkbox]{
+    appearance:none; -webkit-appearance:none; width:19px; height:19px; flex:none; margin-top:2px;
+    border:1.5px solid var(--line-strong); border-radius:5px; cursor:pointer; position:relative;
+    background:var(--surface);
+  }
+  .check-item input[type=checkbox]:checked{background:var(--accent); border-color:var(--accent)}
+  .check-item input[type=checkbox]:checked::after{
+    content:''; position:absolute; left:5px; top:1px; width:5px; height:10px;
+    border:solid white; border-width:0 2px 2px 0; transform:rotate(40deg);
+  }
+  .check-item input[type=checkbox]:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  .check-item label{cursor:pointer; font-size:.94rem}
+  .check-item .ci-title{font-weight:600}
+  .check-item .ci-detail{color:var(--muted); font-size:.88rem; margin-top:2px}
+  .check-item.done .ci-title{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line-strong)}
+
+  table{width:100%; border-collapse:collapse; font-size:.88rem; margin:12px 0}
+  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line)}
+  th{color:var(--faint); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em}
+  td.mono, th.mono{font-family:var(--mono)}
+  tbody tr:last-child td{border-bottom:none}
+
+  .divider{
+    display:flex; align-items:center; gap:14px; margin:60px 0 34px; color:var(--faint);
+    font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em;
+  }
+  .divider::before, .divider::after{content:''; height:1px; background:var(--line); flex:1}
+
+  footer.end{
+    margin-top:70px; padding-top:22px; border-top:1px solid var(--line);
+    color:var(--faint); font-size:12.5px; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+
+  @media print{ body{background:#fff} .stat,.checklist,.note{box-shadow:none} }
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">ConnectionCyber · Piloto M18 / M19</div>
+    <h1>Ativação Mania de Modas</h1>
+    <p class="dek">
+      Sequência completa para tirar a Mania de Modas do papel: publicar o portal, ativar os
+      usuários reais, e rodar um ciclo operacional que já vira produção — mesmo sem nota
+      fiscal real ainda.
+    </p>
+    <div class="meta-line">
+      <span><b>Cliente</b> Mania de Modas — São Bernardo do Campo/SP</span>
+      <span><b>CNAE</b> 47.81-4 vestuário · 47.82-2 calçados</span>
+      <span><b>Ambiente</b> staging usado como produção real (decisão M19)</span>
+      <span><b>Atualizado</b> 03/09/2026</span>
+    </div>
+  </header>
+
+  <div class="status-grid">
+    <div class="stat">
+      <div class="label">Tenant no banco</div>
+      <div class="value">Ativo</div>
+      <div class="sub"><span class="chip ok">confirmado</span></div>
+    </div>
+    <div class="stat">
+      <div class="label">Convite do dono(a)</div>
+      <div class="value">Enviado, não aceito</div>
+      <div class="sub"><span class="chip warn">01/09 · pendente</span></div>
+    </div>
+    <div class="stat">
+      <div class="label">Domínio do portal</div>
+      <div class="value">Nenhum</div>
+      <div class="sub"><span class="chip danger">zero linhas</span></div>
+    </div>
+    <div class="stat">
+      <div class="label">Deploy do apps/portal</div>
+      <div class="value">No ar e testado</div>
+      <div class="sub"><span class="chip ok">maniademoda.connectioncyber.com.br</span></div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:14px">
+    <b>Portão 0 concluído.</b> <code>https://maniademoda.connectioncyber.com.br/login</code>
+    responde 200 e mostra "Entrar em Mania de Modas" — domínio, SSL, roteamento por tenant e
+    reconhecimento do nome da empresa, tudo real e confirmado. Único ajuste extra que não
+    estava no plano original: precisou apagar um subdomínio + registro DNS que a Hostinger já
+    tinha criado pra "maniademoda" apontando pra hospedagem própria dela (conflitava com o
+    curinga), e registrar a linha em <code>erp_tenant_domains</code> — sem essa linha o app
+    reconhecia o host mas devolvia 404 de propósito (tenant não mapeado).
+  </p>
+
+  <section class="gate">
+    <div class="gate-head">
+      <span class="gate-num">0</span>
+      <h2>Publicar o portal</h2>
+      <span class="gate-status chip danger">bloqueia tudo abaixo</span>
+    </div>
+    <p class="gate-sub">
+      Sem isso nenhum usuário real — dono da Mania de Modas ou equipe — consegue abrir o
+      sistema fora do computador de quem desenvolve.
+    </p>
+
+    <ol class="steps">
+      <li>
+        <h3>Criar o projeto Vercel do <code>apps/portal</code> — feito</h3>
+        <p>
+          Projeto <code>connectioncyber-portal</code> criado via CLI (conta
+          <code>connectioncyberso</code>, mesma da configuração anterior de domínio),
+          conectado ao repositório <code>connection-cyber-so/connectioncyber</code>, Root
+          Directory <code>apps/portal</code>, Framework Preset <code>Next.js</code> (precisou
+          correção manual — ficava nulo por padrão ao criar via CLI, mesmo bug que já
+          aconteceu com <code>apps/site</code>).
+        </p>
+      </li>
+      <li>
+        <h3>Variáveis de ambiente — feito</h3>
+        <p>Mesma convenção de <code>apps/site</code>/<code>apps/platform</code>: staging (<code>ozvylnaipubrmaadikvk</code>), nunca produção. Configuradas em Production, Preview e Development.</p>
+        <pre><code>NEXT_PUBLIC_SUPABASE_URL=https://ozvylnaipubrmaadikvk.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=&lt;chave publishable de staging&gt;
+PORTAL_CENTRAL_HOSTS=portal.connectioncyber.com.br</code></pre>
+        <p class="note" style="margin-top:8px">
+          <b>Pendência menor:</b> a Vercel não deixou trocar a Production Branch de
+          <code>main</code> pra <code>staging</code> pela API — só pelo painel
+          (<b>Settings → Git → Production Branch</b>). O deploy de produção atual já foi feito
+          direto do código local via CLI (contorna essa configuração por enquanto), mas um
+          push futuro em <code>main</code> vai gerar um novo deploy de produção e sobrescrever
+          este — trocar esse dropdown evita a surpresa.
+        </p>
+      </li>
+      <li>
+        <h3>Anexar os domínios — curinga, feito do lado da Vercel</h3>
+        <p>
+          <code>portal.connectioncyber.com.br</code> e <code>*.connectioncyber.com.br</code>
+          já estão anexados ao projeto <code>connectioncyber-portal</code> e verificados
+          (confirmado por API). Existem 13 outras empresas na fila além da Mania de Modas
+          (lista em <code>DadosConnectionCyber/dominio connectioncyber.txt</code>) — resolver
+          isso uma vez com curinga evita repetir este passo pra cada uma.
+        </p>
+        <p><b>Único passo que falta — só você faz, é a Hostinger:</b></p>
+        <pre><code>Tipo: CNAME
+Nome: *
+Aponta para: cname.vercel-dns.com</code></pre>
+        <p>
+          Mesma tela onde o registro <code>www</code> já foi configurado antes. Não mexe em
+          mais nada — MX, SPF, DMARC do e-mail continuam intocados. Depois de salvar, a
+          propagação costuma levar de minutos a poucas horas; o certificado SSL sai sozinho
+          assim que propagar.
+        </p>
+        <p class="note" style="margin-top:10px">
+          O curinga só resolve a camada de rede. Cada uma das outras 13 empresas continua
+          precisando do próprio ciclo completo (tenant provisionado, linha em
+          <code>erp_tenant_domains</code>, dono convidado) antes do subdomínio dela responder
+          com algo — isso fica de fora deste manual, focado na Mania de Modas.
+        </p>
+      </li>
+      <li>
+        <h3>Registrar o domínio da empresa no banco — feito</h3>
+        <p>Sem esta linha, <code>maniademoda.connectioncyber.com.br</code> resolvia SSL/DNS certo mas o app devolvia 404 de propósito (tenant não mapeado) — foi exatamente o que aconteceu até esta linha ser inserida.</p>
+        <table>
+          <thead><tr><th>Campo</th><th>Valor</th></tr></thead>
+          <tbody>
+            <tr><td>hostname</td><td class="mono">maniademoda.connectioncyber.com.br</td></tr>
+            <tr><td>domain_type</td><td class="mono">subdomain</td></tr>
+            <tr><td>status</td><td class="mono">active</td></tr>
+            <tr><td>is_primary</td><td class="mono">true</td></tr>
+            <tr><td>verification_method</td><td class="mono">dns_cname</td></tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <h3>Não construir roteamento novo</h3>
+        <p>
+          Uma proposta circulou sugerindo <code>middleware.ts</code> reescrevendo cada
+          subdomínio pra uma rota <code>/loja/[tenant]</code>. Não é necessário e não deve ser
+          feito — o <code>apps/portal</code> já resolve tenant por subdomínio via
+          <code>classifyPortalHostname</code> + RPC <code>portal_resolve_host</code>, com
+          isolamento por RLS e membership real. Um rewrite genérico duplicaria isso com um
+          padrão mais fraco, sem RLS. O DNS curinga (passo anterior) já basta.
+        </p>
+      </li>
+      <li>
+        <h3>Provar que está de pé — confirmado</h3>
+        <p>
+          <code>https://maniademoda.connectioncyber.com.br/login</code> responde 200 e mostra
+          <b>"Entrar em Mania de Modas"</b> — SSL válido, tenant reconhecido pelo nome, sem
+          sessão nenhuma. Critério de aceite do portão cumprido.
+        </p>
+      </li>
+    </ol>
+
+    <div class="checklist" role="group" aria-label="Checklist do Portão 0 — concluído" data-storage-key="g0">
+      <div class="check-item done"><input type="checkbox" id="g0-1" checked><label for="g0-1"><div class="ci-title">Projeto Vercel de apps/portal criado</div></label></div>
+      <div class="check-item done"><input type="checkbox" id="g0-2" checked><label for="g0-2"><div class="ci-title">Variáveis de staging configuradas em Preview e Production</div></label></div>
+      <div class="check-item done"><input type="checkbox" id="g0-3" checked><label for="g0-3"><div class="ci-title">CNAME curinga (*) + domínio central anexados no projeto certo (apps/portal, não apps/site)</div></label></div>
+      <div class="check-item done"><input type="checkbox" id="g0-4" checked><label for="g0-4"><div class="ci-title">Hostname da empresa gravado em <code>erp_tenant_domains</code></div></label></div>
+      <div class="check-item done"><input type="checkbox" id="g0-5" checked><label for="g0-5"><div class="ci-title">Login abre em produção real, sessão zero — confirmado "Entrar em Mania de Modas"</div></label></div>
+    </div>
+  </section>
+
+  <section class="gate">
+    <div class="gate-head">
+      <span class="gate-num">1</span>
+      <h2>Ativar o dono(a) real — fecha o M18-G22</h2>
+      <span class="gate-status chip warn">precisa da pessoa</span>
+    </div>
+    <p class="gate-sub">Nenhum destes passos eu faço sozinho — é sempre a pessoa real na outra ponta.</p>
+
+    <ol class="steps">
+      <li>
+        <h3>Confirmar que o convite chegou</h3>
+        <p>
+          Já foi enviado em 01/09. Se não estiver na caixa de entrada, checar spam antes de
+          reenviar. Reenvio é pelo Supabase Studio (staging) →
+          <code>Authentication → Users</code> → localizar o e-mail → <code>Resend invitation</code>.
+          Não reenviar pelo script de provisionamento — ele foi feito pra criar, não repetir.
+        </p>
+      </li>
+      <li>
+        <h3>A pessoa aceita e cria a senha</h3>
+        <p>Clica no link do e-mail, define senha própria. Ninguém da equipe vê ou escolhe essa senha.</p>
+      </li>
+      <li>
+        <h3>Cadastro obrigatório de MFA</h3>
+        <p>
+          O papel <code>owner</code> exige MFA (AAL2) — sem isso a sessão não abre o portal de
+          verdade. App autenticador (Google Authenticator, Authy, ou o que a pessoa já usar).
+        </p>
+      </li>
+      <li>
+        <h3>Primeiro login de verdade</h3>
+        <p>
+          Em <code>https://maniademoda.connectioncyber.com.br/login</code> (Portão 0 tem que
+          estar de pé). Entra, vê o próprio dashboard, nada de outro tenant. Esse é o instante
+          em que a Mania de Modas deixa de trabalhar às cegas.
+        </p>
+      </li>
+    </ol>
+
+    <div class="checklist" data-storage-key="g1">
+      <div class="check-item"><input type="checkbox" id="g1-1"><label for="g1-1"><div class="ci-title">Convite confirmado como entregue (ou reenviado)</div></label></div>
+      <div class="check-item"><input type="checkbox" id="g1-2"><label for="g1-2"><div class="ci-title">Senha própria criada pela pessoa</div></label></div>
+      <div class="check-item"><input type="checkbox" id="g1-3"><label for="g1-3"><div class="ci-title">MFA cadastrado</div></label></div>
+      <div class="check-item"><input type="checkbox" id="g1-4"><label for="g1-4"><div class="ci-title">Login real confirmado no domínio da empresa</div></label></div>
+    </div>
+  </section>
+
+  <section class="gate">
+    <div class="gate-head">
+      <span class="gate-num">2</span>
+      <h2>Criar os demais usuários reais</h2>
+      <span class="gate-status chip warn">precisa de dados seus</span>
+    </div>
+    <p class="gate-sub">
+      Autorização registrada — mas eu não invento nome nem e-mail de ninguém. Preciso do dado
+      real de cada pessoa antes de criar a conta dela.
+    </p>
+
+    <div class="note warn">
+      <b>Pra cada pessoa nova (vendedor, caixa, gerente):</b> nome completo, e-mail real que a
+      pessoa usa de verdade, e o papel dela (<code>owner</code>/<code>admin</code>/uma função
+      operacional futura). Sem isso não tem quem convidar.
+    </div>
+
+    <ol class="steps">
+      <li>
+        <h3>Coleta protegida</h3>
+        <p>
+          Mesmo mecanismo do dono — cofre local (DPAPI), nunca em texto solto no chat, e-mail
+          ou planilha comum. Cada nova pessoa é um convite via
+          <code>Authentication → Invite user</code> no Studio de staging, com o papel certo já
+          escolhido.
+        </p>
+      </li>
+      <li>
+        <h3>Papel define o que a pessoa vê</h3>
+        <p>
+          <code>owner</code>/<code>admin</code> enxergam tudo do tenant; um papel operacional
+          (caixa, vendedor) vê só o necessário — a RLS decide, não a tela. Se a Mania de Modas
+          só tem o dono(a) usando por enquanto, este portão fica em espera até surgir a
+          segunda pessoa real.
+        </p>
+      </li>
+      <li>
+        <h3>Cada novo convite repete o Portão 1</h3>
+        <p>Aceite + MFA + primeiro login — sem atalho, mesmo pra quem já é conhecido da equipe.</p>
+      </li>
+    </ol>
+  </section>
+
+  <div class="divider">Ciclo recorrente — repetir a cada rodada</div>
+
+  <section class="gate">
+    <div class="gate-head">
+      <span class="gate-num">3</span>
+      <h2>Ciclo operacional completo</h2>
+      <span class="gate-status chip ok">sem depender do fiscal</span>
+    </div>
+    <p class="gate-sub">
+      A sequência real de uso — cadastro até relatório. Cada etapa concluída com dado real da
+      Mania de Modas <b>já é produção</b>, não precisa esperar o ciclo inteiro fechar.
+    </p>
+
+    <div class="checklist" data-storage-key="g3">
+      <div class="check-item">
+        <input type="checkbox" id="g3-1"><label for="g3-1">
+          <div class="ci-title">Cadastro — cliente e fornecedor reais</div>
+          <div class="ci-detail">Portal → Cadastros. Ao menos um cliente e um fornecedor de verdade da loja.</div>
+        </label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="g3-2"><label for="g3-2">
+          <div class="ci-title">Catálogo — produtos reais do estoque</div>
+          <div class="ci-detail">Nome, unidade, preço real. Começa pequeno — 5 a 10 peças que já vendem hoje.</div>
+        </label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="g3-3"><label for="g3-3">
+          <div class="ci-title">Estoque — saldo inicial real</div>
+          <div class="ci-detail">Quantidade de verdade de cada produto cadastrado, não número redondo de teste.</div>
+        </label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="g3-4"><label for="g3-4">
+          <div class="ci-title">PDV — uma venda real registrada</div>
+          <div class="ci-detail">Sem nota fiscal ainda — o valor, o produto e o cliente são reais; só o documento fiscal fica de fora.</div>
+        </label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="g3-5"><label for="g3-5">
+          <div class="ci-title">Caixa — abertura e fechamento do dia</div>
+          <div class="ci-detail">Confere: total do caixa bate com as vendas registradas no PDV.</div>
+        </label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="g3-6"><label for="g3-6">
+          <div class="ci-title">Financeiro — a receber lançado</div>
+          <div class="ci-detail">Qualquer venda a prazo/fiado real vira título a receber no módulo financeiro.</div>
+        </label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="g3-7"><label for="g3-7">
+          <div class="ci-title">Relatório operacional conferido pelo dono(a)</div>
+          <div class="ci-detail">A pessoa real olha o dashboard e confirma: os números batem com o que ela sabe que vendeu.</div>
+        </label>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>Regra de publicação:</b> cada item acima, assim que validado com dado real, já é
+      produção — não existe "ainda em teste" depois que o dono confirma o número. Se algo
+      não bater, o ciclo pausa nesse item até corrigir; não pula pro próximo.
+    </div>
+  </section>
+
+  <section class="gate">
+    <div class="gate-head">
+      <span class="gate-num">4</span>
+      <h2>Fora do ciclo por enquanto — fiscal</h2>
+      <span class="gate-status chip danger">aguarda contadora</span>
+    </div>
+    <p class="gate-sub">
+      Achado real do próprio relatório de auditoria fiscal já feito pra Mania de Modas — nada
+      inventado agora.
+    </p>
+    <table>
+      <thead><tr><th>Pendente</th><th>Detalhe</th></tr></thead>
+      <tbody>
+        <tr><td>Regime tributário</td><td>Sistema antigo assumia Simples Nacional (CSOSN 102); CADESP oficial mostra <b>Regime Normal — RPA</b> desde 01/01/2024. Diverge.</td></tr>
+        <tr><td>CRT / CST</td><td>RPA aponta CRT 3 com CST de ICMS — não CSOSN. Confirmação final é da contadora.</td></tr>
+        <tr><td>CFOP</td><td>5.102 é o candidato pra operação de venda; não confirmado.</td></tr>
+        <tr><td>NCM</td><td>Ainda não definido pro produto piloto.</td></tr>
+        <tr><td>Série/número NF-e</td><td>Precisa de série e numeração exclusivas pro modelo 55.</td></tr>
+        <tr><td>Credenciamento SEFAZ</td><td>Tela de credenciamento voluntário aberta, sem data de conclusão — não comprovado ainda.</td></tr>
+      </tbody>
+    </table>
+    <p class="note warn">
+      Nenhum desses 6 itens bloqueia o Ciclo 3 acima — eles só bloqueiam emissão real de NF-e.
+      Operação, caixa e financeiro rodam de verdade sem esperar a contadora responder.
+    </p>
+  </section>
+
+  <footer class="end">
+    <span>Manual de uso interno — não distribuir com dado de identidade da Mania de Modas fora deste time.</span>
+    <span>connectioncyber-staging · M19</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  try {
+    document.querySelectorAll('.checklist').forEach(function(list){
+      var key = 'mania-checklist-' + (list.getAttribute('data-storage-key') || '');
+      var saved = {};
+      try { saved = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
+      list.querySelectorAll('input[type=checkbox]').forEach(function(box){
+        if (saved[box.id]) { box.checked = true; box.closest('.check-item').classList.add('done'); }
+        box.addEventListener('change', function(){
+          box.closest('.check-item').classList.toggle('done', box.checked);
+          var state = {};
+          try { state = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
+          state[box.id] = box.checked;
+          try { localStorage.setItem(key, JSON.stringify(state)); } catch(e) {}
+        });
+      });
+    });
+  } catch(e) {}
+})();
+</script>

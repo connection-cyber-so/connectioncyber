@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const source=readFileSync(new URL('../src/components/DemoRegistrations.tsx',import.meta.url),'utf8');
+const dashboard=readFileSync(new URL('../src/components/DemoDashboard.tsx',import.meta.url),'utf8');
+test('cadastro oferece fluxos de cliente e produto',()=>{assert.match(source,/Novo cliente/);assert.match(source,/Novo produto/)});
+test('cliente exige domínio reservado de teste',()=>assert.match(source,/endsWith\('\.invalid'\)/));
+test('produto recebe código sintético automático',()=>assert.match(source,/`SYN-\$\{serial\}`/));
+test('cadastros não usam rede banco ou armazenamento persistente',()=>assert.doesNotMatch(source,/fetch\(|supabase|localStorage|sessionStorage|indexedDB/i));
+test('dashboard compartilha cadastros com o PDV',()=>{assert.match(dashboard,/products=\{products\} customers=\{customers\}/);assert.match(dashboard,/setProducts\(current=>\[\.\.\.current,product\]\)/);assert.match(dashboard,/setCustomers\(current=>\[\.\.\.current,customer\]\)/)});

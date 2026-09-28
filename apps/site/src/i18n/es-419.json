@@ -1,0 +1,125 @@
+{
+  "brand": {
+    "name": "ConnectionCyber",
+    "full": "ConnectionCyber — Asesoría y Capacitación Tecnológica",
+    "slogan": "Tecnología que aporta conocimiento y gestión."
+  },
+  "nav": {
+    "home": "Inicio",
+    "about": "Nosotros",
+    "services": "Servicios",
+    "courses": "Capacitaciones",
+    "products": "Productos",
+    "clients": "Clientes",
+    "system": "Sistema",
+    "contact": "Contacto",
+    "members": "Área de Estudiantes",
+    "login": "Ingresar",
+    "loginCta": "Iniciar sesión"
+  },
+  "home": {
+    "heroTitle": "Tecnología, Sistemas y Capacitación para Empresas Modernas",
+    "heroSubtitle": "Soluciones corporativas en desarrollo de sistemas, asesoría técnica, redes, implementación y capacitación tecnológica.",
+    "ctaPrimary": "Contáctenos",
+    "ctaSecondary": "Conozca nuestros servicios",
+    "aboutTitle": "Quiénes Somos",
+    "aboutText": "ConnectionCyber es una empresa especializada en soluciones tecnológicas corporativas que ofrece desarrollo de sistemas, asesoría técnica, implementación de redes, soporte global y capacitación profesional. Combinamos experiencia técnica, visión corporativa y atención humana para brindar soluciones de alto rendimiento.",
+    "servicesTitle": "Servicios Principales",
+    "differentiatorsTitle": "Diferenciales",
+    "differentiators": [
+      "Más de 10 años de experiencia",
+      "Cartera de 15 clientes activos con contratos continuos",
+      "Soporte técnico global",
+      "Tecnología moderna y segura",
+      "Atención humana y profesional"
+    ],
+    "clientsTitle": "Empresas que confían en ConnectionCyber desde hace más de una década",
+    "finalCtaTitle": "¿Listo para evolucionar tecnológicamente?",
+    "finalCtaSubtitle": "ConnectionCyber está preparada para transformar su empresa.",
+    "finalCtaButton": "Entrar en contacto"
+  },
+  "about": {
+    "title": "Sobre la Empresa",
+    "intro": "ConnectionCyber es una empresa de tecnología corporativa con más de 10 años de experiencia que ofrece soluciones completas en TI, sistemas, redes y capacitación profesional.",
+    "missionTitle": "Misión",
+    "mission": "Capacitar a personas y organizaciones mediante la tecnología, ofreciendo soluciones inteligentes, seguras y accesibles que promuevan el crecimiento, la eficiencia y la transformación digital.",
+    "visionTitle": "Visión",
+    "vision": "Ser una referencia nacional en asesoría tecnológica, desarrollo de sistemas y formación profesional, brindando innovación con simplicidad y excelencia.",
+    "valuesTitle": "Valores",
+    "values": [
+      "Profesionalismo",
+      "Transparencia",
+      "Seguridad digital",
+      "Innovación continua",
+      "Responsabilidad técnica",
+      "Compromiso con el cliente"
+    ],
+    "historyTitle": "Nuestra Historia",
+    "history": "Fundada hace más de 10 años, ConnectionCyber construyó una cartera sólida de clientes corporativos, manteniendo contratos activos y ofreciendo tecnología con excelencia."
+  },
+  "services": {
+    "title": "Servicios",
+    "subtitle": "Soluciones tecnológicas completas para empresas que necesitan evolucionar con seguridad.",
+    "items": [
+      {
+        "title": "Desarrollo de Sistemas y Aplicaciones",
+        "description": "Sistemas corporativos, aplicaciones y plataformas digitales con arquitectura moderna, seguridad avanzada y alto rendimiento.",
+        "bullets": ["Sistemas web", "Aplicaciones móviles", "Portales corporativos", "Paneles administrativos", "Integraciones con APIs"]
+      },
+      {
+        "title": "Capacitación Tecnológica Profesional",
+        "description": "Capacitación para que equipos, líderes e instituciones dominen herramientas digitales.",
+        "bullets": ["Capacitaciones presenciales y en línea", "Formación técnica", "Talleres prácticos", "Cursos corporativos"]
+      },
+      {
+        "title": "Asesoría Técnica Especializada",
+        "description": "Orientación profesional para tomar decisiones tecnológicas seguras y estratégicas.",
+        "bullets": ["Consultoría en TI", "Planificación tecnológica", "Auditoría de sistemas", "Acompañamiento técnico continuo"]
+      },
+      {
+        "title": "Implementación de Sistemas",
+        "description": "Instalación, configuración y operación estable de sistemas corporativos.",
+        "bullets": ["Configuración de servidores", "Publicación de sistemas", "Ajustes de entorno", "Integración de plataformas"]
+      },
+      {
+        "title": "Instalación de Redes e Infraestructura",
+        "description": "Redes estructuradas e infraestructura tecnológica completa.",
+        "bullets": ["Redes cableadas y Wi-Fi", "Estructura de TI", "Equipos y configuración", "Seguridad de red"]
+      },
+      {
+        "title": "Soporte Tecnológico Global",
+        "description": "Atención continua para garantizar que sistemas, redes y plataformas funcionen sin interrupciones.",
+        "bullets": ["Atención continua", "Mantenimiento", "Monitoreo", "Seguridad"]
+      }
+    ]
+  },
+  "courses": {
+    "title": "Capacitaciones",
+    "subtitle": "Cursos y capacitaciones prácticas para equipos, líderes e instituciones.",
+    "modalities": ["Presencial", "En línea", "Híbrido"],
+    "cta": "Solicitar Capacitación"
+  },
+  "clients": {
+    "title": "Clientes que confían en ConnectionCyber desde hace más de 10 años",
+    "description": "Presentamos nuestra cartera de clientes corporativos, instituciones y empresas que mantienen una alianza continua con ConnectionCyber, demostrando nuestra calidad, confianza y compromiso.",
+    "yearsLabel": "años de alianza"
+  },
+  "contact": {
+    "title": "Contacto",
+    "subtitle": "Hable con nuestro equipo y descubra cómo podemos ayudar a su empresa.",
+    "formName": "Nombre",
+    "formEmail": "Correo electrónico",
+    "formPhone": "Teléfono",
+    "formCompany": "Empresa",
+    "formMessage": "Mensaje",
+    "formSubmit": "Enviar mensaje",
+    "location": "Rua Benedito Nogueira de Barros, 135 – Pq. Das Águas – Piracicaba – SP, Brasil",
+    "phone": "+55 (11) 9 6742-6682",
+    "email": "contatos@connectioncyber.com.br"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados.",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Uso"
+  }
+}

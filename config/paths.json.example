@@ -1,0 +1,22 @@
+{
+  "onedrive": "C:\\Users\\SEU_USUARIO\\OneDrive\\Backups",
+  "external": "E:\\Backups",
+  "snapshots": "F:\\Backups\\Snapshots",
+  "github": {
+    "organization": "connection-cyber-so",
+    "defaultBranch": "staging"
+  },
+  "excludedDirectories": [
+    "node_modules",
+    ".next",
+    ".vercel",
+    ".git",
+    ".turbo",
+    "logs"
+  ],
+  "excludedFiles": [
+    "*.log",
+    "*.env.local",
+    "*.pfx"
+  ]
+}

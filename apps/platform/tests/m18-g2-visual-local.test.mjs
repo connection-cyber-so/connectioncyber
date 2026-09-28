@@ -1,0 +1,11 @@
+import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';import{fileURLToPath}from'node:url';
+const root=fileURLToPath(new URL('../',import.meta.url));const read=path=>readFileSync(`${root}${path}`,'utf8');
+const local=read('src/features/persistence/local.ts'),party=read('src/features/parties/actions.ts'),catalog=read('src/features/catalog/actions.ts'),partyPage=read('src/app/(painel)/cadastros/page.tsx'),catalogPage=read('src/app/(painel)/catalogo/page.tsx');
+test('transporte local não importa cliente Supabase',()=>assert.doesNotMatch(local,/lib\/supabase|@supabase/));
+test('tenant sintético fica exclusivamente no servidor',()=>{assert.match(local,/tenantId = '00000000-0000-4000-8000-000000000018'/);assert.doesNotMatch(partyPage+catalogPage,/00000000-0000/);});
+test('ação de cadastro usa fronteira party create',()=>{assert.match(party,/visualPersistenceClient\.execute\('party\.create'/);assert.doesNotMatch(party,/createClient|requireCurrentTenantId|createParty\(/);});
+test('ação de produto usa fronteira catalog item create',()=>{assert.match(catalog,/visualPersistenceClient\.execute\('catalog\.item\.create'/);assert.doesNotMatch(catalog,/createClient|requireCurrentTenantId|createCatalogItem\(/);});
+test('páginas leem snapshots pela fachada selecionada',()=>{assert.match(partyPage,/listVisualParties/);assert.match(catalogPage,/listVisualCatalogItems/);assert.doesNotMatch(partyPage+catalogPage,/createClient|requireCurrentTenantId/);});
+test('telas declaram modo sintético e efêmero',()=>{assert.match(partyPage+catalogPage,/visualPersistenceMode/);assert.match(partyPage+catalogPage,/reiniciar o servidor/);});
+test('unidade local é sintética e fixa',()=>{assert.match(local,/code: 'UN'/);assert.match(catalog,/Unidades permanecem fixas no transporte local/);});
+test('RPCs mestres permanecem habilitadas após evolução do transporte',()=>{assert.match(local,/erp_command_create_party_v1/);assert.match(local,/erp_command_create_catalog_item_v1/);assert.match(local,/command unavailable in M18-G5/);});

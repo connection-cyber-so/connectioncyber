@@ -1,0 +1,23 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+const migration=readFileSync(new URL('../../../supabase/migrations/0032_m16_tenant_capabilities.sql',import.meta.url),'utf8')
+const preflight=readFileSync(new URL('../../../supabase/preflight/0032_m16_tenant_capabilities_preflight.sql',import.meta.url),'utf8')
+const rollback=readFileSync(new URL('../../../supabase/tests/0032_m16_tenant_capabilities.rollback.sql',import.meta.url),'utf8')
+test('migration é atômica',()=>{assert.match(migration.trim(),/^--[\s\S]*\nbegin;/i);assert.match(migration.trim(),/commit;$/i)})
+test('migration estende a fundação sem duplicar catálogo ou entitlement',()=>{assert.doesNotMatch(migration,/create table public\.erp_capability_catalog/);assert.doesNotMatch(migration,/create table public\.erp_tenant_capabilities/);assert.match(migration,/alter table public\.erp_capability_catalog/);assert.match(migration,/alter table public\.erp_tenant_capabilities/)})
+test('migration cria somente exceções com RLS',()=>{assert.match(migration,/create table public\.erp_tenant_capability_exceptions/);assert.equal((migration.match(/enable row level security/gi)||[]).length,1)})
+test('exceções são tenant-scoped',()=>assert.equal((migration.match(/tenant_id uuid not null references public\.tenants/g)||[]).length,1))
+test('resolver privilegia negação',()=>assert.match(migration,/when coalesce\(x\.denied,false\)then'disabled'/))
+test('anon não executa resolver',()=>assert.match(migration,/revoke execute[\s\S]*from public,anon/))
+test('preflight exige 0031 e recusa colisão',()=>{assert.match(preflight,/0031/);assert.match(preflight,/M16_G3_OBJECT_COLLISION/)})
+test('preflight exige membership canônica',()=>assert.match(preflight,/erp_tenant_memberships/))
+test('preflight exige catálogo e entitlements da 0016',()=>{assert.match(preflight,/erp_capability_catalog/);assert.match(preflight,/erp_tenant_capabilities/)})
+test('preflight possui marcador determinístico',()=>assert.match(preflight,/M16_G3_PREFLIGHT_OK/))
+test('pgTAP declara 60 asserções',()=>assert.match(rollback,/select plan\(60\)/i))
+test('pgTAP é transacional com rollback',()=>{assert.match(rollback.trim(),/^begin;/i);assert.match(rollback.trim(),/rollback;$/i)})
+test('fixtures não criam contas ou identidade fiscal',()=>{assert.doesNotMatch(rollback,/insert\s+into\s+auth\.users/i);assert.doesNotMatch(rollback,/cnpj|cpf|certificate|pfx|p12|csc/i)})
+test('migration não contém dados de empresa real',()=>assert.doesNotMatch(migration,/09\.050\.756|13\.348\.881|maniademoda/i))
+test('aprovação persiste somente referência sha256',()=>assert.match(migration,/approval:sha256:\[a-f0-9\]\{64\}/))
+test('service role não recebe grant all',()=>assert.doesNotMatch(migration,/grant all[\s\S]{0,160}service_role/i))
+test('revogação é broker-only',()=>{assert.match(migration,/erp_revoke_capability_exception/);assert.match(migration,/if auth\.role\(\)<>'service_role'then raise exception 'broker only'/)})

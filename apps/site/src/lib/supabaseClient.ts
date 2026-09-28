@@ -11,7 +11,7 @@ let browserClient: SupabaseClient | null = null;
 export function getSupabaseClient(): SupabaseClient {
   if (!isSupabaseConfigured) {
     throw new Error(
-      'Supabase não configurado. Preencha NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY no .env.local'
+      'Supabase não configurado. Preencha NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY no .env.local'
     );
   }
   if (!browserClient) {
@@ -32,7 +32,7 @@ export function getSupabaseClient(): SupabaseClient {
 export function getSupabaseAdminClient(): SupabaseClient {
   if (!env.supabase.url || !env.supabase.serviceRoleKey) {
     throw new Error(
-      'Supabase admin não configurado. Preencha SUPABASE_SERVICE_ROLE_KEY no .env.local (server-only).'
+      'Supabase admin não configurado. Preencha SUPABASE_SECRET_KEY no .env.local (server-only).'
     );
   }
   return createClient(env.supabase.url, env.supabase.serviceRoleKey, {

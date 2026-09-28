@@ -1,0 +1,38 @@
+/* M21-G5 — mesmo layout validado em cadastros-tela-unica.html, reaproveitado aqui pro
+   apps/platform (a equipe ConnectionCyber) ter a mesma consistência visual do
+   apps/portal (M21-G3/G4). Namespaced sob .cc-classic — o conteúdo interno de cada
+   página (PartyForm/CatalogForms etc.) continua com seu próprio .pf-* já elevado no
+   M20-G6; esta folha só cobre o chrome (header-bar, switch-bar, counter-row, window). */
+.cc-classic{
+  --cc-blue-900:#0a1f33;--cc-blue-700:#14395c;
+  --cc-gray-900:#12161c;--cc-gray-600:#4b5563;--cc-gray-200:#e2e8f0;--cc-gray-100:#f1f5f9;
+  --cc-orange:#f6851f;--cc-red:#e01f27;--cc-green:#2c9c48;--cc-teal-alt:#1e9680;
+  --cc-bg:#ffffff;--cc-bg-alt:var(--cc-gray-100);--cc-text:var(--cc-gray-900);--cc-text-muted:var(--cc-gray-600);
+  --cc-primary:var(--cc-blue-700);--cc-border:var(--cc-gray-200);
+  --cc-radius-sm:6px;--cc-radius-md:10px;--cc-shadow-md:0 8px 24px rgba(10,31,51,.1);
+}
+.cc-classic *{box-sizing:border-box}
+.cc-classic .window{background:var(--cc-bg);border:1px solid var(--cc-border);border-radius:var(--cc-radius-md);box-shadow:var(--cc-shadow-md);overflow:hidden;margin-bottom:20px}
+.cc-classic .header-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 22px;border-bottom:1px solid var(--cc-border);background:var(--cc-bg-alt)}
+.cc-classic .header-title{display:flex;flex-direction:column;flex-shrink:0;padding-right:12px;border-right:1px solid var(--cc-border);margin-right:2px}
+.cc-classic .header-title .eyebrow{font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--cc-teal-alt);font-weight:700}
+.cc-classic .header-title h1{font-size:.98rem;margin:0;white-space:nowrap;font-family:inherit}
+.cc-classic .switch-bar{display:flex;gap:6px;flex-wrap:wrap}
+.cc-classic .switch-btn{padding:8px 16px;border-radius:100px;border:1.5px solid var(--cc-border);background:var(--cc-bg);color:var(--cc-text-muted);font-weight:700;font-size:.82rem;cursor:pointer;text-decoration:none}
+.cc-classic .switch-btn.on{background:var(--cc-orange);border-color:var(--cc-orange);color:#fff}
+.cc-classic .spacer{flex:1;min-width:12px}
+.cc-classic .pill{font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--cc-primary);color:#fff;white-space:nowrap;flex-shrink:0}
+.cc-classic .counter-row{display:flex;gap:0;margin:16px 22px 0;border:1px solid var(--cc-border);border-radius:var(--cc-radius-sm);overflow:hidden;width:fit-content}
+.cc-classic .counter-row > div{padding:7px 16px;font-size:.78rem;border-right:1px solid var(--cc-border);white-space:nowrap}
+.cc-classic .counter-row > div:last-child{border-right:none}
+.cc-classic .counter-row .k{color:var(--cc-text-muted);margin-right:5px}
+.cc-classic .counter-row .ativ b{font-weight:700;color:var(--cc-green)}
+.cc-classic .counter-row .tot b{font-weight:700}
+.cc-classic .body{padding:18px 22px}
+.cc-classic .gate-banner{margin:16px 22px 0;border:1.5px dashed var(--cc-orange);border-radius:var(--cc-radius-sm);padding:12px 16px;background:color-mix(in srgb,var(--cc-orange) 8%,var(--cc-bg));font-size:.84rem}
+.cc-classic .gate-banner a{color:var(--cc-primary);font-weight:700}
+.cc-classic .grp-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--cc-text-muted);font-weight:700;margin:0 0 10px}
+.cc-classic .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.cc-classic .field label{display:block;font-size:.74rem;color:var(--cc-text-muted);margin-bottom:4px;font-weight:600}
+.cc-classic .field input{width:100%;padding:8px 10px;border-radius:var(--cc-radius-sm);border:1.5px solid var(--cc-blue-900);background:var(--cc-bg);color:var(--cc-text);font-size:.86rem;font-family:inherit}
+.cc-classic .hint{font-size:.78rem;color:var(--cc-text-muted)}

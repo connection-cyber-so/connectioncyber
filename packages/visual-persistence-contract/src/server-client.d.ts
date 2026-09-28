@@ -1,0 +1,10 @@
+export type CommandName='party.create'|'catalog.item.create'|'inventory.receive'|'cash.open'|'sale.complete'|'finance.receivable.settle'|'cash.close'|'party.document.add'|'party.contact.add'|'party.address.add'|'catalog.item.fiscal.set'|'catalog.item.commercial.set'|'establishment.vertical.set';
+export type ReadModelName='parties'|'catalog-items'|'stock-balance'|'stock-movements'|'open-cash-sessions'|'sales'|'financial-entries'|'installments'|'financial-summary'|'cash-history'|'dashboard-summary'|'party-documents'|'party-contacts'|'party-addresses'|'item-fiscal-data'|'item-commercial-data'|'business-verticals'|'vertical-attribute-requirements'|'establishments';
+export type Json=string|number|boolean|null|Json[]|{[key:string]:Json};
+export interface RpcTransport{rpc(rpc:string,args:{p_tenant_id:string;p_request_id:string;p_payload_hash:string;p_payload:Record<string,Json>}):Promise<Json>;read(contract:{key:ReadModelName;screen:string;source:string;tenantFilter:'server-resolved';empty:string},tenantId:string):Promise<Json>;}
+export interface PublicError{code:string;message:string;retryWriteAutomatically:false;detailExposed:false;unsafeDetailRecorded:false;unsafeDetailLength:number;}
+export type ExecuteResult={ok:true;command:CommandName;requestId:string;result:Json;refreshed:Readonly<Record<string,Json>>;revalidated:true}|{ok:false;command:CommandName;requestId:string;error:PublicError;revalidated:false};
+export interface VisualPersistenceClient{execute(command:CommandName,payload:Record<string,Json>,options?:{requestId?:string}):Promise<ExecuteResult>;read(model:ReadModelName):Promise<{ok:true;model:ReadModelName;data:Json}|{ok:false;model:ReadModelName;error:PublicError}>;}
+export function createVisualPersistenceClient(options:{transport:RpcTransport;resolveTenant:()=>Promise<string|null>;createRequestId?:()=>string}):VisualPersistenceClient;
+export function canonical(value:Json):Json;
+export function hashPayload(payload:Record<string,Json>):string;

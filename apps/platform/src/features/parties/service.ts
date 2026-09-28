@@ -1,0 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Party,PartyKind,PartyRole } from './types';
+export async function listParties(client:SupabaseClient,tenantId:string):Promise<Party[]>{const {data,error}=await client.from('erp_parties').select('id,tenant_id,kind,legal_name,trade_name,tax_id,active,created_at,erp_party_roles(role,active)').eq('tenant_id',tenantId).eq('active',true).order('legal_name');if(error)throw new Error(error.message);return(data??[])as Party[]}
+export async function createParty(client:SupabaseClient,input:{tenant_id:string;kind:PartyKind;legal_name:string;trade_name?:string;tax_id?:string;role:PartyRole}){const{error}=await client.rpc('erp_create_party',{p_tenant_id:input.tenant_id,p_kind:input.kind,p_legal_name:input.legal_name,p_trade_name:input.trade_name??'',p_tax_id:input.tax_id??'',p_role:input.role});if(error)throw new Error(error.message)}

@@ -1,0 +1,15 @@
+import test from'node:test';import assert from'node:assert/strict';import{createHash}from'node:crypto';
+import{A1ImportError,createA1ImportPreparation,EphemeralSecret}from'../src/a1-import.mjs';
+const hash=value=>createHash('sha256').update(value).digest('hex');
+const setup=({chainValid=true,kind='ephemeral-local'}={})=>{const material=Buffer.from([0x30,0x82,0x01,0x00,1,2,3]);const password=Buffer.from('synthetic-secret');let call;return{material,password,workflow:createA1ImportPreparation({source:{kind,async readOnce(){return material}},secretProvider:{kind:'hidden-prompt',async request(){return new EphemeralSecret(password)}},inspector:{kind:'metadata-only',async inspect(input){call=input;return{subjectHash:hash('subject'),thumbprint:hash('thumb'),expiresAt:'2099-01-01T00:00:00Z',chainValid,privateKeyExtracted:false,signed:false}}},vault:{kind:'reference-only',async registerMetadata(){return{reference:'vault://pilot/a1-metadata'}}}}),call:()=>call}};
+const request={pilotId:'pilot-maniademoda',certificateHandle:'local-handle:synthetic-a1'};
+test('prepara metadados sem persistir material',async()=>{const s=setup();const out=await s.workflow.inspect(request);assert.equal(out.materialPersisted,false);assert.equal(out.chainValid,true)});
+test('não extrai chave privada',async()=>{const s=setup();const out=await s.workflow.inspect(request);assert.equal(out.privateKeyExtracted,false);assert.equal(s.call().extractPrivateKey,false)});
+test('não assina',async()=>{const s=setup();const out=await s.workflow.inspect(request);assert.equal(out.signed,false);assert.equal(s.call().sign,false)});
+test('não transmite',async()=>assert.equal((await setup().workflow.inspect(request)).transmitted,false));
+test('limpa material após sucesso',async()=>{const s=setup();await s.workflow.inspect(request);assert.ok(s.material.every(x=>x===0))});
+test('limpa segredo após sucesso',async()=>{const s=setup();await s.workflow.inspect(request);assert.ok(s.password.every(x=>x===0))});
+test('limpa buffers após falha de cadeia',async()=>{const s=setup({chainValid:false});await assert.rejects(s.workflow.inspect(request),/CERTIFICATE_VALIDATION_FAILED/);assert.ok(s.material.every(x=>x===0));assert.ok(s.password.every(x=>x===0))});
+test('recusa adaptador de arquivo persistente',()=>assert.throws(()=>setup({kind:'filesystem'}),A1ImportError));
+test('recusa contêiner não PKCS12',async()=>{const s=setup();s.material[0]=0;await assert.rejects(s.workflow.inspect(request),/INVALID_PKCS12_CONTAINER/)});
+test('segredo não aparece em string ou JSON',()=>{const secret=new EphemeralSecret(Buffer.from('hidden'));assert.equal(String(secret),'[REDACTED]');assert.equal(JSON.stringify(secret),'"[REDACTED]"');secret.dispose()});

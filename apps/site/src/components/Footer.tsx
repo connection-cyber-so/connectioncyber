@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { mainNav, routes, socialLinks } from '@/config/routes';
 
@@ -12,7 +13,7 @@ export default function Footer() {
       <div className="container" style={styles.grid}>
         <div>
           <div style={styles.brand}>
-            <img src="/logo.png" alt="ConnectionCyber" style={{ height: 32 }} />
+            <Image src="/logo.png" alt="ConnectionCyber" width={32} height={32} />
             <strong>{t('brand.name')}</strong>
           </div>
           <p style={styles.slogan}>{t('brand.slogan')}</p>

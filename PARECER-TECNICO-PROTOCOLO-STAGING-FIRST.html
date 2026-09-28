@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ConnectionCyber — Parecer Protocolo Staging-First</title>
+  <style>
+    :root{--o:#F6851F;--r:#E01F27;--g:#2C9C48;--t:#1E9680;--ink:#14222d;--muted:#62717b;--line:#d9e2e6;--soft:#f4f7f8;--paper:#fff}*{box-sizing:border-box}body{margin:0;background:#edf2f3;color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(1200px,calc(100% - 28px));margin:24px auto;padding:clamp(24px,5vw,58px);background:var(--paper);box-shadow:0 16px 44px #10253218}h1,h2,h3{line-height:1.18}h1{margin:0;color:var(--r);font-size:clamp(2rem,5vw,3.1rem)}h2{margin-top:38px;border-bottom:2px solid var(--o);padding-bottom:8px}h3{color:var(--t)}.meta,.cards{display:flex;flex-wrap:wrap;gap:9px}.meta{margin:14px 0 24px}.pill{border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:var(--soft);color:var(--muted)}.notice{margin:20px 0;border-left:5px solid var(--g);padding:15px 17px;background:#edf8f0}.warning{border-color:var(--r);background:#fff2f2}.caution{border-color:var(--o);background:#fff8ee}.cards{margin:20px 0}.card{min-width:0;flex:1 1 190px;border:1px solid var(--line);border-top:4px solid var(--t);border-radius:9px;padding:16px}.card strong{display:block;font-size:1.1rem}.card.major strong{color:var(--r)}.card.degraded strong{color:var(--o)}.card.ok strong{color:var(--g)}.table{max-width:100%;overflow:auto;margin:16px 0 24px}table{width:100%;min-width:640px;border-collapse:collapse}th,td{border-bottom:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}th{background:var(--soft)}code{border-radius:4px;padding:.08rem .3rem;background:var(--soft);overflow-wrap:anywhere}.gate{border:1px solid var(--line);border-left:5px solid var(--o);border-radius:9px;padding:18px;background:#fffaf5;margin:16px 0}li+li{margin-top:5px}footer{margin-top:40px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted)}
+    .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+    .dot.r{background:var(--r)}.dot.o{background:var(--o)}.dot.g{background:var(--g)}
+    .checklist{list-style:none;margin:12px 0;padding:0}.checklist li{margin:7px 0;padding-left:26px;position:relative}.checklist li::before{content:"☐";position:absolute;left:0;color:var(--t);font-size:1.05rem}
+    @media(max-width:800px){main{width:100%;margin:0;padding:22px}.cards{display:grid;grid-template-columns:1fr}}
+    @media print{body{background:#fff}main{width:100%;margin:0;padding:0;box-shadow:none}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <h1>Protocolo Staging-First</h1>
+    <p style="font-size:1.2rem">Versionamento, deploy e governança — análise, mapeamento contra o repositório real e adoção formal</p>
+    <div class="meta"><span class="pill">04/09/2026</span><span class="pill">Origem: arquivo fornecido pelo usuário</span><span class="pill">Motivado por achado real no M18-G22</span><span class="pill">Adotado em GOVERNANCA-EXECUCAO-AUTOMATICA.md</span></div>
+  </header>
+
+  <div class="notice"><strong>Do que se trata:</strong> o arquivo <code>Protocolo Staging-First.txt</code> propõe cinco partes — separação física staging/produção, fluxo obrigatório de 5 passos, 3 regras complementares, integração à documentação institucional, e um gate de governança dedicado (<code>M-Gate Versionamento</code>). Este parecer avalia o protocolo contra o estado real deste repositório e formaliza a adoção.</div>
+
+  <h2>1. Por que isto chegou agora — o achado que motivou a análise</h2>
+  <p>Ao validar em campo a tela de MFA/TOTP publicada nesta mesma sessão (commit <code>46bacff</code>, M18-G22), o usuário reportou não ver o QR code esperado. Diagnóstico feito ao vivo:</p>
+  <div class="cards">
+    <div class="card ok"><span class="dot g"></span>Testes locais (apps/portal)<strong>86/86 ✅</strong></div>
+    <div class="card ok"><span class="dot g"></span>type-check / lint / build local<strong>limpos ✅</strong></div>
+    <div class="card ok"><span class="dot g"></span>CI "Quality gates" (GitHub)<strong>8/8 ✅</strong></div>
+    <div class="card ok"><span class="dot g"></span>Status de deploy (Vercel, via GitHub)<strong>success, 22:02:09 UTC ✅</strong></div>
+    <div class="card major"><span class="dot r"></span>Rota nova no domínio real (sem sessão)<strong>404 — cache de ~13:20 UTC ❌</strong></div>
+  </div>
+  <div class="notice caution"><strong>Conclusão:</strong> o pipeline inteiro (testes → CI → build → deploy) funcionou de ponta a ponta e a Vercel confirmou o deploy como bem-sucedido — mas o domínio próprio (<code>portal.connectioncyber.com.br</code>) continuou servindo uma build antiga, sem a rota nova. "Deploy concluído com sucesso" não é o mesmo fato que "está no ar no domínio do cliente" — existe uma etapa de promoção/alias que este projeto nunca verificou explicitamente até hoje. Não é bug no código do MFA; é a lacuna de processo que o protocolo propõe fechar. Sem acesso de API à Vercel neste ambiente (conector MCP devolveu <code>403 Forbidden</code> — token sem escopo pro time <code>connectioncyberso</code>), a confirmação final depende de checagem manual no painel da Vercel pelo usuário.</div>
+
+  <h2>2. Mapeamento do protocolo contra o estado real do repositório</h2>
+  <div class="table"><table><thead><tr><th>Parte do protocolo</th><th>Já coberto?</th><th>Como</th></tr></thead><tbody>
+    <tr><td>1. Duas pastas fixas staging/produção</td><td>✅ Já existe</td><td><code>CLAUDE.md</code> "Repo identity": este clone é <code>connectioncyber-staging</code>, sempre irmão do clone <code>main</code> (produção), nunca aninhado.</td></tr>
+    <tr><td>2. Passo 1 — alterar só em staging</td><td>✅ Já existe</td><td>Toda a sessão trabalha exclusivamente na branch/clone <code>staging</code>; produção exige autorização separada.</td></tr>
+    <tr><td>2. Passo 2 — testar localmente antes do commit</td><td>✅ Já existe, reforçado</td><td>86/86 testes locais antes de qualquer commit do MFA nesta sessão.</td></tr>
+    <tr><td>2. Passo 3 — <code>npx tsc --noEmit</code> antes do commit</td><td>🔶 Ad hoc → formalizado agora</td><td>Já praticado nas últimas gates; vira regra explícita em <code>GOVERNANCA-EXECUCAO-AUTOMATICA.md</code>.</td></tr>
+    <tr><td>2. Passo 4 — Commit→Push→PR→Revisão→Merge→Backup→Deploy</td><td>🔶 Parcial, com calibragem</td><td>Ver seção 3 — aplica-se à <strong>promoção staging→produção</strong>; dentro de <code>staging</code> continua commit→push direto após testes locais.</td></tr>
+    <tr><td>2. Passo 5 — produção só tocada no deploy</td><td>✅ Já existe</td><td>O achado da seção 1 mostra por que isso importa também do lado da <em>promoção</em>, não só da edição.</td></tr>
+    <tr><td>3. Regra 1 — aviso antes, comando depois</td><td>🔶 Praticado, agora explícito</td><td>Ações de push/deploy/escrita remota já anunciadas antes de executar.</td></tr>
+    <tr><td>3. Regra 2 — nunca fabricar dados</td><td>✅ Já existe — resolveu a seção 1</td><td>Registro técnico verificado; o diagnóstico da seção 1 é essa regra em ação.</td></tr>
+    <tr><td>3. Regra 3 — comunicação em PT-BR</td><td>✅ Já existe</td><td>Prática consolidada em todos os relatórios do repositório.</td></tr>
+    <tr><td>4. Integrar à documentação institucional</td><td>✅ Feito por este parecer</td><td><code>GOVERNANCA-EXECUCAO-AUTOMATICA.md</code> atualizado.</td></tr>
+    <tr><td>5. M-Gate Versionamento</td><td>✅ Criado por este parecer</td><td>Seção 4 abaixo.</td></tr>
+  </tbody></table></div>
+
+  <h3>2.1 Decisão de calibragem — onde o fluxo Commit→PR→Merge→Backup→Deploy se aplica</h3>
+  <div class="gate">
+    <p>Lido literalmente, o protocolo pediria Pull Request e revisão pra toda alteração — inclusive dentro do próprio ambiente de desenvolvimento. Isso contradiria a premissa 1 do próprio protocolo (<code>staging</code> = "ambiente exclusivo de desenvolvimento") e não reflete como este projeto opera (desenvolvimento solo, sem segundo revisor por commit). Leitura adotada, registrada aqui pra não ser reinterpretada silenciosamente depois:</p>
+    <p><strong>Dentro de <code>staging</code>:</strong> commit → push direto, sempre precedido de teste local + <code>tsc --noEmit</code> limpos.</p>
+    <p><strong>Na promoção <code>staging</code> → <code>main</code>:</strong> fluxo completo do protocolo — PR, revisão, backup de produção antes de qualquer merge, só então deploy. Não muda a prática atual porque este projeto nunca promoveu nada a produção ainda; o protocolo só torna o checklist concreto em vez de implícito.</p>
+  </div>
+
+  <h2>3. Alteração aplicada em GOVERNANCA-EXECUCAO-AUTOMATICA.md</h2>
+  <p>Nova seção "Protocolo Staging-First (versionamento e deploy)" adicionada, cobrindo: <code>tsc --noEmit</code> obrigatório antes de commit, aviso antes de comando outward-facing, e o checklist do M-Gate Versionamento abaixo. O arquivo continua sendo a regra persistente consultada no início de toda sessão.</p>
+
+  <h2>4. M-Gate Versionamento — checklist obrigatório</h2>
+  <ul class="checklist">
+    <li>Staging atualizado (working copy corresponde ao que será testado/commitado).</li>
+    <li>Testes locais aprovados (<code>npm test</code> do(s) app(s)/pacote(s) afetado(s)).</li>
+    <li>Tipos validados (<code>npx tsc --noEmit</code> ou <code>npm run type-check</code> limpo).</li>
+    <li><em>(Só na promoção a produção)</em> PR revisado.</li>
+    <li><em>(Só na promoção a produção)</em> Backup de produção realizado.</li>
+    <li>Deploy autorizado — <strong>e confirmado como promovido ao domínio real</strong>, não só "build concluído".</li>
+    <li>Monitoramento pós-deploy contínuo — reconferir o comportamento real na URL pública, não só o status do CI/Vercel.</li>
+  </ul>
+
+  <h2>5. Recomendação e próximo passo imediato</h2>
+  <ol>
+    <li>Confirmar manualmente no painel da Vercel (projeto <code>connectioncyber-portal</code>, time <code>connectioncyberso</code>) se o deployment do commit <code>46bacff</code> está marcado como Produção e promovido ao domínio <code>portal.connectioncyber.com.br</code> — este ambiente não tem permissão de API para o time correto.</li>
+    <li>Se não estiver promovido: promover manualmente (ou reexecutar o redeploy apontando pro commit certo) pelo painel.</li>
+    <li>Reconfirmar com <code>curl -I https://portal.connectioncyber.com.br/configuracoes/seguranca</code> sem sessão — deve responder redirecionamento, não <code>404</code> — antes de pedir pro piloto tentar de novo.</li>
+    <li>Só então repetir o teste real com o usuário-piloto.</li>
+  </ol>
+
+  <footer>ConnectionCyber Assessoria e Treinamento — documento técnico interno, não distribuir fora da equipe.</footer>
+</main></body>
+</html>

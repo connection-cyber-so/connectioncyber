@@ -1,7 +1,10 @@
+import Image from 'next/image';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { isPlatformStaff } from '@/lib/staff';
 import { LogoutButton } from '@/components/LogoutButton';
 import { SidebarNav } from '@/components/SidebarNav';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 // Layout compartilhado por todo o painel autenticado (dashboard + módulos).
 // /login fica fora deste route group — não leva topbar/menu/rodapé.
@@ -22,15 +25,15 @@ export default async function PainelLayout({ children }: { children: React.React
     return (
       <div className="pf-painel">
         <header className="pf-topbar">
-          <a href="/" className="pf-brand">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="ConnectionCyber" className="pf-brand-logo" />
+          <Link href="/" className="pf-brand">
+            <Image src="/logo.png" alt="ConnectionCyber" width={36} height={36} className="pf-brand-logo" priority />
             <span className="pf-wordmark">
               <span className="pf-wordmark-connection">Connection</span>
               <span className="pf-wordmark-cyber">Cyber</span>
             </span>
-          </a>
+          </Link>
           <div className="pf-topbar-right">
+            <ThemeToggle />
             <LogoutButton />
           </div>
         </header>
@@ -53,22 +56,27 @@ export default async function PainelLayout({ children }: { children: React.React
   return (
     <div className="pf-painel">
       <header className="pf-topbar">
-        <a href="/" className="pf-brand">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="ConnectionCyber" className="pf-brand-logo" />
+        <Link href="/" className="pf-brand">
+          <Image src="/logo.png" alt="ConnectionCyber" width={36} height={36} className="pf-brand-logo" priority />
           <span className="pf-wordmark">
             <span className="pf-wordmark-connection">Connection</span>
             <span className="pf-wordmark-cyber">Cyber</span>
           </span>
-        </a>
+        </Link>
 
         <div className="pf-topbar-right">
-          <div className="pf-welcome">
-            <div className="pf-welcome-eyebrow">Painel interno · Bem-vindo</div>
-            <div className="pf-welcome-session">
-              Sessão ativa como <strong>{user?.email}</strong>
+          <div className="pf-topbar-identity">
+            <div className="pf-welcome">
+              <div className="pf-welcome-eyebrow">Painel interno · Bem-vindo</div>
+              <div className="pf-welcome-session">
+                Sessão ativa como <strong>{user?.email}</strong>
+              </div>
             </div>
+            <span className="pf-avatar" aria-hidden="true">
+              {(user?.email ?? '?').charAt(0).toUpperCase()}
+            </span>
           </div>
+          <ThemeToggle />
           <LogoutButton />
         </div>
       </header>

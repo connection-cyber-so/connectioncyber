@@ -11,7 +11,7 @@ import { env, isSupabaseConfigured } from '@/config/env';
 export async function createClient() {
   if (!isSupabaseConfigured) {
     throw new Error(
-      'Supabase não configurado. Preencha NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY no .env.local (aponte para o projeto de staging).'
+      'Supabase não configurado. Preencha NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY no .env.local (aponte para o projeto de staging).'
     );
   }
 

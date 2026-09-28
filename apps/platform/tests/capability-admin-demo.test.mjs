@@ -1,0 +1,11 @@
+import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';
+const component=readFileSync(new URL('../src/features/capabilities/components/CapabilityAdminDemo.tsx',import.meta.url),'utf8'),presentation=readFileSync(new URL('../src/features/capabilities/presentation.ts',import.meta.url),'utf8'),page=readFileSync(new URL('../src/app/(painel)/capacidades/page.tsx',import.meta.url),'utf8'),nav=readFileSync(new URL('../src/components/SidebarNav.tsx',import.meta.url),'utf8');
+test('painel cobre MEI ME e LTDA sintéticos',()=>{for(const profile of['MEI','ME','LTDA'])assert.match(presentation,new RegExp(`profile:'${profile}'`))});
+test('matriz usa chaves canônicas da fundação',()=>{for(const key of['core.parties','sales.pos','inventory.stock','support.remote','device.agent','fiscal','migration'])assert.match(presentation,new RegExp(key.replace('.','\\.')))});
+test('capacidades críticas começam fail-closed',()=>assert.match(component,/capability\.critical&&readiness/));
+test('negação prevalece sobre permissão',()=>assert.match(component,/effective=denied\?false:allowed\|\|contracted/));
+test('exceções suportam allow deny e revogação',()=>{assert.match(component,/CapabilityEffect/);assert.match(component,/allow · habilitar/);assert.match(component,/revoke=/)});
+test('estado permanece somente em memória',()=>{assert.match(component,/useState/);assert.doesNotMatch(component,/fetch\(|@supabase|createClient|\.from\(/i)});
+test('tela declara dados sintéticos e ausência de remoto',()=>{assert.match(component,/Dados totalmente sintéticos/);assert.match(component,/nenhuma ação chama Supabase/)});
+test('rota e navegação estão registradas',()=>{assert.match(page,/CapabilityAdminDemo/);assert.match(nav,/href: '\/capacidades'/)});
+test('nenhum identificador empresarial real foi incluído',()=>assert.doesNotMatch(component+presentation,/09\.050\.756|13\.348\.881|maniademoda|cnpj|cpf/i));

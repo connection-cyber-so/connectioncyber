@@ -1,0 +1,4 @@
+#!/bin/sh
+# Git pre-commit hook (tracked in .githooks/, ativado via `git config core.hooksPath .githooks`).
+# Delega para scripts/pre-commit-check.mjs — ver esse arquivo para a regra completa.
+exec node scripts/pre-commit-check.mjs

@@ -1,0 +1,124 @@
+name: Quality gates
+
+on:
+  pull_request:
+    branches: [main, staging]
+  push:
+    branches: [staging]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/site
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/site/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run type-check
+      - run: npm run lint -- --no-cache
+      - run: npm run build
+
+  platform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/platform
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/platform/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run type-check
+      - run: npm run lint -- --no-cache
+      - run: npm run build
+
+  portal:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/portal
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/portal/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run type-check
+      - run: npm run lint -- --no-cache
+      - run: npm run build
+
+  critical-contracts:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [device-protocol, fiscal-contract, import-contract, pilot-journey]
+    defaults:
+      run:
+        working-directory: packages/${{ matrix.package }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - run: npm test
+
+  security-static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - run: node scripts/knowledge-base-docs.mjs --check
+      - run: node scripts/check-node-version.mjs
+      - run: node scripts/scan-tracked-secrets.mjs
+      - name: Runtime dependency audit
+        shell: bash
+        run: |
+          for app in site platform portal; do
+            npm --prefix "apps/$app" audit --omit=dev --audit-level=high
+          done
+      - name: Generated SQL must stay untracked
+        shell: bash
+        run: |
+          if git ls-files 'supabase/validation/*.generated.sql' | grep -q .; then
+            echo 'Tracked generated SQL is forbidden.'
+            exit 1
+          fi
+
+  knowledge-base:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/knowledge-base-validation
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: packages/knowledge-base-validation/package-lock.json
+      - run: npm ci
+      - run: npm test

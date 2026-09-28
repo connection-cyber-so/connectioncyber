@@ -1,0 +1,11 @@
+# Arquivos locais/agentes que não devem subir nos deploys da Vercel.
+.codex/
+.github/copilot-instructions.md
+EXTRACT_DNA.ps1
+EXTRACT_DNA_pasta.ps1
+_DNA_REPORT.txt
+docs/system-prompts/
+staging/archive/
+staging/logs/
+.vercel/
+**/node_modules/

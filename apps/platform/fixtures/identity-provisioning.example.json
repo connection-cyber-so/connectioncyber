@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "environment": "staging",
+  "mode": "dry-run",
+  "batchKey": "m04-g1-personas",
+  "requestedBy": "connectioncyber-controlled-development",
+  "subjects": [
+    {
+      "subjectKey": "p01_owner_a",
+      "persona": "P01",
+      "principalType": "customer",
+      "email": "p01-owner-a@example.invalid",
+      "emailKind": "transient",
+      "lifecycle": "active",
+      "requireMfa": true,
+      "memberships": [
+        { "tenantRef": "tenant-a", "status": "active", "isDefault": true, "roleKeys": ["owner"] }
+      ]
+    },
+    {
+      "subjectKey": "p02_owner_b",
+      "persona": "P02",
+      "principalType": "customer",
+      "email": "p02-owner-b@example.invalid",
+      "emailKind": "transient",
+      "lifecycle": "active",
+      "requireMfa": true,
+      "memberships": [
+        { "tenantRef": "tenant-b", "status": "active", "isDefault": true, "roleKeys": ["owner"] }
+      ]
+    },
+    {
+      "subjectKey": "p03_multiempresa",
+      "persona": "P03",
+      "principalType": "customer",
+      "email": "p03-multiempresa@example.invalid",
+      "emailKind": "transient",
+      "lifecycle": "active",
+      "requireMfa": false,
+      "memberships": [
+        { "tenantRef": "tenant-a", "status": "active", "isDefault": true, "roleKeys": ["manager"] },
+        { "tenantRef": "tenant-b", "status": "active", "isDefault": false, "roleKeys": ["viewer"] }
+      ]
+    },
+    {
+      "subjectKey": "p04_staff_sem_membership",
+      "persona": "P04",
+      "principalType": "platform_staff",
+      "email": "p04-staff@example.invalid",
+      "emailKind": "transient",
+      "lifecycle": "active",
+      "requireMfa": true,
+      "memberships": []
+    },
+    {
+      "subjectKey": "p05_suspenso",
+      "persona": "P05",
+      "principalType": "customer",
+      "email": "p05-suspenso@example.invalid",
+      "emailKind": "transient",
+      "lifecycle": "suspended",
+      "requireMfa": false,
+      "memberships": [
+        { "tenantRef": "tenant-a", "status": "suspended", "isDefault": false, "roleKeys": ["operator"] }
+      ]
+    },
+    {
+      "subjectKey": "p06_convidado",
+      "persona": "P06",
+      "principalType": "customer",
+      "email": "p06-convidado@example.invalid",
+      "emailKind": "transient",
+      "lifecycle": "invited",
+      "requireMfa": false,
+      "memberships": [
+        { "tenantRef": "tenant-b", "status": "invited", "isDefault": false, "roleKeys": ["viewer"], "invitationExpiresAt": "2099-12-31T23:59:59Z" }
+      ]
+    },
+    {
+      "subjectKey": "p07_privilegiado_aal2",
+      "persona": "P07",
+      "principalType": "customer",
+      "email": "p07-aal2@example.invalid",
+      "emailKind": "transient",
+      "lifecycle": "active",
+      "requireMfa": true,
+      "memberships": [
+        { "tenantRef": "tenant-a", "status": "active", "isDefault": false, "roleKeys": ["admin"] }
+      ]
+    }
+  ]
+}

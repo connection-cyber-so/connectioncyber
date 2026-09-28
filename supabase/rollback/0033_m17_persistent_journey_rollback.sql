@@ -1,0 +1,13 @@
+begin;
+drop function if exists public.erp_command_close_cash_v1(uuid,text,text,jsonb);
+drop function if exists public.erp_command_settle_receivable_v1(uuid,text,text,jsonb);
+drop function if exists public.erp_command_complete_sale_v1(uuid,text,text,jsonb);
+drop function if exists public.erp_command_open_cash_v1(uuid,text,text,jsonb);
+drop function if exists public.erp_command_receive_inventory_v1(uuid,text,text,jsonb);
+drop function if exists public.erp_command_create_catalog_item_v1(uuid,text,text,jsonb);
+drop function if exists public.erp_command_create_party_v1(uuid,text,text,jsonb);
+drop function if exists public.erp_complete_command_v1(uuid,uuid,jsonb);
+drop function if exists public.erp_claim_command_v1(uuid,text,text,text,jsonb);
+drop function if exists public.erp_require_command_access_v1(uuid,text,text);
+drop table if exists public.erp_command_receipts;
+commit;

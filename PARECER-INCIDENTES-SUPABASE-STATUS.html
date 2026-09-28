@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ConnectionCyber — Parecer Incidentes Supabase</title>
+  <style>
+    :root{--o:#F6851F;--r:#E01F27;--g:#2C9C48;--t:#1E9680;--ink:#14222d;--muted:#62717b;--line:#d9e2e6;--soft:#f4f7f8;--paper:#fff}*{box-sizing:border-box}body{margin:0;background:#edf2f3;color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(1200px,calc(100% - 28px));margin:24px auto;padding:clamp(24px,5vw,58px);background:var(--paper);box-shadow:0 16px 44px #10253218}h1,h2,h3{line-height:1.18}h1{margin:0;color:var(--r);font-size:clamp(2rem,5vw,3.1rem)}h2{margin-top:38px;border-bottom:2px solid var(--o);padding-bottom:8px}h3{color:var(--t)}.meta,.cards{display:flex;flex-wrap:wrap;gap:9px}.meta{margin:14px 0 24px}.pill{border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:var(--soft);color:var(--muted)}.notice{margin:20px 0;border-left:5px solid var(--g);padding:15px 17px;background:#edf8f0}.warning{border-color:var(--r);background:#fff2f2}.caution{border-color:var(--o);background:#fff8ee}.cards{margin:20px 0}.card{min-width:0;flex:1 1 190px;border:1px solid var(--line);border-top:4px solid var(--t);border-radius:9px;padding:16px}.card strong{display:block;font-size:1.1rem}.card.major strong{color:var(--r)}.card.degraded strong{color:var(--o)}.card.ok strong{color:var(--g)}.table{max-width:100%;overflow:auto;margin:16px 0 24px}table{width:100%;min-width:640px;border-collapse:collapse}th,td{border-bottom:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}th{background:var(--soft)}code{border-radius:4px;padding:.08rem .3rem;background:var(--soft);overflow-wrap:anywhere}.gate{border:1px solid var(--line);border-left:5px solid var(--o);border-radius:9px;padding:18px;background:#fffaf5;margin:16px 0}li+li{margin-top:5px}footer{margin-top:40px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted)}
+    .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+    .dot.r{background:var(--r)}.dot.o{background:var(--o)}.dot.g{background:var(--g)}
+    @media(max-width:800px){main{width:100%;margin:0;padding:22px}.cards{display:grid;grid-template-columns:1fr}}
+    @media print{body{background:#fff}main{width:100%;margin:0;padding:0;box-shadow:none}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <h1>Incidentes ativos no Supabase</h1>
+    <p style="font-size:1.2rem">Leitura de <code>status.supabase.com</code> — o que é, e o que muda pra este projeto</p>
+    <div class="meta"><span class="pill">Reconferido ao vivo</span><span class="pill">04/09/2026</span><span class="pill">Não é bug nosso</span><span class="pill">Não bloqueia o Portão 0</span></div>
+  </header>
+
+  <div class="notice warning"><strong>Do que se trata:</strong> os arquivos analisados são a página pública de status do Supabase — o provedor por trás dos dois projetos deste ecossistema (<code>ozvylnaipubrmaadikvk</code> staging, <code>qfggetvashdxyuvlhihq</code> produção, ambos em <code>sa-east-1</code>). É um incidente do lado do fornecedor, acontecendo agora — não do nosso código.</p></div>
+
+  <h2>1. Estado ao vivo (reconferido, não só a captura de tela)</h2>
+  <div class="cards">
+    <div class="card major"><span class="dot r"></span>Management API<strong>Major Outage</strong></div>
+    <div class="card degraded"><span class="dot o"></span>API Gateway<strong>Degraded Performance</strong></div>
+    <div class="card ok"><span class="dot g"></span>Auth<strong>Operational</strong></div>
+    <div class="card ok"><span class="dot g"></span>Database<strong>Operational</strong></div>
+    <div class="card ok"><span class="dot g"></span>Dashboard<strong>Operational</strong></div>
+    <div class="card ok"><span class="dot g"></span>Realtime / Storage / Pooler<strong>Operational</strong></div>
+  </div>
+
+  <h2>2. Os 3 incidentes</h2>
+
+  <h3>2.1 Project Lifecycle Actions com erro elevado em todas as regiões — ativo agora</h3>
+  <div class="gate">
+    <p>Início 04/09 00:15 UTC · última atualização 00:58 UTC: "aplicamos uma correção, mas a taxa de erro continua alta".</p>
+    <p><strong>Afeta:</strong> criação, mudança de configuração, restart e mudança de tamanho de compute de projetos — tudo que passa pela Management API.</p>
+    <p><strong>Não afeta:</strong> projetos já rodando, Data APIs (REST/PostgREST) nem conexão direta ao Postgres.</p>
+  </div>
+
+  <h3>2.2 Erros 401 por rejeição de JWT — em mitigação desde 14/08, ainda não fechado</h3>
+  <div class="gate">
+    <p>Causa identificada: cache de tempo (stale time cache) fazendo JWTs recém-renovados serem rejeitados. Correção em teste interno, ainda não publicada (última atualização 02/09).</p>
+    <p><strong>Sintoma:</strong> sessão caindo com 401 sem motivo aparente; reabrir/relogar costuma resolver na hora; reiniciar o projeto pelo dashboard também ajudou outros clientes.</p>
+  </div>
+
+  <h3>2.3 Bloqueio de rede em Mianmar — sem relevância pra nós</h3>
+  <p>Afeta só ISPs específicos de Mianmar. Nenhum usuário nosso está lá. Citado só por completude.</p>
+
+  <h2>3. O que isso significa pra este projeto, concretamente</h2>
+  <div class="table"><table><thead><tr><th>Ação</th><th>Depende de Management API?</th><th>Situação agora</th></tr></thead><tbody>
+    <tr><td><code>supabase db push</code> (aplicar migration nova)</td><td>Sim</td><td>Evitar até o incidente 2.1 fechar</td></tr>
+    <tr><td><code>supabase migration list</code> / <code>db dump</code></td><td>Parcial (leitura)</td><td>Testado hoje, funcionou — pode ficar lento/instável</td></tr>
+    <tr><td>Criar/restart/redimensionar projeto Supabase</td><td>Sim</td><td><strong>Não fazer agora</strong></td></tr>
+    <tr><td>Login/portal em produção (<code>apps/portal</code>, <code>apps/site</code>)</td><td>Não</td><td>Sem impacto — Auth e Database operacionais</td></tr>
+    <tr><td>Ativação do usuário-piloto (M18-G22)</td><td>Não diretamente</td><td>Sem impacto esperado; 401 aleatório no meio do fluxo é candidato ao incidente 2.2, não bug nosso</td></tr>
+    <tr><td>Deploy do <code>apps/portal</code> na Vercel</td><td>Não</td><td>Sem impacto — infraestrutura separada</td></tr>
+  </tbody></table></div>
+
+  <h2>4. Recomendação</h2>
+  <ol>
+    <li><strong>Não abrir novas migrations nem mexer em configuração/restart de projeto Supabase</strong> (staging ou produção) até o componente Management API voltar a "Operational" — o próprio fornecedor pede isso.</li>
+    <li>Trabalho já em andamento (Portão 0 — deploy do portal, DNS na Hostinger, ativação do usuário-piloto) pode continuar normalmente — nenhum desses passos depende da Management API.</li>
+    <li>Se o dono(a) da Mania de Modas relatar sessão caindo sozinha no primeiro login, checar <code>status.supabase.com</code> antes de investigar código.</li>
+    <li>Revisitar este parecer quando o Management API voltar a "Operational" antes de retomar qualquer migration nova.</li>
+  </ol>
+
+  <div class="notice"><strong>Não é bloqueio para o que está em curso:</strong> o gargalo desta fase continua sendo a Hostinger (DNS), não o Supabase.</div>
+
+  <footer>Fonte: <code>status.supabase.com</code>, capturado em <code>DadosConnectionCyber/supabase/</code> e reconferido ao vivo no momento deste parecer.</footer>
+</main></body>
+</html>

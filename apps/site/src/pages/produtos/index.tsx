@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import Layout from '@/components/Layout';
 import { useLanguage } from '@/context/LanguageContext';
 import { isSupabaseConfigured } from '@/config/env';
 import { getSupabaseClient } from '@/lib/supabaseClient';
+import { routes } from '@/config/routes';
 
 interface Product {
   id: string;
@@ -62,6 +64,15 @@ export default function ProdutosPage() {
                     ? p.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
                     : 'Sob consulta'}
                 </p>
+                {p.preco > 0 && UUID_PATTERN.test(p.id) && (
+                  <Link
+                    href={{ pathname: routes.checkout, query: { type: 'product', id: p.id } }}
+                    className="btn btn-outline-dark"
+                    style={{ marginTop: 8 }}
+                  >
+                    Comprar produto
+                  </Link>
+                )}
               </div>
             ))}
           </div>
@@ -70,3 +81,5 @@ export default function ProdutosPage() {
     </Layout>
   );
 }
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

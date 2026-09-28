@@ -1,0 +1,12 @@
+import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';import{fileURLToPath}from'node:url';const root=fileURLToPath(new URL('../',import.meta.url)),read=path=>readFileSync(`${root}${path}`,'utf8');
+const local=read('src/features/persistence/local.ts'),finance=read('src/features/finance/actions.ts'),sales=read('src/features/sales/actions.ts'),financePage=read('src/app/(painel)/financeiro/page.tsx'),dashboard=read('src/app/(painel)/page.tsx'),pdv=read('src/app/(painel)/pdv/page.tsx');
+test('crediário cria recebível derivado',()=>assert.match(local,/state\.receivables\.push/));
+test('crediário exige cliente',()=>assert.match(local,/customer required/));
+test('baixa usa comando financeiro pelo broker',()=>assert.match(finance,/execute\('finance\.receivable\.settle'/));
+test('baixa excessiva falha fechado',()=>assert.match(local,/receivable overpayment/));
+test('fechamento usa comando cash close',()=>assert.match(sales,/execute\('cash\.close'/));
+test('diferença de caixa impede fechamento',()=>assert.match(local,/cash difference/));
+test('dashboard deriva reconciliação no servidor',()=>assert.match(local,/balanced:salesTotal===cashSales\+receivables/));
+test('dashboard mostra vendas estoque financeiro caixa e clientes',()=>assert.match(dashboard,/Vendas[\s\S]+Estoque[\s\S]+Financeiro[\s\S]+Caixa[\s\S]+Clientes[\s\S]+Reconciliação/));
+test('financeiro e dashboard não importam Supabase',()=>assert.doesNotMatch(financePage+dashboard,/createClient|requireCurrentTenantId|@supabase/));
+test('PDV oferece crediário e fechamento',()=>{assert.match(pdv,/LocalCloseCashForm/);assert.match(pdv,/customers=/);});

@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ConnectionCyber — Status Mestre de Desenvolvimento</title>
+  <style>
+    :root { --orange:#F6851F; --red:#E01F27; --green:#2C9C48; --teal:#1E9680; --ink:#17232d; --muted:#5d6a73; --line:#d9e0e4; --paper:#ffffff; --soft:#f5f7f8; }
+    * { box-sizing: border-box; }
+    body { margin:0; color:var(--ink); background:var(--soft); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { width:min(1180px,calc(100% - 32px)); margin:24px auto; background:var(--paper); padding:clamp(22px,4vw,52px); box-shadow:0 12px 34px rgba(23,35,45,.08); }
+    h1,h2,h3 { line-height:1.2; }
+    h1 { margin:0 0 10px; color:var(--red); }
+    h2 { margin-top:38px; padding-bottom:8px; border-bottom:2px solid var(--orange); }
+    h3 { margin-top:24px; color:var(--teal); }
+    code { background:var(--soft); padding:.08rem .3rem; border-radius:4px; }
+    .meta { display:flex; flex-wrap:wrap; gap:8px 18px; color:var(--muted); margin-bottom:24px; }
+    .notice { border-left:5px solid var(--green); background:#f1f8f3; padding:14px 16px; margin:18px 0; }
+    .warning { border-left-color:var(--red); background:#fff4f4; }
+    .table-wrap { overflow-x:auto; margin:14px 0 22px; }
+    table { width:100%; border-collapse:collapse; min-width:760px; }
+    th,td { padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { background:var(--soft); color:var(--ink); position:sticky; top:0; }
+    tr:hover td { background:#fffaf5; }
+    ol,ul { padding-left:24px; }
+    li + li { margin-top:5px; }
+    footer { margin-top:40px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); }
+    @media print { body{background:#fff} main{width:100%;margin:0;box-shadow:none;padding:0} th{position:static} }
+  </style>
+</head>
+<body>
+  <section>
+    <h2>Governança de execução automática</h2>
+    <p>Atualizações intermediárias são mínimas; a documentação técnica permanece integral e a intervenção ocorre somente em portões que exigem autoridade, credenciais ou decisão do responsável.</p>
+    <p>Regra persistente: <code>GOVERNANCA-EXECUCAO-AUTOMATICA.md</code>.</p>
+  </section>
+<main>
+  <header>
+    <h1>ConnectionCyber — Status Mestre de Desenvolvimento</h1>
+  <div class="meta"><strong>Documento vivo e obrigatório</strong><span>Ambiente: staging</span><span>Atualizado: 02/09/2026</span><span>Versão: 2.3.1</span><span>Produção alterada: não</span></div>
+    <div class="notice">Os arquivos Markdown e HTML deste status devem permanecer equivalentes e ser atualizados no mesmo commit de cada módulo validado.</div>
+  </header>
+
+  <h2>1. Finalidade</h2>
+  <p>Esta é a fonte operacional do desenvolvimento controlado. Registra o estado comprovado, entregas pendentes, ordem dos módulos, riscos, critérios de aceite e histórico de validação antes de qualquer promoção.</p>
+
+  <h2>2. Regra determinística</h2>
+  <ol><li>Registrar objetivo, escopo, riscos e aceite.</li><li>Verificar dependências, dados e rollback.</li><li>Implementar somente em staging.</li><li>Executar testes, análise estática, build e segurança.</li><li>Validar staging/Preview.</li><li>Atualizar Markdown e HTML com evidências.</li><li>Criar commit de checkpoint.</li><li>Avaliar o próximo portão.</li><li>Produção exige autorização e checklist próprios.</li></ol>
+  <div class="notice warning">Falha mantém o projeto no mesmo portão. Não é permitido excluir dados automaticamente, reduzir segurança ou alterar produção silenciosamente.</div>
+
+  <h2>3. Estados oficiais</h2>
+  <div class="table-wrap"><table><thead><tr><th>Estado</th><th>Significado</th></tr></thead><tbody>
+    <tr><td>Não iniciado</td><td>Apenas na fila.</td></tr><tr><td>Em análise</td><td>Requisitos sendo levantados.</td></tr><tr><td>Planejado</td><td>Escopo definido.</td></tr><tr><td>Em desenvolvimento</td><td>Alterações locais em staging.</td></tr><tr><td>Validado localmente</td><td>Testes e build locais aprovados.</td></tr><tr><td>Validado em staging</td><td>Banco, CI e Preview aprovados.</td></tr><tr><td>Aprovado para promoção</td><td>Portão concluído.</td></tr><tr><td>Em produção</td><td>Promoção e smoke test aprovados.</td></tr><tr><td>Bloqueado</td><td>Dependência ou risco impede avanço.</td></tr>
+  </tbody></table></div>
+
+  <h2>4. Arquitetura aprovada</h2>
+  <h3>Repositório e aplicações</h3>
+  <ul><li>Monorepo <code>connection-cyber-so/connectioncyber</code>.</li><li><code>main</code>: produção; <code>staging</code>: desenvolvimento.</li><li><code>apps/site</code>: institucional/público.</li><li><code>apps/platform</code>: painel interno.</li><li><code>apps/portal</code>: portal/ERP criado no M03, ainda sem projeto/domínio Vercel próprio.</li><li><code>packages/core</code>: regras compartilhadas, ainda sem núcleo ERP.</li></ul>
+  <p>Não serão criados novos repositórios, bancos ou forks por cliente como padrão. A plataforma é comum; migração e corte são individuais por tenant.</p>
+  <h3>Ambientes e dados</h3>
+  <ul><li>Produção Supabase: <code>qfggetvashdxyuvlhihq</code>.</li><li>Staging Supabase: <code>ozvylnaipubrmaadikvk</code>.</li><li>Snapshots fornecidos: 38 tabelas e conteúdo lógico equivalente até a migration 0013.</li><li>Migrations 0014/0015 aplicadas exclusivamente em staging em 18/08/2026.</li><li>Migration 0016 aplicada exclusivamente em staging em 18/08/2026 e validada por 38 asserções remotas.</li><li>Migration 0017 aplicada exclusivamente em staging em 18/08/2026 e validada por 35 asserções remotas transacionais.</li><li>A migration 0006 de clientes reais foi registrada no histórico de staging sem executar seus INSERTs.</li><li>Vercel Production deve usar produção; Preview/staging deve usar staging.</li></ul>
+  <h3>Multiempresa e identidade</h3>
+  <p>Cliente é uma linha em <code>tenants</code>, isolada por <code>tenant_id</code> e RLS. O tenant nunca vem do navegador como autoridade. Memberships permitirão múltiplas empresas por usuário. Segmentos serão perfis, capacidades ERP terão catálogo próprio e tabelas <code>erp_*</code> evitarão colisão com site, Mercado Pago e MPI. Certificado A1, identidade de usuários e autenticação SQL Server são domínios distintos. PFX, senhas, backups e credenciais não entram no Git, navegador ou tabelas comuns.</p>
+
+  <h2>5. Estado atual comprovado</h2>
+  <h3>Validado localmente</h3>
+  <ul><li>Site e painel existentes.</li><li>Gate de equipe e arquitetura multi-tenant.</li><li>Lista de tenants somente leitura.</li><li>Diagnóstico, Produtos/Ofertas, Roteiros e Landing Pages.</li><li>Kill switch e endurecimento do Mercado Pago.</li><li>Rate limit e headers de segurança preparados.</li><li>Next.js 15.5.21.</li><li>Testes críticos 5/5; type-check, lint e builds aprovados.</li><li>Audit de runtime com zero vulnerabilidades reportadas.</li></ul>
+  <h3>Evidências remotas do M00</h3>
+  <ul><li>Commits <code>0caf472</code> e <code>8e8db94</code> enviados para <code>origin/staging</code>.</li><li>Supabase staging vinculado; preflight com zero duplicidades.</li><li>Dry-run limitado a 0014/0015; migrations aplicadas e histórico 0001–0015 alinhado.</li><li>Coluna, índice único, RLS e permissões do rate limit comprovados.</li><li>GitHub Actions <code>32184886056</code>: site e platform aprovados.</li><li>Vercel inicial <code>dpl_FWKKPeaCBwjqbjcnuRzxV4eYHXEF</code>: sucesso.</li><li>Preview HTTP 200, vinculado ao Supabase staging sem referência pública de produção.</li><li>CSP, DENY, nosniff e Permissions Policy presentes; X-Powered-By ausente.</li><li>Pagamentos recusados com HTTP 503 no Preview.</li><li><code>RATE_LIMIT_SALT</code> sensível e limitada a Preview/staging.</li><li>Redeploy final <code>dpl_34HEEiQXwbaAJR6w79DdRZKaLU2S</code>: Preview Ready.</li><li>Formulário HTTP 200; uma chave de rate limit comprovada.</li><li>Uma mensagem sintética criada e removida; zero remanescentes.</li><li><code>icones/</code> e <code>modelo exemplo/</code> preservados fora do commit técnico.</li></ul>
+  <h3>Resultado do M00</h3>
+  <div class="notice">M00 validado em staging. O bloqueio foi corrigido sem reduzir segurança; banco, CI, Preview, vínculo, cabeçalhos, pagamentos desligados, formulário e rate limit foram aprovados.</div>
+  <ul><li>Produção, domínio público e Mercado Pago real não foram alterados.</li><li>Proteção das tabelas auxiliares e backup/restauração permanecem riscos abertos dos próximos portões.</li></ul>
+  <h3>M01 — arquitetura canônica multissegmento</h3>
+  <ul><li>ERP novo e independente do schema legado.</li><li>Mesmo núcleo para varejo, vestuário/papelaria, artesanato, oficinas, restaurantes/lanchonetes e serviços.</li><li>Perfis sugerem capacidades; habilitação efetiva ocorre por tenant.</li><li>Catálogo universal representa produtos, serviços, peças, ingredientes, preparados, kits, insumos, taxas e vales.</li><li>Memberships permitem múltiplas empresas; estabelecimentos separam estoque, caixa, emissão e numeração.</li><li>Livros razão e estornos protegem estoque, caixa, financeiro e fiscal.</li><li>Modelo lógico separado do site, Mercado Pago, MPI e catálogo comercial.</li><li>Contrato M02 fechado para fundação, RLS, auditoria e testes cross-tenant.</li><li>Especificação em <code>ARQUITETURA-CANONICA-MULTISSEGMENTO.md/.html</code>.</li><li>Checkpoint <code>1feb493</code>, Quality Gates <code>32192279665</code> com sucesso e Preview <code>dpl_DNFfHanCrdhhGUAvQ7LVxJ3HLj5m</code> Ready.</li><li><strong>M01 aprovado</strong> em 18/08/2026 para apresentação do M02.</li><li>Nenhuma migration, tabela ou dado real foi criado no M01.</li></ul>
+  <h3>Estudo D01 — engenharia reversa preservado</h3>
+  <div class="notice">O inventário anterior continua válido, mas foi movido para o M14. A ausência de backup não bloqueia o ERP; o legado será convertido por adaptador para o modelo canônico.</div>
+  <h3>M02 — fundação validada em staging</h3>
+  <ul><li>Migration aditiva <code>0016_erp_foundation.sql</code> aplicada exclusivamente no projeto staging <code>ozvylnaipubrmaadikvk</code>.</li><li>14 tabelas, 14 policies e RLS nas 14 tabelas.</li><li>Memberships, RBAC por tenant, estabelecimentos, capacidades, perfis, configurações sem segredos, sequências e auditoria append-only.</li><li>8 permissões, 23 capacidades, 5 perfis e 60 associações globais, sem dados de cliente no M02.</li><li><code>anon</code> sem acesso; <code>authenticated</code> sem DML, com leitura por RLS; escrita server-only.</li><li>Preflight <code>M02_PREFLIGHT_OK</code> no PostgreSQL 17.6; dry-run limitado à 0016.</li><li>Laboratório local aprovado 38/38 antes e depois de rollback/rebuild.</li><li>Remotamente: histórico 0016 presente; 14 tabelas, 14 RLS e 14 policies comprovadas.</li><li>A primeira tentativa remota parou antes das asserções por falta de <code>USAGE</code> em <code>extensions</code>; nenhum fixture havia sido criado.</li><li>Harness ajustado com papel elevado apenas dentro da transação; suíte remota <code>Files=1, Tests=38, Result: PASS</code>.</li><li>Pós-rollback: zero dados sintéticos, zero linhas tenant-owned e zero extensão pgTAP persistida.</li><li>Lint remoto de <code>public,erp_security</code>: nenhum erro no nível warning.</li><li>Checkpoint técnico <code>1a0c47f</code> enviado somente a <code>origin/staging</code>; Quality Gates <code>32197876637</code> com sucesso, Vercel <code>success</code> e Preview HTTP 200.</li><li>A pilha local completa teve timeout do <code>postgres-meta</code>; o laboratório mínimo PostgreSQL funcionou e foi descartado.</li><li>A migration histórica 0006 repovoa cadastros em resets locais; permaneceu confinada ao laboratório e fora do push remoto.</li><li>Parecer em <code>PARECER-TECNICO-M02-FUNDACAO-ERP.md/.html</code>.</li><li>Produção intocada; staging sem empresa, dado fiscal, A1, Mercado Pago ou backup legado inserido pelo M02.</li><li><strong>M02 aprovado</strong> formalmente em 18/08/2026; análise M03 autorizada.</li></ul>
+  <h3>M03 — portal e subdomínios validados em staging</h3>
+  <ul><li><code>apps/portal</code> criado em Next.js 15 App Router, separado de site e painel interno.</li><li>Login, seleção multiempresa, 403, 404, estado sem vínculo e shell somente leitura implementados.</li><li>Guard exige hostname + tenant + sessão <code>getUser()</code> + membership ativa/vigente do próprio usuário.</li><li>POST same-origin, cookie host-only e rotas privadas <code>private, no-store</code>.</li><li><code>tenant_id</code> do navegador e <code>users.tenant_id</code> não autorizam; staff sem membership não recebe bypass.</li><li>0017 cria domínios canônicos, normalização estrita, resolver mínimo e policy multiempresa em tenants.</li><li>Preflight remoto <code>M03_PREFLIGHT_OK</code> no PostgreSQL 17.6; zero domínios legados e conflitos.</li><li>Dry-run remoto exclusivo da 0017, sem seeds ou roles; SHA-256 <code>ac08fb…90c79</code>.</li><li>0017 aplicada somente no Supabase staging; histórico 0001–0017 alinhado.</li><li>RLS, 2 policies, 12 constraints, 6 índices, trigger, funções e grants comprovados.</li><li>35/35 pgTAP em duas passagens locais e uma remota dentro de transação com rollback.</li><li>Zero fixtures remotas e zero linhas em <code>erp_tenant_domains</code>; lint remoto sem erros.</li><li>Rollback remoto destrutivo proibido; eventual correção será forward-fix com novo aceite.</li><li>Aplicação: 19/19 testes unitários, TypeScript, lint, build e visual desktop/celular aprovados.</li><li>Checkpoint <code>0111056</code>; Quality Gates <code>32206753538</code> com site, platform e portal aprovados.</li><li>Vercel <code>success</code>, alias staging HTTP 200 e <code>main</code> preservada em <code>59a3924</code>.</li><li>Relatório em <code>PACOTE-TECNICO-M03-PORTAL.md/.html</code>.</li><li>Produção, projeto/domínio Vercel, DNS e dados reais não foram alterados.</li></ul>
+
+  <h3>M04-G0 — identidade de teste e provisionamento seguro especificados</h3>
+  <ul><li><strong>M03 aprovado</strong> formalmente em 18/08/2026; M04-G0 autorizado.</li><li>Parecer em <code>PARECER-TECNICO-M04-G0-IDENTIDADE-PROVISIONAMENTO.md/.html</code>.</li><li>Auditoria remota somente leitura no Supabase staging; nenhuma conta, convite, membership, role ou fator MFA criado.</li><li>Baseline: 3 identidades Auth, 3 profiles, zero ausências, zero MFA, zero memberships ERP, zero roles ERP e 8 permissões ERP.</li><li>Roles e vínculos legados preservados e separados do RBAC ERP.</li><li>Modelo canônico: identidade Auth, profile público, membership multiempresa, roles por membership e MFA Supabase.</li><li>Sete personas mínimas definidas, incluindo multiempresa, staff sem vínculo, suspensão, convite e AAL1/AAL2.</li><li>Papéis propostos: owner, admin, manager, operator e viewer.</li><li>Provisionador futuro será server-only, idempotente, retomável, dirigido por manifesto e inicialmente apenas dry-run.</li><li>E-mails sintéticos em domínios dos clientes foram proibidos; automação efêmera usará <code>.invalid</code> e UAT exigirá alias ConnectionCyber alcançável.</li><li>Produção usará e-mail real, convite, recuperação funcional e MFA privilegiado; nenhuma senha legada será migrada.</li><li>Riscos críticos: metadados Auth como autoridade, fallback de tenant, JWT de tenant único, senha fraca, TOTP desligado, <code>search_path</code> mutável e policies de profile para <code>public</code>.</li><li>Próxima etapa continua somente de código e especificação; Supabase remoto permanece inalterado até novo aceite.</li></ul>
+
+  <div class="notice"><strong>Checkpoint M04-G0:</strong> commit <code>bbdc6cc</code> somente em staging; Quality Gates <code>32210191254</code> aprovados em site, platform e portal; Vercel success; Preview HTTP 200; main preservada em <code>59a3924</code>; zero contas ou migrations remotas.</div>
+
+  <h3>M04-G1 — migration, dry-run, telas e testes validados localmente</h3>
+  <ul><li>0018 apresentada sem aplicação remota; hash <code>e8bf56d6…91e659</code>.</li><li>Tenant em metadata, fallback e JWT deixa de autorizar; membership permanece canônica.</li><li>Profile próprio limita atualização a nome e idioma.</li><li>Lifecycle, roles com MFA, cinco permissões e helpers AAL1/AAL2 especificados.</li><li>Ledgers de provisionamento server-only, idempotentes e sem segredos.</li><li>Provisionador sem apply: 7 personas, executable false, rede 0 e escrita 0.</li><li>Rota <code>/identidades</code> apresenta convite, usuários, papéis e step-up; escrita desabilitada.</li><li>Node 9/9, M02 38/38, M03 35/35, M04 49/49 e rebuild 49/49.</li><li>TypeScript, lint e build aprovados; preflight OK; rollback protegido e M03 preservado.</li><li>Zero resíduos; contêiner removido.</li><li>Inspeção visual automatizada ao vivo indisponível; aprovação visual não presumida.</li><li>Pacote em <code>PACOTE-TECNICO-M04-G1-IDENTIDADE-RBAC-MFA.md/.html</code>.</li><li>Checkpoint <code>72b1e0a</code>; Quality Gates <code>32212844513</code> com site, platform e portal aprovados.</li><li>Vercel Preview <code>dpl_DKNCxPwYHidoC1mmdYNcwjP3YEB4</code> Ready e HTTP 200; configurações Vercel e DNS inalteradas.</li><li>Supabase remoto, Auth e produção inalterados; main em <code>59a3924</code>; zero contas ou MFA.</li></ul>
+
+  <h2>6. Achados críticos</h2>
+  <div class="table-wrap"><table><thead><tr><th>ID</th><th>Achado</th><th>Severidade</th><th>Tratamento</th></tr></thead><tbody>
+    <tr><td>R-001</td><td>Tabelas auxiliares remotas sem isolamento adequado para dados sensíveis.</td><td>Crítica</td><td>RLS, revogação e remodelagem por tenant.</td></tr>
+    <tr><td>R-002</td><td>Telas não revelam schema físico SQL Server.</td><td>Alta</td><td>Restaurar backup isolado e gerar dicionário.</td></tr>
+    <tr><td>R-003</td><td>Backup/restauração gerenciados não comprovados.</td><td>Crítica</td><td>Definir RPO/RTO e testar restauração.</td></tr>
+    <tr><td>R-004</td><td>Periféricos, TEF e A1 podem exigir agente local.</td><td>Crítica</td><td>Prova técnica e inventário por cliente.</td></tr>
+    <tr><td>R-005</td><td>Contingência do PDV sem internet indefinida.</td><td>Crítica</td><td>Decisão anterior ao módulo de vendas.</td></tr>
+    <tr><td>R-006</td><td>Lista de clientes contém divergências.</td><td>Alta</td><td>Cadastro mestre validado.</td></tr>
+    <tr><td>R-007</td><td>Repositório histórico por cliente diverge do padrão.</td><td>Média</td><td>Auditar; não criar novos forks.</td></tr>
+    <tr><td>R-008</td><td>Não há backup físico no acervo.</td><td>Planejado</td><td>Não bloqueia o ERP; tratar antes do M14 com cópia e SHA-256.</td></tr>
+    <tr><td>R-009</td><td>Colisão semântica com o futuro ERP e 16 tabelas públicas observadas sem RLS.</td><td>Crítica</td><td>Modelo <code>erp_*</code> no M02; não carregar legado nas tabelas atuais.</td></tr>
+    <tr><td>R-010</td><td>Modelo atual assume principalmente um tenant por usuário.</td><td>Alta</td><td>Memberships aditivas e tenant ativo resolvido no servidor.</td></tr>
+    <tr><td>R-011</td><td>Catálogo comercial e capacidades técnicas são conceitos diferentes.</td><td>Alta</td><td>Criar catálogo ERP próprio e preservar o comercial.</td></tr>
+    <tr><td>R-012</td><td>Acesso administrativo cross-tenant ainda não possui fluxo ERP auditado próprio.</td><td>Alta</td><td>Escrita server-only no M02; rotas auditadas no M03/M04.</td></tr>
+    <tr><td>R-013</td><td>Migration histórica 0006 repovoa cadastros em resets locais.</td><td>Alta</td><td>Laboratório isolado e revisão de fixtures antes do M14/piloto.</td></tr>
+    <tr><td>R-014</td><td>Trigger aceita tenant em metadados do usuário e usa fallback ConnectionCyber.</td><td>Crítica</td><td>Provisionamento server-only; recusar contexto ausente.</td></tr>
+    <tr><td>R-015</td><td>Senha mínima 6, confirmação desligada e TOTP desabilitado em staging.</td><td>Crítica</td><td>Endurecer Auth e exigir MFA privilegiado antes da UAT.</td></tr>
+    <tr><td>R-016</td><td>E-mails sintéticos em domínios de clientes podem ser inalcançáveis ou pertencer a terceiros.</td><td>Alta</td><td><code>.invalid</code> em automação; alias controlado na UAT; e-mail real em produção.</td></tr>
+  </tbody></table></div>
+
+  <h2>7. Programa de módulos</h2>
+  <div class="table-wrap"><table><thead><tr><th>Ordem</th><th>Módulo</th><th>Estado</th><th>Entrega</th><th>Critério</th></tr></thead><tbody>
+    <tr><td>M00</td><td>Segurança staging</td><td>Aprovado</td><td>Migrations, variáveis, CI, Preview e smoke tests aprovados</td><td>Concluído e aceito em 18/08/2026.</td></tr>
+    <tr><td>M01</td><td>Arquitetura canônica multissegmento</td><td>Aprovado</td><td>Núcleo, capacidades, catálogo e invariantes</td><td>Concluído e aceito em 18/08/2026; nenhum schema.</td></tr>
+    <tr><td>M02</td><td>Fundação ERP</td><td>Aprovado</td><td>Memberships, estabelecimentos, capacidades, sequências e auditoria</td><td>Concluído e aceito em 18/08/2026; 0016 somente em staging.</td></tr>
+    <tr><td>M03</td><td>Portal/subdomínios</td><td>Aprovado</td><td>Portal, login e hostname</td><td>Concluído e aceito em 18/08/2026; 0017 somente em staging.</td></tr>
+    <tr><td>M04</td><td>RBAC/MFA</td><td>Aprovado em staging</td><td>Identidade, memberships, papéis, convites, recuperação, MFA e hardening</td><td>0018–0020 aplicadas e validadas exclusivamente em staging.</td></tr>
+    <tr><td>M05</td><td>Cadastros/catálogo</td><td>Aplicado e validado em staging</td><td>Pessoas, produtos, serviços, peças, ingredientes, variações, unidades e composições</td><td>0021 aplicada; 44/44 asserções; zero dados reais.</td></tr>
+    <tr><td>M06</td><td>Preços/estoque/compras</td><td>Aplicado e validado em staging</td><td>Listas, depósitos, movimentos, inventário, lotes, séries e pedidos</td><td>0022 aplicada; 48/48 asserções; zero dados reais.</td></tr>
+    <tr><td>M07</td><td>Vendas/PDV</td><td>Aplicado e validado em staging</td><td>Orçamentos, vendas, pagamentos, caixa e comprovantes</td><td>0023 aplicada; 52/52 asserções; zero dados reais.</td></tr>
+    <tr><td>M08</td><td>Financeiro</td><td>Aplicado e validado em staging</td><td>Receber, pagar, fluxo de caixa, cartões, cheques e boletos</td><td>0024 aplicada; 64/64 asserções; zero dados reais.</td></tr>
+    <tr><td>M09</td><td>Serviços/oficinas</td><td>Aplicado e validado em staging</td><td>Ativos, veículos, agenda, OS, peças, mão de obra e histórico</td><td>0025 aplicada; 68/68 asserções; zero dados reais.</td></tr>
+    <tr><td>M10</td><td>Restaurantes/lanchonetes</td><td>Aplicado e validado em staging</td><td>Receitas, adicionais, mesas, comandas e cozinha</td><td>0026 aplicada; 72/72 asserções; zero dados reais.</td></tr>
+    <tr><td>M11</td><td>Atendimento/remoto</td><td>Aplicado e validado em staging</td><td>Tickets, dispositivos, consentimentos e sessões</td><td>0028 aplicada; 87/87 asserções; zero dados reais.</td></tr>
+    <tr><td>M12</td><td>Agente local/periféricos</td><td>Aplicado e validado em staging</td><td>Impressão, balança, TEF e contingência</td><td>0029 aplicada; 84/84 asserções; 12 tabelas com RLS e zero dados reais.</td></tr>
+    <tr><td>M13</td><td>Fiscal/A1</td><td>Motor global validado; piloto pendente</td><td>Contratos, schemas, assinatura, estados, SOAP/TLS e perfis tributários fail-closed</td><td>Retomar validação individual após confirmação do contador em 31/08/2026; emissão real bloqueada.</td></tr>
+    <tr><td>M14</td><td>Engenharia reversa/importador</td><td>Fundação concluída em staging</td><td>Contratos, ledger, idempotência, reconciliação, RLS e ferramentas por tenant</td><td>0031 aplicada; 96/96 pós-aplicação; fontes reais passam aos portões individuais do M15.</td></tr>
+    <tr><td>M15</td><td>Piloto/implantações</td><td>G0–G11 concluídos em staging</td><td>Jornada visual sintética consolidada (cadastro→catálogo→estoque→PDV→caixa→financeiro) e preparação local de hipercare</td><td>Sintético/local encerrado; depende do M18 para persistência real; UAT real e produção bloqueados.</td></tr>
+    <tr><td>M16</td><td>Capacidades por tenant / industrialização multiempresa</td><td>G0–G8 concluídos em staging</td><td>Contrato canônico de capacidades, motor fail-closed, migration 0032, painel administrativo e simulador de ondas</td><td>0032 aplicada e validada em staging; ativação real por tenant depende do piloto.</td></tr>
+    <tr><td>M17</td><td>Jornada persistente server-side</td><td>G0–G12 concluídos em staging</td><td>Autorização server-side, cadastro/catálogo/estoque/PDV/caixa/financeiro com repositório local, migration 0033</td><td>0033 aplicada e validada em staging; backend persistente pronto, consumido pelo M18.</td></tr>
+    <tr><td>M18</td><td>Persistência visual e piloto Mania de Modas</td><td><strong>G0–G22 concluídos em staging</strong></td><td>Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034/0036, provisionamento e ativação completa do tenant piloto</td><td>0034/0036 aplicadas; tenant/estabelecimento/membership/convite criados (<code>M18_G21_PROVISIONING_OK</code>); G22 fechado 04/09/2026 — convite aceito, senha definida, MFA/TOTP cadastrado, sessão AAL2 validada e primeira jornada visual real (dashboard, leitura) confirmadas por print do próprio usuário-piloto. Pendência cosmética não bloqueante: renderização do QR code (fallback de segredo manual funcionou).</td></tr>
+    <tr><td>M19</td><td>Redesign visual + roteamento de login</td><td><strong>G0–G5 concluídos</strong></td><td>Tema/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), engrenagem de branding (G4), roteamento de login (G5)</td><td>Programa concluído. platform 165/165, portal 75/75, site 19/19; type-check/lint/build limpos. Uma migration nova (0035) aplicada em staging.</td></tr>
+  </tbody></table></div>
+
+  <h2>8. Critérios globais</h2>
+  <ul><li>Isolamento cross-tenant positivo e negativo.</li><li>Migrations revisáveis e rollback/forward-fix.</li><li>Validação no servidor.</li><li>Zero credenciais/dados de cliente no Git, logs ou navegador.</li><li>Testes, type-check, lint e build.</li><li>Auditoria de dependências.</li><li>Logs com tenant, ator, ação, objeto, horário e resultado.</li><li>Idempotência e reconciliação.</li><li>Backup/restauração antes do corte.</li><li>Atualização simultânea dos dois documentos.</li></ul>
+
+  <h2>9. Processo por cliente</h2>
+  <ol><li>Preservar backup original.</li><li>Calcular hash.</li><li>Restaurar cópia isolada.</li><li>Inventariar schema e integridade.</li><li>Extrair em área protegida.</li><li>Transformar com tenant no servidor.</li><li>Carregar por job idempotente.</li><li>Reconciliar entidades e saldos.</li><li>Obter aceite.</li><li>Cortar com rollback.</li><li>Repetir individualmente.</li></ol>
+
+  <h2>10. Próxima ação — M23-G0 concluído em staging (27/09/2026)</h2>
+  <p><strong>M23-G0 — fundação da Academia:</strong> núcleo único + 2 portas aprovado; migration aditiva <code>0044_m23_academy_foundation.sql</code> (capacidade <code>academy.courses</code>, permissões <code>academy.read</code>/<code>academy.manage</code>, 5 tabelas com RLS fail-closed, comando único <code>public.academy_command</code> e grants que corrigem o <code>42501</code> do catálogo público). Executado em 27/09/2026 com autorização explícita: <strong>validação transacional remota</strong> em <code>ozvylnaipubrmaadikvk</code> (<strong>32/32 pgTAP</strong> em transação única com <code>ROLLBACK</code>, resíduo zero, REST anônimo antes = 401/42501) e <strong>aplicação persistente</strong> (<code>db push</code> exclusivo da 0044, histórico <code>0001…0044</code>, pós-apply OK, <strong>18/18</strong> estruturais e <strong>14/14</strong> adversariais remotos, REST anônimo depois = 200 sem 42501). Local: 32/32 com <code>ROLLBACK</code>, 18/18, 14/14, <code>platform</code> 237/237, type-check limpo. Detalhes e hashes em <code>RELATORIO-M23-G0-FUNDACAO-ACADEMY.md</code>; logs em <code>staging/logs/m23-g0-remote-20260927-*.log</code>. <strong>Correção do drift aprovada e aplicada</strong> (migration <code>0045_handle_new_user_drift_fix.sql</code>): histórico <code>0001…0045</code>, transação <strong>11/11</strong> com <code>ROLLBACK</code>, pós-apply <code>still_drift=false</code> e <code>orphans=0</code>, logs em <code>staging/logs/m23-hygiene-0045-remote-*.log</code>. <strong>Alinhamento de e-mail aprovado e aplicado</strong> (migration <code>0046_identity_email_alignment.sql</code>): histórico <code>0001…0046</code>, transação <strong>4/4</strong> com <code>ROLLBACK</code>, pós-apply <code>divergences=0</code> e <code>users_email = auth_email</code>, logs em <code>staging/logs/m23-hygiene-0046-remote-*.log</code>. <strong>Sincronismo de e-mail aprovado e aplicado</strong> (migration <code>0047_sync_auth_email_trigger.sql</code>): histórico <code>0001…0047</code>, transação <strong>7/7</strong> com <code>ROLLBACK</code>, pós-apply <code>sync_triggers=1</code>, <code>anon_can_execute=false</code> e <code>divergences=0</code>, logs em <code>staging/logs/m23-hygiene-0047-remote-*.log</code>. <strong>G1 porta 1 entregue</strong> (sem migration): telas de Academia em <code>apps/portal</code> (<code>/academia</code> catálogo + minhas matrículas, <code>/academia/[courseId]</code> módulos/progresso, 3 rotas POST por <code>rpc('academy_command')</code>), <code>portal 140/140</code>, lint e build ok com as 5 rotas; capacidade <code>academy.courses</code> ativa nos 5 tenants e <code>academy.manage</code> no papel <code>owner</code>. Primeiro curso publicado via <code>academy_command</code>: <strong>Atalhos de Teclado — Windows e Office</strong> (8 módulos) em Casa de Bolos, Loja da Benção e Mania de Modas, com ensaio de matrícula/conclusão em transação revertida. <strong>Próxima ação: M23-G1.2</strong> — porta 2 (curadoria: criar/publicar curso e módulos) no <code>apps/portal</code>.</p>
+  <h2>10.1 M19 concluído (G0–G5)</h2>
+  <p>Plano executado conforme aprovado pelo usuário em 02-03/09/2026. Sem próxima ação pendente neste programa — redesign bespoke por tela individual do painel e upload de logo via Storage ficam pra um portão futuro, só se solicitados.</p>
+  <h2>M18-G22 ativação do usuário-piloto (✅ CONCLUÍDO — 04/09/2026)</h2>
+  <p>Definido em <code>RELATORIO-M18-G21-PROVISIONAMENTO-PILOTO-STAGING.md</code> como próximo portão após o provisionamento do tenant Mania de Modas. Todos os 5 critérios confirmados por print, na sessão real do usuário-piloto.</p>
+  <ol><li>✅ Convite Auth entregue e aceito pelo usuário-piloto (após corrigir e-mail errado e dois incidentes de vazamento de token no processo de entrega, ambos revogados imediatamente e corrigidos na raiz).</li><li>✅ Usuário-piloto concluiu o cadastro de senha; <code>erp_tenant_memberships.status='active'</code> confirmado no banco; login real ponta a ponta testado e confirmado por print.</li><li>✅ MFA/TOTP cadastrado de verdade em <code>/configuracoes/seguranca</code> — o QR code em si não renderizou no navegador dele (bug à parte, ver nota abaixo), mas o campo de fallback ("Ou digite manualmente") funcionou e ele completou o cadastro por ali.</li><li>✅ Sessão validada em AAL2 — print mostra "Autenticação em duas etapas — Ativa nesta sessão".</li><li>✅ Primeira jornada visual real executada — redirecionado sozinho pro <code>/dashboard</code>, "Contexto validado", shell M03 em modo leitura com a sessão real do dono.</li></ol>
+  <p><strong>Pendência cosmética, não bloqueia o portão:</strong> o QR code continua não renderizando mesmo após o fix de <code>encodeURIComponent</code> (commit <code>f9fd237</code>) — causa exata não isolada ainda (candidatos: deployment daquele commit ainda não promovido quando testado, ou formato do <code>qr_code</code> diferente do documentado). O campo de segredo manual é a alternativa padrão de qualquer app TOTP e resolveu na prática — registrado como débito técnico menor.</p>
+  <p><strong>"Shell M03 somente leitura" ≠ MFA:</strong> são dois eixos independentes — G22 valida <em>quem</em> entra (identidade); os módulos M05–M08 travados são sobre <em>que dado</em> o portal mostra, e dependem da migração de dados real da Mania de Modas (M14/M15, processo descrito em §9), não deste portão.</p>
+  <p>Importação de backup real, dados fiscais, domínio público, pagamentos e produção permanecem em portões separados e bloqueados.</p>
+
+  <h2>11. Histórico</h2>
+  <div class="table-wrap"><table><thead><tr><th>Versão</th><th>Data</th><th>Módulo</th><th>Alteração</th><th>Resultado</th></tr></thead><tbody><tr><td>1.0.0</td><td>18/08/2026</td><td>Governança</td><td>Baseline, riscos, fila e critérios.</td><td>Aguardando validação antes do M00 remoto.</td></tr><tr><td>1.1.0</td><td>18/08/2026</td><td>M00</td><td>Banco staging, push, CI, Preview e smoke tests executados.</td><td>Bloqueado na configuração privada do formulário; produção não alterada.</td></tr><tr><td>1.2.0</td><td>18/08/2026</td><td>M00</td><td>Variável sensível, redeploy e smoke test completo.</td><td>Validado em staging; aguarda aceite para análise M01.</td></tr><tr><td>1.3.0</td><td>18/08/2026</td><td>M01</td><td>Inventário, matriz, laboratório e portões antigos.</td><td>Estudo preservado e posteriormente reclassificado.</td></tr><tr><td>1.3.1</td><td>18/08/2026</td><td>M01</td><td>Checkpoint, Quality Gates e Preview registrados.</td><td>Documentação anterior validada.</td></tr><tr><td>1.4.0</td><td>18/08/2026</td><td>M01</td><td>Arquitetura multissegmento, capacidades, catálogo, invariantes e contrato M02.</td><td>Engenharia reversa movida para M14; aguarda validação remota.</td></tr><tr><td>1.4.1</td><td>18/08/2026</td><td>M01</td><td>Checkpoint, Quality Gates e Preview da arquitetura.</td><td>M01 validado em staging; nenhum schema/dado real alterado.</td></tr><tr><td>1.5.0</td><td>18/08/2026</td><td>M02</td><td>Migration 0016, preflight, 38 testes, rollback e parecer apresentados.</td><td>Revisão estática concluída; nada aplicado; aguarda validação controlada.</td></tr><tr><td>1.5.1</td><td>18/08/2026</td><td>M02</td><td>Checkpoint, Quality Gates e Preview registrados.</td><td>Pipeline aprovado; migration não aplicada; aguarda próximo aceite.</td></tr><tr><td>1.6.0</td><td>18/08/2026</td><td>M02</td><td>Preflight, dry-run, duas passagens 38/38, rollback e rebuild.</td><td>Validado localmente; staging inalterado; aguarda aplicação remota.</td></tr><tr><td>1.7.0</td><td>18/08/2026</td><td>M02</td><td>0016 aplicada somente em staging; estrutura, catálogos, grants, lint, resíduos e pgTAP remoto verificados.</td><td>Validado em staging com 38/38; produção intocada; aguarda aceite para análise M03.</td></tr><tr><td>1.8.0</td><td>18/08/2026</td><td>M03</td><td>M02 aprovado; inventário do portal, Vercel e DNS; arquitetura, telas, domínio, riscos e portões apresentados.</td><td>M03 em análise; nenhum código, migration, Vercel, DNS, Supabase remoto ou produção alterado.</td></tr><tr><td>1.9.0</td><td>18/08/2026</td><td>M03</td><td>Parecer aprovado; portal, 0017, preflight, rollback, 19 testes unitários, 35 pgTAP e CI apresentados.</td><td>Aplicação compilada e inspecionada localmente; SQL não executado; aguarda laboratório local.</td></tr><tr><td>1.9.1</td><td>18/08/2026</td><td>M03</td><td>Checkpoint 285d103, Quality Gates 32203034263 e Preview staging registrados.</td><td>Site, platform e portal aprovados; HTTP 200; 0017 permanece não executada.</td></tr><tr><td>2.0.0</td><td>18/08/2026</td><td>M03</td><td>Preflight, dry-run exclusivo, 0017 local, rollback protegido, reconstrução e duas passagens 35/35.</td><td>Validado localmente com zero resíduos; Supabase remoto e produção inalterados.</td></tr><tr><td>2.0.1</td><td>18/08/2026</td><td>M03</td><td>Checkpoint 563a669, Quality Gates 32204837889, Vercel success e Preview HTTP 200 registrados.</td><td>Evidências publicadas em staging; 0017 continua ausente no Supabase remoto.</td></tr><tr><td>2.1.0</td><td>18/08/2026</td><td>M03</td><td>Preflight/dry-run remotos, 0017 somente em staging, histórico, estrutura, grants, RLS, policies, lint, 35 pgTAP e resíduos verificados.</td><td>Validado em staging com 35/35 e zero fixtures; produção, Vercel, DNS e dados reais intocados; aguarda aceite formal.</td></tr><tr><td>2.1.1</td><td>18/08/2026</td><td>M03</td><td>Checkpoint 0111056, Quality Gates 32206753538, status Vercel e Preview HTTP 200 registrados.</td><td>Site, platform e portal aprovados; main permaneceu em 59a3924; M03 aguarda aceite formal.</td></tr></tbody></table></div>
+
+  <div class="table-wrap"><table><thead><tr><th>Versão</th><th>Data</th><th>Módulo</th><th>Alteração</th><th>Resultado</th></tr></thead><tbody><tr><td>2.2.0</td><td>18/08/2026</td><td>M04-G0</td><td>M03 aprovado; identidade, sete personas, papéis, MFA, manifesto, provisionamento idempotente, riscos e testes especificados.</td><td>Parecer apresentado sem criar contas, vínculos, roles ou MFA e sem alterar Supabase remoto, Vercel, DNS ou produção.</td></tr><tr><td>2.2.1</td><td>18/08/2026</td><td>M04-G0</td><td>Checkpoint bbdc6cc, Quality Gates 32210191254, Vercel e Preview registrados.</td><td>Site, platform e portal aprovados; HTTP 200; main preservada; nenhuma conta ou migration remota criada.</td></tr></tbody></table></div>
+
+  <div class="table-wrap"><table><thead><tr><th>Versão</th><th>Data</th><th>Módulo</th><th>Alteração</th><th>Resultado</th></tr></thead><tbody><tr><td>2.3.0</td><td>19/08/2026</td><td>M04-G1</td><td>0018, preflight, rollback, dry-run, sete personas, quatro telas, 9 testes Node e 49 pgTAP.</td><td>M02 38/38, M03 35/35, M04 e rebuild 49/49; build aprovado; zero resíduos; remoto inalterado.</td></tr><tr><td>2.3.1</td><td>19/08/2026</td><td>M04-G1</td><td>Checkpoint 72b1e0a, Quality Gates 32212844513, Vercel e Preview HTTP 200 registrados.</td><td>Site, platform e portal aprovados; main preservada; 0018 não aplicada e zero identidades criadas.</td></tr></tbody></table></div>
+
+  <h2>12. Protocolo de atualização</h2>
+  <p>Cada conclusão registra versão, data, módulo, commit, migrations, testes, ambiente, evidências, riscos residuais, decisão e próxima ação permitida.</p>
+  <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
+</main>
+  <section>
+    <h2>M15-G2 — jornada sintética ponta a ponta</h2>
+    <p><strong>Aprovado em 30/08/2026.</strong> Marcador <code>M15_G2_SYNTHETIC_JOURNEY_OK</code>.</p>
+    <ul>
+      <li>MEI, ME e LTDA sintéticos; autenticação, MFA, membership e cross-tenant validados.</li>
+      <li>Cadastro, catálogo, estoque, venda, caixa e financeiro exercitados.</li>
+      <li>Fiscal fail-closed; rollback completo; zero persistência e zero acesso remoto.</li>
+      <li>Quality gates globais: 361/361 testes, TypeScript, ESLint e builds aprovados.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>M15-G3 — preparação do ensaio integrado</h2>
+    <p><strong>Preparado em 30/08/2026.</strong> Preflight, 30 asserções pgTAP e rollback obrigatório.</p>
+    <p>MEI, ME e LTDA sintéticos; módulos operacionais, RLS, cross-tenant e fiscal fail-closed cobertos. Execução remota bloqueada.</p>
+  </section>
+  <section>
+    <h2>M15-G3 — validação remota com rollback</h2>
+    <p><strong>Aprovado no staging.</strong> Preflight OK, 30 asserções concluídas e marcador <code>M15_G3_ROLLBACK_CLEAN</code>.</p>
+    <p>Resíduos: zero tenants, zero contas e zero documentos fiscais. Produção não acessada.</p>
+  </section>
+  <section>
+    <h2>M15-G4 — primeiro fluxo visual</h2>
+    <p><strong>Aprovado em 30/08/2026.</strong> Dashboard local <code>/demo</code> com perfis MEI, ME e LTDA.</p>
+    <p>24/24 testes, TypeScript, ESLint, build, desktop e celular aprovados; dados exclusivamente sintéticos.</p>
+  </section>
+  <section>
+    <h2>M15-G5 — PDV visual sintético</h2>
+    <p><strong>Aprovado em 30/08/2026.</strong> Busca, carrinho, desconto, pagamento e comprovante em memória.</p>
+    <p>31/31 testes, TypeScript, ESLint, build e celular aprovados; zero persistência remota.</p>
+  </section>
+  <section>
+    <h2>M15-G6 — cadastros integrados ao PDV</h2>
+    <p><strong>Implementado localmente em 30/08/2026.</strong> Clientes e produtos sintéticos compartilham estado em memória com o PDV.</p>
+    <p>37/37 testes, TypeScript, ESLint, build, desktop e celular aprovados com Node.js 22.23.2. Marcador <code>M15_G6_VISUAL_INTEGRATION_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M15-G7 — estoque visual integrado</h2>
+    <p><strong>Aprovado em 30/08/2026.</strong> Entradas, saídas e proteção contra saldo negativo refletidas no PDV.</p>
+    <p>41/41 testes, TypeScript, ESLint, build, desktop e celular aprovados. Marcador <code>M15_G7_INVENTORY_VISUAL_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M15-G8 — caixa visual integrado</h2>
+    <p><strong>Aprovado em 30/08/2026.</strong> Abertura, venda automática, movimentos e fechamento conferido em memória.</p>
+    <p>46/46 testes, TypeScript, ESLint, build, desktop e celular aprovados. Marcador <code>M15_G8_CASH_VISUAL_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M15-G9 — financeiro visual integrado</h2>
+    <p><strong>Aprovado em 30/08/2026.</strong> Contas a pagar/receber e baixas refletidas no caixa em memória.</p>
+    <p>51/51 testes, TypeScript, ESLint, build, desktop e celular aprovados. Marcador <code>M15_G9_FINANCE_VISUAL_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M15-G10 — jornada visual consolidada</h2>
+    <p><strong>Aprovado em 30/08/2026.</strong> Dashboard conectado a vendas, estoque, caixa e financeiro da sessão sintética.</p>
+    <p>56/56 testes, TypeScript, ESLint e build aprovados com Node.js 22.23.2. Marcador <code>M15_G10_CONSOLIDATED_JOURNEY_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M15-G11 — preparação local de hipercare</h2>
+    <p><strong>Aprovado localmente em 30/08/2026.</strong> Métricas, severidades, simulador e critérios de aceite preparados sem telemetria real.</p>
+    <p>45/45 testes aprovados. Marcador <code>M15_G11_LOCAL_PREPARATION_OK</code>. Hipercare real, aceite final e produção permanecem bloqueados.</p>
+  </section>
+  <section>
+    <h2>M16-G0 — industrialização multiempresa</h2>
+    <p><strong>Aprovado localmente em 30/08/2026.</strong> Nova trilha definida para núcleo único, capacidades por tenant e implantação em ondas.</p>
+    <p>O M15 operacional real continua bloqueado. Próximo gate local: M16-G1. Marcador <code>M16_G0_MULTI_TENANT_PRODUCTIZATION_APPROVED</code>.</p>
+  </section>
+  <section>
+    <h2>M16-G1 — contrato canônico de capacidades</h2>
+    <p><strong>Implementado localmente em 30/08/2026.</strong> Catálogo, blueprints MEI/ME/LTDA, exceções auditáveis e resolução fail-closed.</p>
+    <p>20/20 testes aprovados; somente tenants sintéticos; banco e serviços remotos bloqueados. Marcador <code>M16_G1_CAPABILITY_CONTRACT_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M16-G2 — motor fail-closed</h2>
+    <p><strong>Implementado localmente em 30/08/2026.</strong> Dependências, prontidão operacional e matriz MEI/ME/LTDA.</p>
+    <p>37/37 testes aprovados. Capacidades desconhecidas e condições ausentes permanecem bloqueadas. Marcador <code>M16_G2_FAIL_CLOSED_ENGINE_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M16-G3 — migration local 0032</h2>
+    <p><strong>Preparada localmente em 30/08/2026.</strong> Catálogo, entitlements, exceções tenant-scoped, RLS, preflight e rollback.</p>
+    <p>Após normalização com a fundação 0016: 54/54 testes locais e plano pgTAP com 60 asserções. Marcador <code>M16_G3_MIGRATION_0032_LOCAL_READY</code>.</p>
+  </section>
+  <section>
+    <h2>M16-G4 — auditoria da migration 0032</h2>
+    <p><strong>Aprovada localmente em 30/08/2026.</strong> Privilégios mínimos, aprovação por hash e revogação broker-only implementados.</p>
+    <p>SHA-256 normalizado <code>237485033a7484147315adeda8184b837298e55982c9741f86cd9e7418c7e3f3</code>. Marcador <code>M16_G4_MIGRATION_0032_AUDITED_READY</code>.</p>
+  </section>
+  <section>
+    <h2>M16-G5 — validação transacional da 0032</h2>
+    <p><strong>Aprovada no staging em 31/08/2026.</strong> Preflight final OK e 60/60 asserções remotas.</p>
+    <p>Rollback integral confirmado; 0032 permanece ausente do histórico e única no dry-run. Marcador <code>M16_G5_0032_TRANSACTION_ROLLBACK_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M16-G6 — aplicação da 0032 no staging</h2>
+    <p><strong>Aprovada em 31/08/2026.</strong> Migration 0032 aplicada exclusivamente no staging e validada com 60/60 asserções.</p>
+    <p>Histórico alinhado, dry-run sem pendências e zero dados reais. Marcador <code>M16_G6_0032_STAGING_APPLIED_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M16-G7 — painel administrativo local de capacidades</h2>
+    <p><strong>Implementado localmente em 31/08/2026.</strong> Perfis sintéticos MEI, ME e LTDA, matriz de 12 capacidades, exceções em memória e prontidão fail-closed.</p>
+    <p>20/20 testes, TypeScript, ESLint e build aprovados com Node.js 22.23.2. Marcador <code>M16_G7_CAPABILITY_ADMIN_DEMO_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M16-G8 — simulador local de implantação em ondas</h2>
+    <p><strong>Implementado localmente em 31/08/2026.</strong> Ondas laboratório, canário, coorte e concluída, com promoção fail-closed e rollback isolado por tenant.</p>
+    <p>32/32 testes, TypeScript, ESLint e build aprovados com Node.js 22.23.2. Marcador <code>M16_G8_SYNTHETIC_ROLLOUT_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G0 — integração funcional persistente</h2>
+    <p><strong>Parecer aprovado em 31/08/2026.</strong> M16 encerrado e lacuna prioritária definida: conectar a jornada visual em memória ao backend multi-tenant.</p>
+    <p>M17-G1 a M17-G9 integrarão comandos server-side, transações idempotentes, reconciliação e UAT sintético antes do piloto real. Marcador <code>M17_G0_PERSISTENT_FUNCTIONAL_TRACK_APPROVED</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G1 — contrato da jornada persistente</h2>
+    <p><strong>Implementado localmente em 31/08/2026.</strong> Sete comandos, seis máquinas de estado, idempotência, catálogo seguro de erros e rollback integral.</p>
+    <p>25/25 testes do contrato e regressão completa da plataforma aprovados. Marcador <code>M17_G1_PERSISTENT_JOURNEY_CONTRACT_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G2 — autorização server-side</h2>
+    <p><strong>Implementado localmente em 31/08/2026.</strong> Host, sessão, tenant, membership, MFA, permissão e capacidade resolvidos antes de cada comando.</p>
+    <p>44/44 testes aprovados com dublês locais; autorizações e negações auditadas sem payload. Marcador <code>M17_G2_SERVER_AUTHORIZATION_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G3 — cadastro e catálogo locais</h2>
+    <p><strong>Implementado localmente em 31/08/2026.</strong> Comandos autorizados, repositórios tenant-scoped, inbox idempotente e rollback integral.</p>
+    <p>68/68 testes e regressão completa da plataforma aprovados. Marcador <code>M17_G3_LOCAL_MASTER_DATA_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G4 — estoque, PDV e caixa locais</h2>
+    <p><strong>Implementado localmente em 31/08/2026.</strong> Preço server-side, estoque, venda, caixa e inbox em unidade de trabalho atômica.</p>
+    <p>89/89 testes e regressão completa da plataforma aprovados. Marcador <code>M17_G4_LOCAL_OPERATIONS_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G5 — financeiro derivado e reconciliação local</h2>
+    <p><strong>Implementado localmente em 31/08/2026.</strong> Vendas em dinheiro e a prazo derivam caixa e recebíveis sem confiar em valores do cliente.</p>
+    <p>108/108 testes e regressão completa da plataforma aprovados. Marcador <code>M17_G5_LOCAL_FINANCE_RECONCILIATION_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G6 — auditoria independente da jornada integrada</h2>
+    <p><strong>Aprovada localmente em 31/08/2026.</strong> Segurança, concorrência, idempotência e rollback foram auditados; três bloqueios locais foram remediados.</p>
+    <p>116/116 testes e regressão completa da plataforma aprovados. Marcador <code>M17_G6_INDEPENDENT_LOCAL_AUDIT_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G7 — contrato de persistência PostgreSQL/Supabase</h2>
+    <p><strong>Aprovado localmente em 31/08/2026.</strong> Sete RPCs versionadas, inbox idempotente, locks ordenados, RLS e rollback integral foram especificados sem criar migration.</p>
+    <p>141/141 testes e regressão completa da plataforma aprovados. Marcador <code>M17_G7_POSTGRES_PERSISTENCE_CONTRACT_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G8 — migration local 0033</h2>
+    <p><strong>Preparada localmente em 31/08/2026.</strong> Inbox transacional, sete RPCs, RLS, preflight, rollback e plano pgTAP de 90 asserções.</p>
+    <p>163/163 testes e regressão completa aprovados; execução PostgreSQL e remoto permanecem bloqueados. Marcador <code>M17_G8_MIGRATION_0033_LOCAL_READY</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G9 — auditoria independente da migration 0033</h2>
+    <p><strong>Aprovada localmente em 31/08/2026.</strong> Cinco bloqueios foram remediados: hash, criptografia, payload, estoque e projeção financeira atômica.</p>
+    <p>168/168 testes do pacote e 32/32 testes da plataforma aprovados; pgTAP ampliado para 96 asserções e remoto bloqueado. Marcador <code>M17_G9_MIGRATION_0033_LOCAL_AUDIT_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G10 — validação transacional remota da migration 0033</h2>
+    <p><strong>Aprovada em staging em 31/08/2026.</strong> Preflight aprovado e 96/96 asserções executadas dentro de transação com <code>ROLLBACK</code>.</p>
+    <p>Zero resíduo, zero dados reais e produção não acessada. Marcador <code>M17_G10_0033_TRANSACTION_96_OF_96_ROLLBACK_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G11 — aplicação persistente da migration 0033 em staging</h2>
+    <p><strong>Aprovada em 31/08/2026.</strong> Dry-run selecionou somente a 0033, aplicada no staging e validada por 96/96 asserções pós-aplicação.</p>
+    <p>RLS ativo, dez funções, zero receipts e privilégios mínimos confirmados. Marcador <code>M17_G11_0033_STAGING_96_OF_96_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M17-G12 — encerramento do backend persistente e definição do M18</h2>
+    <p><strong>Encerrado em 31/08/2026.</strong> O backend persistente está aprovado; a interface ainda não chama as sete RPCs da 0033.</p>
+    <p>M18 foi definido para integração visual persistente e UAT sintético antes do piloto real. Marcador <code>M17_G12_BACKEND_PERSISTENT_TRACK_CLOSED_M18_DEFINED</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G0 — contrato da integração visual persistente</h2>
+    <p><strong>Aprovado localmente em 31/08/2026.</strong> Sete RPCs, onze read models, sete estados UX e dez ameaças foram contratados.</p>
+    <p>30/30 testes do contrato e regressão completa da plataforma aprovados. Marcador <code>M18_G0_VISUAL_PERSISTENCE_CONTRACT_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G1 — cliente server-side tipado</h2>
+    <p><strong>Aprovado localmente em 31/08/2026.</strong> Sete RPCs e onze read models são acessados por broker tipado com tenant server-side e transporte injetável.</p>
+    <p>48/48 testes do pacote e regressão completa da plataforma aprovados. Marcador <code>M18_G1_TYPED_SERVER_CLIENT_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G2 — cadastro e catálogo na fronteira visual local</h2>
+    <p><strong>Aprovado localmente em 31/08/2026.</strong> Clientes e produtos usam o broker M18 com transporte sintético, tenant server-side e releitura.</p>
+    <p>40/40 testes da plataforma, 49/49 do contrato e build aprovados. Marcador <code>M18_G2_MASTER_DATA_VISUAL_LOCAL_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G3 — estoque, caixa e PDV na fronteira visual local</h2>
+    <p><strong>Aprovado localmente em 31/08/2026.</strong> Estoque, abertura de caixa e venda em dinheiro usam o broker M18 com preço e saldos server-side.</p>
+    <p>52/52 testes da plataforma, 49/49 do contrato e build aprovados. Marcador <code>M18_G3_INVENTORY_CASH_POS_VISUAL_LOCAL_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G4 — financeiro, fechamento e dashboard por releitura local</h2>
+    <p><strong>Aprovado localmente em 31/08/2026.</strong> Crediário, baixa financeira, fechamento de caixa e dashboard usam o broker M18 e releitura server-side.</p>
+    <p>62/62 testes da plataforma, 49/49 do contrato e build aprovados. Marcador <code>M18_G4_FINANCE_CASH_DASHBOARD_LOCAL_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G5 — auditoria local independente da jornada visual</h2>
+    <p><strong>Aprovado localmente em 31/08/2026.</strong> Tenant de escrita, replay e identidade do caixa foram remediados; guardas críticas precedem mutações.</p>
+    <p>12 controles independentes, 74/74 testes da plataforma, 49/49 do contrato e build aprovados. Marcador <code>M18_G5_LOCAL_INDEPENDENT_AUDIT_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G6 — adaptador PostgreSQL/Supabase local</h2>
+    <p><strong>Aprovado localmente em 31/08/2026.</strong> Sete RPCs em allowlist, leituras tenant-scoped e saldo derivado da tabela versionada de movimentos.</p>
+    <p>17/17 testes do adaptador, 49/49 do contrato, 74/74 da plataforma e build aprovados. Marcador <code>M18_G6_SUPABASE_ADAPTER_LOCAL_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G7 — agregados e composição persistente server-side</h2>
+    <p><strong>Aprovado localmente em 31/08/2026.</strong> Agregados tenant-scoped e fábrica por injeção foram preparados sem ativar o transporte remoto nas telas.</p>
+    <p>23/23 testes do adaptador, 80/80 da plataforma, 49/49 do contrato e build aprovados. Marcador <code>M18_G7_PERSISTENT_COMPOSITION_LOCAL_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G8 — auditoria final local e preflight read-only</h2>
+    <p><strong>Preparado localmente em 01/09/2026.</strong> UUID e chaves canônicas foram remediados; preflight somente leitura termina em rollback.</p>
+    <p>31/31 testes do adaptador, 50/50 do contrato, 80/80 da plataforma e build aprovados. Marcador <code>M18_G8_LOCAL_AUDIT_READ_ONLY_PREFLIGHT_READY</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G9 — preflight remoto somente leitura</h2>
+    <p><strong>Aprovado no staging em 01/09/2026.</strong> O preflight retornou <code>M18_G8_READ_ONLY_PREFLIGHT_OK</code> dentro de transação somente leitura com rollback.</p>
+    <p>Nenhuma RPC de comando, migration ou escrita foi executada. Marcador <code>M18_G9_REMOTE_READ_ONLY_PREFLIGHT_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G10 — normalização local dos read models persistentes</h2>
+    <p><strong>Aprovado localmente em 01/09/2026.</strong> Read models persistentes foram alinhados aos formatos visuais com isolamento tenant-scoped e validação fail-closed.</p>
+    <p>44/44 testes do adaptador, 50/50 do contrato, 80/80 da plataforma, TypeScript, ESLint e build aprovados. Marcador <code>M18_G10_PERSISTENT_READ_MODELS_NORMALIZED_LOCAL_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G11 — seleção fail-closed do transporte visual</h2>
+    <p><strong>Aprovado localmente em 01/09/2026.</strong> Todas as telas da jornada usam uma fachada server-side que seleciona somente o dublê sintético local.</p>
+    <p>Modo persistente e configurações inválidas falham fechado. 86/86 testes da plataforma, 50/50 do contrato, 44/44 do adaptador e build aprovados. Marcador <code>M18_G11_FAIL_CLOSED_VISUAL_TRANSPORT_LOCAL_OK</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G12 — persistência visual somente leitura em staging</h2>
+    <p><strong>Aprovado em 01/09/2026.</strong> Feature flag privada permite somente modo sintético ou persistente read-only; comandos falham antes da conexão.</p>
+    <p>Preflight remoto retornou <code>M18_G12_PERSISTENT_READ_ONLY_OK</code> com rollback. 93/93 testes da plataforma, 50/50 do contrato, 44/44 do adaptador e build aprovados.</p>
+  </section>
+  <section>
+    <h2>M18-G13 — provisionamento protegido do piloto em dry-run</h2>
+    <p><strong>Aprovado em 01/09/2026.</strong> Plano determinístico de 13 ações preparado com referências protegidas, MFA/AAL2 e bloqueio de escrita, rede e produção.</p>
+    <p>Preflight remoto retornou <code>M18_G13_PILOT_PREFLIGHT_OK</code> com rollback. 14/14 testes focados, 107/107 da plataforma, 50/50 do contrato, 44/44 do adaptador e build aprovados; nenhum dado ou usuário foi criado.</p>
+  </section>
+  <section>
+    <h2>M18-G14 — executor transacional local do piloto</h2>
+    <p><strong>Aprovado localmente em 01/09/2026.</strong> Unidade de trabalho com rollback integral, replay idempotente e convite Auth mantido em outbox não executável.</p>
+    <p>27/27 testes focados, 120/120 da plataforma, TypeScript, ESLint e build aprovados. Nenhum serviço remoto foi acessado e nenhum dado foi criado.</p>
+  </section>
+  <section>
+    <h2>M18-G15 — auditoria do mapeamento PostgreSQL/Auth</h2>
+    <p><strong>Aprovado com bloqueio de aplicação em 01/09/2026.</strong> Dez alvos e onze passos foram mapeados; banco e Auth permanecem separados por outbox e compensação.</p>
+    <p>Seis bloqueios exigem remediação local. Marcador <code>M18_G15_MAPPING_AUDIT_OK</code>; 7/7 testes focados, 127/127 da plataforma e build aprovados. Nenhum dado foi criado.</p>
+  </section>
+  <section>
+    <h2>M18-G16 — migration local 0034</h2>
+    <p><strong>Implementada localmente em 01/09/2026.</strong> IE, domínio único, outbox Auth, compensação e quatro RPCs server-only foram preparados.</p>
+    <p>15/15 testes estáticos, 142/142 da plataforma, 50/50 do contrato, 44/44 do adaptador e build aprovados. As 72 asserções pgTAP aguardam o engine PostgreSQL local; remoto e produção não foram acessados.</p>
+  </section>
+  <section>
+    <h2>M18-G17 — auditoria e validação PostgreSQL local da 0034</h2>
+    <p><strong>Aprovado localmente em 01/09/2026.</strong> Dois defeitos da RPC foram encontrados e corrigidos após reconstrução completa das migrations 0001–0034.</p>
+    <p>72/72 testes estruturais e 18/18 adversariais aprovados com rollback e zero resíduos. Hash final <code>0551FD5EF16B2BCD3F530EBED65FE1CBFAB0EA3D651899F6EBD5167610F48251</code>.</p>
+  </section>
+  <section>
+    <h2>M18-G18 — validação transacional remota da 0034</h2>
+    <p><strong>Aprovado no staging em 01/09/2026.</strong> Dry-run selecionou somente a 0034; preflight foi aprovado antes e depois.</p>
+    <p>Marcador <code>M18_0034_TRANSACTION_90_OF_90_ROLLBACK</code>. A 0034 permanece ausente do histórico remoto; nenhum dado ou identidade persistiu.</p>
+  </section>
+  <section>
+    <h2>M18-G19 — aplicação persistente da 0034 no staging</h2>
+    <p><strong>Aprovado no staging em 01/09/2026.</strong> Somente a migration 0034 foi aplicada; 72/72 testes estruturais e 18/18 adversariais foram aprovados.</p>
+    <p>Marcador <code>M18_G19_0034_APPLIED_90_OF_90_ZERO_DATA</code>. Histórico 0034/0034, zero dados e nenhuma identidade criada.</p>
+  </section>
+  <section>
+    <h2>M18-G20 — coleta protegida e preflight final</h2>
+    <p><strong>Aprovado em 01/09/2026.</strong> Coletor mascarado e cofre DPAPI externo ao projeto foram validados.</p>
+    <p>Preflight somente leitura <code>M18_G20_REMOTE_PREFLIGHT_OK</code>; 8/8 testes focados, quality gates aprovados e zero gravações remotas.</p>
+    <p>Coletor remediado para usar DPAPI diretamente, sem autoload de PowerShell.Security; parser, ASCII e teste sintético aprovados.</p>
+    <p>System.Security agora é carregado explicitamente; teste no Windows PowerShell 5.1 aprovado com <code>WINDOWS_POWERSHELL_51_DPAPI_OK</code>.</p>
+    <p>Coleta concluída: <code>M18_G20_PROTECTED_CONFIG_OK</code>. Nenhum valor protegido foi registrado em Git ou logs.</p>
+  </section>
+  <section>
+    <h2>M18-G21 — provisionamento do piloto no staging</h2>
+    <p><strong>Aprovado em 01/09/2026.</strong> Tenant, estabelecimento, usuário Auth, membership owner e convite foram criados exclusivamente no staging.</p>
+    <p>Run concluído, outbox enviada, MFA/AAL2 obrigatório e zero compensações. Segredos permaneceram somente em memória; produção não foi acessada.</p>
+  </section>
+  <section>
+    <h2>Documentação — CLAUDE.md e AGENTS.md</h2>
+    <p><strong>Aprovado em 02/09/2026.</strong> <code>CLAUDE.md</code>/<code>AGENTS.md</code> reescritos com a arquitetura real do repositório para orientar agentes de IA.</p>
+    <p>Cobrem identidade do clone (<code>staging</code>, sem <code>docs/</code>), governança de execução automática, comandos por app/pacote (sem workspace raiz, pin Node 22), os três apps Next.js e seus modelos de acesso, o padrão de módulo de <code>apps/platform/src/features</code>, os pacotes de contrato em <code>packages/*</code> e a governança de migrations do Supabase. A regra ADHD-Friendly Output foi preservada integralmente no topo de ambos os arquivos; <code>AGENTS.md</code> é uma cópia idêntica de <code>CLAUDE.md</code>.</p>
+    <p>Commit <code>be30281</code> na branch <code>staging</code>, publicado em <code>origin/staging</code> (<code>dcf647b..be30281</code>). Nenhum código de aplicação, schema, migration ou dado alterado; apenas documentação.</p>
+  </section>
+  <section>
+    <h2>Correção — CI "Quality gates" desbloqueado</h2>
+    <p><strong>Aprovado em 02/09/2026.</strong> Todo run de CI da branch <code>staging</code> estava <code>failure</code> desde 30/08/2026, independente do conteúdo do commit — falha estrutural pré-existente.</p>
+    <p>Causa 1: cinco rotas de <code>apps/platform</code> (<code>/alimentacao</code>, <code>/atendimento</code>, <code>/bancos</code>, <code>/servicos</code>, <code>/vendas</code>) não declaravam <code>export const dynamic='force-dynamic'</code>, então o Next.js tentava pré-renderizar em build time e falhava sem as variáveis Supabase do runner. Corrigido com a mesma diretiva das demais rotas.</p>
+    <p>Causa 2: <code>nfe_v4.00.xsd</code> e <code>xmldsig-core-schema_v1.01.xsd</code> em <code>packages/fiscal-contract</code> sofreram drift de line-ending (CRLF local via <code>core.autocrlf</code>), divergindo do hash SHA-256 oficial em <code>schema-manifest.json</code>. Bytes restaurados a partir do <code>PL_010e_v1.02.zip</code> oficial; <code>.gitattributes</code> criado para impedir recorrência.</p>
+    <p>Local: <code>platform</code> 161/161 + build limpo sem env vars; <code>fiscal-contract</code> 234/234; type-check e lint limpos. Remoto: commit <code>bba6f34</code>, run <code>33714605809</code> concluído <code>success</code> nos 8 jobs. Nenhuma migration ou dado alterado.</p>
+  </section>
+  <section>
+    <h2>Validação — apps/portal e apps/site local</h2>
+    <p><strong>Confirmado em 02/09/2026.</strong> Fecha a paridade local com os 8/8 jobs remotos do run <code>33714605809</code>.</p>
+    <p><code>apps/portal</code>: 56/56 testes, type-check limpo, lint limpo, build limpo (8/8 rotas). <code>apps/site</code>: 5/5 testes, lint limpo, build limpo (14/14 rotas); primeiro type-check acusou erro em <code>.next/types/routes.d.ts</code> gerado por cache local desatualizado — limpo e reexecutado sem erro.</p>
+    <p>Nenhum arquivo de código alterado; validação apenas confirma estado.</p>
+  </section>
+  <section>
+    <h2>M19-G0 — escopo do redesign visual + roteamento de login</h2>
+    <p><strong>Registrado em 02/09/2026.</strong> Autorização: "Fazer tudo nesta ordem cronologica sem minha intervenção". Quatro fases: (1) tema global + dark mode; (2) redesign do painel (<code>apps/platform</code>) no padrão do <code>/demo</code> do portal; (3) branding por tenant (cor/ícone próprios); (4) roteamento de login por papel, sem sessão compartilhada entre domínios (cookie do portal é host-only, decisão já documentada em M03).</p>
+  </section>
+  <section>
+    <h2>M19-G1 — tema global e dark mode</h2>
+    <p><strong>Aprovado em 02/09/2026.</strong> Paleta oficial (8 tons) consistente nos 3 apps — as 4 tonalidades "alt" que faltavam em <code>apps/portal</code> foram adicionadas sem renomear tokens existentes.</p>
+    <p>Alternador manual claro/escuro (<code>ThemeToggle</code> por app, <code>localStorage['cc-theme']</code>, sem tocar Supabase/sessão/tenant) sempre vence a preferência do sistema; script inline no <code>&lt;head&gt;</code> de cada app evita flash.</p>
+    <p><code>platform</code> 165/165, <code>portal</code> 60/60, <code>site</code> 9/9; type-check, lint e build limpos nos 3. Nenhuma migration ou dado remoto alterado.</p>
+  </section>
+  <section>
+    <h2>M19-G2 — redesign do painel</h2>
+    <p><strong>Aprovado em 02/09/2026.</strong> Escopo real: shell compartilhado (topbar, sidebar, cards/grid) e a home do dashboard, no padrão de <code>apps/portal</code> <code>/demo</code>. Como as ~19 telas de módulo reusam as mesmas classes CSS, o visual novo propaga pra todas; redesenho bespoke do conteúdo interno de cada tela não foi feito nesta gate.</p>
+    <p>Borda de 1.5px laranja em cada card/link virou borda neutra + sombra, com acento laranja só no topo dos cards de KPI e na barra lateral do item ativo do menu. <code>.pf-grid-3</code> não existia em CSS — corrigido (os 6 cards da home caíam sem grade). Topbar ganhou avatar circular.</p>
+    <p>Saudação da home ficou genérica (sem nome): personalizá-la exigiria a tela importar Supabase direto, o que viola a regra do M18-G11 (só o seletor fail-closed pode). <code>platform</code> 165/165, type-check, lint e build limpos. Nenhuma migration ou dado remoto alterado.</p>
+  </section>
+  <section>
+    <h2>M19-G3 — branding por tenant, migration aplicada em staging</h2>
+    <p><strong>Aprovado em 02/09/2026.</strong> Nova tabela <code>erp_tenant_branding</code> (cor/logo opcionais por tenant) com RLS e RPC <code>erp_set_tenant_branding</code> no mesmo padrão de <code>erp_create_party</code> (RLS é a fronteira real, não um broker <code>service_role</code>-only). Permissão <code>branding.manage</code> retroaplicada aos papéis owner/admin já existentes.</p>
+    <p>16 testes pgTAP positivo/negativo; suíte local completa (20 arquivos, 0001–0035) sem regressão. Preflight remoto <code>M19_0035_PREFLIGHT_OK</code>; dry-run transacional <code>M19_0035_TRANSACTION_16_OF_16_ROLLBACK</code> com zero resíduo.</p>
+    <p><strong>Aplicação persistente confirmada</strong> via <code>npx supabase db push --linked</code> (autorizado pelo usuário) — histórico remoto 0001–0035 alinhado. UI (engrenagem no portal) é a Fase 3 restante. Produção não acessada.</p>
+  </section>
+  <section>
+    <h2>M19-G4 — engrenagem de identidade visual no portal</h2>
+    <p><strong>Aprovado em 03/09/2026.</strong> Nova tela <code>/configuracoes/aparencia</code>: cor e logo do tenant, mesmo idioma 100% servidor + formulário sem JS já usado no app. Escrita real só pela RPC <code>erp_set_tenant_branding</code>; tenant sempre vem da sessão, nunca de input do formulário.</p>
+    <p><code>lib/branding.ts</code> recalcula a checagem de permissão só pra decidir se a engrenagem aparece — a fronteira de segurança continua sendo a RLS/RPC do banco. Leitura falha aberto (cosmético); escrita falha fechado (RPC). Cor do tenant sobrepõe <code>--orange</code>/<code>--orange-alt</code> via <code>&lt;style&gt;</code> injetado, revalidado no servidor.</p>
+    <p><code>portal</code> 75/75 testes (16 novos), type-check, lint e build limpos. Nenhuma migration nova.</p>
+  </section>
+  <section>
+    <h2>Incidente e correção — convite redirecionava pra localhost, token vazou</h2>
+    <p><strong>Corrigido em 04/09/2026.</strong> Achado de segurança real: o convite redirecionava pra <code>http://localhost:3000/#access_token=...</code> — <code>site_url</code> do Supabase Auth nunca tinha sido configurado, ficou no padrão de dev desde sempre. Access/refresh token do dono ficaram expostos. Ação imediata: sessão revogada globalmente (<code>logout?scope=global</code>, <code>204</code> confirmado).</p>
+    <p>Dois problemas mais profundos: <code>apps/portal</code> nunca teve rota pra receber o token (vem no fragmento da URL, só client-side lê) e nada no sistema fazia <code>erp_tenant_memberships.status</code> sair de <code>invited</code> pra <code>active</code> — login funcionaria e ainda assim devolveria <code>forbidden</code>. Corrigido: primeiro client Supabase no browser deste app + <code>/auth/confirm</code> + migration <code>0036</code> (RPC <code>erp_accept_pending_memberships_v1()</code>, sempre escopada a <code>auth.uid()</code>). 7 testes pgTAP, suíte local 22/22 sem regressão, dry-run remoto antes de aplicar.</p>
+    <p><strong>Quase-incidente na config</strong>: <code>supabase config push</code> sincroniza o <code>[auth]</code> inteiro, não um campo isolado — valores obsoletos do <code>config.toml</code> (MFA e confirmação de e-mail desligados) foram aplicados de verdade no primeiro push, descoberto no diff seguinte. Corrigido e reaplicado; <code>mailer_autoconfirm:false</code> confirmado ao vivo. Lição registrada: nunca usar <code>config push</code> sem conferir o arquivo inteiro primeiro.</p>
+  </section>
+  <section>
+    <h2>Correção — e-mail errado do dono-piloto substituído</h2>
+    <p><strong>Concluído em 04/09/2026.</strong> O e-mail coletado na coleta protegida original (M18-G20/G21) estava digitado errado — confirmado em 02/09, mas por uma caixa errada, nunca usada pra entrar (login/MFA zero). Corrigido pelo mesmo mecanismo de coleta protegida (nunca digitado em chat) + novo script <code>Fix-PilotOwnerEmail.ps1</code>.</p>
+    <p><strong>Achado real do schema, não bug</strong>: apagar o usuário antigo foi recusado pela Auth API (FK violation) — <code>erp_identity_provisioning_steps</code> referencia esse <code>user_id</code> sem cascata, de propósito, por ser auditoria real do provisionamento. Fallback seguro: usuário antigo mantido inerte, membership marcada <code>revoked</code>, não apagada.</p>
+    <p>Estado final: exatamente uma membership <code>owner</code> viva (e-mail correto, aguardando aceite); a antiga preservada como <code>revoked</code>. Nenhum dado de auditoria apagado.</p>
+  </section>
+  <section>
+    <h2>Portão 0 — publicação do apps/portal e ativação do domínio da Mania de Modas</h2>
+    <p><strong>Concluído em 04/09/2026.</strong> Conflito real encontrado e resolvido: a Hostinger já tinha subdomínio + registro DNS próprios pra <code>maniademoda</code> (apontando pra hospedagem dela), com prioridade sobre o curinga por regra de DNS. Removido pelo usuário; DNS confirmado propagado em 3 fontes independentes sem cache.</p>
+    <p>SSL emitido após registrar o domínio explicitamente no projeto Vercel. Última peça: linha em <code>erp_tenant_domains</code> nunca tinha sido gravada — sem ela, DNS/SSL certos ainda devolviam 404 de propósito. Inserida via <code>supabase db query --linked</code> (escrita de dado, não afetada pelo Major Outage da Management API do momento).</p>
+    <p><strong>Confirmado</strong>: <code>https://maniademoda.connectioncyber.com.br/login</code> responde 200, mostra "Entrar em Mania de Modas". M18-G22 agora tem, pela primeira vez, um endereço real pra abrir.</p>
+  </section>
+  <section>
+    <h2>M19-G5 — roteamento de login por papel, sem lookup de e-mail</h2>
+    <p><strong>Aprovado em 03/09/2026.</strong> <code>apps/site</code> <code>/login</code> virou seletor de 3 caminhos: aluno/academy (autentica ali, redirect agora validado por allowlist), equipe (endereço do platform como texto, não link — preserva "sem link público"), empresa (slug/hostname, navega pro portal próprio onde a autenticação real acontece).</p>
+    <p>Desenho rejeitado por completude: endpoint público resolvendo tenant por e-mail pré-login — oráculo de enumeração de conta, primeiro uso de <code>service_role</code> pré-auth em <code>apps/site</code> fora de webhook. Nenhuma migration ou endpoint novo criado. <code>buildCompanyPortalLoginUrl</code> é 100% client-side, zero rede.</p>
+    <p><code>site</code> 19/19 testes (10 novos), type-check, lint e build limpos. <code>platform</code> 165/165 sem regressão. Fecha o M19 (Fases 1–4 completas).</p>
+  </section>
+  <section>
+    <h2>Incidente e correção 2 — botão do Studio ignorava /auth/confirm, membership ativada</h2>
+    <p><strong>Resolvido em 04/09/2026.</strong> Segundo vazamento de token, mesma classe de falha do incidente anterior: convite reenviado como magic link pelo Supabase Studio (dono já confirmado, GoTrue recusa reconvidar). O botão "Send magic link" do Studio não aceita <code>redirect_to</code> customizado — sempre usa o <code>site_url</code> puro do projeto, que apontava só pra raiz do domínio. Link caiu no dashboard raiz com o token no fragmento da URL; middleware não-autenticado redirecionou pra <code>/login</code> preservando o fragmento (servidor nunca vê <code>#...</code>) — token exposto de novo. Revogado imediatamente via <code>POST /auth/v1/logout?scope=global</code> — <code>204</code>.</p>
+    <p><strong>Correção (config, aplicada manualmente no Studio</strong> — <code>supabase config push</code> via CLI ficou bloqueado pelo classificador de permissão do Claude Code mesmo com <code>Bash</code> liberado em <code>/permissions</code>): <code>site_url</code> passou a apontar direto pra <code>https://portal.connectioncyber.com.br/auth/confirm</code>, não mais a raiz — qualquer ação do Studio sem <code>redirect_to</code> agora cai na página que trata o token. <code>additional_redirect_urls</code> teve as 4 entradas apagadas por engano durante a correção manual e restauradas como 2: a entrada exata do portal + o curinga <code>https://*.connectioncyber.com.br/auth/confirm</code> (cobre portal + maniademoda + qualquer tenant futuro). <code>config.toml</code> local ajustado pra bater exatamente com o remoto.</p>
+    <p><strong>Confirmado por teste real de ponta a ponta</strong>: magic link novo → e-mail recebido → <code>/auth/confirm</code> limpo (sem token visível) → senha definida → dashboard real do portal, "Empresa ativa: Mania de Modas", "Contexto validado". <code>erp_tenant_memberships.status = 'active'</code> confirmado no banco pro dono real (membership antiga com e-mail errado permanece <code>'revoked'</code>, histórico preservado). Piloto da Mania de Modas com acesso real funcionando de ponta a ponta.</p>
+  </section>
+  <section>
+    <h2>M20-G0 — auditoria do legado + estrutura de cadastro universal/segmento</h2>
+    <p><strong>Concluído em 07/09/2026.</strong> Auditoria de 28 prints do sistema legado SICNET contra o schema real (M05/M06/M09/M10, fiscal-contract). Diagnóstico: a fundação multiempresa/segmento já está pronta e testada em staging; as lacunas reais são zero campo fiscal/comercial em <code>erp_catalog_items</code> e formulários de UI que são esqueleto de aceite de gate, não tela de uso. Relatório completo em <code>PARECER-TECNICO-M20-G0-CADASTROS-ESTRUTURAIS-SEGMENTOS.md</code>.</p>
+    <p>Três decisões fechadas pelo usuário: fiscal em tabela satélite; representação de marca terceira (iGreen, Nipponflex) = 2 tenants próprios da ConnectionCyber; lista de 14 segmentos confirmada.</p>
+  </section>
+  <section>
+    <h2>M20-G1 — migration 0037: dados fiscais e comerciais por item</h2>
+    <p><strong>Concluído em 07/09/2026, sem interferência do usuário a pedido dele.</strong> Duas tabelas satélite (<code>erp_item_fiscal_data</code>, <code>erp_item_commercial_data</code>) com RLS, permissões, triggers, preflight, rollback e pgTAP. Nenhum contato com Supabase remoto — validado na stack Supabase local já provisionada no Docker (porta 54322), parada em <code>0034</code>.</p>
+    <p><strong>Dois bugs reais pegos pela validação e corrigidos</strong>: (1) <code>numeric(6,4)</code> não cabia o default <code>icms_base_percent=100</code> — corrigido para <code>numeric(7,4)</code>; (2) a chave <code>fiscal.read</code> já existia desde a 0030 (M13, documento/NF-e) com significado diferente — renomeado para <code>fiscal.item.read</code>/<code>fiscal.item.manage</code>, permissão original restaurada.</p>
+    <p><strong>Validado</strong>: dry-run <code>begin;...rollback;</code> com 32 de 32 pgTAP (20 estrutural + 12 adversarial), zero resíduo. Aplicação real + rollback real testados no mesmo banco local descartável, estado restaurado exatamente. <strong>Não aplicado em staging nem produção</strong> — falta credencial (nem MCP Supabase nem <code>service_role</code>/<code>DATABASE_URL</code> local apontam pro projeto certo hoje). Marcador: <code>M20_0037_TRANSACTION_32_OF_32_ROLLBACK</code>.</p>
+  </section>
+  <section>
+    <h2>M20-G2 — verticais de segmento + atributos exigidos por item</h2>
+    <p><strong>Concluído em 07/09/2026, sem interferência do usuário a pedido dele.</strong> Correção de auditoria achada só ao desenhar esta gate: <code>erp_segment_profiles</code> (5 perfis largos de módulo/capacidade) já existe desde a migration 0016 (M16) — o G0 original não tinha visto. Não tornou a gate redundante: aquilo resolve "quais módulos", esta gate resolve o eixo mais fino de "quais campos extras" (validade de casa de bolos, teor alcoólico de adega).</p>
+    <p>Migration 0038: <code>erp_business_verticals</code> (14 verticais, cada uma ligada a um dos 5 perfis existentes) + <code>erp_vertical_attribute_requirements</code> (template de atributo, sem FK direta pro EAV por-tenant) + <code>erp_establishments.vertical_code</code>. Seed com conteúdo real, não placeholder.</p>
+    <p><strong>Validado</strong>: 29 de 29 pgTAP (20 estrutural + 9 adversarial) no mesmo Postgres local do G1, zero resíduo, aplicação real + rollback real testados. Staging remoto não tocado. Marcador: <code>M20_0038_TRANSACTION_29_OF_29_ROLLBACK</code>.</p>
+  </section>
+  <section>
+    <h2>M20-G3/G4 — telas em abas + seletor de estabelecimento</h2>
+    <p><strong>Concluído em 07/09/2026, sem interferência do usuário a pedido dele.</strong> Bump explícito do contrato de comandos travado desde o M18-G5 (<code>M18-VISUAL-1.0</code>/7 comandos/11 read models → <code>M20-VISUAL-2.0</code>/13 comandos/19 read models) — tratado como versão nova, não mutação silenciosa. Nenhuma RPC real criada no Supabase para os comandos novos, que ficam bloqueados em modo persistente-somente-leitura igual aos 7 originais.</p>
+    <p><strong>G3</strong>: cadastros e catálogo ganharam painel expansível (<code>&lt;details&gt;</code> nativo, sem JS de navegação) com Documentos/Contatos/Endereços por pessoa e Fiscal/Comercial/Atributos do segmento por item — aba de atributos é informativa por ora, materialização real segue portão futuro já declarado no M20-G2.</p>
+    <p><strong>G4</strong>: <code>/vendas</code>/<code>/servicos</code> já liam Supabase real direto — filtro por <code>establishment_id</code> real adicionado. <code>/operacoes</code>/<code>/catalogo</code> usam o transporte sintético; seletor funciona mas o saldo de estoque segue consolidado por decisão registrada (evitar quebrar 7 testes de trecho exato de código sem ganho real). <code>/catalogo</code> usa a loja selecionada pra escolher a vertical da aba Atributos — liga G2+G3+G4 de ponta a ponta.</p>
+    <p><strong>Validado</strong>: <code>tsc --noEmit</code>, <code>next lint</code> e <code>next build</code> limpos; <code>apps/platform</code> 179/179 testes (165 preexistentes + 14 novos); <code>visual-persistence-contract</code> 52/52; <code>visual-persistence-supabase-adapter</code> 51/51.</p>
+  </section>
+  <section>
+    <h2>M20-G5 — preparação para a reforma tributária IBS/CBS</h2>
+    <p><strong>Concluído em 07/09/2026, a pedido do usuário.</strong> Resposta extraída direto do XSD oficial da SEFAZ já fixado e hash-verificado no projeto (pacote <code>010e_v1.02</code>, publicado 10/07/2026), não de memória. Migration <code>0039</code>: duas colunas nullable em <code>erp_item_fiscal_data</code> — <code>cst_ibs_cbs</code> (3 dígitos) e <code>cclass_trib</code> (6 dígitos), paralelas ao CST/CSOSN do ICMS já existente. Alíquotas e o grupo de Imposto Seletivo ficam fora de propósito — sem valor estável em 2026 (fase de teste) e tabela oficial de códigos é anexo separado da LC 214/25.</p>
+    <p><strong>Validado</strong>: dry-run 10/10 pgTAP, aplicação real + rollback real testados no banco local descartável, depois revertido 0039/0038/0037 em sequência devolvendo o banco exatamente a 0034 e o container parado de novo. M20 (G0-G5) fecha aqui.</p>
+  </section>
+  <section>
+    <h2>M20-G6 — cadastro real elevado a tela de uso + Mania de Modas sem migração</h2>
+    <p><strong>Concluído em 07/09/2026.</strong> Usuário confirmou: não existe backup real do sistema legado da Mania de Modas — cliente segue como <strong>cadastro novo do zero</strong>, não migração. O §9 (processo de migração por cliente, 11 passos) não se aplica a este cliente; M14 (importador) fica sem execução aqui, mas continua como capacidade genérica do produto.</p>
+    <p>Resolve o achado do M20-G0 ("<code>PartyForm.tsx</code>/<code>CatalogForms.tsx</code> são esqueleto de aceite de gate, não tela de uso"): novo <code>src/domain/br-documents.mjs</code> com CPF/CNPJ dígito verificador real (mod-11), telefone com máscara, CEP com busca automática (ViaCEP), tipo Serviço/Taxa/Vale trava "Controla estoque" ao vivo. Nenhuma migration/RLS mudou.</p>
+    <p><strong>Validado</strong>: <code>tsc</code> 0 erros, 192/192 testes (179 + 13 novos), <code>eslint</code> limpo. <strong>Bloqueio confirmado, não resolvido neste gate</strong>: MCP do Supabase preso a projeto errado, sem <code>service_role key</code> — migrations 0037-0039 só validadas em Docker local, nunca aplicadas em staging real.</p>
+  </section>
+  <section>
+    <h2>M20-G7 — 0037/0038/0039 aplicadas em staging real via Supabase CLI</h2>
+    <p><strong>Concluído em 07/09/2026, pelo próprio usuário</strong> (passo a passo comando a comando). Instalou o Supabase CLI, gerou Personal Access Token (dois obstáculos no caminho: token "Read-only" gerado por engano, depois token granular novo recusado por <code>supabase link</code>/<code>db push</code> — contornado com legacy token, revogado após uso) e aplicou as 3 migrations pendentes em staging real (<code>ozvylnaipubrmaadikvk</code>).</p>
+    <p><strong>Confirmado em staging real</strong>: <code>erp_business_verticals</code> com 14 linhas; <code>erp_item_fiscal_data</code> com <code>cst_ibs_cbs</code>/<code>cclass_trib</code>. Vertical <code>moda</code> atribuída ao estabelecimento real da Mania de Modas (estava <code>null</code>) via SQL Editor do Dashboard. <strong>M20 (G0-G7) fecha em staging real</strong> — schema fiscal/comercial/vertical e telas de cadastro prontos; falta só a digitação real dos primeiros clientes/produtos.</p>
+  </section>
+  <section>
+    <h2>Parecer — acesso real para Mania de Modas + Casa de Bolos + MEI</h2>
+    <p><strong>07/09/2026.</strong> Usuário pediu plano de ação pra dar acesso real de cadastro à Mania de Modas e a dois clientes novos (Casa de Bolos — Eliana Souza Farias Alves, CNPJ 26.223.863/0001-11; MEI Aldo Augusto Ribeiro + MEI Eliane Aparecida Moreira Ribeiro, celular/informática, duas lojas geridas juntas). <strong>Achado crítico</strong>: nenhuma tela de cadastro grava dado real ainda — <code>persistentVisualWritesEnabled=false</code> (hardcoded) e <code>apps/platform</code> é staff-only por desenho; o app que o cliente loga (<code>apps/portal</code>) tinha o módulo Cadastros travado.</p>
+    <p>Parecer completo em <code>PARECER-TECNICO-ACESSO-REAL-CLIENTES-MANIA-CASA-BOLOS-MEI.md</code>. Duas trilhas definidas (A: habilitar escrita real; B: abrir cadastro real no <code>apps/portal</code>) — usuário autorizou as duas pra execução autônoma.</p>
+  </section>
+  <section>
+    <h2>M21-G1 (Trilha A) — escrita real habilitada nos comandos do M20</h2>
+    <p><strong>Concluído em 07-08/09/2026, sem interferência do usuário a pedido dele.</strong> Migration <code>0040</code>: cria de verdade as 6 funções SQL dos comandos do M20 que só existiam de nome no contrato desde o M20-G3, amplia o envelope idempotente do M17 de 7 para 13 tipos de comando, registra a permissão <code>establishments.manage</code> (única tabela do M20 sem via de escrita) + policy defensiva.</p>
+    <p><code>RPC_ALLOWLIST</code> do adaptador: 7→13. <code>selectVisualPersistence()</code> ganha branch real pra <code>mode:'persistent'</code> (antes recusava incondicionalmente) — <strong>padrão do ambiente continua <code>synthetic</code></strong>. 4 testes travados de segurança atualizados deliberadamente (mesmo padrão do bump de <code>CONTRACT_VERSION</code> do M20-G3).</p>
+    <p><strong>Validado</strong>: dry-run 59/59 pgTAP (45 estrutural + 14 adversarial, incluindo isolamento cross-tenant real com <code>auth.uid()</code> simulado); aplicação real + rollback real testados. 193/193 + 55/55 + 52/52 testes JS. Fora do alcance sem ação do usuário: aplicar <code>0040</code> em staging e setar <code>SERVER_VISUAL_PERSISTENCE_MODE=persistent</code>.</p>
+  </section>
+  <section>
+    <h2>M21-G2 (Trilha B, fatia 1) — cadastro real de pessoas em apps/portal</h2>
+    <p><strong>Concluído em 08/09/2026.</strong> Achado corrigido primeiro: <code>erp_prepare_pilot_provisioning_v1</code> (M18/0034) já concede todas as permissões ativas ao papel <code>owner</code> na hora de provisionar um tenant — só a Mania de Modas (provisionada antes de <code>fiscal.item.manage</code>/<code>establishments.manage</code> existirem) ficou pra trás. Migration <code>0041</code> reconcilia isso genericamente (qualquer papel <code>owner</code>, qualquer permissão ativa faltando).</p>
+    <p>Primeira tela real de cadastro no app que o cliente loga: <code>(portal)/cadastros</code> + <code>nova-pessoa/route.ts</code>, mesmo idioma de <code>auth/set-branding/route.ts</code> já existente — escrita pelo comando idempotente real <code>party.create</code>. Menu "Cadastros" deixa de ser texto travado ("Previsto para M05").</p>
+    <p><strong>Validado</strong>: dry-run 0041 9/9 pgTAP; 105/105 testes (<code>tsx --test</code>). Fora do alcance sem ação do usuário: aplicar <code>0041</code> em staging e deploy do <code>apps/portal</code>.</p>
+  </section>
+  <section>
+    <h2>M21-G3 — corrige o layout real de Cadastros pro padrão já validado</h2>
+    <p><strong>Concluído em 08/09/2026.</strong> Usuário identificou que a tela real (M21-G2) usava o design system genérico do portal em vez do layout validado em 5 rodadas de PDF sobre <code>cadastros-tela-unica.html</code> (header-bar com contador, campos agrupados, bordas <code>#0A1F33</code>, painel lateral com abas). Nova <code>cadastros.css</code> (namespaced <code>.cc-classic</code>), página reconstruída, 3 rotas novas (<code>novo-documento</code>, <code>novo-contato</code>, <code>novo-endereco</code>) escrevendo pelos comandos reais do M21-G1.</p>
+    <p>Máscara CPF/CNPJ e busca de CEP via <code>addEventListener</code> — corrigido um bug real de handler-como-string em JSX antes de qualquer commit. <strong>Validado</strong>: 122/122 testes.</p>
+  </section>
+  <section>
+    <h2>M21-G4 — switcher Cliente/Produto/Empresa + regra de empresa como pré-requisito</h2>
+    <p><strong>Concluído em 08/09/2026.</strong> Usuário pediu regra de negócio: dado da empresa é a fonte usada por qualquer processo (fiscal, cadastro, venda) — deveria vir primeiro. <code>/cadastros</code> ganhou switcher (<code>?tipo=cliente|produto|empresa</code>), aba <strong>Empresa</strong> real (lê <code>client.read('establishments')</code>, dado gravado desde o M18-G21), e aviso — não bloqueio — quando CNPJ/razão social estão incompletos.</p>
+    <p>Aba Produto: aviso honesto de que ainda não grava de verdade — falta <code>unit.create</code>/leitura de <code>units</code> no transporte real. <strong>Validado</strong>: 126/126 testes.</p>
+  </section>
+  <section>
+    <h2>M21-G5 — mesmo switcher/Empresa levado pro apps/platform</h2>
+    <p><strong>Concluído em 08/09/2026, a pedido do usuário</strong> ("sim" — consistência visual entre os dois apps). <code>CadastroSwitchBar</code> reaproveitado em <code>/cadastros</code>, <code>/catalogo</code> e <code>/empresa</code> (nova) do <code>apps/platform</code>; CSS compartilhado <code>src/styles/cc-classic.css</code> cobre só o chrome — conteúdo interno (<code>PartyForm</code>/<code>CatalogForms</code>) continua com o <code>.pf-*</code> já elevado no M20-G6.</p>
+    <p><code>LocalEstablishment</code> ganhou <code>legal_name</code>/<code>cnpj</code> opcionais pra bater com o adaptador real. <strong>Validado</strong>: 200/200 testes. Sem deploy — <code>apps/platform</code> não tem projeto Vercel próprio, só roda local.</p>
+    <p><strong>Estado ao pausar (08/09/2026, fim de sessão)</strong>: portal em produção (commit <code>77d69ea</code>) com Cliente/Empresa reais; platform local com o mesmo switcher. Pendências abertas: Produto real (falta <code>unit.create</code>), edição de CNPJ/razão social da empresa (hoje só leitura), e um erro intermitente de sessão ("Acesso restrito"/"JWT issued at future") no <code>apps/platform</code> local — resolvido por relogin nas duas vezes em que apareceu, causa raiz não investigada (suspeita de relógio do sistema/expiração de sessão, não código desta sessão).</p>
+  </section>
+  <section>
+    <h2>M21-G6 — provisionamento real preparado pra Casa de Bolos + Loja da Benção</h2>
+    <p>Usuário autorizou provisionar Casa de Bolos + MEI (Aldo Augusto Ribeiro/Eliane Aparecida Moreira Ribeiro, tenant combinado "Loja da Benção") de ponta a ponta. Dois achados bloqueavam execução direta: (1) faltava Inscrição Estadual dos 3 CNPJs — só a da Casa de Bolos (<code>626873540110</code>) confirmada, faltam Aldo/Eliane; (2) o provisionamento real da Mania de Modas (<code>erp_prepare_pilot_provisioning_v1</code>, M18/0034) só cria 1 tenant + 1 estabelecimento por execução, não suporta "1 tenant/2 estabelecimentos".</p>
+    <p>Construída a extensão: migration <code>0042</code> com <code>erp_prepare_pilot_establishment_v1(p_tenant_slug, p_request)</code>, mesmo desenho fail-closed/idempotente do M18, anexando estabelecimento+dono a um tenant já existente. Reaproveita sem alteração <code>erp_record_pilot_auth_identity_v1</code>/<code>erp_finalize_pilot_identity_v1</code>.</p>
+    <p><strong>Achado na validação</strong> (corrigido na mesma migration): o índice único de IE por tenant (0034) tratava o literal <code>'ISENTO'</code> como IE real — dois estabelecimentos isentos no mesmo tenant colidiam. Nunca apareceu antes porque nenhum tenant tinha 2 estabelecimentos até este gate. Corrigido.</p>
+    <p><strong>Validado inteiramente local</strong> (Docker, <code>supabase db reset --local</code> + transação <code>begin;...rollback;</code> via <code>psql</code>) — zero escrita em staging real. 22/22 pgTAP (8 estruturais + 14 adversariais). Relatório completo: <code>RELATORIO-M21-G6-EXTENSAO-PROVISIONAMENTO-MULTI-ESTABELECIMENTO.md</code>.</p>
+    <p><strong>Bloqueado pra aplicar em staging real</strong>: Supabase MCP desta sessão preso a projeto de outra conta (mesmo problema do Vercel MCP); CLI local linkada ao projeto certo mas sem sessão autenticada (precisa legacy token novo do usuário). Falta IE de Aldo e Eliane. Nada escrito em staging real neste gate.</p>
+  </section>
+  <section>
+    <h2>M21-G7 — provisionamento real: Casa de Bolos + Loja da Benção</h2>
+    <p>Usuário gerou token, aplicou <code>0042</code> em staging real (<code>supabase db push</code>) e confirmou Aldo/Eliane isentos de IE. Execução real de ponta a ponta autorizada.</p>
+    <p>Script PowerShell bateu num bloqueio do próprio Supabase (<code>Forbidden use of secret API key in browser</code>) — em vez de mascarar isso alterando cabeçalho da requisição (evitado de propósito), a execução migrou pro <strong>SQL Editor do painel</strong>, chamando as mesmas RPCs diretamente com <code>set_config('request.jwt.claim.role','service_role',true)</code>.</p>
+    <p><strong>Achados no meio do caminho</strong>: (1) uma tentativa isolada não deixou rastro no banco apesar de retorno aparentemente bem-sucedido — causa raiz não identificada, contornado reexecutando com verificação dentro da mesma transação a partir daí; (2) limite de e-mail padrão do Supabase esgotado no meio dos convites — corrigido configurando SMTP próprio (Resend) em Authentication → Emails, sobe de 3 pra 30 e-mails/hora, efeito permanente; (3) <code>erp_prepare_pilot_provisioning_v1</code> (M18) nunca grava <code>vertical_code</code> do estabelecimento — corrigido com <code>UPDATE</code> pontual, a função nova do M21-G6 já recebe isso como campo obrigatório.</p>
+    <p><strong>Resultado confirmado no banco</strong>: Casa de Bolos Aconchego (1 tenant, 1 estabelecimento, 1 membership owner+MFA) e Loja da Benção (1 tenant combinado, 2 estabelecimentos — Aldo e Eliane —, 2 memberships owner+MFA). Os 3 convidados por e-mail, cada um define a própria senha. Dado real nunca entrou no Git — SQL com dado real fica fora do repo, em <code>ArquvosSqlsC</code>. Relatório completo: <code>RELATORIO-M21-G7-PROVISIONAMENTO-REAL-CASA-DE-BOLOS-LOJA-DA-BENCAO.md</code>.</p>
+    <p><strong>Pendência</strong>: Produto/Catálogo real segue indisponível pros 3 estabelecimentos (falta <code>unit.create</code>).</p>
+    <p><strong>Achado pós-provisionamento (09/09/2026)</strong>: os 3 responsáveis caíram em <code>/sem-empresa</code> ao logar — membership nasce <code>invited</code>, só vira <code>active</code> via <code>/auth/confirm</code> (M18-G22), e os 3 foram direto pro login sem completar esse redirect. Corrigido com <code>UPDATE</code> manual; confirmado nas 4 empresas (as 3 novas + Mania de Modas). Risco documentado pra próximos clientes — vale gate futuro pra ativação mais resiliente.</p>
+  </section>
+<!-- M22-KB-START -->
+<section id="m22-knowledge-base"><pre style="white-space:pre-wrap">## M22 — Biblioteca Técnica — homologação end-to-end 0.1.2
+
+Atualização: 14/09/2026. Estado: módulo ativado e homologado no Supabase staging e Vercel Preview; produção preservada.
+
+Escopo: portal /biblioteca, conteúdo reutilizável para assinantes por tenant, gates de conteúdo M0–M4, classificação manual e adaptador Gemini, score, sugestão GitHub, arquivos privados, busca, favoritos, avaliações, versões e curadoria.
+
+Evidência: 131 testes do portal; 41 asserções PostgreSQL/RLS; tipos, lint, build e quality gates remotos aprovados. No Supabase staging, a migration 0043 foi aplicada, o bucket privado e 12 policies foram confirmados e três identidades sintéticas foram autenticadas. Os dois curadores ficaram sem acesso administrativo em AAL1 e obtiveram access/manage somente em AAL2; o assinante obteve access sem manage em AAL1. A jornada real M0–M4, revisão independente, Storage HTTP, hash, favorito, avaliação, download e interface publicada foram validados.
+
+Entrega: migration aditiva 0043 aplicada exclusivamente no projeto ozvylnaipubrmaadikvk; tenant sintético isolado, três memberships e três entitlements ativos até 21/09/2026; knowledge.manage atribuído somente aos dois curadores com TOTP verificado. KNOWLEDGE_BASE_ENABLED=true somente no Preview da branch staging. Produção, Mercado Pago e dados reais não foram alterados.
+
+Resultado: homologação M0–M4 concluída no Preview. O adaptador Gemini, consentimento e auditoria foram exercitados; o modelo descontinuado foi atualizado e falhas 429/5xx/timeouts agora possuem repetição segura. O provedor respondeu 503 mesmo após as tentativas finais, portanto a classificação manual permanece operacional e a IA externa segue como dependência degradável. Promoção, produção e integração comercial exigem gates separados. Rollback não destrutivo documentado.
+</pre></section>
+<!-- M22-KB-END -->
+<!-- M23-ACADEMY-START -->
+<section id="m23-academy"><pre style="white-space:pre-wrap">## M23 — Portal de ensino (Academia) — fundação G0 0.1.0
+
+Atualização: 27/09/2026. Estado: **G0 concluído — 0044 (academia), 0045 (drift do hook de signup), 0046 (e-mail da identidade) e 0047 (sincronismo de e-mail via trigger) aplicadas no Supabase staging `ozvylnaipubrmaadikvk` (histórico 0001–0047) + G1 porta 1 (catálogo/matrícula/progresso) entregue em `apps/portal` e ativada no staging; produção intocada.**
+
+Decisão aprovada pelo usuário: núcleo único + 2 portas — fase 1 = `apps/portal` para os clientes ERP existentes, fase 2 = `apps/site` B2C. Nenhum novo repositório, banco ou fork por cliente.
+
+Escopo do G0 (migration aditiva `0044_m23_academy_foundation.sql`): capacidade `academy.courses` no catálogo fail-closed, permissões `academy.read` e `academy.manage`, 5 tabelas (`academy_courses`, `academy_modules`, `academy_enrollments`, `academy_progress`, `academy_events`) com RLS e nenhum DML para clientes, helpers `erp_security.academy_capability/academy_access/academy_manage`, `public.academy_context` e o comando único `public.academy_command` (create_course, update_course, publish_course, add_module, enroll, unenroll, complete_module) com rate limit de 120 ações por minuto, serialização por advisory lock e recálculo transacional de progresso. A mesma migration concede `select` em `courses`, `products` e `cms_content` para `anon, authenticated`, corrigindo o erro `42501 permission denied for table courses` que o `/cursos` encontra hoje (catálogo público cai no fallback demo).
+
+Evidência local: preflight `M23_G0_PREFLIGHT_OK`; transação gerada `supabase/validation/0044_transaction.generated.sql` em transação única com **32/32 pgTAP** (18 estruturais + 14 adversariais) e marcador `M23_G0_0044_TRANSACTION_32_OF_32_ROLLBACK`; preflight repetido logo depois (resíduo zero); suítes isoladas 18/18 e 14/14; `apps/platform` 214/214 naquele instante (hoje **237/237**, com os 23 testes estáticos das higienizações 0045/0046/0047) e type-check limpo; parse SQL real (libpg_query) aprovado.
+
+Evidência remota (27/09/2026, autorizada pelo usuário), via `supabase/validation/run-0044-remote.ps1`:
+
+- Fase validate: histórico `0001…0043`; REST anônimo **antes** = HTTP 401 com `42501` em `courses`/`products`/`cms_content`; preflight OK; transação com `ROLLBACK` em **32/32** (`M23_G0_0044_TRANSACTION_32_OF_32_ROLLBACK`); preflight seguinte OK e `count(0044) = 0` → nenhum resíduo.
+- Fase apply: `db push --dry-run` escolheu **somente** `0044_m23_academy_foundation.sql`; `db push` aplicou; `m23_g0_post_apply.sql` OK (5 tabelas RLS, 5 policies somente SELECT, `authenticated` sem DML, `anon` sem execução, capability e permissões ativas, 4 funções); **18/18** estruturais e **14/14** adversariais remotos (`finish()` sem relato de falha); preflight passou a recusar `migration 0044 ja aplicada`; histórico final `0001…0044`; REST anônimo **depois** = **HTTP 200 sem 42501**.
+
+Hashes SHA-256: migração `BA8B62C1…E72C58E`, transação `05CC13DD…923F12C8`, builder `E40DCAA5…103E0263`. Logs em `staging/logs/m23-g0-remote-20260927-{174458-validate,174845-apply,175334-verify}.log`. Relatório: `RELATORIO-M23-G0-FUNDACAO-ACADEMY.md`.
+
+Higiene de identidade (migration aditiva `0045_handle_new_user_drift_fix.sql`, aprovada pelo usuário em 27/09/2026): o staging gravava o resultado do hook de signup em `public.profiles` (template) e não em `public.users`, então o cadastro via Auth não criava identidade no ERP (1 órfã: `connectioncyberso@gmail.com`). Evidência: preflight remoto `M23_HYGIENE_0045_PREFLIGHT_OK` (drift presente, 1 órfã); transação com `ROLLBACK` em **11/11** (`M23_HYGIENE_0045_TRANSACTION_11_OF_11_ROLLBACK`) e preflight seguinte OK (resíduo zero); `db push --dry-run` escolheu **somente** a 0045; aplicada (histórico `0001…0045`); pós-apply **11/11**, `still_drift = false`, `orphans_pending = 0`, `public.profiles` preservado, preflight recusando `migration 0045 ja aplicada`; local preflight → transação 11/11 com `ROLLBACK` → `db push --local` → 11/11. Hashes SHA-256: migração `3ED2612A…C179383`, transação `1304B8A0…7E57EA902`, teste `F4DB1BCA…B66E3803A`. Logs em `staging/logs/m23-hygiene-0045-remote-*.log`. Rollback de contingência: `supabase/rollback/0045_handle_new_user_drift_fix.rollback.sql`.
+
+Higiene de identidade — e-mail da identidade (migration aditiva `0046_identity_email_alignment.sql`, aprovada pelo usuário em 27/09/2026): a identidade `61b57707-…` nasceu em 01/09/2026 com `joaquimmscoelho@gmail.com`; o e-mail foi trocado no Auth e confirmado em 02/09 (`joaquimmscoelhoam@gmail.com`) e não há hook de UPDATE, então `public.users.email` ficou defasado. Evidência: preflight `M23_HYGIENE_0046_PREFLIGHT_OK` (`divergences = 1`); transação `M23_HYGIENE_0046_TRANSACTION_4_OF_4_ROLLBACK` e preflight seguinte OK (`divergences = 1`) → resíduo zero; `db push --dry-run` escolheu **somente** a 0046; aplicada (histórico `0001…0046`); pós-apply **4/4**, `divergences = 0`, `users_email = auth_email`, `rows_with_email = 1`, preflight recusando; local preflight → 4/4 com `ROLLBACK` → `db push --local` → 4/4. Hashes SHA-256: migração `4DE25274…C2AFCD3`, transação `1F945628…BDF5C0`, teste `42B63EF7…6C5E311`. Logs em `staging/logs/m23-hygiene-0046-remote-*.log`. Rollback: `supabase/rollback/0046_identity_email_alignment.rollback.sql`.
+
+Higiene de identidade — sincronismo de e-mail (migration aditiva `0047_sync_auth_email_trigger.sql`, aprovada pelo usuário em 27/09/2026): a 0046 corrigiu a divergência pontual, mas ainda não havia propagação automática quando o e-mail é trocado no Auth. Criou `public.sync_auth_email()` (`security definer`, `search_path = ''`, `revoke` de `anon/authenticated`) e o trigger `on_auth_user_email_changed` (`after update of email on auth.users`, `when old.email is distinct from new.email`), com normalização em minúsculas, escrita apenas quando houver divergência e recriação da identidade ausente. Evidência: preflight `M23_HYGIENE_0047_PREFLIGHT_OK` (`function_present/trigger_present = false`); transação `M23_HYGIENE_0047_TRANSACTION_7_OF_7_ROLLBACK` e preflight seguinte OK → resíduo zero; `db push --dry-run` escolheu **somente** a 0047; aplicada (histórico `0001…0047`); pós-apply **7/7**, `sync_triggers = 1`, `search_path=""`, `anon_can_execute = false`, `divergences = 0`, preflight recusando; local preflight → 7/7 com `ROLLBACK` → `db push --local` → 7/7. Hashes SHA-256: migração `9821059A…EB8FB5`, transação `85E3E82E…D763C849`, teste `452B2D28…324CE6F8C`. Logs em `staging/logs/m23-hygiene-0047-remote-*.log`. Rollback: `supabase/rollback/0047_sync_auth_email_trigger.rollback.sql`.
+
+G1 porta 1 — Academia no portal do cliente (27/09/2026, sem migration): inventário mostrou que `apps/portal` não tinha nenhuma tela de curso (o legado é `apps/site/src/pages/cursos/index.tsx`). Foram entregues `src/app/(portal)/academia/page.tsx` (catálogo + minhas matrículas), `src/app/(portal)/academia/[courseId]/page.tsx` (módulos, conclusão, cancelamento), as rotas POST `matricular`/`concluir-modulo`/`cancelar-matricula` (`features/academy/form-action.ts`: same-origin, UUID validado, tenant da membership, escrita só por `rpc('academy_command')`), `features/academy/service.ts` (leitura RLS da 0044), `domain/academy.ts` (fail-closed) e o item de nav gateado por `academy_context`. Validação local: `apps/portal` **140/140**, `tsc` limpo, `next lint` sem avisos, `next build` com as 5 rotas `/academia*`. Ativação remota aprovada: `academy.courses = active` nos 5 tenants ativos (`evidence_hash` = SHA-256 da 0044), backfill das permissões ativas ao papel `owner` (mesmo SQL da 0041) e simulação de sessão do dono da Mania de Modas devolvendo `academy_context = {access:true, manage:true, capability:true}` com leitura RLS OK. Conteúdo: o mini curso "Atalhos de Teclado — Windows e Office" (7 módulos + encerramento, fonte em `connectioncyber-documentacao\minicursos`) foi criado via `academy_command` e publicado com 8 módulos em Casa de Bolos, Loja da Benção e Mania de Modas (`staging/seed/m23-g1-seed-curso-atalhos.sql`), com ensaio de matrícula e conclusão em transação revertida (`progresso = 12.50`, resíduo zero).
+
+Ambiente: Docker Desktop ligado e stack Supabase local `supabase_db_connectioncyber` (PostgreSQL 17.6) usada e **parada** após este gate (histórico local 0001–0047 via `supabase db push --local`); autenticação remota com o token `connectioncyber-cli-m23` (org connection-cyber-so, Organization + Database read-write, expira em 7 dias).
+
+Riscos e limites residuais: drift do hook de signup **corrigido** (0045), e-mail da identidade **corrigido** (0046) e sincronismo **instalado** (0047); se o e-mail novo já pertencer a outra identidade, a troca no Auth falha por unicidade (impede duplicidade); contas de teste no staging (`connectioncyberso@gmail.com`, criada em 18/09/2026 sem login, sem tenant/membership) e sintéticos `*@connectioncyber.com.br`; `academy.manage` exige AAL1 (endurecimento para AAL2 fica para portão futuro); não há ainda cobrança/assinatura, upload de mídia, trilhas nem conteúdo — escopos do G1+; o `/cursos` continua lendo `public.courses` legado até o G1 migrar a tela; token de staging revogável a qualquer momento.
+
+Próxima ação: **M23-G1.2 — porta 2 (curadoria no `apps/portal`: criar/publicar curso e módulos)**, começando pelo primeiro curso de demonstração para validar a porta 1 ponta a ponta no navegador.
+</pre></section>
+<!-- M23-ACADEMY-END -->
+</body>
+</html>

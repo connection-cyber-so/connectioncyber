@@ -1,0 +1,5 @@
+# Official SEFAZ NF-e schema package (ZIP + extracted XSDs) — byte-exact copies verified
+# against SHA-256 hashes pinned in schema-manifest.json. Never let Git normalize line
+# endings on checkout/commit (core.autocrlf) — that silently breaks the hash check on any
+# machine/CI where autocrlf differs from the one that committed the file.
+packages/fiscal-contract/schemas/** -text

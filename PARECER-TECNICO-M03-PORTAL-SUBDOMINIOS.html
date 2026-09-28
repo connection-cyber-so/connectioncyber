@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ConnectionCyber — Parecer técnico M03</title>
+  <style>
+    :root{--orange:#F6851F;--red:#E01F27;--green:#2C9C48;--teal:#1E9680;--blue:#0a1f33;--ink:#17232d;--muted:#62717b;--line:#d9e1e5;--soft:#f4f7f7;--white:#fff}
+    *{box-sizing:border-box}body{margin:0;background:#eef2f3;color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(1200px,calc(100% - 30px));margin:24px auto;background:var(--white);box-shadow:0 16px 42px #17232d16;padding:clamp(22px,4vw,52px)}h1,h2,h3{line-height:1.2}h1{margin:0;color:var(--red)}h2{margin-top:38px;padding-bottom:8px;border-bottom:2px solid var(--orange)}h3{color:var(--teal);margin-top:25px}.meta,.cards{display:flex;flex-wrap:wrap;gap:10px}.meta{color:var(--muted);margin:12px 0 22px}.pill{border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:var(--soft)}.notice{border-left:5px solid var(--green);padding:15px 17px;background:#eff8f2;margin:20px 0}.warning{border-color:var(--orange);background:#fff7ed}.danger{border-color:var(--red);background:#fff2f2}.card{min-width:0;flex:1 1 180px;border:1px solid var(--line);border-top:4px solid var(--teal);border-radius:9px;padding:15px;background:#fff;overflow-wrap:anywhere}.card strong{display:block;font-size:22px;color:var(--red)}.table{max-width:100%;overflow:auto;margin:16px 0 24px}table{width:100%;min-width:760px;border-collapse:collapse}th,td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{background:var(--soft)}tr:hover td{background:#fffaf5}code{background:var(--soft);padding:.08rem .32rem;border-radius:4px;overflow-wrap:anywhere}.diagram{max-width:100%;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:18px;background:linear-gradient(135deg,#fff,#f4f8f7)}.flow{display:flex;align-items:center;gap:7px;min-width:0}.node{min-width:0;flex:1;padding:12px 7px;border:2px solid var(--teal);border-radius:8px;text-align:center;background:#fff;font-weight:650}.node.orange{border-color:var(--orange)}.node.red{border-color:var(--red)}.arrow{flex:0 0 auto;font-size:20px;color:var(--orange)}.screens{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.screen{border:1px solid var(--line);border-top:5px solid var(--orange);border-radius:10px;overflow:hidden;background:#fff}.screenbar{display:flex;align-items:center;gap:6px;padding:9px 12px;background:var(--blue);color:#fff;font-size:.78rem}.dot{width:8px;height:8px;border-radius:50%;background:var(--orange)}.screenbody{padding:20px;min-height:210px}.screenbody h3{margin:0 0 8px}.field{height:34px;border:1px solid var(--orange);border-radius:6px;margin:10px 0;background:#fff}.button{height:34px;border-radius:6px;background:var(--blue);color:#fff;text-align:center;padding:7px;margin-top:12px}.tenant{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:12px 0}.shell{display:grid;grid-template-columns:120px 1fr;gap:14px}.menu{background:var(--soft);padding:10px;border-radius:6px}.menu div{padding:7px 3px;border-bottom:1px solid var(--line)}ol,ul{padding-left:24px}li+li{margin-top:5px}a{color:var(--teal)}footer{margin-top:42px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted)}@media(max-width:760px){main{width:100%;margin:0;padding:20px}.screens{grid-template-columns:1fr}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.flow{display:grid;grid-template-columns:1fr}.arrow{transform:rotate(90deg);text-align:center;line-height:1}}@media(max-width:480px){.cards{grid-template-columns:1fr}.shell{grid-template-columns:1fr}.screenbody{padding:16px}}@media print{body{background:#fff}main{width:100%;margin:0;box-shadow:none;padding:0}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <h1>Parecer técnico M03</h1>
+    <p style="font-size:1.25rem;margin:.35rem 0">Portal do cliente, subdomínios e resolução segura de empresa</p>
+    <div class="meta"><span class="pill">Staging</span><span class="pill">18/08/2026</span><span class="pill">v1.0.0</span><span class="pill">Somente análise</span><span class="pill">Produção: intocada</span></div>
+  </header>
+
+  <div class="notice"><strong>Parecer favorável com portões.</strong> O portal deve ser uma terceira aplicação no mesmo monorepo, separada do site público e do painel interno. Nenhum código funcional, migration, projeto Vercel ou domínio M03 foi criado nesta análise.</div>
+
+  <div class="cards">
+    <div class="card"><strong>apps/site</strong>institucional, alunos e pagamentos</div>
+    <div class="card"><strong>apps/platform</strong>equipe ConnectionCyber</div>
+    <div class="card"><strong>apps/portal</strong>ERP isolado por membership</div>
+    <div class="card"><strong>1 código</strong>múltiplas empresas e segmentos</div>
+  </div>
+
+  <h2>1. Decisão arquitetural</h2>
+  <p>Hostname seleciona o contexto solicitado, mas não concede acesso. A entrada depende da interseção <code>hostname ativo + tenant ativo + sessão validada + membership ativa</code>. O navegador nunca informa o <code>tenant_id</code> com autoridade.</p>
+  <div class="diagram"><div class="flow">
+    <div class="node">Navegador</div><div class="arrow">→</div>
+    <div class="node orange">Hostname exato</div><div class="arrow">→</div>
+    <div class="node">Supabase Auth SSR</div><div class="arrow">→</div>
+    <div class="node">getUser()</div><div class="arrow">→</div>
+    <div class="node">Membership ativa</div><div class="arrow">→</div>
+    <div class="node">RLS + permissões</div><div class="arrow">→</div>
+    <div class="node">Portal ERP</div>
+  </div></div>
+  <div class="danger notice"><strong>Deny-by-default:</strong> domínio desconhecido → 404; usuário sem membership compatível → 403; sessão ausente → login. Nenhuma dessas situações cai em outro tenant.</div>
+
+  <h2>2. Estado comprovado</h2>
+  <div class="table"><table><thead><tr><th>Componente</th><th>Agora</th><th>Decisão M03</th></tr></thead><tbody>
+    <tr><td><code>apps/portal</code></td><td>Não existe.</td><td>Criar após aceite, em Next.js 15 App Router.</td></tr>
+    <tr><td>Projeto Vercel</td><td>Atual aponta para <code>apps/site</code>.</td><td>Novo projeto no mesmo repositório, Root Directory <code>apps/portal</code>.</td></tr>
+    <tr><td>CI</td><td>Jobs site e platform.</td><td>Adicionar job portal.</td></tr>
+    <tr><td>Identidade</td><td><code>users.tenant_id</code> legado + memberships M02.</td><td>Portal usa membership; nunca o campo legado como autoridade.</td></tr>
+    <tr><td>Domínio</td><td><code>tenants.dominio</code> não cobre verificação/histórico.</td><td>Nova tabela canônica <code>erp_tenant_domains</code>.</td></tr>
+    <tr><td>DNS</td><td>Nameservers <code>dns-parking.com</code>; www em CNAME Vercel.</td><td>Não migrar nameservers neste portão.</td></tr>
+  </tbody></table></div>
+
+  <h2>3. Como as telas ficarão</h2>
+  <div class="screens">
+    <article class="screen"><div class="screenbar"><span class="dot"></span> cliente.connectioncyber.com.br</div><div class="screenbody"><div class="pill">Tecnologia ConnectionCyber</div><h3>Entrar na Empresa Cliente</h3><p>Ambiente identificado pelo endereço, sem revelar dados privados.</p><div class="field"></div><div class="field"></div><div class="button">Entrar</div></div></article>
+    <article class="screen"><div class="screenbar"><span class="dot"></span> portal.connectioncyber.com.br</div><div class="screenbody"><h3>Selecionar empresa</h3><p>Aparece somente quando a sessão possui mais de uma membership ativa.</p><div class="tenant"><strong>Empresa A</strong><span>Acessar →</span></div><div class="tenant"><strong>Empresa B</strong><span>Acessar →</span></div></div></article>
+    <article class="screen"><div class="screenbar"><span class="dot"></span> Portal ERP · sessão autorizada</div><div class="screenbody"><div class="shell"><div class="menu"><div>Início</div><div>Cadastros</div><div>Estoque</div><div>Vendas</div><div>Financeiro</div></div><div><div class="pill">Empresa ativa · Matriz</div><h3>Visão geral</h3><p>Os menus são derivados das capacidades do tenant. O M03 entrega o shell somente leitura; escritas entram no M04+.</p></div></div></div></article>
+    <article class="screen"><div class="screenbar"><span class="dot"></span> endereço não reconhecido</div><div class="screenbody"><div class="pill">404</div><h3>Este endereço não está ativo</h3><p>Nenhum formulário de login é exibido, evitando phishing e vazamento de existência de clientes.</p><div class="button">Ir para o portal central</div></div></article>
+  </div>
+
+  <h2>4. Estratégia de domínios e cookies</h2>
+  <ul>
+    <li>Entrada central: <code>portal.connectioncyber.com.br</code>.</li>
+    <li>Endereços piloto por empresa: <code>&lt;slug&gt;.connectioncyber.com.br</code>, cadastrados explicitamente no DNS e Vercel.</li>
+    <li>Nenhum wildcard agora: a Vercel exige nameservers para wildcard, e a migração poderia afetar site/e-mail.</li>
+    <li>Cookies host-only na primeira versão; não compartilhar sessão com <code>www</code> ou todos os subdomínios.</li>
+    <li>No host central, o cookie ativo guarda uma membership opaca e é validado novamente por RLS.</li>
+  </ul>
+  <div class="warning notice">Uma eventual migração para <code>*.connectioncyber.com.br</code> terá portão próprio com inventário DNS, TTL, janela, teste e rollback.</div>
+
+  <h2>5. Modelo lógico proposto</h2>
+  <div class="table"><table><thead><tr><th>Objeto</th><th>Responsabilidade</th><th>Exposição</th></tr></thead><tbody>
+    <tr><td><code>erp_tenant_domains</code></td><td>Hostname, tenant, tipo, status, primário e verificação.</td><td>RLS; sem SELECT direto para anon.</td></tr>
+    <tr><td><code>portal_resolve_host(text)</code></td><td>Retorna somente identidade pública mínima antes do login.</td><td>Wrapper restrito, search_path vazio.</td></tr>
+    <tr><td><code>erp_tenant_memberships</code></td><td>Prova que o usuário participa do tenant.</td><td>RLS M02; exige status/vigência válidos.</td></tr>
+    <tr><td>cookie de membership</td><td>Escolha ativa no host central.</td><td>HttpOnly, Secure, SameSite=Lax; nunca autoridade isolada.</td></tr>
+  </tbody></table></div>
+
+  <h2>6. Invariantes de segurança</h2>
+  <ol>
+    <li><code>getUser()</code> valida a sessão no servidor.</li>
+    <li>Hostname é normalizado e comparado por igualdade.</li>
+    <li>Tenant de URL/form/query/local storage é ignorado.</li>
+    <li>Membership precisa pertencer ao <code>auth.uid()</code>, estar ativa e vigente.</li>
+    <li>Hostname e membership precisam apontar para o mesmo tenant.</li>
+    <li>Rotas autenticadas são dinâmicas, <code>private, no-store</code>, sem ISR.</li>
+    <li>Service role não entra no navegador nem no middleware do portal.</li>
+    <li>Staff não recebe bypass no portal; suporte cross-tenant permanece no painel interno.</li>
+    <li>Redirect pós-login aceita somente caminhos internos conhecidos.</li>
+    <li>M03 não executa writes operacionais.</li>
+  </ol>
+
+  <h2>7. Divisão M03 × M04</h2>
+  <div class="table"><table><thead><tr><th>M03</th><th>M04</th></tr></thead><tbody>
+    <tr><td>Shell do portal, hostname, sessão, contexto e isolamento.</td><td>Convites, usuários, papéis, permissões e MFA.</td></tr>
+    <tr><td>Seleção de membership existente.</td><td>Criação, suspensão e revogação de memberships.</td></tr>
+    <tr><td>Navegação somente leitura por capacidade.</td><td>Comandos server-side autorizados e auditados.</td></tr>
+  </tbody></table></div>
+
+  <h2>8. Matriz mínima de testes</h2>
+  <div class="table"><table><thead><tr><th>Host</th><th>Sessão</th><th>Membership</th><th>Resultado</th></tr></thead><tbody>
+    <tr><td>A</td><td>Usuário A</td><td>ativa em A</td><td>200</td></tr>
+    <tr><td>A</td><td>Usuário B</td><td>ativa somente em B</td><td>403</td></tr>
+    <tr><td>desconhecido</td><td>qualquer</td><td>qualquer</td><td>404</td></tr>
+    <tr><td>A</td><td>ausente</td><td>—</td><td>login</td></tr>
+    <tr><td>central</td><td>usuário multiempresa</td><td>duas ativas</td><td>seletor</td></tr>
+    <tr><td>A</td><td>Usuário A</td><td>suspensa/revogada/expirada</td><td>403</td></tr>
+    <tr><td>A</td><td>staff sem membership</td><td>nenhuma</td><td>403</td></tr>
+  </tbody></table></div>
+
+  <h2>9. Riscos principais</h2>
+  <div class="table"><table><thead><tr><th>Risco</th><th>Nível</th><th>Controle</th></tr></thead><tbody>
+    <tr><td>Host spoofing e fallback permissivo</td><td>Crítico</td><td>Lookup exato e deny-by-default.</td></tr>
+    <tr><td>Vazamento entre empresas</td><td>Crítico</td><td>Host + membership própria + RLS + testes negativos.</td></tr>
+    <tr><td>Bypass de equipe no portal</td><td>Crítico</td><td>Exigir membership do auth.uid; não usar staff como autorização.</td></tr>
+    <tr><td>Cookie de outra sessão em cache</td><td>Crítico</td><td>Sem ISR; private/no-store.</td></tr>
+    <tr><td>Queda de site/e-mail por DNS</td><td>Crítico</td><td>Não mudar nameservers; piloto explícito.</td></tr>
+    <tr><td>Preview conectado à produção</td><td>Crítico</td><td>Variáveis separadas e inspeção do bundle.</td></tr>
+  </tbody></table></div>
+
+  <h2>10. Portões determinísticos</h2>
+  <div class="diagram"><div class="flow">
+    <div class="node">A. Parecer atual</div><div class="arrow">→</div>
+    <div class="node orange">B. Código + SQL + testes</div><div class="arrow">→</div>
+    <div class="node">C. Laboratório local</div><div class="arrow">→</div>
+    <div class="node">D. Projeto Vercel</div><div class="arrow">→</div>
+    <div class="node">E. Staging + E2E</div><div class="arrow">→</div>
+    <div class="node">Fechar M03</div>
+  </div></div>
+
+  <h2>11. Próximo aceite</h2>
+  <div class="notice"><strong>Parecer M03 aprovado; apresentar código, migration 0017 e testes do portal, sem aplicar remotamente.</strong></div>
+  <p>Esse aceite ainda não cria projeto/domínio Vercel, não aplica migration no Supabase remoto e não envolve produção, clientes reais, fiscal, A1, Mercado Pago ou backups.</p>
+
+  <h2>12. Referências</h2>
+  <ul><li><a href="https://vercel.com/docs/monorepos">Vercel Monorepos</a></li><li><a href="https://vercel.com/kb/guide/nextjs-multi-tenant-application">Vercel Multi-tenant</a></li><li><a href="https://vercel.com/docs/domains/working-with-domains">Vercel Domains</a></li><li><a href="https://supabase.com/docs/guides/auth/server-side">Supabase SSR Auth</a></li><li><a href="https://supabase.com/docs/guides/auth/server-side/advanced-guide">Supabase SSR Advanced Guide</a></li><li><a href="https://supabase.com/docs/guides/auth/redirect-urls">Supabase Redirect URLs</a></li></ul>
+
+  <footer>ConnectionCyber Assessoria e Treinamento — Tecnologia que traz conhecimento e gestão.</footer>
+</main></body></html>

@@ -1,0 +1,15 @@
+import test from 'node:test';import assert from 'node:assert/strict';import{readFileSync}from'node:fs';
+const root=new URL('../src/',import.meta.url),read=path=>readFileSync(new URL(path,root),'utf8');
+const local=read('features/persistence/local.ts'),sales=read('features/sales/actions.ts'),finance=read('features/finance/actions.ts'),pos=read('features/sales/components/LocalPosForms.tsx'),financialUi=read('features/finance/components/LocalFinance.tsx');
+test('transporte local é exclusivamente server-side',()=>assert.match(local,/import 'server-only'/));
+test('toda escrita recusa tenant divergente antes da mutação',()=>{const guard=local.indexOf("args.p_tenant_id!==tenantId"),firstMutation=local.indexOf('state.parties.push');assert.ok(guard>0&&guard<firstMutation);});
+test('replay usa request id, RPC e hash do payload',()=>{assert.match(local,/state\.receipts\[args\.p_request_id\]/);assert.match(local,/prior\.rpc!==rpc\|\|prior\.payloadHash!==args\.p_payload_hash/);});
+test('receipt só é registrado pelo encerramento bem-sucedido',()=>{assert.match(local,/const finish=.*state\.receipts/);assert.doesNotMatch(local,/catch.*state\.receipts/s);});
+test('replay idêntico devolve cópia sem repetir mutação',()=>assert.match(local,/return copy\(prior\.result\)/));
+test('estoque é conferido novamente no momento da venda',()=>assert.match(local,/draft\.quantity>\(state\.stock\[draft\.itemId\]\?\?0\)/));
+test('fechamento exige sessão aberta e id correspondente',()=>assert.match(local,/String\(payload\.cashSessionId\)!==state\.cash\.id/));
+test('baixa concorrente não pode superar saldo atual',()=>assert.match(local,/draft\.amount>entry\.total-entry\.settled/));
+test('falhas não deixam venda parcialmente aplicada antes das guardas',()=>{const block=local.slice(local.indexOf("if(rpc==='erp_command_complete_sale_v1')"),local.indexOf("if(rpc==='erp_command_settle_receivable_v1')"));assert.ok(block.indexOf("customer required")<block.indexOf('state.stock[draft.itemId]-='));});
+test('todas as submissões visuais bloqueiam duplo clique enquanto pendentes',()=>{for(const source of[pos,financialUi])assert.match(source,/disabled=\{pending\}/);});
+test('ações relêem as superfícies afetadas após sucesso',()=>{assert.match(sales,/revalidatePath\('\/financeiro'\)/);assert.match(sales,/revalidatePath\('\/'\)/);assert.match(finance,/revalidatePath\('\/financeiro'\)/);assert.match(finance,/revalidatePath\('\/'\)/);});
+test('jornada auditada permanece sem cliente Supabase',()=>assert.doesNotMatch(local+sales+finance+pos+financialUi,/createClient|@supabase\/supabase-js|\.from\(/));
