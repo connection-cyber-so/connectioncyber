@@ -81,6 +81,12 @@ Não serão criados novos repositórios, bancos ou forks de aplicação por clie
 - A migration `0006`, que contém povoamento de clientes reais, foi registrada no histórico de staging sem executar seus `INSERTs`.
 - Vercel Production deve apontar exclusivamente para o Supabase de produção.
 - Vercel Preview/branch staging deve apontar exclusivamente para o Supabase de staging.
+- **Cumprido em 28/09/2026 (promoção staging→produção)**: `qfg` promovido de `0013` a `0049`
+  (36 migrations via `supabase db push`, dry-run confirmou a lista), `public.profiles` criada
+  (única divergência de inventário), dados reais do staging restaurados (50 tabelas; verificação
+  10/10 contagens idênticas; zero dado da produção antiga descartado fora do escopo) e envs do
+  portal Production trocadas para `qfggetvashdxyuvlhihq` + anon key correta (payload
+  `ref=qfg… role=anon`). Relatório: `RELATORIO-PROMOCAO-STAGING-PRODUCAO-20260928.md`.
 
 ### 4.3 Multiempresa
 
@@ -563,10 +569,11 @@ de `staging` em `portal.connectioncyber.com.br` (`dpl_CfyaZbBK3B3JM9brQgBqjZrkVR
 `staging` continua automático a cada push no alias `connectioncyber-portal-git-staging-…`, mas o
 alias `*.vercel.app` não é host central (`PORTAL_CENTRAL_HOSTS=portal.connectioncyber.com.br`) e
 responde 404 em `/academia` por política de host — para testar logado, usar o domínio real.
-Exceção autorizada: produção servida da árvore de `staging` sem merge em `main` (231 commits na
-frente); as três envs da Vercel (Production/Preview/Development) apontam para o Supabase staging —
-a produção do portal opera em modo homologação enquanto o M23 é staging-first, mover para
-`qfggetvashdxyuvlhihq` exige aplicar as migrations 0044–0048 lá (portão próprio, regra 4.2).
+Exceção **ENCERRADA em 28/09/2026** (promoção staging→produção autorizada): merge `staging`→`main`
+(PR #1, `130fc38`, CI verde), `qfg` promovido a `0049` com dados do staging, envs do portal
+Production trocadas para `qfg` (regra 4.2 vale integralmente), deploys automáticos Ready nos dois
+projetos (portal `ki72z9pmm`; site pela primeira vez em 42 dias) e smoke verde — produção deixa o
+modo homologação. Relatório: `RELATORIO-PROMOCAO-STAGING-PRODUCAO-20260928.md`.
 `.vercelignore` adicionado para arquivos locais/agentes não subirem nos deploys.
 
 Follow-up (28/09): `decidePortalAccess` passou a honrar `erp_tenant_memberships.is_default`
@@ -576,6 +583,18 @@ e `is_default` trocou para ConnectionCyber (Mania continua acessível por "Troca
 portal 151/151.
 
 **M23-G3 concluído (28/09):** ativação automática por capacidade (migration **0049** aplicada, histórico 0001–0049) + rota `/treinamento` no portal ("do seu sistema" + "gerais"). Gate: transação **36/36** `ROLLBACK` local+remoto, pós-apply, testes **12/12 + 24/24** e regressão 0048 **24/24 + 25/25** remotos, REST anônimo 200, `platform` 265/265, `portal` 155/155 + tsc/lint, CI verde (commit `7026ba2`), deploy de produção `dpl` Ready (smoke `/login` 200, `/treinamento` 307). Seed `tenant_modules` por vertical aplicado no staging (Mania 3, Casa de Bolos 3, Loja da Benção 3, KB homologação os 8; ConnectionCyber os 4 originais) — 5/5 empresas vinculadas ao curso público. Sem próxima ação pendente neste programa.
+
+### Promoção staging→produção — concluída (28/09/2026)
+
+Autorizada pelo usuário ("Promover staging→produção"). Backups dos dois projetos em
+`%TEMP%\connectioncyber-backups\` (schema+data, hashes no relatório), push de `0014`→`0049`,
+`public.profiles` criada, truncate+restore dos 50 alvos (10/10 contagens idênticas
+staging×produção, zero dado descartável perdido), envs do portal Production → `qfg` (regra 4.2
+cumprida), REST anônimo 200, PR #1 `staging`→`main` (`130fc38`) com CI verde, deploys automáticos
+Ready nos dois projetos (portal `ki72z9pmm`; site pela primeira vez em 42 dias), smoke verde
+(`/login` 200; `/`, `/academia`, `/treinamento` 307; `connectioncyber.com.br` 200). Pendência
+única: teste de login real com credenciais do usuário (12 identidades migradas com hashes/MFA
+preservados). Relatório: `RELATORIO-PROMOCAO-STAGING-PRODUCAO-20260928.md`.
 
 ### M19 — concluído (G0–G5)
 
