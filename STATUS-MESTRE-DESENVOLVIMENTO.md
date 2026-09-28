@@ -575,7 +575,7 @@ como fallback quando não há cookie de empresa (antes o campo era órfão no po
 e `is_default` trocou para ConnectionCyber (Mania continua acessível por "Trocar empresa");
 portal 151/151.
 
-**Próxima ação: M23-G3 — cobrança/conteúdo** (sob demanda).
+**M23-G3 concluído (28/09):** ativação automática por capacidade (migration **0049** aplicada, histórico 0001–0049) + rota `/treinamento` no portal ("do seu sistema" + "gerais"). Gate: transação **36/36** `ROLLBACK` local+remoto, pós-apply, testes **12/12 + 24/24** e regressão 0048 **24/24 + 25/25** remotos, REST anônimo 200, `platform` 265/265, `portal` 155/155 + tsc/lint, CI verde (commit `7026ba2`), deploy de produção `dpl` Ready (smoke `/login` 200, `/treinamento` 307). Seed `tenant_modules` por vertical aplicado no staging (Mania 3, Casa de Bolos 3, Loja da Benção 3, KB homologação os 8; ConnectionCyber os 4 originais) — 5/5 empresas vinculadas ao curso público. Sem próxima ação pendente neste programa.
 
 ### M19 — concluído (G0–G5)
 
