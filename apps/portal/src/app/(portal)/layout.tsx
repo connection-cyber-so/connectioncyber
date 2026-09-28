@@ -8,6 +8,7 @@ import { canManageBranding, loadTenantBranding } from '@/lib/branding';
 import { loadPortalAccess } from '@/lib/portal-context';
 import { getCurrentAal, membershipRequiresAal2 } from '@/lib/mfa';
 import { createClient } from '@/lib/supabase/server';
+import { loadAcademyContext } from '@/features/academy/service';
 import { isValidHexColor } from '@/domain/branding';
 import { decideMfaGate, MFA_SECURITY_PATH } from '@/domain/mfa-gate';
 
@@ -28,7 +29,7 @@ export default async function PortalLayout({ children }: { children: ReactNode }
 
   const supabase = await createClient();
   const pathname = (await headers()).get('x-cc-pathname') ?? '/';
-  const [branding, canEditBranding, requiresAal2, currentAal] = await Promise.all([
+  const [branding, canEditBranding, requiresAal2, currentAal, academy] = await Promise.all([
     loadTenantBranding(supabase, access.membership.tenantId),
     canManageBranding(supabase, {
       membershipId: access.membership.id,
@@ -39,6 +40,7 @@ export default async function PortalLayout({ children }: { children: ReactNode }
       tenantId: access.membership.tenantId,
     }),
     getCurrentAal(supabase),
+    loadAcademyContext(supabase, access.membership.tenantId),
   ]);
 
   // M18-G22 — papel exige MFA (ex.: owner) e a sessão ainda não chegou em
@@ -97,6 +99,11 @@ export default async function PortalLayout({ children }: { children: ReactNode }
             <Link className="nav-item active" href="/dashboard">Início</Link>
             <Link className="nav-item" href="/cadastros">Cadastros</Link>
             {process.env.KNOWLEDGE_BASE_ENABLED === 'true' && <Link className="nav-item" href="/biblioteca">Biblioteca Técnica</Link>}
+            {academy.access ? (
+              <Link className="nav-item" href="/academia">Academia</Link>
+            ) : (
+              <span className="nav-item pending">Academia <small>M23</small></span>
+            )}
             <span className="nav-item pending">Estoque <small>M06</small></span>
             <span className="nav-item pending">Vendas <small>M07</small></span>
             <span className="nav-item pending">Financeiro <small>M08</small></span>

@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { PublicFrame } from '@/components/PublicFrame';
+import { PasswordToggleInput } from '@/components/PasswordToggleInput';
 import { safePortalRedirect } from '@/domain/redirect';
 import { loadPortalAccess } from '@/lib/portal-context';
 
@@ -71,9 +72,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </label>
         <label>
           Senha
-          <input
+          <PasswordToggleInput
             name="password"
-            type="password"
             autoComplete="current-password"
             minLength={8}
             required
