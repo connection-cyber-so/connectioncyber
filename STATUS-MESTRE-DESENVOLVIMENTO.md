@@ -733,7 +733,21 @@ pagamento por tenant; reconciliação ledger×banco **1.511=1.511 e 4.993.268 ce
 unique `NULLS NOT DISTINCT` de `erp_sale_payments` (provider/external_id preenchidos) e
 dedupe por chave da fonte (erro `21000`). Detalhes: `RELATORIO-M15-G12-MATERIALIZACAO.md`.
 
-**Próxima ação: M15-G13** (catálogo/estoque reais por tenant + conferência de domínio/deploy).
+**Próxima ação: M15-G13** (catálogo/estoque reais por tenant + conferência de domínio/deploy) — concluído, ver seção seguinte.
+
+### M15-G13 - catálogo/estoque + domínio/deploy (✓ CONCLUÍDO - 29/09/2026)
+
+`scripts/m15-stock-bootstrap.mjs` criou **6 locais de estoque** (1 por estabelecimento ativo,
+5 tenants) e ativou `track_inventory` nos **872 produtos**; saldo inicial **não inventado** —
+contagem física pertence à operação real (M15-G15), conforme critério "counts reconcile".
+Conferência de rede achou **bloqueio**: os 5 subdomínios têm **dois registros A**
+(`76.76.21.x` Vercel + `66.33.60.x` sem TLS) e **não estão configurados no projeto Vercel**
+(TLS falha mesmo no alvo correto; HTTP 404) — só a raiz responde 200. Correção exige painel
+DNS/Vercel (intervenção do usuário) e bloqueia M15-G15/G18. Detalhes:
+`RELATORIO-M15-G13-CATALOGO-ESTOQUE-DOMINIO.md`.
+
+**Próxima ação: M15-G14** (identidades Auth + convite + MFA) — portão **requer autorização**
+para usuários reais; nada executado.
 
 ### Promoção staging→produção — concluída (28/09/2026)
 
