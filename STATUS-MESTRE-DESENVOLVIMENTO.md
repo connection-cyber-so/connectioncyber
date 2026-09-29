@@ -702,8 +702,23 @@ para o M15. Resultado: **1.511 NFes únicas (1.567 XMLs autorizados) de 4.225 �
   `.pfx`+`.p12` **com senha no nome do arquivo** — credencial exposta, custódia manual,
   nunca versionar. Relatório completo: `RELATORIO-M14-G9-CARGA-LOTE-REAL.md`.
 
-**Próxima ação: M15** (corte/comercial: identidades Auth dos 3 responsáveis, materialização
-de entidades `erp_people`/`erp_sales`/etc., catálogo e jornada de venda).
+**Próxima ação: M15-G0** (parecer de prontidão do piloto) — concluído, ver seção seguinte.
+
+### M15-G0 - parecer de prontidão do piloto (✓ CONCLUÍDO - 29/09/2026)
+
+Primeiro portão do M15, conforme `PARECER-TECNICO-M14-G8-ENCERRAMENTO-E-M15.md` — sem
+criar dados reais e sem acessar produção. Entregou os 5 itens exigidos: matriz de
+prontidão da Mania de Modas (tenant/domínio/estabelecimento/membership+MFA prontos;
+catálogo 0, materialização inexistente, fiscal 0, assinaturas 0), inventário de bloqueios
+(fiscal do contador **crítico**; Rose/CSC **0 memberships** com `m18.05/06` em `planned`;
+token CLI do staging expira ~04/10; `.pfx` com senha no nome; RPO manual; catálogo vazio),
+plano de ambientes/backup/restauração/corte/rollback por tenant, critérios de aceite
+(funcionais, financeiros, fiscais, segurança, desempenho) e a sequência determinística
+M15-G1→G7 separando ações automáticas (G1 materialização, G2 catálogo) dos portões que
+exigem interação (G3 usuários reais, G4 jornada com usuário, G5 contador, G6 pagamento,
+G7 corte). Relatório: `PARECER-TECNICO-M15-G0-PRONTIDAO-PILOTO.md`.
+
+**Próxima ação: M15-G1** (materialização de entidades a partir do ledger reconciliado).
 
 ### Promoção staging→produção — concluída (28/09/2026)
 

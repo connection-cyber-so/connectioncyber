@@ -1,74 +1,96 @@
-# M15-G0 — Prontidão da empresa-piloto
+# PARECER TÉCNICO M15-G0 — Prontidão do piloto (Mania de Modas)
 
-Data: 29/08/2026
+Data: 29/09/2026
+Escopo: parecer de prontidão, **sem criar dados reais, sem acessar produção** (conforme
+definição do `PARECER-TECNICO-M14-G8-ENCERRAMENTO-E-M15.md`). Evidências levantadas no
+Supabase staging `ozvylnaipubrmaadikvk` em 29/09/2026.
 
-Empresa-piloto técnica: `pilot-maniademoda`
+## 1. Matriz de prontidão — empresa-piloto Mania de Modas
 
-Subdomínio planejado: `maniademoda.connectioncyber.com.br`
+| Item | Estado em 29/09/2026 | Pronto? |
+|---|---|---|
+| Tenant ativo + vertical `varejo-moda-calcados` | ativo, `slug=maniademodas` | sim |
+| Domínio do tenant | `maniademoda.connectioncyber.com.br` (resolve `66.33.60.130`) | parcial¹ |
+| Estabelecimento | 1 ativo | sim |
+| Membership / identidade | 2 ativas + 1 revogada; usuária-piloto com senha e **MFA/TOTP** em AAL2 (M18-G22) | sim |
+| Capacidades (capabilities) | 20 ativas na plataforma (tenant incluído) | sim |
+| Catálogo (`products`) | **0 produtos em toda a plataforma** | não |
+| Importação de legado | ledger do piloto não carregado; **3 jobs concluídos** só nos tenants do M14-G9 (Rose/Casa/CSC) | não |
+| Materialização de entidades | tabelas `erp_people`/`erp_sales`/etc. **não existem** | não |
+| Emissão fiscal | 0 documentos, 0 séries, 0 reservas, 0 transmissões | não |
+| Entrega ao contador (M24) | 0 eventos; rota `/fiscal/contador` pronta | não |
+| Assinatura SaaS (M25) | plano `padrao` cadastrado, **0 assinaturas, 0 checkouts** | não |
+| Backup/R-003 | rotina corrigida e restore provado (21/21, 28/09); **nunca agendada** | parcial |
 
-Escopo desta etapa: análise e planejamento, sem contas, dados, DNS, transmissão fiscal ou produção.
+¹ O piloto aponta para `66.33.60.130` enquanto os demais `*.connectioncyber.com.br` apontam
+para `76.76.21.x` — alvos diferentes; confirmar que ambos são o mesmo projeto de deploy
+antes de qualquer corte.
 
-## Decisão executiva
+## 2. Inventário de bloqueios
 
-**Liberada somente para preparação sintética. Bloqueada para UAT real e produção.**
-
-A arquitetura multiempresa, os módulos de negócio, o motor fiscal global e a fundação do importador estão validados em staging. Os bloqueios restantes pertencem à configuração individual e à operação segura do piloto.
-
-## Matriz de prontidão
-
-| Área | Estado | Evidência | Condição para avançar |
+| Área | Bloqueio | Severidade | Libera em |
 |---|---|---|---|
-| Isolamento por tenant | Pronto em staging | RLS e testes cross-tenant dos módulos | Repetir testes no tenant sintético do piloto |
-| Importador | Pronto em staging | 0031 aplicada; 96/96; zero dados | Receber fonte somente em cadeia de custódia separada |
-| Motor fiscal | Condicional | Motor global, schemas, assinatura e TLS validados | Confirmar 13 requisitos fiscais e homologação individual |
-| Regime tributário | Condicional | Regime Normal/RPA conhecido | Contador confirmar CRT, CST, NCM, CFOP e operação em 31/08/2026 |
-| Autenticação/MFA | Bloqueado | Staging ainda tem política fraca e TOTP desabilitado | Endurecer Auth e exigir MFA privilegiado |
-| Backup/restauração | Bloqueado | RPO/RTO e restauração ainda não comprovados | Executar restauração mensurável e aprovar RPO/RTO |
-| Fonte legada | Bloqueado | Nenhuma cópia protegida recebida | M15-G5 com hash, mídia imutável e laboratório isolado |
-| Dispositivos/offline | Bloqueado | Inventário físico não confirmado | Identificar impressora, balança, gaveta, TEF e internet |
-| DNS/subdomínio | Condicional | Host explícito já definido | Validar domínio sem mudar nameservers; TTL e rollback |
-| Pagamentos reais | Bloqueado | Fluxo real e webhook de produção fora do escopo | Homologar credenciais, assinatura e reconciliação |
-| Observabilidade/suporte | Condicional | Auditoria técnica disponível | Definir alertas, responsáveis, escalonamento e hipercare |
+| **Fiscal** | Validação cadastral/tributária do contador pendente (esperada desde 31/08/2026, sem resposta registrada); nenhum documento emitido | **crítica** (corte) | M15-G5 + resposta do contador |
+| **Usuários** | Rose Variedades e CSC Distribuidora com **0 memberships** — steps `m18.05 finalize_identity` e `m18.06 require_mfa` em `planned` (convite enfileirado, sem identidade); Casa de Bolos e Loja da Benção completos até `m18.05` | alta | M15-G3 (**requer autorização**: criar usuários reais) |
+| **Credenciais** | Token CLI do staging (`connectioncyber-cli-m23`, 7 dias, emitido 27/09) expira por volta de 04/10; 5 `.pfx`+`.p12` **com senha no nome do arquivo** no acervo (incidente latente) | alta | renovar token; custódia dos PFX |
+| **Domínio** | 5 subdomínios públicos ativos; divergência de alvo (item ¹ acima) | média | M15-G2 |
+| **Backup** | RPO 24h **manual** (sem agendador autorizado); dumps R-003 existem só em `%TEMP%` da máquina local | média | agendar/rotina manual |
+| **Operação** | Catálogo vazio (0 produtos); log de execução só local (`staging/logs`, fora do Git); nenhum dado de venda para validar | média | M15-G1/G2 |
 
-## Riscos prioritários
+## 3. Plano de ambientes, backup, restauração, corte e rollback (por tenant)
 
-| ID | Risco | Nível | Controle obrigatório |
-|---|---|---:|---|
-| M15-R1 | usuário ou suporte acessar tenant incorreto | Crítico | host + membership + RLS + testes negativos + trilha de auditoria |
-| M15-R2 | corte sem restauração comprovada | Crítico | backup imutável, restore drill, RPO/RTO e rollback cronometrado |
-| M15-R3 | configuração fiscal incorreta | Crítico | confirmação contábil, preflight individual e homologação antes da produção |
-| M15-R4 | duplicidade ou perda na migração | Crítico | lote idempotente, reconciliação por contagem/valor e delta controlado |
-| M15-R5 | indisponibilidade de internet ou periférico parar o PDV | Crítico | inventário físico, política offline e teste fail-closed por dispositivo |
-| M15-R6 | credencial, A1, CSC ou PII vazar | Crítico | cofre externo, referência opaca, mascaramento e proibição em Git/log/browser |
-| M15-R7 | DNS interromper site ou e-mail | Alto | subdomínio explícito, sem troca de nameserver, TTL e rollback |
-| M15-R8 | usuário real criado antes do ambiente seguro | Alto | tenant sintético primeiro; conta real somente após Auth/MFA aprovado |
-| M15-R9 | pagamento real sem reconciliação | Crítico | homologação, webhook autenticado, ledger e teste de estorno |
-| M15-R10 | ausência de suporte durante o corte | Alto | janela, responsáveis, alertas, canal de incidente e hipercare |
+**Ambientes** — um único banco por ambiente, nunca compartilhar: `staging ozvylnaipubrmaadikvk`
+(desenvolvimento/homologação, **único autorizado para dados reais de importação**),
+`produção` (intocada até corte autorizado), laboratório isolado (`supabase start` local)
+para restaurações.
 
-## Critérios de aceite
+**Backup** — rotina `scripts/backup-connectioncyber-staging.ps1` (schema + data, SHA-256
+registrado), cadência manual diária (RPO 24h); `docs/runbooks/PILOT-BACKUP-RESTORE.md`
+com RTO 4h contratual / 8,4s medido.
 
-1. Segurança: zero acesso cross-tenant; MFA privilegiado; nenhum segredo exposto; ações administrativas auditadas.
-2. Funcional: cadastro, estoque, venda, caixa, financeiro, serviço aplicável e fechamento passam nos cenários críticos.
-3. Dados: origem imutável; contagens e valores reconciliados; replay sem duplicação; exceções formalmente aceitas.
-4. Fiscal: cadastro confirmado; homologação aprovada; A1/CSC sob custódia; produção bloqueada até go/no-go.
-5. Operação: backup/restauração aprovados; RPO/RTO aceitos; monitoramento, suporte, corte e rollback testados.
+**Restauração** — `scripts/verify-restore-r003.ps1` (21/21 PASS, imagem 17.6 isolada);
+nunca `drop schema auth cascade` em restauração parcial.
 
-## Sequência determinística M15
+**Corte por tenant** (só após autorização e critérios da seção 4): (1) snapshot final de
+backup; (2) congelar escrita (maintenance do app); (3) delta final de importação
+(idempotente, replay); (4) provisionar identidades + MFA; (5) abrir escrita; (6) smoke de
+jornada; (7) janela de observação de 24h.
 
-| Portão | Execução | Entrega | Intervenção necessária |
-|---|---|---|---|
-| M15-G1 | Automática | baseline de segurança pré-piloto e plano de remediação | Não, enquanto não alterar serviços remotos |
-| M15-G2 | Automática | tenant totalmente sintético e ensaio ponta a ponta | Portão antes de persistir tenant no staging |
-| M15-G3 | Interativa | inventário de equipamentos, rede e política offline | Acesso físico e escolhas operacionais |
-| M15-G4 | Interativa | configuração fiscal protegida e homologação individual | Contador, credenciais e autorização fiscal separada |
-| M15-G5 | Interativa | recebimento protegido da fonte legada | Caminho da cópia, cadeia de custódia e autorização |
-| M15-G6 | Controlada | migração real ensaiada em staging e reconciliada | Autorização para dados reais no staging |
-| M15-G7 | Controlada | UAT com usuários e aceite | Identidades reais e agenda do cliente |
-| M15-G8 | Controlada | ensaio de corte e rollback cronometrado | Janela operacional e backup aprovado |
-| M15-G9 | Decisão | go/no-go de produção | Aceite formal ConnectionCyber, cliente e fiscal |
-| M15-G10 | Controlada | corte de produção | Autorização explícita e janela aprovada |
-| M15-G11 | Operacional | hipercare, métricas, aceite final e lições | Acompanhamento do cliente |
+**Rollback** — (1) restaurar snapshot do passo 1 no ambiente anterior; (2) reverter
+`erp_import_jobs` para `rolled_back` apenas em lote novo (nunca apagar ledger reconciliado);
+(3) identidades criadas no corte → `revoked` (membership), não apagar `auth.users`.
 
-## Próxima ação automática
+## 4. Critérios de aceite
 
-M15-G1: auditoria da baseline de segurança pré-piloto, cobrindo Auth/MFA, RLS residual, backups, variáveis, CI/CD, Vercel, domínio, observabilidade, dependências e runbooks. A etapa deve produzir remediações locais e separar qualquer alteração remota em portões explícitos.
+- **Funcionais**: jornada completa login → catálogo → PDV → venda gravada com RLS isolado
+  por tenant; importação do tenant com `14/14`-estilo (`reconciliados == lotes`,
+  `bloqueados = 0`).
+- **Financeiros**: soma das vendas do dia = soma dos itens (centavos); assinatura M25 cobra
+  o valor do plano no primeiro pagamento aprovado e provisiona o tenant automaticamente.
+- **Fiscais**: NF-e transmitida com protocolo `cStat=100`, XML arquivado e entrega ao
+  contador com `manifest SHA-256` + recibo (M24). **Bloqueado** até o contador.
+- **Segurança**: todo owner com MFA ativo em AAL2; REST anônimo 200 sem `42501`; nenhum
+  dado pessoal em log ou repositório (padrão M21-G7/M14-G9).
+- **Desempenho**: carga de um lote de 1.000 registros < 60s (medido: 10,4s no lote real da
+  Rose); abertura de tela do portal < 2s em rede normal.
+
+## 5. Sequência M15-G1 em diante (determinística)
+
+| Gate | Entrega | Tipo |
+|---|---|---|
+| **M15-G1** | Materialização de entidades: migration cria `erp_people`/`erp_products`/`erp_sales`/…, popula a partir do ledger reconciliado, com reconciliação de conferência | automático |
+| **M15-G2** | Catálogo/estoque reais por tenant + conferência domínio/deploy | automático |
+| **M15-G3** | Identidades Auth + convite + MFA dos responsáveis (Rose, CSC e demais) | **requer autorização** (usuários reais) |
+| **M15-G4** | Jornada de venda com usuário real logado (PDV, caixa, relatório) | **requer usuário** |
+| **M15-G5** | 1ª entrega fiscal ao contador (M24) após resposta do contador | **requer contador** |
+| **M15-G6** | 1ª assinatura/cobrança real (M25) | **requer pagamento** |
+| **M15-G7** | Corte + aceite + janela de observação 24h | **requer autorização** |
+
+## 6. Parecer
+
+O projeto está **pronto para M15-G1/G2** (ações automáticas, staging, sem usuários reais).
+M15-G3 em diante depende de autorização explícita para usuários reais, contador, pagamento
+e corte — nenhum deles está autorizado por este parecer.
+
+Bloqueios críticos a acompanhar: resposta do contador (fiscal) e renovação do token CLI do
+staging (expira ~04/10/2026).
