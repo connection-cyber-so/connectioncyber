@@ -1,4 +1,4 @@
-import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
+import { MercadoPagoConfig, Payment, PreApproval, Preference } from 'mercadopago';
 import { env, isMercadoPagoEnabled } from '@/config/env';
 import { validateMercadoPagoWebhookSignature } from './webhookSignature';
 
@@ -64,6 +64,68 @@ export async function createPaymentPreference(params: CreatePreferenceParams) {
     preferenceId: response.id,
     checkoutUrl: response.init_point,
     sandboxCheckoutUrl: response.sandbox_init_point,
+  };
+}
+
+/**
+ * Cria uma assinatura recorrente (Preapproval) vinculada à intenção de
+ * checkout. `externalReference` carrega o id da intenção para o webhook
+ * reconstruir o fluxo sem confiar no corpo da notificação.
+ */
+export async function createSubscriptionPreapproval(params: {
+  intentId: string;
+  reason: string;
+  amountCents: number;
+  payerEmail?: string;
+}) {
+  const client = getClient();
+  const preapproval = new PreApproval(client);
+
+  const response = await preapproval.create({
+    body: {
+      reason: params.reason,
+      external_reference: params.intentId,
+      payer_email: params.payerEmail,
+      auto_recurring: {
+        frequency: 1,
+        frequency_type: 'months',
+        transaction_amount: Number(params.amountCents) / 100,
+        currency_id: 'BRL',
+      },
+      back_url: `${env.site.url}/planos`,
+    },
+  });
+
+  if (!response.id || !response.init_point) {
+    throw new Error('Mercado Pago não devolveu a assinatura');
+  }
+
+  return {
+    preapprovalId: response.id,
+    checkoutUrl: response.init_point,
+    payerId: response.payer_id !== undefined && response.payer_id !== null
+      ? String(response.payer_id)
+      : null,
+    status: response.status ?? null,
+    nextPaymentDate: response.next_payment_date ?? null,
+  };
+}
+
+/** Consulta o estado atual de uma assinatura (Preapproval) no Mercado Pago. */
+export async function getPreapprovalStatus(preapprovalId: string): Promise<{
+  id: string;
+  status: string | null;
+  externalReference: string | null;
+  nextPaymentDate: string | null;
+}> {
+  const client = getClient();
+  const preapproval = new PreApproval(client);
+  const result = await preapproval.get({ id: preapprovalId });
+  return {
+    id: String(result.id ?? preapprovalId),
+    status: result.status ?? null,
+    externalReference: result.external_reference ?? null,
+    nextPaymentDate: result.next_payment_date ?? null,
   };
 }
 

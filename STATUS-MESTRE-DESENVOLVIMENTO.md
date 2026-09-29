@@ -6,7 +6,7 @@
 
 **Atualizado em:** 28/09/2026
 
-**Versão do documento:** 2.3.1
+**Versão do documento:** 2.4.0
 
 **Produção alterada nesta fase:** não
 
@@ -362,6 +362,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M18 | Persistência visual e piloto Mania de Modas | **G0–G22 concluídos em staging** | Fronteira visual local→persistente, adaptador Supabase, agregados, migration 0034/0036, provisionamento e ativação completa do tenant piloto (Mania de Modas) | 0034/0036 aplicadas; tenant/estabelecimento/membership/convite criados (`M18_G21_PROVISIONING_OK`); G22 fechado 04/09/2026 — convite aceito, senha definida, MFA/TOTP cadastrado, sessão AAL2 validada e primeira jornada visual real (dashboard, leitura) confirmadas por print do próprio usuário-piloto. Pendência cosmética não bloqueante: renderização do `<img>` do QR code (fallback de segredo manual funcionou). |
 | M19 | Redesign visual + roteamento de login | **G0–G5 concluídos** | Tema global/dark mode (G1), redesign do painel (G2), branding por tenant (G3, migration 0035 aplicada), engrenagem de branding no portal (G4), roteamento de login por papel sem lookup de e-mail (G5) | Programa concluído. `platform` 165/165, `portal` 75/75, `site` 19/19; type-check/lint/build limpos nos 3. Uma migration nova (0035), aplicada em staging com preflight+dry-run+push. |
 | M24 | Envio fiscal ao contador | **G0 aplicado em staging (28/09/2026)** | Pacote fiscal mensal (XML+DANFE) com manifesto SHA-256, recibo do contador e auditoria `logs_access`: migration 0050 (papel `contador`, 3 tabelas RLS, permissão `fiscal.deliver`, 5 RPCs, bucket `fiscal-deliveries`), rota `/fiscal/contador` no portal (publicar/recibo/anulação) e substituição do AnyDesk | Transação **61/61** `ROLLBACK` + resíduo zero; **0050 aplicada** (histórico 0001–0050); pós-apply `M24_POST_APPLY_OK`; **36/36 + 25/25** remotos; regressão 0049 **12/12 + 24/24**; REST anônimo 200; portal lint/tsc/**155/155**; produção intocada. |
+| M25 | Assinatura SaaS + auto-provisionamento | **G0 aplicado em staging (28/09/2026)** | Cobrança mensal recorrente (Mercado Pago Preapproval, cartão salvo) com criação automática da empresa no primeiro pagamento aprovado: migration 0051 (5 tabelas RLS, 6 RPCs service_role-only, plano `padrao` com preço placeholder R$ 199), tela `/planos`, endpoint `create-subscription`, webhook bifurcado (assinatura × pedido) e catálogo de planos parametrizado | Transação **66/66** `ROLLBACK` + resíduo zero; **0051 aplicada** (histórico 0001–0051); pós-apply `M25_POST_APPLY_OK`; **38/38 + 28/28** remotos; regressão M24 **36/36 + 25/25**; REST anônimo 4×200 (inclui `saas_plans`); site lint/tsc/**36/36** + build; produção intocada. |
 | M23 | Portal de ensino (Academia) | **G0–G3 concluídos em staging** | Núcleo único + 2 portas: migration 0044 (capacidade, permissões, 5 tabelas RLS fail-closed, comando único de cursos/matrículas/progresso), correção do 42501 do catálogo público, 0045 (drift do hook de signup `public.handle_new_user`), 0046 (e-mail da identidade alinhado ao Auth), 0047 (trigger de sincronização `auth.users.email` → `public.users.email`), G1 porta 1 em `apps/portal` (catálogo, matrícula e progresso por `academy_command`) e G2 catálogo global + vínculo por tenant (migration 0048, modelo C+, tela `/academia/admin`, consolidação de dados 3→1) | Validação transacional remota 32/32 com `ROLLBACK` e resíduo zero; `db push` exclusivo da 0044 (histórico 0001–0044); pós-apply + 18/18 + 14/14 remotos; REST anônimo `42501 → 200`; 0045 (11/11, 0 identidades órfãs), 0046 (4/4, 0 divergências de e-mail) e 0047 (7/7, 1 trigger, `anon` sem execução) aplicadas; G2: transação **49/49** `ROLLBACK` local+remoto, pós-apply **24/24 + 25/25** remotos, **0048 aplicada** (histórico 0001–0048), REST anônimo 200, `platform` 253/253, `portal` 149/149 + tsc/lint/build, 1 curso global com 8 módulos e **5/5 empresas vinculadas**; capacidade `academy.courses` ativa nos 5 tenants e `academy.manage` no papel `owner`. G3 ativação automática: corte de capacidade em `academy_sync_links` + gatilhos em `erp_tenant_capabilities`/`erp_tenant_capability_exceptions` (migration 0049), transação **36/36** `ROLLBACK` local+remoto, **0049 aplicada** (histórico 0001–0049), pós-apply + **12/12 + 24/24** e regressão 0048 **24/24 + 25/25** remotos, rota `/treinamento` ("do seu sistema" + "gerais") no portal, `platform` 265/265, `portal` 155/155 + tsc/lint. |
 
 ## 8. Critérios globais de validação
@@ -597,7 +598,39 @@ Migration **0050** aplicada exclusivamente no staging (histórico 0001–0050): 
 lint/tsc/**155/155**. Observação: o repositório estava vinculado ao projeto de **produção**
 (`qfg`) após a promoção e foi **relinkado ao staging** (`ozvy`) antes do push. Documentos:
 `PARECER-TECNICO-M24-ENVIO-CONTADOR.md`, `RELATORIO-M24-G0-ENTREGA-LOCAL.md`.
-**Próxima ação: M25** (assinatura Mercado Pago + auto-provisionamento).
+Commits: `4e8320e` (feat) + `5d387e3` (fix do conflito page/route em `/fiscal/contador`),
+Quality gates verdes. **Próxima ação: M25** (assinatura Mercado Pago +
+auto-provisionamento).
+
+### M25-G0 — assinatura SaaS com auto-provisionamento (✓ APLICADO EM STAGING — 28/09/2026)
+
+Segunda etapa da sequência autorizada ("M24 → M25 → R-003 → M14"). Cobrança mensal
+recorrente via **Mercado Pago Preapproval**; a empresa do cliente é criada
+**automaticamente** no primeiro pagamento aprovado, encadeando o contrato de
+provisionamento da 0034 (`prepare → record → finalize`) — decisão do usuário: "automático
+ao pagar". Modelagem comercial em `saas_plans`/`saas_plan_capabilities` (FK para
+`erp_capability_catalog`), seed `padrao` com `price_cents=19900` **placeholder**
+(ajustar por `update saas_plans set price_cents=... where code='padrao'`).
+
+Fluxo: `/planos` (catálogo por RLS anônima + formulário da empresa) →
+`POST /api/payments/create-subscription` (sessão obrigatória, intenção idempotente,
+Preapproval, bind) → checkout MP → webhook com tópico `preapproval`/`preapproval_payment`
+→ `saas_activate_intent_v1` (provisiona) ou `saas_set_subscription_status_v1`
+(suspende/reativa capabilities), com evento auditado em `saas_billing_events`.
+
+Local: migration aplicada (`ON_ERROR_STOP`), estrutural **38/38**, adversarial **28/28**,
+transação gerada **66/66** com `ROLLBACK`, site `tsc` 0 erros + lint limpo +
+`node --test` **36/36** + `next build` exit 0.
+
+Staging (runner `run-0051-remote.ps1`): validate — preflight `M25_PREFLIGHT_OK` ×2,
+transação **66/66** `M25_0051_TRANSACTION_66_OF_66_ROLLBACK`
+(SHA-256 `14E0BF26F1DDEF3AFCD107D68DA1C8EA943B62CBD6C56E85F93191158BD61E28`), resíduo
+zero; apply — push exclusivo da **0051** (histórico 0001–0051), `M25_POST_APPLY_OK`,
+**38/38 + 28/28**, regressão M24 **36/36 + 25/25**, preflight passou a recusar
+(esperado), REST anônimo `courses/products/cms_content/saas_plans` **200**. Produção
+intocada. Documentos: `PARECER-TECNICO-M25-ASSINATURA-SAAS.md`,
+`RELATORIO-M25-G0-ENTREGA.md`. Quality gates verdes.
+**Próxima ação: R-003** (backup gerenciado + RPO/RTO).
 
 ### Promoção staging→produção — concluída (28/09/2026)
 
@@ -713,6 +746,8 @@ portões separados e bloqueados.
 | 6.7.0 | 30/08/2026 | M15-G1 | Baseline local auditada em Auth, MFA, rede, segredos, dependências, CI/CD, headers, backup, observabilidade e runbooks. | 316 testes e zero vulnerabilidades runtime; 5 críticos, 6 altos e 4 médios; UAT real reprovada e remediação local R1 liberada. |
 | 6.8.0 | 30/08/2026 | M15-G1-R1 | Headers compartilhados, redirect fail-closed, Node 22, CI expandido, seeds opt-in e três runbooks implementados. | 337/337, TypeScript, ESLint e três builds aprovados; M15-G2 sintético liberado; remoto e produção intocados. |
 | 7.0.0 | 28/09/2026 | M24-G0 | Pacote fiscal mensal ao contador (migration 0050, rota `/fiscal/contador`, auditoria `logs_access`) substituindo o envio por AnyDesk; artefatos de gate (preflight, transação, pós-apply, runner). | 61/61 transacional `ROLLBACK` + resíduo zero; 0050 aplicada em staging (histórico 0001–0050); 36/36 + 25/25 remotos; regressão 0049 12/12 + 24/24; portal 155/155 + lint/tsc; produção intocada; repo relinkado de `qfg` para `ozvy`. |
+
+| 8.0.0 | 28/09/2026 | M25-G0 | Assinatura SaaS recorrente com auto-provisionamento (migration 0051: 5 tabelas RLS + 6 RPCs + seed do plano; tela `/planos`; endpoint `create-subscription`; webhook bifurcado; `subscriptionLifecycle`/`subscriptionValidation`/`webhookRouting` puros com `node:test`). | 66/66 transacional `ROLLBACK` + resíduo zero; 0051 aplicada em staging (histórico 0001–0051); 38/38 + 28/28 remotos; regressão M24 36/36 + 25/25; site lint/tsc 0 + 36/36 + build; produção intocada. |
 
 ## 12. Protocolo de atualização futura
 

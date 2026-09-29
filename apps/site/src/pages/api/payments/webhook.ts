@@ -1,11 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { env, isMercadoPagoEnabled, isSupabaseConfigured } from '@/config/env';
-import { getPaymentStatus, isValidWebhookSignature } from '@/lib/payments';
+import { getPaymentStatus, getPreapprovalStatus, isValidWebhookSignature } from '@/lib/payments';
 import { getSupabaseAdminClient } from '@/lib/supabaseClient';
-
-function firstString(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
+import { processSubscriptionNotification, type SubscriptionAdminClient } from '@/lib/subscriptionLifecycle';
+import { classifyWebhookNotification } from '@/lib/webhookRouting';
 
 function mapOrderStatus(paymentStatus: string | null | undefined) {
   if (paymentStatus === 'approved') return 'pago';
@@ -23,15 +21,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(503).json({ error: 'Pagamentos indisponíveis neste ambiente' });
   }
 
-  const paymentId =
-    firstString(req.query['data.id'] as string | string[] | undefined) ??
-    (typeof req.body?.data?.id === 'string' ? req.body.data.id : undefined);
-  if (!paymentId) {
-    return res.status(400).json({ error: 'Identificador do pagamento ausente' });
+  const notification = classifyWebhookNotification({ query: req.query, body: req.body });
+  if (notification.kind === 'invalid') {
+    return res.status(400).json({ error: 'Identificador da notificação ausente' });
   }
-  if (!isValidWebhookSignature(req.headers, paymentId)) {
+  if (!isValidWebhookSignature(req.headers, notification.id)) {
     return res.status(401).json({ error: 'Assinatura inválida' });
   }
+
+  if (notification.kind === 'subscription') {
+    try {
+      const admin = getSupabaseAdminClient();
+      const snapshot =
+        notification.topic === 'preapproval'
+          ? await getPreapprovalStatus(notification.id)
+          : null;
+      const outcome = await processSubscriptionNotification(
+        admin as unknown as SubscriptionAdminClient,
+        {
+          topic: notification.topic,
+          externalId: notification.id,
+          snapshot,
+          payload:
+            req.body && typeof req.body === 'object' && !Array.isArray(req.body)
+              ? (req.body as Record<string, unknown>)
+              : {},
+        },
+      );
+      return res.status(200).json({ ok: true, ...outcome });
+    } catch (error) {
+      console.error('[api/payments/webhook] erro ao processar assinatura', error);
+      return res.status(500).json({ ok: false });
+    }
+  }
+
+  const paymentId = notification.id;
 
   try {
     const payment = await getPaymentStatus(paymentId);
