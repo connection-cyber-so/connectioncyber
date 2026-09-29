@@ -1,0 +1,11 @@
+import test from'node:test';import assert from'node:assert/strict';import{validateSourceManifest}from'../src/index.mjs';
+const tenant='12000000-0000-4000-8000-000000000001';
+const raw=(overrides={})=>({contractVersion:'1.1',manifestId:'11000000-0000-4000-8000-000000000001',tenantId:tenant,extractionId:'13000000-0000-4000-8000-000000000001',sourceType:'nfe-xml',sourceSha256:'a'.repeat(64),schemaVersion:'legacy-sicnet-nfe-v1',capturedAt:'2026-08-29T12:00:00-03:00',immutable:true,containsRealData:true,...overrides});
+test('v1.1 aceita dado real declarado e recebe hash',()=>assert.match(validateSourceManifest(raw()).manifestHash,/^[0-9a-f]{64}$/));
+test('v1.1 aceita lote sintetico declarado',()=>assert.match(validateSourceManifest(raw({containsRealData:false})).manifestHash,/^[0-9a-f]{64}$/));
+test('v1.0 continua bloqueando dado real',()=>assert.throws(()=>validateSourceManifest(raw({contractVersion:'1.0',containsRealData:true})),/REAL_DATA/));
+test('v1.1 exige a flag de dado real',()=>assert.throws(()=>validateSourceManifest(raw({containsRealData:undefined})),/INVALID_REAL_DATA_FLAG/));
+test('versao de contrato desconhecida bloqueia',()=>assert.throws(()=>validateSourceManifest(raw({contractVersion:'1.2'})),/UNSUPPORTED_CONTRACT/));
+test('fonte nfe-xml aceita tambem no contrato 1.0',()=>assert.match(validateSourceManifest(raw({contractVersion:'1.0',containsRealData:false})).manifestHash,/^[0-9a-f]{64}$/));
+test('credencial escondida continua bloqueada em v1.1',()=>assert.throws(()=>validateSourceManifest(raw({options:{password:'x'}})),/FORBIDDEN/));
+test('caminho da fonte continua bloqueado em v1.1',()=>assert.throws(()=>validateSourceManifest(raw({sourcePath:'C:/real'})),/LOCATION/));

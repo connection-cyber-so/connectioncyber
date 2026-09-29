@@ -327,7 +327,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | R-005 | Continuidade do PDV sem internet ainda não foi definida. | Crítica | Decidir contingência/offline antes do módulo de vendas. |
 | R-006 | A lista documental de clientes possui divergências de quantidade, e-mail e subdomínio. | Alta | Criar cadastro mestre validado antes de provisionamento em massa. |
 | R-007 | Existe repositório histórico específico de cliente, divergente do padrão multi-tenant aprovado. | Média | Auditar e incorporar somente ativos necessários; não criar novos forks. |
-| R-008 | Não há arquivo de backup no acervo analisado. | Planejado | Não bloqueia o ERP; antes do M14, receber cópia protegida fora do Git, registrar metadados e SHA-256. |
+| R-008 | Não há arquivo de backup no acervo analisado. | Fechado | **29/09/2026**: 6 backups SQL Server (41–198 MB) inventariados com SHA-256 fora do Git (`RELATORIO-M14-G9-CARGA-LOTE-REAL.md`); 6 certificados `.pfx`/`.p12` **com senha no nome do arquivo** = credencial exposta, custódia manual, nunca versionar. |
 | R-009 | O schema atual possui colisão semântica com nomes do futuro ERP e 16 tabelas públicas observadas sem RLS. | Crítica | Criar modelo `erp_*` isolado no M02; não carregar legado em tabelas do site, Mercado Pago ou suporte remoto. |
 | R-010 | O modelo atual assume predominantemente um tenant por usuário em `users.tenant_id`. | Alta | Introduzir memberships aditivas no M02/M04 e resolver tenant ativo no servidor. |
 | R-011 | `module_catalog` mistura o conceito de serviço contratado com o de capacidade técnica do ERP. | Alta | Criar catálogo ERP próprio; manter o catálogo comercial existente sem reutilização semântica. |
@@ -355,7 +355,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 | M11 | Atendimento e acesso remoto | Aplicado e validado em staging | Tickets, SLA, dispositivos, consentimentos, sessões e auditoria | 0028 aplicada; 87/87 asserções aprovadas; zero dados reais. |
 | M12 | Agente local e periféricos | Aplicado e validado em staging | Impressão, etiqueta, balança, TEF e contingência/offline | 0029 aplicada; 84/84 asserções aprovadas; 12 tabelas com RLS e zero dados reais. |
 | M13 | Fiscal e certificado A1 | Motor global validado; piloto pendente | Contratos, schemas, assinatura, estados, SOAP/TLS e perfis tributários fail-closed | Retomar validação individual após confirmação do contador em 31/08/2026; emissão real permanece bloqueada. |
-| M14 | Engenharia reversa e importador | Fundação concluída em staging | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | 0031 aplicada; 96/96 pós-aplicação; execução com fonte real transferida aos portões individuais do M15. |
+| M14 | Engenharia reversa e importador | **Fundação + carga real concluídas em staging** | Laboratório, adaptadores, lotes, mapa de IDs e reconciliação | 0031 + **0052** aplicadas; 96/96 pós-aplicação; **carga real (29/09): 4.225 XMLs → 1.511 NFes únicas → 3.900 registros em 3 tenants, 14/14 lotes reconciliados**; materialização de entidades e corte ficam no M15. |
 | M15 | Piloto e implantação por cliente | G0–G11 concluídos em staging | Jornada visual sintética consolidada (cadastro→catálogo→estoque→PDV→caixa→financeiro) e preparação local de hipercare | Sintético/local encerrado; depende do M18 para persistência real. UAT com usuário real e produção seguem bloqueados. |
 | M16 | Capacidades por tenant e industrialização multiempresa | G0–G8 concluídos em staging | Contrato canônico de capacidades, motor fail-closed, migration 0032, painel administrativo e simulador de ondas | 0032 aplicada e validada em staging; ativação de capacidade por tenant real depende do piloto. |
 | M17 | Jornada persistente server-side | G0–G12 concluídos em staging | Autorização server-side, cadastro/catálogo/estoque/PDV/caixa/financeiro com repositório local, migration 0033 | 0033 aplicada e validada em staging; backend persistente pronto, consumido pelo M18. |
@@ -659,7 +659,51 @@ Supabase é só schema (comentário falso removido). RPO/RTO definidos e documen
   recriados pelas migrations — 0045). ⚠️ Nunca `drop schema auth cascade` num restore parcial.
 - Limitação registrada: backup R-003 nunca foi agendado (RPO depende de rotina manual).
 
-**Próxima ação: M14 lote real** (4.225 XMLs em `C:\Users\joaqu\Downloads\SICNETNFS`).
+**Próxima ação: M14 lote real** (4.225 XMLs em `C:\Users\joaqu\Downloads\SICNETNFS`) —
+concluída, ver seção seguinte.
+
+### M14-G9 - carga real do lote SICNET no ledger (✓ CONCLUÍDO - 29/09/2026)
+
+Quarta e última etapa da sequência autorizada ("M24 → M25 → R-003 → M14 lote real"),
+modalidade **A escolhida pelo usuário**: provisionar 2 tenants novos no staging (Rose
+Variedades, CSC Distribuidora) e importar os 3 emitentes completos; corte/comercial fica
+para o M15. Resultado: **1.511 NFes únicas (1.567 XMLs autorizados) de 4.225 → 3.900 registros canônicos
+→ 14/14 lotes reconciliados (balanced), 0 bloqueados, R$ 49.932,68 declarado == aplicado**.
+
+- **Levantamento da fonte**: 4.225 XMLs = 1.567 `nfeProc` (autorizados, mod 65), 102
+  rascunhos (`AntesDeValidar`/`<NFe>` sem protocolo), 2.547 `CFe` de SAT (mod 59 — fora do
+  escopo NF-e) e 9 consultas SEFAZ (`consSitNFe`/`retConsSitNFe`); 16 pastas de emitentes,
+  mas só 3 têm XML fiscal (os demais são MEIs/docs/PDF). Classificação por **conteúdo**, não
+  por nome de arquivo.
+- **Ledger**: migration **0052** (`nfe_xml` no check de `source_type` + allowlist da RPC
+  `erp_register_import_manifest`) aplicada em staging com gate completo — transação
+  **16/16 ROLLBACK** + resíduo zero, `db push` exclusivo, pós-apply OK, **16/16** +
+  regressões **96/96 + 38/38 + 28/28** remotos, preflight recusando (`historico 0001-0052`),
+  REST anônimo 200.
+- **Carga**: `scripts/m14-import-nfe.mjs` (novo, sem dado real) — triagem, manifesto
+  determinístico (hash por emitente, `capturedAt` = maior mtime), contrato **v1.1**
+  (`containsRealData` obrigatório; v1.0 intacto), planImport → lotes ≤1000 canônicos →
+  SQL gerado em `%TEMP%\connectioncyber-m14\` (fora do Git) → RPCs `service_role` via
+  `db query --linked -f` com `set_config` de claims → `finalize` com reconciliação.
+  Por tenant: Rose Variedades **1.455 NFes / 3.703 itens / R$ 38.730,07** (6 lotes);
+  Casa de Bolos **100 / 50 NFes / 175 itens / R$ 11.055,00** (4 lotes); CSC Distribuidora
+  **12 / 6 NFes / 22 itens / R$ 147,61** (4 lotes). Verificação independente no banco:
+  manifesto `validated`, job `completed`, `14/14 balanced`, `esperado == real` e
+  `valor_esperado == valor_real` em todos os lotes; re-execução é replay idempotente.
+- **Achado de engenharia**: o SQL gerado saiu com `begin;` sem `commit;` — o resumo
+  interno do DO block "provava" a carga, mas a sessão encerrava em rollback (0 linhas
+  persistidas). Corrigido (commit explícito) e re-executado; a prova só vale com commit e
+  verificação independente fora da transação.
+- **Dado real fora do repo**: config, SQLs e relatórios só em
+  `%TEMP%\connectioncyber-m14\`; nenhum CNPJ/CPF/chave vai ao repositório nem ao banco —
+  o ledger guarda apenas `canonical_key` (hash p/ clientes), `source_key_hash`,
+  `payload_hash` e métricas.
+- **Inventário do acervo**: 6 backups SQL Server (41–198 MB) com SHA-256 (R-008) e 5
+  `.pfx`+`.p12` **com senha no nome do arquivo** — credencial exposta, custódia manual,
+  nunca versionar. Relatório completo: `RELATORIO-M14-G9-CARGA-LOTE-REAL.md`.
+
+**Próxima ação: M15** (corte/comercial: identidades Auth dos 3 responsáveis, materialização
+de entidades `erp_people`/`erp_sales`/etc., catálogo e jornada de venda).
 
 ### Promoção staging→produção — concluída (28/09/2026)
 
