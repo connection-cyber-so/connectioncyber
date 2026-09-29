@@ -322,7 +322,7 @@ Arquivos `.pfx`, senhas de certificado, backups de clientes e credenciais não p
 |---|---|---:|---|
 | R-001 | `client_services`, `remote_configs` e `remote_automations` não possuem isolamento adequado para receber dados sensíveis. | Crítica | RLS/revogação de acesso e remodelagem por `tenant_id` antes de uso. |
 | R-002 | As telas fornecidas não revelam nomes físicos, chaves, triggers, procedures e versões do banco SQL Server legado. | Alta | Restaurar um backup representativo em ambiente isolado e gerar dicionário técnico. |
-| R-003 | As imagens do Supabase não demonstram backup gerenciado ou restauração testada. | Crítica | Definir RPO/RTO e provar restauração antes do piloto. |
+| R-003 | As imagens do Supabase não demonstram backup gerenciado ou restauração testada. | Crítica | **FECHADO (28/09/2026)**: RPO 24h manual + RTO 4h (medido 8,4s); restore provado 21/21 com assinatura md5 idêntica (`88a6466c77dec3e609098e49f9b62295`); runbook `PILOT-BACKUP-RESTORE.md` + `verify-restore-r003.ps1`. |
 | R-004 | Impressoras, balanças, TEF, gavetas e A1 podem exigir integração local. | Crítica | Prova técnica de agente local e inventário de equipamentos por cliente. |
 | R-005 | Continuidade do PDV sem internet ainda não foi definida. | Crítica | Decidir contingência/offline antes do módulo de vendas. |
 | R-006 | A lista documental de clientes possui divergências de quantidade, e-mail e subdomínio. | Alta | Criar cadastro mestre validado antes de provisionamento em massa. |
@@ -630,7 +630,36 @@ zero; apply — push exclusivo da **0051** (histórico 0001–0051), `M25_POST_A
 (esperado), REST anônimo `courses/products/cms_content/saas_plans` **200**. Produção
 intocada. Documentos: `PARECER-TECNICO-M25-ASSINATURA-SAAS.md`,
 `RELATORIO-M25-G0-ENTREGA.md`. Quality gates verdes.
-**Próxima ação: R-003** (backup gerenciado + RPO/RTO).
+**Próxima ação: R-003** (backup gerenciado + RPO/RTO) — concluída, ver seção seguinte.
+
+### R-003-G0 - backup gerenciado + RPO/RTO provado (✓ CONCLUÍDO - 28/09/2026)
+
+Terceira etapa da sequência autorizada ("M24 → M25 → R-003 → M14"). Achado crítico
+**fechado**. Rotina de backup `scripts/backup-connectioncyber-staging.ps1` corrigida para
+gerar **dois** dumps (`--linked` schema + `--linked --data-only` dados) — o default da CLI
+Supabase é só schema (comentário falso removido). RPO/RTO definidos e documentados em
+`docs/runbooks/PILOT-BACKUP-RESTORE.md`:
+
+- **RPO 24h** (rotina manual ao fim do dia; nunca executada neste clone; sem agendador
+  autorizado) e **RTO 4h** contratual / **8,4s medido** no restore puro (≈15min
+  realistas com download + ambiente isolado + validações).
+- **Prova de restauração executada**: `scripts/verify-restore-r003.ps1` → **21/21 PASS**
+  (relatório `%TEMP%\connectioncyber-r003\r003-report-20260928-235947.txt`): assinatura md5
+  do schema idêntica staging↔restaurado `88a6466c77dec3e609098e49f9b62295`; contagens
+  idênticas (232 tabelas, 2.342 colunas, 101 funções, 396 policies, 232 RLS, 5 tenants,
+  12 usuários, 25 capabilities); seed M25 + grant `anon` em `saas_plans` presentes.
+  Container isolado `public.ecr.aws/supabase/postgres:17.6.1.155` (mesma versão 17.6 do
+  staging), porta 55432, destruído no fim.
+- Hashes dos dumps usados: schema
+  `5A265EBF24AE29F8D773A49660F028DB2605165B49568345E5BB847B2F5BE224`; dados
+  `2C6E48A968F5AA00FA3A2DAC1CDF89E029EB212B9710EDF2CA9EF3141C4E94C6` (sensíveis, ficam só
+  em `%TEMP%\connectioncyber-r003\`, fora do Git).
+- Perímetro: schema `public` + `erp_security`; `auth`/`storage` ficam com o serviço gerenciado
+  do Supabase (INSERTs filtrados por drift do GoTrue; policies de storage e trigger de signup
+  recriados pelas migrations — 0045). ⚠️ Nunca `drop schema auth cascade` num restore parcial.
+- Limitação registrada: backup R-003 nunca foi agendado (RPO depende de rotina manual).
+
+**Próxima ação: M14 lote real** (4.225 XMLs em `C:\Users\joaqu\Downloads\SICNETNFS`).
 
 ### Promoção staging→produção — concluída (28/09/2026)
 
@@ -748,6 +777,8 @@ portões separados e bloqueados.
 | 7.0.0 | 28/09/2026 | M24-G0 | Pacote fiscal mensal ao contador (migration 0050, rota `/fiscal/contador`, auditoria `logs_access`) substituindo o envio por AnyDesk; artefatos de gate (preflight, transação, pós-apply, runner). | 61/61 transacional `ROLLBACK` + resíduo zero; 0050 aplicada em staging (histórico 0001–0050); 36/36 + 25/25 remotos; regressão 0049 12/12 + 24/24; portal 155/155 + lint/tsc; produção intocada; repo relinkado de `qfg` para `ozvy`. |
 
 | 8.0.0 | 28/09/2026 | M25-G0 | Assinatura SaaS recorrente com auto-provisionamento (migration 0051: 5 tabelas RLS + 6 RPCs + seed do plano; tela `/planos`; endpoint `create-subscription`; webhook bifurcado; `subscriptionLifecycle`/`subscriptionValidation`/`webhookRouting` puros com `node:test`). | 66/66 transacional `ROLLBACK` + resíduo zero; 0051 aplicada em staging (histórico 0001–0051); 38/38 + 28/28 remotos; regressão M24 36/36 + 25/25; site lint/tsc 0 + 36/36 + build; produção intocada. |
+
+| 9.0.0 | 28/09/2026 | R-003-G0 | Backup gerenciado + RPO/RTO provado: rotina de dump corrigida (schema E `--data-only`), runbook `PILOT-BACKUP-RESTORE.md` reescrito com RPO 24h / RTO 4h e perímetro `auth`/`storage`, script `verify-restore-r003.ps1` (restore em container isolado 17.6 + 21 validações). | Prova 21/21 PASS; assinatura md5 idêntica staging↔restaurado `88a6466c...`; contagens idênticas (232 tabelas/2.342 colunas/101 funções/396 policies); RTO medido 8,4s; R-003 **fechado**; dumps sensíveis só em `%TEMP%`. |
 
 ## 12. Protocolo de atualização futura
 

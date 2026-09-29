@@ -20,7 +20,8 @@
 # 2. Sincronizar OneDrive (codigo)
 # 3. Sincronizar HD externo (codigo)
 # 4. Gerar snapshot ZIP versionado (codigo)
-# 5. Gerar dump do banco Supabase staging (schema+dados) via
+# 5. Gerar dumps do banco Supabase staging (schema E dados em arquivos
+#    separados - o default da CLI e so schema; dados via --data-only) via
 #    `supabase db dump --linked` e copiar pra Snapshots, OneDrive/database
 #    e HD externo/database
 # 6. Commit + Push da branch staging (SOMENTE codigo, e SOMENTE se
@@ -277,11 +278,17 @@ function Backup-SupabaseDatabase {
 
     # --linked usa o projeto ja vinculado neste clone (staging,
     # ozvylnaipubrmaadikvk) - confirma antes: `npx supabase projects list`.
-    # Dump padrao inclui schema + dados (nao so estrutura).
+    # IMPORTANTE (R-003): o dump padrao da Supabase CLI e APENAS SCHEMA.
+    # Dados exigem a flag --data-only, entao geramos DOIS arquivos.
+    $DbDataFile = Join-Path $DbDir "$($ProjectName)_db_data_$DataArquivo.sql"
     Push-Location $ProjectRoot
     try {
         & npx supabase db dump --linked -f $DbFile 2>$null
         $code = $LASTEXITCODE
+        if ($code -eq 0) {
+            & npx supabase db dump --linked --data-only -f $DbDataFile 2>$null
+            $codeData = $LASTEXITCODE
+        }
     } finally {
         Pop-Location
     }
@@ -291,9 +298,16 @@ function Backup-SupabaseDatabase {
         if (Test-Path $DbFile) { Remove-Item $DbFile -Force }
         throw "Falha ao exportar o banco Supabase staging"
     }
+    if ($codeData -ne 0 -or !(Test-Path $DbDataFile) -or (Get-Item $DbDataFile).Length -eq 0) {
+        Write-Log "[ERRO] supabase db dump --data-only falhou (codigo $codeData) ou gerou arquivo vazio." Red -LogType database
+        if (Test-Path $DbDataFile) { Remove-Item $DbDataFile -Force }
+        throw "Falha ao exportar os dados do banco Supabase staging"
+    }
 
     $sizeKB = [math]::Round((Get-Item $DbFile).Length / 1KB, 1)
-    Write-Log "[OK] Dump do banco criado: $DbFile ($sizeKB KB)" Green -LogType database
+    $sizeDataKB = [math]::Round((Get-Item $DbDataFile).Length / 1KB, 1)
+    Write-Log "[OK] Dump SCHEMA criado: $DbFile ($sizeKB KB)" Green -LogType database
+    Write-Log "[OK] Dump DADOS criado: $DbDataFile ($sizeDataKB KB)" Green -LogType database
 
     # Copia o dump tambem para OneDrive e HD externo (pasta "database"),
     # separado do mirror de codigo. ATENCAO: a partir do M18/M19 este dump
@@ -311,8 +325,8 @@ function Backup-SupabaseDatabase {
         if (!(Test-Path $destino.Path)) {
             New-Item -ItemType Directory -Path $destino.Path -Force | Out-Null
         }
-        Copy-Item -Path $DbFile -Destination $destino.Path -Force
-        Write-Log "[OK] Dump copiado para $($destino.Nome): $($destino.Path)" Green -LogType database
+        Copy-Item -Path @($DbFile, $DbDataFile) -Destination $destino.Path -Force
+        Write-Log "[OK] Dumps copiados para $($destino.Nome): $($destino.Path)" Green -LogType database
     }
 
     Write-Log "[LEMBRETE] O dump do banco NAO e commitado no Git - fica apenas em Snapshots/OneDrive/HD Externo." DarkCyan -LogType database
