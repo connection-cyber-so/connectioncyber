@@ -714,11 +714,26 @@ catálogo 0, materialização inexistente, fiscal 0, assinaturas 0), inventário
 token CLI do staging expira ~04/10; `.pfx` com senha no nome; RPO manual; catálogo vazio),
 plano de ambientes/backup/restauração/corte/rollback por tenant, critérios de aceite
 (funcionais, financeiros, fiscais, segurança, desempenho) e a sequência determinística
-M15-G1→G7 separando ações automáticas (G1 materialização, G2 catálogo) dos portões que
-exigem interação (G3 usuários reais, G4 jornada com usuário, G5 contador, G6 pagamento,
-G7 corte). Relatório: `PARECER-TECNICO-M15-G0-PRONTIDAO-PILOTO.md`.
+M15-G12→G18 separando ações automáticas (G12 materialização, G13 catálogo) dos portões que
+exigem interação (G14 usuários reais, G15 jornada com usuário, G16 contador, G17 pagamento,
+G18 corte) — numeração iniciada em G12 porque `M15-G1`–`M15-G11` (matriz de 30/08) já estavam
+concluídos. Relatório: `PARECER-TECNICO-M15-G0-PRONTIDAO-PILOTO.md`.
 
-**Próxima ação: M15-G1** (materialização de entidades a partir do ledger reconciliado).
+**Próxima ação: M15-G12** (materialização de entidades a partir da fonte reconciliada no ledger) — concluído, ver seção seguinte.
+
+### M15-G12 - materialização de entidades (✓ CONCLUÍDO - 29/09/2026)
+
+Povoamento idempotente (sem migration nova — as tabelas `erp_parties`/`erp_catalog_items`/
+`erp_sales`/`erp_sale_items`/`erp_sale_payments` já existiam e estavam vazias) a partir da
+mesma fonte SICNET do M14-G9, via `scripts/m15-materialize-entities.mjs` (SQL em
+`%TEMP%\connectioncyber-m15\`, nunca no repo). Materializou **1.511 vendas / 2.011 itens /
+1.511 pagamentos / 872 produtos / 3 partes com documento** + seeds de unidades e métodos de
+pagamento por tenant; reconciliação ledger×banco **1.511=1.511 e 4.993.268 centavos
+(R$ 49.932,68) em ambos os lados, 872=872 produtos**; adaptador 60/60. Correções no caminho:
+unique `NULLS NOT DISTINCT` de `erp_sale_payments` (provider/external_id preenchidos) e
+dedupe por chave da fonte (erro `21000`). Detalhes: `RELATORIO-M15-G12-MATERIALIZACAO.md`.
+
+**Próxima ação: M15-G13** (catálogo/estoque reais por tenant + conferência de domínio/deploy).
 
 ### Promoção staging→produção — concluída (28/09/2026)
 

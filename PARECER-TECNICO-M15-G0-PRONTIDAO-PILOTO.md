@@ -16,7 +16,7 @@ Supabase staging `ozvylnaipubrmaadikvk` em 29/09/2026.
 | Capacidades (capabilities) | 20 ativas na plataforma (tenant incluído) | sim |
 | Catálogo (`products`) | **0 produtos em toda a plataforma** | não |
 | Importação de legado | ledger do piloto não carregado; **3 jobs concluídos** só nos tenants do M14-G9 (Rose/Casa/CSC) | não |
-| Materialização de entidades | tabelas `erp_people`/`erp_sales`/etc. **não existem** | não |
+| Materialização de entidades | tabelas `erp_parties`/`erp_catalog_items`/`erp_sales`/… existem e estão **vazias** (0 linhas) | não |
 | Emissão fiscal | 0 documentos, 0 séries, 0 reservas, 0 transmissões | não |
 | Entrega ao contador (M24) | 0 eventos; rota `/fiscal/contador` pronta | não |
 | Assinatura SaaS (M25) | plano `padrao` cadastrado, **0 assinaturas, 0 checkouts** | não |
@@ -30,12 +30,12 @@ antes de qualquer corte.
 
 | Área | Bloqueio | Severidade | Libera em |
 |---|---|---|---|
-| **Fiscal** | Validação cadastral/tributária do contador pendente (esperada desde 31/08/2026, sem resposta registrada); nenhum documento emitido | **crítica** (corte) | M15-G5 + resposta do contador |
-| **Usuários** | Rose Variedades e CSC Distribuidora com **0 memberships** — steps `m18.05 finalize_identity` e `m18.06 require_mfa` em `planned` (convite enfileirado, sem identidade); Casa de Bolos e Loja da Benção completos até `m18.05` | alta | M15-G3 (**requer autorização**: criar usuários reais) |
+| **Fiscal** | Validação cadastral/tributária do contador pendente (esperada desde 31/08/2026, sem resposta registrada); nenhum documento emitido | **crítica** (corte) | M15-G16 + resposta do contador |
+| **Usuários** | Rose Variedades e CSC Distribuidora com **0 memberships** — steps `m18.05 finalize_identity` e `m18.06 require_mfa` em `planned` (convite enfileirado, sem identidade); Casa de Bolos e Loja da Benção completos até `m18.05` | alta | M15-G14 (**requer autorização**: criar usuários reais) |
 | **Credenciais** | Token CLI do staging (`connectioncyber-cli-m23`, 7 dias, emitido 27/09) expira por volta de 04/10; 5 `.pfx`+`.p12` **com senha no nome do arquivo** no acervo (incidente latente) | alta | renovar token; custódia dos PFX |
-| **Domínio** | 5 subdomínios públicos ativos; divergência de alvo (item ¹ acima) | média | M15-G2 |
+| **Domínio** | 5 subdomínios públicos ativos; divergência de alvo (item ¹ acima) | média | M15-G13 |
 | **Backup** | RPO 24h **manual** (sem agendador autorizado); dumps R-003 existem só em `%TEMP%` da máquina local | média | agendar/rotina manual |
-| **Operação** | Catálogo vazio (0 produtos); log de execução só local (`staging/logs`, fora do Git); nenhum dado de venda para validar | média | M15-G1/G2 |
+| **Operação** | Catálogo vazio (0 produtos); log de execução só local (`staging/logs`, fora do Git); nenhum dado de venda para validar | média | M15-G12/G13 |
 
 ## 3. Plano de ambientes, backup, restauração, corte e rollback (por tenant)
 
@@ -74,22 +74,25 @@ jornada; (7) janela de observação de 24h.
 - **Desempenho**: carga de um lote de 1.000 registros < 60s (medido: 10,4s no lote real da
   Rose); abertura de tela do portal < 2s em rede normal.
 
-## 5. Sequência M15-G1 em diante (determinística)
+## 5. Sequência M15-G12 em diante (determinística)
+
+> Numeração: `M15-G1`–`M15-G11` (matriz de 30/08, baseline/ensaio/fiscal/corte) já foram
+> executados; os portões novos deste parecer seguem a partir de **G12** para não colidir.
 
 | Gate | Entrega | Tipo |
 |---|---|---|
-| **M15-G1** | Materialização de entidades: migration cria `erp_people`/`erp_products`/`erp_sales`/…, popula a partir do ledger reconciliado, com reconciliação de conferência | automático |
-| **M15-G2** | Catálogo/estoque reais por tenant + conferência domínio/deploy | automático |
-| **M15-G3** | Identidades Auth + convite + MFA dos responsáveis (Rose, CSC e demais) | **requer autorização** (usuários reais) |
-| **M15-G4** | Jornada de venda com usuário real logado (PDV, caixa, relatório) | **requer usuário** |
-| **M15-G5** | 1ª entrega fiscal ao contador (M24) após resposta do contador | **requer contador** |
-| **M15-G6** | 1ª assinatura/cobrança real (M25) | **requer pagamento** |
-| **M15-G7** | Corte + aceite + janela de observação 24h | **requer autorização** |
+| **M15-G12** | Materialização de entidades: popula `erp_parties`/`erp_catalog_items`/`erp_sales`/… a partir da fonte reconciliada no ledger, com reconciliação de conferência | automático |
+| **M15-G13** | Catálogo/estoque reais por tenant + conferência domínio/deploy | automático |
+| **M15-G14** | Identidades Auth + convite + MFA dos responsáveis (Rose, CSC e demais) | **requer autorização** (usuários reais) |
+| **M15-G15** | Jornada de venda com usuário real logado (PDV, caixa, relatório) | **requer usuário** |
+| **M15-G16** | 1ª entrega fiscal ao contador (M24) após resposta do contador | **requer contador** |
+| **M15-G17** | 1ª assinatura/cobrança real (M25) | **requer pagamento** |
+| **M15-G18** | Corte + aceite + janela de observação 24h | **requer autorização** |
 
 ## 6. Parecer
 
-O projeto está **pronto para M15-G1/G2** (ações automáticas, staging, sem usuários reais).
-M15-G3 em diante depende de autorização explícita para usuários reais, contador, pagamento
+O projeto está **pronto para M15-G12/G13** (ações automáticas, staging, sem usuários reais).
+M15-G14 em diante depende de autorização explícita para usuários reais, contador, pagamento
 e corte — nenhum deles está autorizado por este parecer.
 
 Bloqueios críticos a acompanhar: resposta do contador (fiscal) e renovação do token CLI do
