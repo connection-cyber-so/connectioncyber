@@ -408,6 +408,15 @@ Integração da Nuvem de Papel ao banco multi-tenant como tenant novo, no mesmo 
 4. Commit `e43df55` enviado para `origin/staging`. Rascunho `GOVERNANCA-BASE.md` removido do repositório e movido para quarentena.
 5. **Próxima ação autorizável:** M53-G1 — migração de dados do tenant Nuvem (somente inserts), depois de decisões do §9 do PRD do CD. Não iniciar sem novo aceite.
 
+### M53-G1 — tenant Nuvem de Papel (✅ CONCLUÍDO EM STAGING — 05/11/2026)
+
+1. Migration aditiva `0054_tenant_nuvem_de_papel.sql` (somente inserts): tenant `00000000-0000-0000-0000-000000000001` (slug `nuvemdepapel`, vertical `papelaria` existente), domínio `nuvemdepapel.com.br` em `pendente`, 10 capacidades em `erp_tenant_capabilities` (9 `active`, `fiscal` `disabled`).
+2. Preflight 5/5 `true`; teste pgTAP 6/6 `ok` em transação com `ROLLBACK`.
+3. Aplicada somente no projeto staging `ozvylnaipubrmaadikvk`, pelo SQL Editor, com autorização do responsável. Verificação pós-apply: tenant 1, domínio pendente 1, capacidades 10; `fiscal` = `disabled`. Produção intocada.
+4. Commit `0dbde2c` em `origin/staging`. Clone local do responsável sincronizado (`--ff-only`); cópias locais não rastreadas de 0053/0054 movidas para quarentena.
+5. Fora de escopo, portões próprios: CNPJ/emitente real da Nuvem (autorização separada), custódia do A1 para o port do `sefaz.ts` (validação com contador), migração A3 → A1 (bloqueia cutover, não o staging), usuários do tenant e módulos sem chave no catálogo.
+6. **Próxima ação autorizável:** definir a custódia do A1 e fornecer o CNPJ real da Nuvem. Nenhum dos dois inicia sem aceite.
+
 ### M23-G0 — fundação da Academia (✅ CONCLUÍDO EM STAGING — 27/09/2026)
 
 Núcleo único + 2 portas aprovado pelo usuário; G0 entregou a migration aditiva
@@ -878,6 +887,7 @@ portões separados e bloqueados.
 
 | 9.0.0 | 28/09/2026 | R-003-G0 | Backup gerenciado + RPO/RTO provado: rotina de dump corrigida (schema E `--data-only`), runbook `PILOT-BACKUP-RESTORE.md` reescrito com RPO 24h / RTO 4h e perímetro `auth`/`storage`, script `verify-restore-r003.ps1` (restore em container isolado 17.6 + 21 validações). | Prova 21/21 PASS; assinatura md5 idêntica staging↔restaurado `88a6466c...`; contagens idênticas (232 tabelas/2.342 colunas/101 funções/396 policies); RTO medido 8,4s; R-003 **fechado**; dumps sensíveis só em `%TEMP%`. |
 | 9.1.0 | 05/11/2026 | M53-G0 | Fundação multiempresa: migration 0053 (tenant_domains + resolve_tenant_by_host), preflight, rollback protegido e 16 testes pgTAP. Commit `e43df55` enviado para `origin/staging`. | Aplicada no staging `ozvylnaipubrmaadikvk` via SQL Editor; 16/16 testes com ROLLBACK e limpeza confirmada (0 domínios, 0 tenants de teste). Produção intocada. Histórico de migrations do Supabase não atualizado pelo fluxo `db push`. |
+| 9.2.0 | 05/11/2026 | M53-G1 | Tenant Nuvem de Papel: migration 0054 (somente inserts: tenant, domínio `pendente`, 10 capacidades com `fiscal` disabled), preflight 5/5, teste pgTAP 6/6 com ROLLBACK. Commit `0dbde2c` em `origin/staging`. | Aplicada no staging `ozvylnaipubrmaadikvk` via SQL Editor; verificação 1/1/10; `fiscal` = disabled; produção intocada. CNPJ real, custódia do A1 e migração A3 → A1 em portões próprios. |
 
 ## 12. Protocolo de atualização futura
 
