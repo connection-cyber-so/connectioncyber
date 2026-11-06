@@ -449,7 +449,8 @@ Relatório único: `RELATORIO-M54-G2-G4-PLANOS-PEDIDOS-ALOCACAO.md`.
 1. Migration `0060_cd_api_rpc.sql`: 5 RPCs `cd_api_*` para a interface (criar pedido, alocar/aprovar, receber, coletar, despachar), com `cd_api_exigir` fail-closed: autenticado + `has_permission` + capacidade ativa no período.
 2. Ensaio transacional com usuário autenticado simulado e membership FICTICIA: 8/8 sem `FALHOU`; aplicação no staging com pós-apply (6 funções `security definer`, `anon` sem acesso, 5 grants a `authenticated`, zero resíduo).
 3. Checklist de promoção para produção: `PROMOCAO-PRODUCAO-M54-G1-G6-CHECKLIST.md`. **Não executado.** Bloqueio principal: 0053 e 0054 ainda não estão em produção.
-4. **Próxima ação autorizável:** interface que consome as RPCs (no staging), ou autorizar a promoção conforme o checklist.
+4. **Interface no portal (commit a registrar):** `apps/portal` em `/cd` (leitura por RLS, escrita por `/cd/acao` → RPC `cd_api_*`). Type-check, lint, build e 162/162 testes OK (7 novos na regra pura). Sem tenant resolvível localmente: a tela real exige domínio verificado da Nuvem e vínculo de usuário.
+5. **Próxima ação autorizável:** verificar o domínio da Nuvem e vincular o usuário operador (decisão do responsável), ou autorizar a promoção conforme o checklist.
 
 ### M23-G0 — fundação da Academia (✅ CONCLUÍDO EM STAGING — 27/09/2026)
 
