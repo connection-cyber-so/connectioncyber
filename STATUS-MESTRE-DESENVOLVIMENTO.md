@@ -417,6 +417,16 @@ Integração da Nuvem de Papel ao banco multi-tenant como tenant novo, no mesmo 
 5. Fora de escopo, portões próprios: CNPJ/emitente real da Nuvem (autorização separada), custódia do A1 para o port do `sefaz.ts` (validação com contador), migração A3 → A1 (bloqueia cutover, não o staging), usuários do tenant e módulos sem chave no catálogo.
 6. **Próxima ação autorizável:** definir a custódia do A1 e fornecer o CNPJ real da Nuvem. Nenhum dos dois inicia sem aceite.
 
+### M54-G1 — locais, endereços e saldos do Centro Logístico (✅ CONCLUÍDO EM STAGING — 06/11/2026)
+
+1. Migration aditiva `0055_cd_locais_enderecos_saldos.sql`: tabelas `locais` (loja | cd), `enderecos` (zona galpão/salão, rua, box, tipo_uso) e `saldos` (qtd e reservado por produto × endereço), com triggers de tipo de local, checks de uso e RLS somente SELECT (membership ou staff); escrita fechada.
+2. Preflight limpo (sem conflito de tabela ou função; dependências `tenants`, `erp_security.is_tenant_member`, `is_platform_staff` e tenant Nuvem presentes). Teste pgTAP-like 8/8 em transação com `ROLLBACK`. Rollback com `ON_ERROR_STOP` e aborto com dado (validado localmente: aborta e mantém as tabelas).
+3. Validação local em Postgres 16: preflight limpo, migration OK, teste 8/8, rollback com dado abortado, rollback vazio OK, reaplicação OK.
+4. Aplicada somente no projeto staging `ozvylnaipubrmaadikvk` após preflight de leitura. Pós-apply: 3 tabelas com RLS e 1 policy cada; contagens 0; teste 8/8 com `ROLLBACK` e contagem zero depois. Produção intocada.
+5. Commit `68a7389` em `origin/staging`.
+6. **Pendências registradas:** `saldos.produto_id` sem FK até existir catálogo de produtos; policies de escrita ficam para o gate de RPC; seed com dados FICTICIO fora desta migration.
+7. **Próxima ação autorizável:** M54-G2 — planos e capacidades (`cd.armazenagem`, `cd.expedicao`, `site.loja`).
+
 ### M23-G0 — fundação da Academia (✅ CONCLUÍDO EM STAGING — 27/09/2026)
 
 Núcleo único + 2 portas aprovado pelo usuário; G0 entregou a migration aditiva
@@ -888,6 +898,7 @@ portões separados e bloqueados.
 | 9.0.0 | 28/09/2026 | R-003-G0 | Backup gerenciado + RPO/RTO provado: rotina de dump corrigida (schema E `--data-only`), runbook `PILOT-BACKUP-RESTORE.md` reescrito com RPO 24h / RTO 4h e perímetro `auth`/`storage`, script `verify-restore-r003.ps1` (restore em container isolado 17.6 + 21 validações). | Prova 21/21 PASS; assinatura md5 idêntica staging↔restaurado `88a6466c...`; contagens idênticas (232 tabelas/2.342 colunas/101 funções/396 policies); RTO medido 8,4s; R-003 **fechado**; dumps sensíveis só em `%TEMP%`. |
 | 9.1.0 | 05/11/2026 | M53-G0 | Fundação multiempresa: migration 0053 (tenant_domains + resolve_tenant_by_host), preflight, rollback protegido e 16 testes pgTAP. Commit `e43df55` enviado para `origin/staging`. | Aplicada no staging `ozvylnaipubrmaadikvk` via SQL Editor; 16/16 testes com ROLLBACK e limpeza confirmada (0 domínios, 0 tenants de teste). Produção intocada. Histórico de migrations do Supabase não atualizado pelo fluxo `db push`. |
 | 9.2.0 | 05/11/2026 | M53-G1 | Tenant Nuvem de Papel: migration 0054 (somente inserts: tenant, domínio `pendente`, 10 capacidades com `fiscal` disabled), preflight 5/5, teste pgTAP 6/6 com ROLLBACK. Commit `0dbde2c` em `origin/staging`. | Aplicada no staging `ozvylnaipubrmaadikvk` via SQL Editor; verificação 1/1/10; `fiscal` = disabled; produção intocada. CNPJ real, custódia do A1 e migração A3 → A1 em portões próprios. |
+| 9.3.0 | 06/11/2026 | M54-G1 | Locais, endereços e saldos do Centro Logístico: migration 0055 (locais, enderecos, saldos com RLS somente SELECT), preflight, teste 8/8 com ROLLBACK e rollback com `ON_ERROR_STOP` que aborta com dado. Commit `68a7389` enviado para `origin/staging`. | Aplicada no staging `ozvylnaipubrmaadikvk` após preflight limpo; 3 tabelas com RLS; teste 8/8 com ROLLBACK e contagem zero; produção intocada. `produto_id` sem FK até o catálogo. |
 
 ## 12. Protocolo de atualização futura
 
