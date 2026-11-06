@@ -425,6 +425,14 @@ Integração da Nuvem de Papel ao banco multi-tenant como tenant novo, no mesmo 
 4. Nenhuma escrita no banco e nenhuma alteração de código nesta etapa.
 5. **Pendências:** decidir modelo de estoque das lojas (ERP × M54); confirmar enum `sales_channel`; autorizar o povoamento fictício em staging.
 
+### M53-G2 — povoamento fictício do tenant Nuvem (✅ CONCLUÍDO EM STAGING — 06/11/2026)
+
+1. Decisões aplicadas: lojas no modelo ERP (`erp_stock_*`); CD permanece no M54 (`locais`/`saldos`).
+2. Ensaio com `ROLLBACK` (bloco com exceção) e depois gravação real, com guarda contra repetição.
+3. Registros criados no tenant `00000000-0000-0000-0000-000000000001`, todos marcados `FICTICIO`/`TST-`/`@teste.invalid`: 15 clientes, 3 fornecedores, 25 produtos, 50 preços (varejo e atacado), 3 unidades, 1 local de loja, 1 movimento de abertura posted com 25 itens (saldo total 500).
+4. Verificação por consulta separada: 15 / 3 / 25 / 50 / 500 / 1.
+5. Produção intocada. Commit local sem push.
+
 ### M54-G1 — locais, endereços e saldos do Centro Logístico (✅ CONCLUÍDO EM STAGING — 06/11/2026)
 
 1. Migration aditiva `0055_cd_locais_enderecos_saldos.sql`: tabelas `locais` (loja | cd), `enderecos` (zona galpão/salão, rua, box, tipo_uso) e `saldos` (qtd e reservado por produto × endereço), com triggers de tipo de local, checks de uso e RLS somente SELECT (membership ou staff); escrita fechada.
@@ -939,6 +947,7 @@ portões separados e bloqueados.
 | 9.7.0 | 06/11/2026 | M54-G5 | Recebimento de transferência, coleta com baixa no CD e despacho (0059). | Aplicada no staging; 3 funções definer; ensaio FICTICIO 7/7; produção intocada. |
 | 9.8.0 | 06/11/2026 | M54-G6 | Camada de API do CD (0060): 5 RPCs `cd_api_*` com checagem de permissão e capacidade; checklist de promoção para produção (não executado). | Aplicada no staging; ensaio 8/8; produção intocada. |
 | 9.9.0 | 06/11/2026 | M53-G2 | Mapa do módulo 1 (clientes, produtos, estoque) para o tenant Nuvem; relatório `RELATORIO-M53-G2-MAPA-MODULO1-NUVEM.md`; escopo redefinido para povoamento fictício. | Mapa concluído; nenhuma escrita no banco; pendências: modelo de estoque, enum `sales_channel` e autorização do povoamento. Commit local, sem push. |
+| 9.10.0 | 06/11/2026 | M53-G2 | Povoamento fictício do tenant Nuvem em staging: 15 clientes, 3 fornecedores, 25 produtos, preços, unidades, local de loja e movimento de abertura (saldo 500). | Ensaio com ROLLBACK e gravação real verificados por consulta separada; produção intocada. Commit local sem push. |
 
 ## 12. Protocolo de atualização futura
 
