@@ -427,6 +427,16 @@ Integração da Nuvem de Papel ao banco multi-tenant como tenant novo, no mesmo 
 6. **Pendências registradas:** `saldos.produto_id` sem FK até existir catálogo de produtos; policies de escrita ficam para o gate de RPC; seed com dados FICTICIO fora desta migration.
 7. **Próxima ação autorizável:** M54-G2 — planos e capacidades (`cd.armazenagem`, `cd.expedicao`, `site.loja`).
 
+### M54-G2 a G4 — planos, pedidos do CD e alocação (✅ CONCLUÍDO EM STAGING — 06/11/2026)
+
+Relatório único: `RELATORIO-M54-G2-G4-PLANOS-PEDIDOS-ALOCACAO.md`.
+
+1. **G2 (0056, commit `ca93a35`):** capacidades `cd.armazenagem`, `cd.expedicao`, `site.loja`; dependências em `erp_capability_dependencies`; trigger fail-closed; Nuvem com as 3 `active`.
+2. **G3 (0057, commit `b36fb35`):** `pedidos_cd`, `pedidos_cd_itens`, `transferencias`, `transferencia_itens`, `reservas`, `regras_saida`, `cd_configuracoes`; trigger de tipo de local; RLS somente SELECT.
+3. **G4 (0058, commit a registrar):** função `cd_alocar_pedido` (security definer, só `service_role`); config e regras da Nuvem; ensaio ponta a ponta com dado FICTICIO 5/5 e ROLLBACK.
+4. Produção intocada. Pendências: `produto_id` sem FK até o catálogo; recebimento, coleta e despacho ficam para as fases seguintes.
+5. **Próxima ação autorizável:** definir a fase de recebimento e baixa das transferências, ou aprovar produção do M54-G1 a G4 (exige autorização separada).
+
 ### M23-G0 — fundação da Academia (✅ CONCLUÍDO EM STAGING — 27/09/2026)
 
 Núcleo único + 2 portas aprovado pelo usuário; G0 entregou a migration aditiva
@@ -899,6 +909,10 @@ portões separados e bloqueados.
 | 9.1.0 | 05/11/2026 | M53-G0 | Fundação multiempresa: migration 0053 (tenant_domains + resolve_tenant_by_host), preflight, rollback protegido e 16 testes pgTAP. Commit `e43df55` enviado para `origin/staging`. | Aplicada no staging `ozvylnaipubrmaadikvk` via SQL Editor; 16/16 testes com ROLLBACK e limpeza confirmada (0 domínios, 0 tenants de teste). Produção intocada. Histórico de migrations do Supabase não atualizado pelo fluxo `db push`. |
 | 9.2.0 | 05/11/2026 | M53-G1 | Tenant Nuvem de Papel: migration 0054 (somente inserts: tenant, domínio `pendente`, 10 capacidades com `fiscal` disabled), preflight 5/5, teste pgTAP 6/6 com ROLLBACK. Commit `0dbde2c` em `origin/staging`. | Aplicada no staging `ozvylnaipubrmaadikvk` via SQL Editor; verificação 1/1/10; `fiscal` = disabled; produção intocada. CNPJ real, custódia do A1 e migração A3 → A1 em portões próprios. |
 | 9.3.0 | 06/11/2026 | M54-G1 | Locais, endereços e saldos do Centro Logístico: migration 0055 (locais, enderecos, saldos com RLS somente SELECT), preflight, teste 8/8 com ROLLBACK e rollback com `ON_ERROR_STOP` que aborta com dado. Commit `68a7389` enviado para `origin/staging`. | Aplicada no staging `ozvylnaipubrmaadikvk` após preflight limpo; 3 tabelas com RLS; teste 8/8 com ROLLBACK e contagem zero; produção intocada. `produto_id` sem FK até o catálogo. |
+
+| 9.4.0 | 06/11/2026 | M54-G2 | Capacidades cd.armazenagem, cd.expedicao e site.loja; dependências e trigger fail-closed; Nuvem com as 3 ativas. Commit `ca93a35`. | Aplicada no staging; 3/3/3; trigger ativo; produção intocada. |
+| 9.5.0 | 06/11/2026 | M54-G3 | Pedidos do CD, transferências, reservas, regras de saída e configuração do CD (migration 0057). Commit `b36fb35`. | Aplicada no staging; 7 tabelas com RLS; produção intocada. |
+| 9.6.0 | 06/11/2026 | M54-G4 | Função `cd_alocar_pedido`: limite, reserva no CD, falta vira transferência loja → CD (migration 0058). Ensaio ponta a ponta com dado FICTICIO 5/5. | Aplicada no staging; função security definer só service_role; config e 4 regras da Nuvem; produção intocada. |
 
 ## 12. Protocolo de atualização futura
 
