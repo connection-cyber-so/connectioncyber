@@ -398,6 +398,16 @@ Cada módulo deve demonstrar, quando aplicável:
 
 ## 10. Próxima ação autorizável
 
+### M53-G0 — fundação multiempresa (✅ CONCLUÍDO EM STAGING — 05/11/2026)
+
+Integração da Nuvem de Papel ao banco multi-tenant como tenant novo, no mesmo padrão do Mania de Modas.
+
+1. Migration aditiva `0053_tenant_domains.sql`: tabela `public.tenant_domains` (hostname → tenant, status `pendente`/`verificado`/`ativo`/`suspenso`), RLS ligada sem policies e função `resolve_tenant_by_host` (só `service_role`).
+2. Preflight 3/3 `true`; testes pgTAP 16/16 `ok` em transação com `ROLLBACK`; limpeza confirmada (0 domínios, 0 tenants de teste).
+3. Aplicada somente no projeto staging `ozvylnaipubrmaadikvk`, pelo SQL Editor, com autorização do responsável. Produção intocada.
+4. Commit `e43df55` enviado para `origin/staging`. Rascunho `GOVERNANCA-BASE.md` removido do repositório e movido para quarentena.
+5. **Próxima ação autorizável:** M53-G1 — migração de dados do tenant Nuvem (somente inserts), depois de decisões do §9 do PRD do CD. Não iniciar sem novo aceite.
+
 ### M23-G0 — fundação da Academia (✅ CONCLUÍDO EM STAGING — 27/09/2026)
 
 Núcleo único + 2 portas aprovado pelo usuário; G0 entregou a migration aditiva
@@ -867,6 +877,7 @@ portões separados e bloqueados.
 | 8.0.0 | 28/09/2026 | M25-G0 | Assinatura SaaS recorrente com auto-provisionamento (migration 0051: 5 tabelas RLS + 6 RPCs + seed do plano; tela `/planos`; endpoint `create-subscription`; webhook bifurcado; `subscriptionLifecycle`/`subscriptionValidation`/`webhookRouting` puros com `node:test`). | 66/66 transacional `ROLLBACK` + resíduo zero; 0051 aplicada em staging (histórico 0001–0051); 38/38 + 28/28 remotos; regressão M24 36/36 + 25/25; site lint/tsc 0 + 36/36 + build; produção intocada. |
 
 | 9.0.0 | 28/09/2026 | R-003-G0 | Backup gerenciado + RPO/RTO provado: rotina de dump corrigida (schema E `--data-only`), runbook `PILOT-BACKUP-RESTORE.md` reescrito com RPO 24h / RTO 4h e perímetro `auth`/`storage`, script `verify-restore-r003.ps1` (restore em container isolado 17.6 + 21 validações). | Prova 21/21 PASS; assinatura md5 idêntica staging↔restaurado `88a6466c...`; contagens idênticas (232 tabelas/2.342 colunas/101 funções/396 policies); RTO medido 8,4s; R-003 **fechado**; dumps sensíveis só em `%TEMP%`. |
+| 9.1.0 | 05/11/2026 | M53-G0 | Fundação multiempresa: migration 0053 (tenant_domains + resolve_tenant_by_host), preflight, rollback protegido e 16 testes pgTAP. Commit `e43df55` enviado para `origin/staging`. | Aplicada no staging `ozvylnaipubrmaadikvk` via SQL Editor; 16/16 testes com ROLLBACK e limpeza confirmada (0 domínios, 0 tenants de teste). Produção intocada. Histórico de migrations do Supabase não atualizado pelo fluxo `db push`. |
 
 ## 12. Protocolo de atualização futura
 
