@@ -15,7 +15,7 @@ Data: 06/11/2026 · Ambiente: staging `ozvylnaipubrmaadikvk` · Produção: into
 - Defaults: 50 un. ou R$ 2.000; política de falta `transferencia_automatica`.
 - Evidência: ensaio transacional (pedido em loja falha, coleta sem autorização falha, reserva com qtd 0 falha, canal inválido falha, defaults 50/2000); aplicação; pós-apply com RLS e 1 policy em cada tabela.
 
-## M54-G4 — alocação ponta a ponta (0058, commit a registrar)
+## M54-G4 — alocação ponta a ponta (0058, commit cbb6184)
 - Função `public.cd_alocar_pedido(tenant, pedido, aprovado)`: `security definer`, `search_path=''`, execute só para `service_role`.
 - Regras: acima do limite sem aprovação não reserva nada (`aguardando_aprovacao`); com CD no canal, reserva no CD primeiro; falta no CD vira reserva na loja + transferência loja → CD ligada ao pedido; canal sem CD (balcão, shopee) reserva direto na loja.
 - Config da Nuvem: `cd_configuracoes` (50 / 2000 / transferencia_automatica) e 4 regras de saída (web: cd → loja; balcão e shopee: loja).

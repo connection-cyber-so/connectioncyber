@@ -433,7 +433,7 @@ Relatório único: `RELATORIO-M54-G2-G4-PLANOS-PEDIDOS-ALOCACAO.md`.
 
 1. **G2 (0056, commit `ca93a35`):** capacidades `cd.armazenagem`, `cd.expedicao`, `site.loja`; dependências em `erp_capability_dependencies`; trigger fail-closed; Nuvem com as 3 `active`.
 2. **G3 (0057, commit `b36fb35`):** `pedidos_cd`, `pedidos_cd_itens`, `transferencias`, `transferencia_itens`, `reservas`, `regras_saida`, `cd_configuracoes`; trigger de tipo de local; RLS somente SELECT.
-3. **G4 (0058, commit a registrar):** função `cd_alocar_pedido` (security definer, só `service_role`); config e regras da Nuvem; ensaio ponta a ponta com dado FICTICIO 5/5 e ROLLBACK.
+3. **G4 (0058, commit cbb6184):** função `cd_alocar_pedido` (security definer, só `service_role`); config e regras da Nuvem; ensaio ponta a ponta com dado FICTICIO 5/5 e ROLLBACK.
 4. Produção intocada. Pendências: `produto_id` sem FK até o catálogo; recebimento, coleta e despacho ficam para as fases seguintes.
 5. **Próxima ação autorizável:** definir a fase de recebimento e baixa das transferências, ou aprovar produção do M54-G1 a G4 (exige autorização separada).
 
