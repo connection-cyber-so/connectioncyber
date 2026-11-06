@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { enviarEmail, templatePedidoCompra } from "@/lib/email";
 import { montarChave44, sefazEmMock } from "@/lib/sefaz";
 import {
@@ -86,7 +86,7 @@ async function auditoria(
   after: Record<string, unknown>
 ): Promise<void> {
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action,
     entity,
@@ -121,7 +121,7 @@ async function gravarEvento(
   local: string | null = null
 ): Promise<void> {
   await admin.from("compra_transporte_eventos").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     purchase_order_id: poId,
     status,
     texto,
@@ -144,7 +144,7 @@ async function assegurarTransporte(
   if (data) return data.status;
   const status = statusInicialTransporte(origem);
   const { error } = await admin.from("compra_transporte").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     purchase_order_id: poId,
     status,
   });
@@ -194,7 +194,7 @@ export async function criarFornecedor(input: {
   const { data: criado, error } = await admin
     .from("suppliers")
     .insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       name: nome,
       contact_email: emailContato || null,
       cnpj: cnpj || null,
@@ -264,7 +264,7 @@ export async function criarPedidoCompra(input: {
   const { data: cat } = await admin
     .from("catalog_items")
     .select("id, sku, name")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .in("id", itens.map((i) => i.itemId))
     .eq("active", true);
   const catPorId = new Map((cat ?? []).map((c) => [c.id, c]));
@@ -278,7 +278,7 @@ export async function criarPedidoCompra(input: {
 
   const { error: erroPo } = await admin.from("purchase_orders").insert({
     id: poId,
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     supplier_id: input.supplierId,
     code: codigo,
     total,
@@ -292,7 +292,7 @@ export async function criarPedidoCompra(input: {
     itens.map((i) => {
       const item = catPorId.get(i.itemId)!;
       return {
-        tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+        tenant_id: getCurrentTenantId(),
         purchase_order_id: poId,
         item_id: i.itemId,
         sku_snapshot: item.sku,
@@ -469,7 +469,7 @@ export async function salvarPedidoCompra(input: EntradaSalvarPedido): Promise<Re
   const { data: cat } = await admin
     .from("catalog_items")
     .select("id, sku, name")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .in("id", itens.map((i) => i.itemId))
     .eq("active", true);
   const catPorId = new Map((cat ?? []).map((c) => [c.id, c]));
@@ -491,7 +491,7 @@ export async function salvarPedidoCompra(input: EntradaSalvarPedido): Promise<Re
       .from("purchase_orders")
       .select("id, code, origem, status")
       .eq("id", input.compraId)
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .maybeSingle();
     if (!po) return { ok: false, erro: "Pedido não encontrado." };
     // PC-01: a origem não muda depois de salvo
@@ -545,7 +545,7 @@ export async function salvarPedidoCompra(input: EntradaSalvarPedido): Promise<Re
       itens.map((i) => {
         const item = catPorId.get(i.itemId)!;
         return {
-          tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+          tenant_id: getCurrentTenantId(),
           purchase_order_id: po.id,
           item_id: i.itemId,
           sku_snapshot: item.sku,
@@ -562,7 +562,7 @@ export async function salvarPedidoCompra(input: EntradaSalvarPedido): Promise<Re
       const { error: erroImp } = await admin.from("compra_importacao").upsert(
         {
           purchase_order_id: po.id,
-          tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+          tenant_id: getCurrentTenantId(),
           moeda: imp.moeda,
           cambio: imp.cambio,
           di: (input.importacao?.di ?? "").trim() || null,
@@ -600,7 +600,7 @@ export async function salvarPedidoCompra(input: EntradaSalvarPedido): Promise<Re
 
   const { error: erroPo } = await admin.from("purchase_orders").insert({
     id: poId,
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     supplier_id: input.fornecedorId,
     code: codigo,
     origem,
@@ -619,7 +619,7 @@ export async function salvarPedidoCompra(input: EntradaSalvarPedido): Promise<Re
     itens.map((i) => {
       const item = catPorId.get(i.itemId)!;
       return {
-        tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+        tenant_id: getCurrentTenantId(),
         purchase_order_id: poId,
         item_id: i.itemId,
         sku_snapshot: item.sku,
@@ -638,7 +638,7 @@ export async function salvarPedidoCompra(input: EntradaSalvarPedido): Promise<Re
   if (origem === "importacao" && imp) {
     const { error: erroImp } = await admin.from("compra_importacao").insert({
       purchase_order_id: poId,
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       moeda: imp.moeda,
       cambio: imp.cambio,
       di: (input.importacao?.di ?? "").trim() || null,
@@ -685,7 +685,7 @@ export async function enviarPedidoFornecedor(compraId: string): Promise<Resultad
     .from("purchase_orders")
     .select("id, code, total, status, supplier_id, suppliers(contact_email, user_id)")
     .eq("id", compraId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!po) return { ok: false, erro: "Pedido não encontrado." };
   if (po.status === "cancelado") return { ok: false, erro: "Pedido cancelado não pode ser enviado." };
@@ -712,7 +712,7 @@ export async function enviarPedidoFornecedor(compraId: string): Promise<Resultad
 
   // PC-07 grava cada envio (a tela mostra "Pedido enviado N× · último em …")
   const { error: erroEnvio } = await admin.from("compra_envios").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     purchase_order_id: po.id,
     para: destino,
   });
@@ -748,7 +748,7 @@ export async function sincronizarNotasRecebidas(): Promise<ResultadoAcao> {
   const { data: cat } = await admin
     .from("catalog_items")
     .select("sku, name")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("active", true)
     .limit(2);
   const itensDemo: ItemNotaXml[] = (cat ?? []).map((c, i) => ({
@@ -772,7 +772,7 @@ export async function sincronizarNotasRecebidas(): Promise<ResultadoAcao> {
   const linhas = chaves
     .filter((c): c is { numero: number; chave: string } => !!c.chave)
     .map((c, idx) => ({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       chave: c.chave,
       numero: String(c.numero),
       serie: "1",
@@ -822,7 +822,7 @@ export async function vincularNota(
     .from("purchase_orders")
     .select("id, code, origem, status, supplier_id")
     .eq("id", compraId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!po) return { ok: false, erro: "Pedido não encontrado." };
   if (po.origem === "importacao") {
@@ -842,7 +842,7 @@ export async function vincularNota(
     .from("nfe_recebidas")
     .select("id, chave, numero, serie, emitente_cnpj, emitente_nome, emitente_uf, emitida_em, itens, manifestacao, purchase_order_id")
     .eq("id", nfeRecebidaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!nfe) return { ok: false, erro: "Nota não encontrada." };
   if (nfe.manifestacao === "desconhecida") {
@@ -895,7 +895,7 @@ export async function vincularNota(
   const cfop = cfopEntrada("nacional", forn?.uf ?? nfe.emitente_uf);
 
   const { error: erroNota } = await admin.from("notas_entrada").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     purchase_order_id: compraId,
     tipo: "fornecedor",
     nfe_recebida_id: nfe.id,
@@ -1029,7 +1029,7 @@ export async function criarEntradaDireta(nfeRecebidaId: string): Promise<Resulta
     .from("nfe_recebidas")
     .select("id, chave, numero, serie, emitente_cnpj, emitente_nome, emitente_uf, emitida_em, itens, manifestacao, purchase_order_id")
     .eq("id", nfeRecebidaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!nfe) return { ok: false, erro: "Nota não encontrada." };
   if (nfe.purchase_order_id) return { ok: false, erro: "Esta nota já está vinculada a um pedido." };
@@ -1051,13 +1051,13 @@ export async function criarEntradaDireta(nfeRecebidaId: string): Promise<Resulta
   const { data: todos } = await admin
     .from("suppliers")
     .select("id, name, cnpj")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID);
+    .eq("tenant_id", getCurrentTenantId());
   let fornecedor = (todos ?? []).find((f) => apenasDigitos(f.cnpj) === cnpjNota) ?? null;
   if (!fornecedor) {
     const { data: criado, error: erroForn } = await admin
       .from("suppliers")
       .insert({
-        tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+        tenant_id: getCurrentTenantId(),
         name: nfe.emitente_nome,
         cnpj: cnpjNota,
         uf: nfe.emitente_uf ?? null,
@@ -1081,7 +1081,7 @@ export async function criarEntradaDireta(nfeRecebidaId: string): Promise<Resulta
   const { data: cat } = await admin
     .from("catalog_items")
     .select("id, sku, name")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("active", true);
   const porSku = new Map<string, { id: string; sku: string; name: string }>(
     (cat ?? []).map((c: { id: string; sku: string; name: string }) => [
@@ -1132,7 +1132,7 @@ export async function criarEntradaDireta(nfeRecebidaId: string): Promise<Resulta
 
   const { error: erroPo } = await admin.from("purchase_orders").insert({
     id: poId,
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     supplier_id: fornecedor.id,
     code: codigo,
     origem: "nacional",
@@ -1146,7 +1146,7 @@ export async function criarEntradaDireta(nfeRecebidaId: string): Promise<Resulta
 
   const { error: erroItens } = await admin.from("purchase_order_items").insert(
     linhas.map((l) => ({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       purchase_order_id: poId,
       item_id: l.item_id,
       sku_snapshot: l.sku,
@@ -1163,7 +1163,7 @@ export async function criarEntradaDireta(nfeRecebidaId: string): Promise<Resulta
 
   // a mercadoria já está na loja (a nota existe): transporte nasce 'chegou'
   await admin.from("compra_transporte").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     purchase_order_id: poId,
     status: "chegou",
   });
@@ -1176,7 +1176,7 @@ export async function criarEntradaDireta(nfeRecebidaId: string): Promise<Resulta
   );
   const cfop = cfopEntrada("nacional", nfe.emitente_uf);
   const { error: erroNota } = await admin.from("notas_entrada").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     purchase_order_id: poId,
     tipo: "fornecedor",
     nfe_recebida_id: nfe.id,
@@ -1226,7 +1226,7 @@ export async function desconhecerNota(nfeRecebidaId: string): Promise<ResultadoA
     .from("nfe_recebidas")
     .select("id, numero, purchase_order_id")
     .eq("id", nfeRecebidaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!nfe) return { ok: false, erro: "Nota não encontrada." };
   if (nfe.purchase_order_id) {
@@ -1262,7 +1262,7 @@ export async function emitirNotaEntradaImportacao(compraId: string): Promise<Res
     .from("purchase_orders")
     .select("id, code, origem, status")
     .eq("id", compraId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!po) return { ok: false, erro: "Pedido não encontrado." };
   if (po.origem !== "importacao") {
@@ -1297,7 +1297,7 @@ export async function emitirNotaEntradaImportacao(compraId: string): Promise<Res
   const { data: emp } = await admin
     .from("tenant_company")
     .select("cnpj, endereco")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   const cnpjLoja = apenasDigitos(emp?.cnpj);
   if (cnpjLoja.length !== 14) {
@@ -1307,7 +1307,7 @@ export async function emitirNotaEntradaImportacao(compraId: string): Promise<Res
   const { data: cfg } = await admin
     .from("sefaz_config")
     .select("ambiente")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   const ambiente = cfg?.ambiente === "producao" ? "producao" : "homologacao";
 
@@ -1315,7 +1315,7 @@ export async function emitirNotaEntradaImportacao(compraId: string): Promise<Res
   const { data: proprias } = await admin
     .from("notas_entrada")
     .select("numero")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("tipo", "propria");
   let proximo = 1;
   for (const p of proprias ?? []) {
@@ -1333,7 +1333,7 @@ export async function emitirNotaEntradaImportacao(compraId: string): Promise<Res
   if (!montada.ok) return { ok: false, erro: montada.erro };
 
   const { error: erroNota } = await admin.from("notas_entrada").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     purchase_order_id: compraId,
     tipo: "propria",
     numero: String(proximo),
@@ -1424,7 +1424,7 @@ export async function atualizarTransporte(
     .from("purchase_orders")
     .select("id, origem, status")
     .eq("id", compraId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!po) return { ok: false, erro: "Pedido não encontrado." };
   if (po.status === "cancelado") return { ok: false, erro: "Pedido cancelado não tem transporte." };
@@ -1476,7 +1476,7 @@ export async function avancarTransporte(
     .from("purchase_orders")
     .select("id, origem, status")
     .eq("id", compraId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!po) return { ok: false, erro: "Pedido não encontrado." };
   if (po.status === "cancelado") return { ok: false, erro: "Pedido cancelado." };
@@ -1527,7 +1527,7 @@ export async function concluirRecebimento(
     .from("purchase_orders")
     .select("id, code, origem, status")
     .eq("id", compraId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!po) return { ok: false, erro: "Pedido não encontrado." };
   if (po.status === "cancelado") return { ok: false, erro: "Pedido cancelado." };
@@ -1694,7 +1694,7 @@ export async function marcarParcelaPaga(
     .from("financial_installments")
     .select("id, number, status, principal_amount, paid_amount, title_id")
     .eq("id", parcelaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!par) return { ok: false, erro: "Parcela não encontrada." };
 

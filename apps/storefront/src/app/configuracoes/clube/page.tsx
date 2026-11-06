@@ -4,7 +4,7 @@ import { ConsolePlanosClube } from "@/components/clube/ConsolePlanosClube";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,7 @@ export default async function ClubeConfigPage() {
     admin
       .from("club_plans")
       .select("id, code, name, description, price_monthly, discount_pct, free_shipping, gift, active, sort")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("sort"),
     admin
       .from("profiles")

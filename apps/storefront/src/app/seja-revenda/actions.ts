@@ -1,7 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { emailAvisos, enviarEmail, templateRevendaSolicitada } from "@/lib/email";
 
 // Pedido de conta de revenda (F6): cria o usuário no Auth já confirmado e o
@@ -43,7 +43,7 @@ export async function pedirRevenda(input: {
 
   const { error: erroProfile } = await admin.from("profiles").insert({
     id: criado.user.id,
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     email,
     full_name: nome,
     role: "revenda",
@@ -56,7 +56,7 @@ export async function pedirRevenda(input: {
   }
 
   const { error: erroAudit } = await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: null,
     action: "revenda.pedido",
     entity: "profiles",

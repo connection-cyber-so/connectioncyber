@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 
 // Server Actions do financeiro (F5): liquidação de parcelas. Títulos e
@@ -78,7 +78,7 @@ export async function liquidarParcela(
   }
 
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "financeiro.liquidacao",
     entity: "financial_installments",
@@ -197,7 +197,7 @@ export async function criarDespesa(entrada: {
 
   const hoje = new Date().toISOString().slice(0, 10);
   const payload = linhas.map((l) => ({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     competencia: `${competencia}-01`,
     description: descricao,
     account_code: conta,
@@ -219,7 +219,7 @@ export async function criarDespesa(entrada: {
   }
 
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "despesa.criar",
     entity: "expenses",
@@ -315,7 +315,7 @@ export async function importarExtrato(entrada: {
     const { data: jaTem } = await admin
       .from("bank_linhas")
       .select("fitid")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .in("fitid", fitids);
     for (const r of jaTem ?? []) existentes.add(String(r.fitid));
   }
@@ -332,7 +332,7 @@ export async function importarExtrato(entrada: {
   const { data: ext, error: erroExt } = await admin
     .from("bank_extratos")
     .insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       fonte,
       arquivo_nome: entrada.arquivoNome ? String(entrada.arquivoNome).slice(0, 160) : null,
       competencia: `${competencia}-01`,
@@ -349,7 +349,7 @@ export async function importarExtrato(entrada: {
   let inseridas = 0;
   if (novas.length > 0) {
     const payload = novas.map((l, i) => ({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       extrato_id: ext.id,
       seq: i + 1,
       data: l.data,
@@ -376,7 +376,7 @@ export async function importarExtrato(entrada: {
   }
 
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "extrato.importar",
     entity: "bank_extratos",
@@ -417,7 +417,7 @@ export async function conciliarLinha(
     .from("bank_linhas")
     .select("id, status, data, descricao, valor")
     .eq("id", linhaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!linha) return { ok: false, erro: "Linha do extrato não encontrada." };
 
@@ -434,7 +434,7 @@ export async function conciliarLinha(
       .from(tabela)
       .select("id")
       .eq("id", String(ref!.id))
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .maybeSingle();
     if (!alvo) {
       return { ok: false, erro: tipo === "liquidacao" ? "Liquidação não encontrada." : "Despesa não encontrada." };
@@ -451,7 +451,7 @@ export async function conciliarLinha(
       .eq("id", linhaId);
     if (error) return { ok: false, erro: error.message || "Falha ao conciliar a linha." };
     await admin.from("audit_log").insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       actor_user_id: userId,
       action: "extrato.conciliar",
       entity: "bank_linhas",
@@ -470,7 +470,7 @@ export async function conciliarLinha(
       .eq("id", linhaId);
     if (error) return { ok: false, erro: error.message || "Falha ao ignorar a linha." };
     await admin.from("audit_log").insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       actor_user_id: userId,
       action: "extrato.ignorar",
       entity: "bank_linhas",
@@ -489,7 +489,7 @@ export async function conciliarLinha(
       .eq("id", linhaId);
     if (error) return { ok: false, erro: error.message || "Falha ao desconciliar a linha." };
     await admin.from("audit_log").insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       actor_user_id: userId,
       action: "extrato.desconciliar",
       entity: "bank_linhas",
@@ -508,7 +508,7 @@ export async function conciliarLinha(
     .eq("id", linhaId);
   if (error) return { ok: false, erro: error.message || "Falha ao reabrir a linha." };
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "extrato.reabrir",
     entity: "bank_linhas",

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 // Gestao de planos do Clube (F7). Toda escrita:
 //  1) revalida sessao + papel de gestao no servidor (fail-closed);
@@ -39,7 +39,7 @@ async function auditar(
 ): Promise<void> {
   const admin = createAdminClient();
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: gestor.id,
     action,
     entity: "club_plans",
@@ -96,7 +96,7 @@ export async function salvarPlano(input: {
     .from("club_plans")
     .select("id, name, description, price_monthly, discount_pct, free_shipping, gift, active")
     .eq("id", input.id)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!atual) return { ok: false, erro: "Plano nao encontrado." };
 
@@ -112,7 +112,7 @@ export async function salvarPlano(input: {
       active: input.active,
     })
     .eq("id", input.id)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID);
+    .eq("tenant_id", getCurrentTenantId());
   if (error) return { ok: false, erro: "Nao foi possivel salvar o plano." };
 
   await auditar(gestor, "clube.plano_alterado", input.id, atual, {
@@ -151,7 +151,7 @@ export async function criarPlano(input: {
   const { data: duplicado } = await admin
     .from("club_plans")
     .select("id")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("code", code)
     .maybeSingle();
   if (duplicado) return { ok: false, erro: "Ja existe um plano com esse codigo." };
@@ -159,7 +159,7 @@ export async function criarPlano(input: {
   const { data: criado, error } = await admin
     .from("club_plans")
     .insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       code,
       name: input.name.trim(),
       description: "",

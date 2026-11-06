@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 // Tabela de preco (Bloco 5 passo 2). item_prices JA existe com a PK
 // (item_id, channel, min_quantity, valid_from) - entao nao ha migration nova.
@@ -87,7 +87,7 @@ async function auditar(
 ): Promise<void> {
   const admin = createAdminClient();
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: gestor.id,
     action,
     entity: "item_prices",
@@ -159,7 +159,7 @@ export async function salvarPreco(input: EntradaPreco): Promise<ResultadoPreco> 
     .from("catalog_items")
     .select("id, sku")
     .eq("id", itemId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!item) return { ok: false, erro: "Produto nao encontrado." };
 
@@ -238,7 +238,7 @@ export async function removerPreco(input: EntradaRemocao): Promise<ResultadoPrec
     .from("catalog_items")
     .select("id, sku")
     .eq("id", itemId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!item) return { ok: false, erro: "Produto nao encontrado." };
 

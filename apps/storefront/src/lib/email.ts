@@ -6,7 +6,7 @@
 // /api/webhooks/resend (Etapa 3). Segredos só em env do servidor.
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 type ResultadoEnvio = { ok: boolean; motivo?: string; id?: string };
 
@@ -92,7 +92,7 @@ export async function enviarEmail(
   const { data: linha, error: erroInsert } = await admin
     .from("email_messages")
     .insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       direction: "outbound",
       status: "queued",
       source: opcoes.fonte ?? "system",

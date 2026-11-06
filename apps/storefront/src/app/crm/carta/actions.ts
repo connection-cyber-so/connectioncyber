@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 import { calcularIndicadores, gerarCarta } from "@/lib/insights";
 import { enviarEmail, emailAvisos } from "@/lib/email";
@@ -89,7 +89,7 @@ export async function gerarCartaAgora(
   const { data: linha, error } = await admin
     .from("insight_cartas")
     .insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       tipo,
       periodo_inicio: inicio.toISOString().slice(0, 10),
       periodo_fim: fim.toISOString().slice(0, 10),

@@ -4,7 +4,7 @@ import { ConsoleMarketplaces } from "@/components/marketplaces/ConsoleMarketplac
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 export const dynamic = "force-dynamic";
 
@@ -72,7 +72,7 @@ export default async function MarketplacesPage() {
   if (!profile || profile.status !== "ativo" || !PAPEIS_GESTAO.includes(profile.role)) redirect("/crm");
 
   const admin = createAdminClient();
-  const t = NUVEM_DE_PAPEL_TENANT_ID;
+  const t = getCurrentTenantId();
 
   const [
     { data: canais },

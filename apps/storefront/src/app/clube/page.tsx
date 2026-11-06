@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { BotaoAssinar } from "@/components/clube/BotaoAssinar";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +37,7 @@ export default async function ClubePage() {
   const { data: planos } = await supabase
     .from("club_plans")
     .select("id, code, name, description, price_monthly, discount_pct, free_shipping, gift, sort")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("active", true)
     .order("sort");
 
@@ -46,7 +46,7 @@ export default async function ClubePage() {
     const { data: assinatura } = await supabase
       .from("club_subscriptions")
       .select("status")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("profile_id", user.id)
       .in("status", ["pendente", "ativa"])
       .order("created_at", { ascending: false })

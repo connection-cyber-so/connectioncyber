@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 import { executarReguaRecuperacao, type ResumoRecuperacao } from "@/lib/cart-recovery";
 
@@ -73,7 +73,7 @@ export async function atualizarRegraRecuperacao(
     .from("cart_recovery_rules")
     .update({ ativo: entrada.ativo, texto })
     .eq("id", reguaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID);
+    .eq("tenant_id", getCurrentTenantId());
   if (error) return { ok: false, erro: error.message };
 
   revalidatePath("/vendas/recuperacao");

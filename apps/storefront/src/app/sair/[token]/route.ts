@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 // Opt-out LGPD por link (rota publica, sem auth). Quem clica em "sair da lista"
 // no e-mail de reativação é marcado como `saiu` e nunca mais recebe nada, nem
@@ -36,7 +36,7 @@ export async function GET(
   const { data } = await admin
     .from("customer_reactivation")
     .update({ status: "saiu" })
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("descadastro_token", token)
     .neq("status", "saiu")
     .select("id");

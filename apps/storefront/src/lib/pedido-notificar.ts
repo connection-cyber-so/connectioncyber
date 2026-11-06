@@ -7,7 +7,7 @@
 // do PDV (cliente balcao@) é descartado: não é gente para avisar.
 
 import type { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import {
   enviarEmail,
   codigoPedido,
@@ -49,7 +49,7 @@ export async function notificarStatusPedido(
       .from("orders")
       .select("id, customer_id, customers(name, email)")
       .eq("id", pedidoId)
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .maybeSingle();
     if (!pedido) return;
 

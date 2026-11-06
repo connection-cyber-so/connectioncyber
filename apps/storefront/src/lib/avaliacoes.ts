@@ -8,7 +8,7 @@
 // Idempotência por unique (tenant_id, order_id) em review_requests. Best-effort.
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { enviarEmail, templatePedidoAvaliado, codigoPedido } from "@/lib/email";
 
 export type ResumoAvaliacoes = {
@@ -23,7 +23,7 @@ const DIA_MS = 86400000;
 
 export async function executarAvaliacoes(): Promise<ResumoAvaliacoes> {
   const admin = createAdminClient();
-  const tenantId = NUVEM_DE_PAPEL_TENANT_ID;
+  const tenantId = getCurrentTenantId();
   const agora = Date.now();
 
   const resumo: ResumoAvaliacoes = {

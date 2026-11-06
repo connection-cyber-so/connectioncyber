@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { BotaoCancelarAssinatura } from "@/components/clube/BotaoCancelarAssinatura";
 
 export const dynamic = "force-dynamic";
@@ -61,7 +61,7 @@ export default async function MinhaAssinaturaPage({
       `id, status, created_at, current_period_start, current_period_end, updated_at,
        club_plans (name, price_monthly, discount_pct, free_shipping, gift)`
     )
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("profile_id", user.id)
     .order("created_at", { ascending: false })
     .limit(1)

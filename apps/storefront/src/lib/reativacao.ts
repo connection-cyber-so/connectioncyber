@@ -9,7 +9,7 @@
 // contrato de src/lib/cart-recovery.ts (0036) e src/lib/cobranca.ts (0035).
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { enviarEmail, templateReativacao } from "@/lib/email";
 
 export type ResumoReativacao = {
@@ -26,7 +26,7 @@ const BLOQUEADOS = ["saiu", "nao_incomodar", "voltou", "em_campanha"];
 
 export async function executarReativacao(): Promise<ResumoReativacao> {
   const admin = createAdminClient();
-  const tenantId = NUVEM_DE_PAPEL_TENANT_ID;
+  const tenantId = getCurrentTenantId();
   const agora = Date.now();
 
   const resumo: ResumoReativacao = {

@@ -7,7 +7,7 @@
 
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 import { createClient } from "@/lib/supabase/server";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 type RetornoCsv = { ok: boolean; csv?: string; arquivo?: string; erro?: string };
 
@@ -148,7 +148,7 @@ export async function gerarRelatorioProduto(tipo: RelatorioProduto): Promise<Rel
       .select(
         "created_at, movement_type, quantity, reference_type, notes, catalog_items(sku, name)"
       )
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .in("movement_type", tipos)
       .order("created_at", { ascending: false })
       .limit(5000);
@@ -189,7 +189,7 @@ export async function gerarRelatorioProduto(tipo: RelatorioProduto): Promise<Rel
     .select(
       "stock_available, stock_on_hand, updated_at, catalog_items(sku, name, category, active, item_commercial_data(cost_price))"
     )
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .order("updated_at", { ascending: false });
 
   if (error) return { ok: false, erro: `Falha ao ler o estoque: ${error.message}` };

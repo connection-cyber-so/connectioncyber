@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import BotaoImprimir from "@/components/compras/BotaoImprimir";
 
 // Bloco 4 - PDF do pedido de compra. Antes o pedido so existia como texto de
@@ -96,13 +96,13 @@ export default async function PedidoCompraPdf({
           "suppliers(id, name, cnpj, uf, pais, contact_email), " +
           "purchase_order_items(sku_snapshot, name_snapshot, quantity, unit_cost, line_total, qtd_recebida)"
       )
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("id", params.id)
       .maybeSingle(),
     admin
       .from("tenant_company")
       .select("razao_social, fantasia, cnpj, ie, email, telefone, endereco")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .maybeSingle(),
   ]);
 

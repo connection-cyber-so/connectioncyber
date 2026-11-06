@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { buscarPagamento, buscarPreapproval, validarAssinaturaWebhook } from "@/lib/mercadopago";
 import { enviarEmail, templatePedidoPago, codigoPedido } from "@/lib/email";
 import { notificarStatusPedido } from "@/lib/pedido-notificar";
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     .from("webhook_events")
     .upsert(
       {
-        tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+        tenant_id: getCurrentTenantId(),
         provider: "mercadopago",
         external_id: externalId,
         event_type: String(tipo),
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
     const { data: alterada, error: erroSub } = await admin
       .from("club_subscriptions")
       .update(patch)
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("mp_preapproval_id", externalId)
       .in("status", ["pendente", "ativa", "pausada"])
       .select("id");
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
       .from("orders")
       .update({ status: "pago", mp_payment_id: externalId })
       .eq("id", ref)
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .in("status", ["aguardando_pagamento"])
       .select("id, customer_id");
     if (error) {
@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
       .from("orders")
       .select("id, status")
       .eq("id", ref)
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .maybeSingle();
     if (pedido && ["pago", "processando", "em_rota", "entregue"].includes(pedido.status)) {
       const { error: erroBaixa } = await admin.rpc("settle_order_stock", { p_order_id: ref });
@@ -193,7 +193,7 @@ export async function POST(req: NextRequest) {
       .from("orders")
       .update({ status: "cancelado", mp_payment_id: externalId })
       .eq("id", ref)
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .in("status", ["aguardando_pagamento", "pago"])
       .select("id");
     if (error) {
@@ -209,7 +209,7 @@ export async function POST(req: NextRequest) {
       .from("orders")
       .select("id, status")
       .eq("id", ref)
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .maybeSingle();
     if (pedido && pedido.status === "cancelado") {
       const { error: erroLibera } = await admin.rpc("release_order_stock", { p_order_id: ref });

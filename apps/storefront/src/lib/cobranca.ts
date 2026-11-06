@@ -7,7 +7,7 @@
 // WhatsApp fica para a etapa 2 — por enquanto só email via Resend.
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { enviarEmail } from "@/lib/email";
 
 export type ResumoRegua = {
@@ -61,7 +61,7 @@ function montarHtml(corpo: string): string {
 
 export async function executarReguaCobranca(): Promise<ResumoRegua> {
   const admin = createAdminClient();
-  const tenantId = NUVEM_DE_PAPEL_TENANT_ID;
+  const tenantId = getCurrentTenantId();
   const hoje = new Date();
 
   const resumo: ResumoRegua = {

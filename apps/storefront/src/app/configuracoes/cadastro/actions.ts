@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { gerarTexto } from "@/lib/ia";
 
 // Cadastros (F8.1): a empresa emitente e o produto passaram a persistir de
@@ -40,7 +40,7 @@ async function auditar(
   depois: Record<string, unknown>
 ): Promise<void> {
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: actor,
     action,
     entity,
@@ -155,7 +155,7 @@ export async function salvarEmpresa(input: EmpresaInput): Promise<ResultadoAcao>
 
   const admin = createAdminClient();
   const { error: errCompany } = await admin.from("tenant_company").upsert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     razao_social: razaoSocial,
     fantasia: (input.fantasia ?? "").trim(),
     cnpj,
@@ -180,7 +180,7 @@ export async function salvarEmpresa(input: EmpresaInput): Promise<ResultadoAcao>
   if (errCompany) return { ok: false, erro: `Falha ao salvar a empresa: ${errCompany.message}` };
 
   const { error: errSefaz } = await admin.from("sefaz_config").upsert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     ambiente,
     serie_nfe: serieNfe,
     serie_nfce: serieNfce,
@@ -190,7 +190,7 @@ export async function salvarEmpresa(input: EmpresaInput): Promise<ResultadoAcao>
   });
   if (errSefaz) return { ok: false, erro: `Falha ao salvar a emissão: ${errSefaz.message}` };
 
-  await auditar(admin, gestor.id, "empresa.atualizada", "tenant_company", NUVEM_DE_PAPEL_TENANT_ID, {
+  await auditar(admin, gestor.id, "empresa.atualizada", "tenant_company", getCurrentTenantId(), {
     cnpj,
     regime,
     ambiente,
@@ -376,7 +376,7 @@ export async function salvarProduto(input: ProdutoInput): Promise<ResultadoAcao 
     const { data, error } = await admin
       .from("catalog_items")
       .insert({
-        tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+        tenant_id: getCurrentTenantId(),
         sku,
         name: nome,
         category: categoria || null,
@@ -443,7 +443,7 @@ export async function salvarProduto(input: ProdutoInput): Promise<ResultadoAcao 
       .maybeSingle();
 
     const fichaForn = {
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       item_id: itemId,
       supplier_name: fornecedorNome || null,
       supplier_sku: supplierSku || null,
@@ -890,7 +890,7 @@ export async function salvarCliente(input: ClienteInput): Promise<ResultadoAcao 
       .from("customers")
       .update(registro)
       .eq("id", id)
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .select("id")
       .maybeSingle();
     if (error) return { ok: false, erro: erroDeGravacao(error) };
@@ -899,7 +899,7 @@ export async function salvarCliente(input: ClienteInput): Promise<ResultadoAcao 
   } else {
     const { data, error } = await admin
       .from("customers")
-      .insert({ tenant_id: NUVEM_DE_PAPEL_TENANT_ID, ...registro })
+      .insert({ tenant_id: getCurrentTenantId(), ...registro })
       .select("id")
       .single();
     if (error || !data) return { ok: false, erro: erroDeGravacao(error) };
@@ -933,7 +933,7 @@ export async function removerCliente(input: { id: string }): Promise<ResultadoAc
     .from("customers")
     .select("name, email")
     .eq("id", id)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!antes) return { ok: false, erro: "Cliente não encontrado." };
 
@@ -941,7 +941,7 @@ export async function removerCliente(input: { id: string }): Promise<ResultadoAc
     .from("customers")
     .delete()
     .eq("id", id)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID);
+    .eq("tenant_id", getCurrentTenantId());
   if (error) {
     if (error.code === "23503") {
       return { ok: false, erro: "Este cliente tem pedidos vinculados e não pode ser excluído." };

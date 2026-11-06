@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { PAPEIS_OPERACIONAIS } from "@/lib/rbac";
 
 // Server Actions do PDV (F5): abertura/fechamento de caixa, suprimento/
@@ -53,7 +53,7 @@ async function auditar(
   depois: Record<string, unknown>
 ): Promise<void> {
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: actor,
     action,
     entity,
@@ -285,7 +285,7 @@ export async function emitirNfcePdv(pedidoId: string): Promise<ResultadoPdv> {
     .from("orders")
     .select("id, origem, status")
     .eq("id", pedidoId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!pedido) return { ok: false, erro: "Venda não encontrada." };
   if (pedido.origem !== "pdv") return { ok: false, erro: "Só vendas do PDV têm NFC-e." };

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 import { executarReativacao } from "@/lib/reativacao";
 import { executarAvaliacoes } from "@/lib/avaliacoes";
@@ -64,7 +64,7 @@ export async function marcarReclamacao(
     .from("review_requests")
     .update({ reclamacao: ehReclamacao, resolvida: ehReclamacao ? false : false })
     .eq("id", reviewId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID);
+    .eq("tenant_id", getCurrentTenantId());
   if (error) return { ok: false, erro: error.message };
   revalidatePath("/crm/marketing");
   return { ok: true, msg: ehReclamacao ? "Marcada como reclamação." : "Reclamação removida." };
@@ -82,7 +82,7 @@ export async function resolverReclamacao(
     .from("review_requests")
     .update({ resolvida })
     .eq("id", reviewId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID);
+    .eq("tenant_id", getCurrentTenantId());
   if (error) return { ok: false, erro: error.message };
   revalidatePath("/crm/marketing");
   return { ok: true, msg: resolvida ? "Reclamação resolvida." : "Reaberta." };

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 // Webhook Resend (F6.5): status do outbound (sent/delivered/opened/clicked/
 // bounced/complained) + inbound da caixa (email.received). Fail-closed sem
@@ -186,7 +186,7 @@ async function processarRecebido(
   const { data: linha, error } = await admin
     .from("email_messages")
     .insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       direction: "inbound",
       status: "received",
       source: "system",
@@ -249,7 +249,7 @@ export async function POST(req: NextRequest) {
     .from("webhook_events")
     .upsert(
       {
-        tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+        tenant_id: getCurrentTenantId(),
         provider: "resend",
         external_id: emailId + ":" + tipo,
         event_type: tipo,

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 import { executarReguaCobranca, type ResumoRegua } from "@/lib/cobranca";
 
@@ -77,7 +77,7 @@ export async function atualizarRegra(
     .from("cobranca_reguas")
     .update({ canal: entrada.canal, ativo: entrada.ativo, texto })
     .eq("id", reguaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID);
+    .eq("tenant_id", getCurrentTenantId());
   if (error) return { ok: false, erro: error.message };
 
   revalidatePath("/financeiro/cobranca");

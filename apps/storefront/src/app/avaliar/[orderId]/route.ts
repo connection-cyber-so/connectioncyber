@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 // Link curto de medição (rota publica, sem auth). Quem clica no pedido de
 // avaliação tem o clique registrado em review_requests.link_clicado_em e cai no
@@ -38,14 +38,14 @@ export async function GET(
   await admin
     .from("review_requests")
     .update({ link_clicado_em: new Date().toISOString() })
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("order_id", orderId)
     .is("link_clicado_em", null);
 
   const { data: cfg } = await admin
     .from("marketing_config")
     .select("google_review_link")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
 
   const link = String(cfg?.google_review_link ?? "").trim();

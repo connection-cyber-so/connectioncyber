@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { checkoutAberto } from "@/lib/checkout";
 import { criarPreferencia, mpConfigurado } from "@/lib/mercadopago";
 import { beneficioClube } from "@/lib/clube";
@@ -77,7 +77,7 @@ async function cotarInterno(
   const { data: empresa } = await admin
     .from("tenant_company")
     .select("endereco")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   const origem = String(empresa?.endereco?.cep ?? "").replace(/\D/g, "");
   if (!/^\d{8}$/.test(origem)) return { erro: "CEP da loja não configurado para frete." };
@@ -86,7 +86,7 @@ async function cotarInterno(
   const { data: linhas, error: erroTab } = await admin
     .from("freight_tabelas")
     .select("servico, valor, prazo_dias, peso_ate")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("origem_cep", origem)
     .eq("destino_regiao", digitos[0])
     .gte("peso_ate", peso)
@@ -136,7 +136,7 @@ export async function cotarFrete(input: {
     const { data: regiao } = await createAdminClient()
       .from("freight_tabelas")
       .select("id")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("destino_regiao", digitos[0])
       .limit(1);
     aviso = (regiao ?? []).length > 0
@@ -215,7 +215,7 @@ export async function finalizarCheckout(input: {
     admin
       .from("catalog_items")
       .select("id, sku, name")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .in("id", ids)
       .eq("active", true),
     admin
@@ -317,7 +317,7 @@ export async function finalizarCheckout(input: {
     .from("customers")
     .upsert(
       {
-        tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+        tenant_id: getCurrentTenantId(),
         email,
         name: snapshot.recipientName,
       },
@@ -332,7 +332,7 @@ export async function finalizarCheckout(input: {
   // 4) endereço novo salvo (opcional) — antes do pedido para poder reusar
   if (!input.addressId && input.salvarEndereco) {
     await admin.from("addresses").insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       user_id: user.id,
       recipient_name: snapshot.recipientName,
       cep: snapshot.cep,
@@ -375,7 +375,7 @@ export async function finalizarCheckout(input: {
   const { data: pedido, error: erroPedido } = await admin
     .from("orders")
     .insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       customer_id: clienteRes.id,
       user_id: user.id,
       channel: canal,
@@ -397,7 +397,7 @@ export async function finalizarCheckout(input: {
 
   const { error: erroItens } = await admin.from("order_items").insert(
     linhas.map((l) => ({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       order_id: pedido.id,
       item_id: l.item_id,
       sku: l.sku,
@@ -433,7 +433,7 @@ export async function finalizarCheckout(input: {
 
   // rastro: pedido da loja nao gravava audit_log (bloco 1, auditoria 0020).
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: user.id,
     action: "pedido.criar",
     entity: "orders",

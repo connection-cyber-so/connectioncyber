@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 // Webhook generico de marketplace (Modulo 1 - intake). Fail-closed (mesmo
 // ritual do Mercado Pago, F3): sem MARKETPLACE_WEBHOOK_SECRET → 503; sem o
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     .from("marketplace_webhooks")
     .upsert(
       {
-        tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+        tenant_id: getCurrentTenantId(),
         channel_id: canal.id,
         event_id: eventId,
         topic,
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
   // o que acontece com o evento depende do ADAPTADOR do canal - e so a fila
   // decide (dedupe impede o replay de enfileirar o mesmo evento duas vezes)
   const { error: erroJob } = await admin.rpc("marketplace_enqueue", {
-    p_tenant: NUVEM_DE_PAPEL_TENANT_ID,
+    p_tenant: getCurrentTenantId(),
     p_channel: canal.id,
     p_tipo: "processar_webhook",
     p_payload: { webhook_id: registrado[0].id, topic, event_id: eventId },

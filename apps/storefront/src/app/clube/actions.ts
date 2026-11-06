@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { mpConfigurado, criarPreapproval, cancelarPreapproval } from "@/lib/mercadopago";
 import { clubeEmModoMock } from "@/lib/clube";
 
@@ -39,7 +39,7 @@ async function auditar(
 ): Promise<void> {
   const admin = createAdminClient();
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: actorId,
     action,
     entity: "club_subscriptions",
@@ -59,7 +59,7 @@ export async function assinarPlano(planId: string): Promise<ResultadoClube> {
     .from("club_plans")
     .select("id, name, price_monthly, active")
     .eq("id", planId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!plano || !plano.active) {
     return { ok: false, erro: "Plano indisponivel no momento." };
@@ -68,7 +68,7 @@ export async function assinarPlano(planId: string): Promise<ResultadoClube> {
   const { data: existente } = await admin
     .from("club_subscriptions")
     .select("id, status")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("profile_id", user.id)
     .in("status", ["pendente", "ativa"])
     .maybeSingle();
@@ -94,7 +94,7 @@ export async function assinarPlano(planId: string): Promise<ResultadoClube> {
   const assinaturaId = crypto.randomUUID();
   const { error: erroInsert } = await admin.from("club_subscriptions").insert({
     id: assinaturaId,
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     profile_id: user.id,
     plan_id: planId,
     status: "pendente",
@@ -148,7 +148,7 @@ export async function cancelarAssinatura(): Promise<ResultadoClube> {
   const { data: assinatura } = await admin
     .from("club_subscriptions")
     .select("id, status, mp_preapproval_id, plan_id")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("profile_id", user.id)
     .in("status", ["pendente", "ativa"])
     .order("created_at", { ascending: false })
@@ -167,7 +167,7 @@ export async function cancelarAssinatura(): Promise<ResultadoClube> {
     .from("club_subscriptions")
     .update({ status: "cancelada", cancel_at_period_end: false, updated_at: new Date().toISOString() })
     .eq("id", assinatura.id)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID);
+    .eq("tenant_id", getCurrentTenantId());
   if (error) {
     return { ok: false, erro: "Nao foi possivel cancelar agora. Tente novamente." };
   }

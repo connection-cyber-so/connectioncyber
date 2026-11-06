@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 import { documentoValido } from "@/lib/documento";
 import {
@@ -165,7 +165,7 @@ export async function emitirNfe(entrada: EntradaNfe): Promise<ResultadoNfe> {
     .from(tabela)
     .select("id")
     .eq("id", entrada.pedidoId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!pedido) return { ok: false, erro: "Pedido não encontrado." };
 
@@ -180,7 +180,7 @@ export async function emitirNfe(entrada: EntradaNfe): Promise<ResultadoNfe> {
     const { data: ultima } = await admin
       .from("nfe_emissoes")
       .select("numero")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("serie", serie)
       .order("numero", { ascending: false })
       .limit(1)
@@ -190,7 +190,7 @@ export async function emitirNfe(entrada: EntradaNfe): Promise<ResultadoNfe> {
     const { data: criada, error } = await admin
       .from("nfe_emissoes")
       .insert({
-        tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+        tenant_id: getCurrentTenantId(),
         tipo: entrada.tipo,
         order_id: entrada.tipo === "saida" ? entrada.pedidoId : null,
         purchase_order_id: entrada.tipo === "entrada" ? entrada.pedidoId : null,
@@ -220,7 +220,7 @@ export async function emitirNfe(entrada: EntradaNfe): Promise<ResultadoNfe> {
     }
 
     await admin.from("audit_log").insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       actor_user_id: userId,
       action: "nfe.emitir",
       entity: "nfe_emissoes",
@@ -250,7 +250,7 @@ export async function transmitirNfe(notaId: string): Promise<ResultadoNfe> {
     .from("nfe_emissoes")
     .select("id, numero, serie, status, cfop, natureza_operacao, destinatario, itens, totais")
     .eq("id", notaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!nota) return { ok: false, erro: "Nota não encontrada." };
   if (nota.status !== "pendente") {
@@ -260,7 +260,7 @@ export async function transmitirNfe(notaId: string): Promise<ResultadoNfe> {
   const { data: emp } = await admin
     .from("tenant_company")
     .select("cnpj, ie, regime, razao_social, fantasia, telefone, endereco")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   const cnpjEmitente = (emp?.cnpj ?? "").replace(/\D/g, "");
   if (cnpjEmitente.length !== 14) {
@@ -271,7 +271,7 @@ export async function transmitirNfe(notaId: string): Promise<ResultadoNfe> {
   const { data: cfg } = await admin
     .from("sefaz_config")
     .select("ambiente")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   const ambiente = cfg?.ambiente === "producao" ? "producao" : "homologacao";
 
@@ -312,7 +312,7 @@ export async function transmitirNfe(notaId: string): Promise<ResultadoNfe> {
     if (!upd || upd.length === 0) return { ok: false, erro: "Nota mudou de estado — recarregue." };
 
     await admin.from("audit_log").insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       actor_user_id: userId,
       action: "nfe.autorizar",
       entity: "nfe_emissoes",
@@ -348,7 +348,7 @@ export async function transmitirNfe(notaId: string): Promise<ResultadoNfe> {
     if (!upd || upd.length === 0) return { ok: false, erro: "Nota mudou de estado — recarregue." };
 
     await admin.from("audit_log").insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       actor_user_id: userId,
       action: "nfe.rejeitar",
       entity: "nfe_emissoes",
@@ -376,7 +376,7 @@ export async function transmitirNfe(notaId: string): Promise<ResultadoNfe> {
   if (!upd || upd.length === 0) return { ok: false, erro: "Nota mudou de estado — recarregue." };
 
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "nfe.transmitir",
     entity: "nfe_emissoes",
@@ -403,7 +403,7 @@ export async function consultarNfe(notaId: string): Promise<ResultadoNfe> {
     .from("nfe_emissoes")
     .select("id, numero, serie, status, chave, recibo, ambiente")
     .eq("id", notaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!nota) return { ok: false, erro: "Nota não encontrada." };
   if (nota.status === "autorizada") return { ok: false, erro: "Nota já autorizada." };
@@ -414,7 +414,7 @@ export async function consultarNfe(notaId: string): Promise<ResultadoNfe> {
   const { data: emp } = await admin
     .from("tenant_company")
     .select("endereco")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   const ufEmitente = ((emp?.endereco as { uf?: string } | null)?.uf ?? "").trim();
 
@@ -445,7 +445,7 @@ export async function consultarNfe(notaId: string): Promise<ResultadoNfe> {
     if (!upd || upd.length === 0) return { ok: false, erro: "Nota mudou de estado — recarregue." };
 
     await admin.from("audit_log").insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       actor_user_id: userId,
       action: "nfe.autorizar",
       entity: "nfe_emissoes",
@@ -468,7 +468,7 @@ export async function consultarNfe(notaId: string): Promise<ResultadoNfe> {
     .eq("id", notaId)
     .eq("status", "transmitida");
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "nfe.rejeitar",
     entity: "nfe_emissoes",
@@ -490,7 +490,7 @@ export async function cancelarNfe(notaId: string): Promise<ResultadoNfe> {
     .from("nfe_emissoes")
     .select("id, numero, serie, status, chave, protocolo, ambiente")
     .eq("id", notaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!nota) return { ok: false, erro: "Nota não encontrada." };
 
@@ -500,14 +500,14 @@ export async function cancelarNfe(notaId: string): Promise<ResultadoNfe> {
       .from("nfe_emissoes")
       .update({ status: "cancelada", cancelada_em: new Date().toISOString() })
       .eq("id", notaId)
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("status", nota.status)
       .select("id, numero, serie");
     if (error) return { ok: false, erro: `Falha ao cancelar: ${error.message}` };
     if (!data || data.length === 0) return { ok: false, erro: "Nota já cancelada ou não encontrada." };
 
     await admin.from("audit_log").insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       actor_user_id: userId,
       action: "nfe.cancelar",
       entity: "nfe_emissoes",
@@ -530,7 +530,7 @@ export async function cancelarNfe(notaId: string): Promise<ResultadoNfe> {
   const { data: emp } = await admin
     .from("tenant_company")
     .select("cnpj, endereco")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   const ev = await cancelarEvento({
     chave: nota.chave ?? "",
@@ -556,7 +556,7 @@ export async function cancelarNfe(notaId: string): Promise<ResultadoNfe> {
   if (!data || data.length === 0) return { ok: false, erro: "Nota já cancelada ou não encontrada." };
 
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "nfe.cancelar",
     entity: "nfe_emissoes",
@@ -614,7 +614,7 @@ async function criarEntregaAposAutorizacao(
     const { data: existente } = await admin
       .from("entregas")
       .select("id")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("order_id", nota.order_id)
       .maybeSingle();
     if (existente) return;
@@ -637,7 +637,7 @@ async function criarEntregaAposAutorizacao(
     const { data: criada, error } = await admin
       .from("entregas")
       .insert({
-        tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+        tenant_id: getCurrentTenantId(),
         order_id: nota.order_id,
         status,
         transportadora,
@@ -648,7 +648,7 @@ async function criarEntregaAposAutorizacao(
     if (error || !criada) return;
 
     await admin.from("entrega_eventos").insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       entrega_id: criada.id,
       de_status: null,
       para_status: status,
@@ -677,7 +677,7 @@ export async function converterVenda(orderId: string): Promise<Resultado> {
 
   const numero = (data as { venda_numero?: string } | null)?.venda_numero ?? "";
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "venda.converter",
     entity: "orders",
@@ -700,7 +700,7 @@ export async function cancelarPedido(orderId: string): Promise<Resultado> {
     .from("orders")
     .select("id, etapa, cancelado_em")
     .eq("id", orderId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!pedido) return { ok: false, erro: "Pedido não encontrado." };
   if (pedido.cancelado_em) return { ok: false, erro: "Pedido já cancelado." };
@@ -718,7 +718,7 @@ export async function cancelarPedido(orderId: string): Promise<Resultado> {
   if (!upd || upd.length === 0) return { ok: false, erro: "Pedido já cancelado." };
 
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "pedido.cancelar",
     entity: "orders",
@@ -751,7 +751,7 @@ export async function avancarEntrega(entregaId: string): Promise<Resultado> {
       "id, order_id, status, rastreio, transportadora, orders(id, venda_numero, pedido_numero, customers(name, email))"
     )
     .eq("id", entregaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!entrega) return { ok: false, erro: "Entrega não encontrada." };
 
@@ -797,7 +797,7 @@ export async function avancarEntrega(entregaId: string): Promise<Resultado> {
         : "entregue";
 
   await admin.from("entrega_eventos").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     entrega_id: entregaId,
     de_status: entrega.status,
     para_status: destino,
@@ -810,7 +810,7 @@ export async function avancarEntrega(entregaId: string): Promise<Resultado> {
     created_by: userId,
   });
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "entrega.avancar",
     entity: "entregas",
@@ -841,7 +841,7 @@ export async function atualizarEntrega(
     .from("entregas")
     .select("id, status")
     .eq("id", entregaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!entrega) return { ok: false, erro: "Entrega não encontrada." };
   if (entrega.status === "entregue" || entrega.status === "devolvido") {
@@ -871,7 +871,7 @@ export async function atualizarEntrega(
   if (error) return { ok: false, erro: `Falha ao salvar a entrega: ${error.message}` };
 
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "entrega.atualizar",
     entity: "entregas",
@@ -898,7 +898,7 @@ export async function registrarOcorrencia(entregaId: string, texto: string): Pro
     .from("entregas")
     .select("id, status, orders(id, venda_numero, pedido_numero, customers(name, email))")
     .eq("id", entregaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!entrega) return { ok: false, erro: "Entrega não encontrada." };
   if (!["aguardando", "separado", "em_transito"].includes(entrega.status)) {
@@ -919,7 +919,7 @@ export async function registrarOcorrencia(entregaId: string, texto: string): Pro
   if (!upd || upd.length === 0) return { ok: false, erro: "Entrega mudou de estado — recarregue." };
 
   await admin.from("entrega_eventos").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     entrega_id: entregaId,
     de_status: entrega.status,
     para_status: "falhou",
@@ -927,7 +927,7 @@ export async function registrarOcorrencia(entregaId: string, texto: string): Pro
     created_by: userId,
   });
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "entrega.ocorrencia",
     entity: "entregas",
@@ -967,7 +967,7 @@ export async function importarPedidosLoja(ids: string[]): Promise<Resultado> {
   const n = Number((data as { importados?: number } | null)?.importados ?? 0);
   if (n > 0) {
     await admin.from("audit_log").insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       actor_user_id: userId,
       action: "pedidos.importar",
       entity: "orders",
@@ -1047,7 +1047,7 @@ export async function buscarXmlNota(notaId: string): Promise<ResultadoXml> {
   const { data: nota } = await acesso.admin
     .from("nfe_emissoes")
     .select("id, numero, serie, chave, xml, tipo")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("id", notaId)
     .maybeSingle();
 
@@ -1131,7 +1131,7 @@ export async function salvarVendedor(entrada: EntradaVendedor): Promise<Resultad
 
   const id = entrada.id && UUID_5.test(entrada.id) ? entrada.id : null;
   const payload = {
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     name: nome,
     email: email || null,
     documento: doc || null,
@@ -1147,7 +1147,7 @@ export async function salvarVendedor(entrada: EntradaVendedor): Promise<Resultad
         .from("sellers")
         .update(payload)
         .eq("id", id)
-        .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+        .eq("tenant_id", getCurrentTenantId())
         .select("id")
         .maybeSingle()
     : await admin.from("sellers").insert(payload).select("id").single();
@@ -1161,7 +1161,7 @@ export async function salvarVendedor(entrada: EntradaVendedor): Promise<Resultad
   if (id && !data) return { ok: false, erro: "Vendedor nao encontrado." };
 
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: id ? "vendedor.atualizado" : "vendedor.criado",
     entity: "sellers",
@@ -1184,13 +1184,13 @@ export async function removerVendedor(vendedorId: string): Promise<Resultado> {
     .from("sellers")
     .delete()
     .eq("id", vendedorId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .select("id, name");
   if (error) return { ok: false, erro: `Falha ao remover o vendedor: ${error.message}` };
   if (!data || data.length === 0) return { ok: false, erro: "Vendedor nao encontrado." };
 
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "vendedor.removido",
     entity: "sellers",
@@ -1219,7 +1219,7 @@ export async function definirVendedorPedido(
       .from("sellers")
       .select("id, name, ativo")
       .eq("id", vendedorId)
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .maybeSingle();
     if (!vend) return { ok: false, erro: "Vendedor nao encontrado." };
     if (!vend.ativo) return { ok: false, erro: "Vendedor inativo nao pode receber pedido." };
@@ -1229,13 +1229,13 @@ export async function definirVendedorPedido(
     .from("orders")
     .update({ seller_id: vendedorId })
     .eq("id", pedidoId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .select("id, pedido_numero, venda_numero");
   if (error) return { ok: false, erro: `Falha ao gravar o vendedor do pedido: ${error.message}` };
   if (!data || data.length === 0) return { ok: false, erro: "Pedido nao encontrado." };
 
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "pedido.vendedor",
     entity: "orders",
@@ -1435,7 +1435,7 @@ export async function registrarVendaManual(
   const total = Number(res?.total ?? 0);
 
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: userId,
     action: "venda.manual",
     entity: "orders",

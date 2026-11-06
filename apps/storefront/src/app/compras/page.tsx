@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import {
   ConsoleCompras,
   type EnvioPedido,
@@ -112,7 +112,7 @@ export default async function ComprasPage() {
     admin
       .from("suppliers")
       .select("id, name, contact_email, cnpj, user_id, active, uf, pais")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("name", { ascending: true }),
     admin
       .from("purchase_orders")
@@ -126,13 +126,13 @@ export default async function ComprasPage() {
           "compra_envios(para, enviado_em), " +
           "compra_importacao(moeda, cambio, di, frete_int, seguro, aliq_ii, aliq_ipi, aliq_pis, aliq_cofins, aliq_icms, despesas)"
       )
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("created_at", { ascending: false })
       .limit(200),
     admin
       .from("catalog_items")
       .select("id, sku, name")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("active", true)
       .order("name", { ascending: true }),
     admin.from("profiles").select("role, status").eq("id", user.id).maybeSingle(),
@@ -142,20 +142,20 @@ export default async function ComprasPage() {
       .select(
         "id, chave, numero, serie, emitente_cnpj, emitente_nome, emitente_uf, emitida_em, valor_total, manifestacao, purchase_order_id, itens"
       )
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("emitida_em", { ascending: false })
       .limit(200),
     // vínculos existentes (para o badge "a tratar" e o rótulo da nota)
     admin
       .from("notas_entrada")
       .select("id, purchase_order_id, nfe_recebida_id, numero, status")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .limit(500),
     // recebimentos → títulos → parcelas (5.6 "Contas a pagar")
     admin
       .from("purchase_receipts")
       .select("id, purchase_order_id, received_at")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("received_at", { ascending: false })
       .limit(1000),
   ]);
@@ -171,7 +171,7 @@ export default async function ComprasPage() {
       ? admin
           .from("financial_titles")
           .select("id, source_id")
-          .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+          .eq("tenant_id", getCurrentTenantId())
           .eq("source_type", "purchase_receipt")
           .eq("direction", "payable")
           .in("source_id", recIds)
@@ -179,7 +179,7 @@ export default async function ComprasPage() {
     admin
       .from("financial_installments")
       .select("id, title_id, number, status, due_date, principal_amount, paid_amount")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("due_date", { ascending: true })
       .limit(2000),
   ]);

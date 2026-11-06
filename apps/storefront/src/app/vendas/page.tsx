@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import {
   ConsoleVendas,
   type ConsoleEmitente,
@@ -57,20 +57,20 @@ export default async function VendasPage() {
       .select(
         "id, status, channel, total_amount, created_at, origem, etapa, pedido_numero, venda_numero, cancelado_em, frete, payment_method, seller_id, customers(id, name, email, documento, uf)"
       )
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("created_at", { ascending: false })
       .limit(200),
     admin
       .from("order_items")
       .select("order_id, sku, name, unit_price, quantity, total")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .limit(1000),
     admin
       .from("purchase_orders")
       .select(
         "id, code, status, total, created_at, suppliers(id, name), purchase_order_items(sku_snapshot, name_snapshot, quantity, unit_cost, line_total)"
       )
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("created_at", { ascending: false })
       .limit(200),
     admin
@@ -78,20 +78,20 @@ export default async function VendasPage() {
       .select(
         "id, tipo, numero, serie, status, created_at, natureza_operacao, cfop, destinatario, frete, itens, totais, dados_adicionais, chave, protocolo, recibo, motivo, order:orders(id, customers(name)), purchase_order:purchase_orders(id, code, suppliers(name))"
       )
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("numero", { ascending: false })
       .limit(200),
     admin.from("profiles").select("role, status").eq("id", user.id).maybeSingle(),
     admin
       .from("tenant_company")
       .select("razao_social, fantasia, cnpj, email, endereco")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .maybeSingle(),
     // funil (VD-02): pedidos em aberto
     admin
       .from("orders")
       .select("id, total_amount", { count: "exact" })
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("etapa", "pedido")
       .is("cancelado_em", null)
       .limit(5000),
@@ -99,7 +99,7 @@ export default async function VendasPage() {
     admin
       .from("orders")
       .select("id, total_amount", { count: "exact" })
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("etapa", "venda")
       .is("cancelado_em", null)
       .limit(5000),
@@ -107,27 +107,27 @@ export default async function VendasPage() {
     admin
       .from("nfe_emissoes")
       .select("numero, status, totais, order:orders(id)")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("tipo", "saida")
       .order("numero", { ascending: false })
       .limit(5000),
     admin
       .from("entregas")
       .select("id, order_id, status, transportadora, rastreio, prazo, observacao")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("created_at", { ascending: false })
       .limit(1000),
     admin
       .from("entrega_eventos")
       .select("entrega_id, para_status, nota, created_at")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("created_at", { ascending: false })
       .limit(500),
     // "Importar da loja" (secao 4): pagos da loja ainda sem numero P-
     admin
       .from("orders")
       .select("id, payment_method, customers(name, documento, uf)")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("origem", "loja")
       .is("pedido_numero", null)
       .is("cancelado_em", null)
@@ -137,13 +137,13 @@ export default async function VendasPage() {
     admin
       .from("sellers")
       .select("id, name, email, documento, telefone, commission_pct, meta, ativo")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("name", { ascending: true })
       .limit(500),
     admin
       .from("v_comissao")
       .select("seller_id, vendedor, periodo, pedidos, base, pct, comissao")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("periodo", { ascending: false })
       .limit(500),
   ]);

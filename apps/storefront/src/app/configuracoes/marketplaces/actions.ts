@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { processarFila as drenarFila, type ResumoFila } from "@/lib/marketplace/fila";
 
 // Tela de Marketplaces (Modulo 1 - kernel). As 6 tabelas sao deny-all: tudo
@@ -41,7 +41,7 @@ async function auditar(
 ): Promise<void> {
   const admin = createAdminClient();
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: gestor.id,
     action,
     entity: "marketplace_accounts",
@@ -78,7 +78,7 @@ export async function adicionarConta(entrada: { canal?: string; label?: string }
   const { data: linha, error } = await admin
     .from("marketplace_accounts")
     .insert({
-      tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+      tenant_id: getCurrentTenantId(),
       channel_id: channel.id,
       label,
     })
@@ -106,7 +106,7 @@ export async function removerConta(contaId: string): Promise<Resultado> {
     .from("marketplace_accounts")
     .select("id, label, channel_id")
     .eq("id", contaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!antes) return { ok: false, erro: "Conta nao encontrada." };
 
@@ -129,7 +129,7 @@ async function enfileirar(
   dedupe: string
 ): Promise<string | null> {
   const { data, error } = await admin.rpc("marketplace_enqueue", {
-    p_tenant: NUVEM_DE_PAPEL_TENANT_ID,
+    p_tenant: getCurrentTenantId(),
     p_channel: canal,
     p_account: conta,
     p_tipo: tipo,
@@ -150,7 +150,7 @@ export async function enfileirarPing(contaId: string): Promise<Resultado> {
     .from("marketplace_accounts")
     .select("id, channel_id, label")
     .eq("id", contaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!conta) return { ok: false, erro: "Conta nao encontrada." };
 
@@ -174,7 +174,7 @@ export async function enfileirarValidacao(contaId: string, itemId: string): Prom
     .from("marketplace_accounts")
     .select("id, channel_id")
     .eq("id", contaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!conta) return { ok: false, erro: "Conta nao encontrada." };
 
@@ -203,7 +203,7 @@ export async function enfileirarPublicacao(contaId: string, itemId: string): Pro
     .from("marketplace_accounts")
     .select("id, channel_id")
     .eq("id", contaId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .maybeSingle();
   if (!conta) return { ok: false, erro: "Conta nao encontrada." };
 
@@ -212,7 +212,7 @@ export async function enfileirarPublicacao(contaId: string, itemId: string): Pro
   const { data: anuncio, error: erroAnuncio } = await admin
     .from("marketplace_listings")
     .upsert(
-      { tenant_id: NUVEM_DE_PAPEL_TENANT_ID, account_id: conta.id, item_id: itemId },
+      { tenant_id: getCurrentTenantId(), account_id: conta.id, item_id: itemId },
       { onConflict: "account_id,item_id" }
     )
     .select("id")

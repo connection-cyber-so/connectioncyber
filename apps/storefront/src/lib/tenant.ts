@@ -1,11 +1,19 @@
-/**
- * Nuvem de Papel opera hoje como tenant único, mas o schema já é multi-tenant
- * (regra 2 do AGENTS.md) para permitir migração futura sem dano estrutural.
- * Nunca derivar tenant_id de query string / form field — só desta constante
- * (ou, quando o modelo crescer, de uma resolução server-side real por sessão).
- */
-export const NUVEM_DE_PAPEL_TENANT_ID = "00000000-0000-0000-0000-000000000001";
+import { headers } from "next/headers";
+import { TENANT_HEADER } from "@/lib/tenant-host";
 
+/**
+ * Tenant da requisição atual. Vem SEMPRE do middleware, que resolve o hostname
+ * (src/middleware.ts + src/lib/tenant-host.ts) e grava o header abaixo.
+ *
+ * O middleware apaga qualquer x-cc-tenant-id enviado pelo cliente antes de gravar
+ * o seu, então o valor nunca vem de query string, form field ou cabeçalho do cliente.
+ *
+ * Sem header = requisição não passou pelo middleware → erro, nunca um tenant padrão.
+ */
 export function getCurrentTenantId(): string {
-  return NUVEM_DE_PAPEL_TENANT_ID;
+  const tenantId = headers().get(TENANT_HEADER);
+  if (!tenantId) {
+    throw new Error("Tenant nao resolvido para esta requisicao.");
+  }
+  return tenantId;
 }

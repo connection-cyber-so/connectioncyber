@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import {
   CadastrosTelaUnica,
   type ClienteCad,
@@ -63,12 +63,12 @@ export default async function CadastroPage() {
     admin
       .from("tenant_company")
       .select("*")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .maybeSingle(),
     admin
       .from("sefaz_config")
       .select("*")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .maybeSingle(),
     admin
       .from("catalog_items")
@@ -82,7 +82,7 @@ export default async function CadastroPage() {
       .select(
         "id, name, email, documento, ie, uf, tier, points, created_at, orders(count), telefone, whatsapp, nascimento, cep, logradouro, numero, complemento, bairro, cidade, observacoes, limite_credito, ativo, foto_url"
       )
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("name", { ascending: true })
       .limit(500),
   ]);

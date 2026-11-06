@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { PAPEIS, PAPEIS_GESTAO, podeGerenciar } from "@/lib/rbac";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { enviarEmail, templateConvite, templateRevendaAprovada, templateRevendaRejeitada } from "@/lib/email";
 
 // Console de usuários (Fase 2). Toda escrita:
@@ -46,7 +46,7 @@ async function auditar(
 ): Promise<boolean> {
   const admin = createAdminClient();
   const { error } = await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: gestor.id,
     action,
     entity: "profiles",
@@ -95,7 +95,7 @@ export async function criarUsuario(input: {
 
   const { error: erroProfile } = await admin.from("profiles").insert({
     id: criado.user.id,
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     email,
     full_name: fullName || null,
     role,

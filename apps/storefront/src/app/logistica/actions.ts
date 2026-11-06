@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { PAPEIS_OPERACIONAIS } from "@/lib/rbac";
 import { notificarStatusPedido, type EventoPedido } from "@/lib/pedido-notificar";
 
@@ -54,7 +54,7 @@ async function auditar(
   depois: Record<string, unknown>
 ): Promise<void> {
   await admin.from("audit_log").insert({
-    tenant_id: NUVEM_DE_PAPEL_TENANT_ID,
+    tenant_id: getCurrentTenantId(),
     actor_user_id: actor,
     action,
     entity,
@@ -79,7 +79,7 @@ export async function avancarExpedicao(
     .from("orders")
     .update({ status: para })
     .eq("id", pedidoId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .in("status", [de])
     .select("id, status");
   if (error) return { ok: false, erro: `Falha ao atualizar: ${error.message}` };
@@ -109,7 +109,7 @@ export async function cancelarPedidoNaoPago(pedidoId: string): Promise<Resultado
     .from("orders")
     .update({ status: "cancelado" })
     .eq("id", pedidoId)
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .in("status", ["aguardando_pagamento"])
     .select("id");
   if (error) return { ok: false, erro: `Falha ao cancelar: ${error.message}` };

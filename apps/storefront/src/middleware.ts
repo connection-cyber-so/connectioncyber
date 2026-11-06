@@ -1,12 +1,29 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { papelPermitidoNoModulo } from "@/lib/rbac";
+import { normalizeRequestHost, resolveTenantIdByHost, TENANT_HEADER } from "@/lib/tenant-host";
 
-// Protege areas privadas (/crm, /configuracoes, /pdv, /financeiro, /compras,
-// /vendas, /portal): exige sessao Supabase Auth, perfil ativo e papel autorizado pelo
-// módulo (RBAC - migrations 0004/0005/0009). Substitui o Basic Auth legado
-// (Fase 1 do parecer-acesso-enterprise.md). Fail-closed: sem env de Supabase
-// configuradas, bloqueia com 503.
+// 1) Resolve o tenant pelo hostname e grava x-cc-tenant-id (apaga o que o cliente enviar).
+//    Host desconhecido → 404. Fail-closed.
+// 2) Áreas privadas (/crm, /configuracoes, /pdv, /financeiro, /compras, /vendas, /portal,
+//    /email, /logistica): exige sessão Supabase Auth, perfil ativo e papel autorizado pelo
+//    módulo (RBAC - migrations 0004/0005/0009). Sem env de Supabase, bloqueia com 503.
+
+const PRIVATE_PREFIXES = [
+  "/crm",
+  "/configuracoes",
+  "/logistica",
+  "/pdv",
+  "/financeiro",
+  "/compras",
+  "/vendas",
+  "/email",
+  "/portal",
+];
+
+function isPrivatePath(pathname: string): boolean {
+  return PRIVATE_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
 
 export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -18,7 +35,23 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  let response = NextResponse.next({ request });
+  const host = normalizeRequestHost(request.headers.get("host"));
+  const tenantId = host ? await resolveTenantIdByHost(host) : null;
+
+  if (!tenantId) {
+    return new NextResponse("Endereco nao associado a nenhuma empresa.", { status: 404 });
+  }
+
+  // Cabeçalho do cliente é descartado: só o tenant resolvido pelo host segue adiante.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.delete(TENANT_HEADER);
+  requestHeaders.set(TENANT_HEADER, tenantId);
+
+  let response = NextResponse.next({ request: { headers: requestHeaders } });
+
+  if (!isPrivatePath(request.nextUrl.pathname)) {
+    return response;
+  }
 
   const supabase = createServerClient(url, key, {
     cookies: {
@@ -27,7 +60,7 @@ export async function middleware(request: NextRequest) {
       },
       setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
+        response = NextResponse.next({ request: { headers: requestHeaders } });
         cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
       },
     },
@@ -64,18 +97,8 @@ export async function middleware(request: NextRequest) {
   }
 
   return response;
-};
+}
 
 export const config = {
-  matcher: [
-    "/crm/:path*",
-    "/configuracoes/:path*",
-    "/logistica/:path*",
-    "/pdv/:path*",
-    "/financeiro/:path*",
-    "/compras/:path*",
-    "/vendas/:path*",
-    "/email/:path*",
-    "/portal/:path*",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|webp|gif|svg|mp4|css|js|txt)$).*)"],
 };

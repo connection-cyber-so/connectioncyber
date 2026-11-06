@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 // Regras do Clube de assinantes (F7). A assinatura "ativa" e a fonte da
 // verdade para o beneficio no checkout; ativacao/cancelamento vem das
@@ -22,7 +22,7 @@ export async function beneficioClube(userId: string): Promise<AssinaturaAtiva | 
   const { data } = await admin
     .from("club_subscriptions")
     .select("id, plan_id, club_plans!inner(discount_pct)")
-    .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+    .eq("tenant_id", getCurrentTenantId())
     .eq("profile_id", userId)
     .eq("status", "ativa")
     .maybeSingle();

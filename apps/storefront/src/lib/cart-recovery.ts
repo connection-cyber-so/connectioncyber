@@ -8,7 +8,7 @@
 // contrato de src/lib/cobranca.ts (0035).
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import { enviarEmail, codigoPedido } from "@/lib/email";
 
 export type ResumoRecuperacao = {
@@ -54,7 +54,7 @@ function montarHtml(corpo: string): string {
 
 export async function executarReguaRecuperacao(): Promise<ResumoRecuperacao> {
   const admin = createAdminClient();
-  const tenantId = NUVEM_DE_PAPEL_TENANT_ID;
+  const tenantId = getCurrentTenantId();
   const agora = Date.now();
 
   const resumo: ResumoRecuperacao = {

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 import {
   ConsoleVendaManual,
   type ClienteLista,
@@ -31,13 +31,13 @@ export default async function NovaVendaPage() {
       .select(
         "id, sku, name, item_stock(stock_available), item_prices(channel, price, min_quantity, valid_from, valid_until)"
       )
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("active", true)
       .order("name", { ascending: true }),
     admin
       .from("customers")
       .select("id, name, documento, telefone, cep, logradouro, numero, complemento, bairro, cidade, uf")
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .eq("ativo", true)
       .order("name", { ascending: true })
       .limit(1000),

@@ -4,7 +4,7 @@ import { ConsolePrecos } from "@/components/precos/ConsolePrecos";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { PAPEIS_GESTAO } from "@/lib/rbac";
-import { NUVEM_DE_PAPEL_TENANT_ID } from "@/lib/tenant";
+import { getCurrentTenantId } from "@/lib/tenant";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +44,7 @@ export default async function TabelaPrecosPage() {
       .select(
         "id, sku, name, active, item_prices(channel, min_quantity, price, valid_from, valid_until)"
       )
-      .eq("tenant_id", NUVEM_DE_PAPEL_TENANT_ID)
+      .eq("tenant_id", getCurrentTenantId())
       .order("sku", { ascending: true })
       .limit(400),
     admin
