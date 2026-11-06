@@ -417,6 +417,14 @@ Integração da Nuvem de Papel ao banco multi-tenant como tenant novo, no mesmo 
 5. Fora de escopo, portões próprios: CNPJ/emitente real da Nuvem (autorização separada), custódia do A1 para o port do `sefaz.ts` (validação com contador), migração A3 → A1 (bloqueia cutover, não o staging), usuários do tenant e módulos sem chave no catálogo.
 6. **Próxima ação autorizável:** definir a custódia do A1 e fornecer o CNPJ real da Nuvem. Nenhum dos dois inicia sem aceite.
 
+### M53-G2 — mapa do módulo 1 e povoamento fictício (📝 MAPA CONCLUÍDO — 06/11/2026)
+
+1. Redefinição: M53-G2 deixa de ser migração de dados, porque a base da Nuvem é de teste; passa a ser mapa + povoamento com dados fictícios.
+2. Relatório `RELATORIO-M53-G2-MAPA-MODULO1-NUVEM.md`: clientes → `erp_parties`; produtos → `erp_catalog_items`; estoque → `erp_stock_*`.
+3. Fontes: código e migrations do app Nuvem. O MCP não tem acesso ao projeto `urlfwx…`; o schema de origem não foi confirmado no banco vivo.
+4. Nenhuma escrita no banco e nenhuma alteração de código nesta etapa.
+5. **Pendências:** decidir modelo de estoque das lojas (ERP × M54); confirmar enum `sales_channel`; autorizar o povoamento fictício em staging.
+
 ### M54-G1 — locais, endereços e saldos do Centro Logístico (✅ CONCLUÍDO EM STAGING — 06/11/2026)
 
 1. Migration aditiva `0055_cd_locais_enderecos_saldos.sql`: tabelas `locais` (loja | cd), `enderecos` (zona galpão/salão, rua, box, tipo_uso) e `saldos` (qtd e reservado por produto × endereço), com triggers de tipo de local, checks de uso e RLS somente SELECT (membership ou staff); escrita fechada.
@@ -930,6 +938,7 @@ portões separados e bloqueados.
 | 9.6.0 | 06/11/2026 | M54-G4 | Função `cd_alocar_pedido`: limite, reserva no CD, falta vira transferência loja → CD (migration 0058). Ensaio ponta a ponta com dado FICTICIO 5/5. | Aplicada no staging; função security definer só service_role; config e 4 regras da Nuvem; produção intocada. |
 | 9.7.0 | 06/11/2026 | M54-G5 | Recebimento de transferência, coleta com baixa no CD e despacho (0059). | Aplicada no staging; 3 funções definer; ensaio FICTICIO 7/7; produção intocada. |
 | 9.8.0 | 06/11/2026 | M54-G6 | Camada de API do CD (0060): 5 RPCs `cd_api_*` com checagem de permissão e capacidade; checklist de promoção para produção (não executado). | Aplicada no staging; ensaio 8/8; produção intocada. |
+| 9.9.0 | 06/11/2026 | M53-G2 | Mapa do módulo 1 (clientes, produtos, estoque) para o tenant Nuvem; relatório `RELATORIO-M53-G2-MAPA-MODULO1-NUVEM.md`; escopo redefinido para povoamento fictício. | Mapa concluído; nenhuma escrita no banco; pendências: modelo de estoque, enum `sales_channel` e autorização do povoamento. Commit local, sem push. |
 
 ## 12. Protocolo de atualização futura
 
