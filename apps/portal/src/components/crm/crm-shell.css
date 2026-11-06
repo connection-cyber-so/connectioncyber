@@ -44,9 +44,6 @@
   --radius-control: 999px;
   --radius-chip: 999px;
 }
-
-
-.admin-shell {
 .admin-shell {
   display: flex;
   align-items: stretch;
@@ -324,3 +321,62 @@
     width: 100%;
     flex: none;
     min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .admin-side-inner {
+    position: static;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    padding: 12px;
+  }
+
+  .admin-nav,
+  .admin-nav > div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .admin-group-label {
+    padding: 4px 6px;
+  }
+
+  .admin-gap {
+    display: none;
+  }
+
+  .admin-link {
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    margin-bottom: 0;
+    padding: 7px 10px;
+  }
+
+  .admin-link--on,
+  .admin-link--on:hover {
+    border-left: 0;
+    border-bottom-color: var(--pink-600);
+  }
+
+  .admin-sub {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    border-left: 0;
+    gap: 4px;
+  }
+
+  .admin-gear {
+    width: auto;
+  }
+
+  .page-header h1 {
+    font-size: 21px;
+  }
+}
