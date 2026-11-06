@@ -444,6 +444,13 @@ Relatório único: `RELATORIO-M54-G2-G4-PLANOS-PEDIDOS-ALOCACAO.md`.
 3. Relatório: `RELATORIO-M54-G5-RECEBIMENTO-COLETA-DESPACHO.md`. Produção intocada.
 4. **Próxima ação autorizável:** aprovar produção do M54-G1 a G5 (exige autorização separada) ou abrir a camada de API (RPC) para a interface.
 
+### M54-G6 — camada de API (RPC) do CD e checklist de produção (✅ STAGING — 06/11/2026)
+
+1. Migration `0060_cd_api_rpc.sql`: 5 RPCs `cd_api_*` para a interface (criar pedido, alocar/aprovar, receber, coletar, despachar), com `cd_api_exigir` fail-closed: autenticado + `has_permission` + capacidade ativa no período.
+2. Ensaio transacional com usuário autenticado simulado e membership FICTICIA: 8/8 sem `FALHOU`; aplicação no staging com pós-apply (6 funções `security definer`, `anon` sem acesso, 5 grants a `authenticated`, zero resíduo).
+3. Checklist de promoção para produção: `PROMOCAO-PRODUCAO-M54-G1-G6-CHECKLIST.md`. **Não executado.** Bloqueio principal: 0053 e 0054 ainda não estão em produção.
+4. **Próxima ação autorizável:** interface que consome as RPCs (no staging), ou autorizar a promoção conforme o checklist.
+
 ### M23-G0 — fundação da Academia (✅ CONCLUÍDO EM STAGING — 27/09/2026)
 
 Núcleo único + 2 portas aprovado pelo usuário; G0 entregou a migration aditiva
@@ -921,6 +928,7 @@ portões separados e bloqueados.
 | 9.5.0 | 06/11/2026 | M54-G3 | Pedidos do CD, transferências, reservas, regras de saída e configuração do CD (migration 0057). Commit `b36fb35`. | Aplicada no staging; 7 tabelas com RLS; produção intocada. |
 | 9.6.0 | 06/11/2026 | M54-G4 | Função `cd_alocar_pedido`: limite, reserva no CD, falta vira transferência loja → CD (migration 0058). Ensaio ponta a ponta com dado FICTICIO 5/5. | Aplicada no staging; função security definer só service_role; config e 4 regras da Nuvem; produção intocada. |
 | 9.7.0 | 06/11/2026 | M54-G5 | Recebimento de transferência, coleta com baixa no CD e despacho (0059). | Aplicada no staging; 3 funções definer; ensaio FICTICIO 7/7; produção intocada. |
+| 9.8.0 | 06/11/2026 | M54-G6 | Camada de API do CD (0060): 5 RPCs `cd_api_*` com checagem de permissão e capacidade; checklist de promoção para produção (não executado). | Aplicada no staging; ensaio 8/8; produção intocada. |
 
 ## 12. Protocolo de atualização futura
 
