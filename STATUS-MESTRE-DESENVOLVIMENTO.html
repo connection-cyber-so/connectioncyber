@@ -665,5 +665,21 @@ Riscos e limites residuais: drift do hook de signup **corrigido** (0045), e-mail
 Próxima ação: **M23-G1.2 — porta 2 (curadoria no `apps/portal`: criar/publicar curso e módulos)**, começando pelo primeiro curso de demonstração para validar a porta 1 ponta a ponta no navegador.
 </pre></section>
 <!-- M23-ACADEMY-END -->
+<!-- PDV-ERP-START -->
+<section id="pdv-erp"><pre style="white-space:pre-wrap">## PDV → ERP — 0062 e 0064 (07/11/2026)
+
+Atualização: 07/11/2026. Estado: 0062 (entregas, entregador, falha, taxa, zonas por raio) e 0064 (ordens de produção ligadas à ficha técnica) aplicadas no staging ozvylnaipubrmaadikvk; testes passaram; production intocada; nada commitado.
+
+Escopo 0062: colunas de entregador, falha e taxa em erp_food_fulfillments; status failed com motivo e horário obrigatórios; erp_delivery_fee_zones com trigger anti-sobreposição (intervalo [from, to)) e RLS por food.read / food.manage. Relatório: RELATORIO-0062-entregas-entregador-falha-taxa.md.
+
+Escopo 0064: erp_production_orders (status draft ou cancelled) com validação de ficha, item, unidade e ficha ativa; view erp_production_order_requirements com a necessidade de insumos por ordem em rascunho (quantidade × ordem ÷ rendimento × (1 + perda %)). Fora deste gate: baixa de estoque e status posted. Relatório: RELATORIO-0064-ordens-producao-ficha.md.
+
+Evidência: 0062 com preflight 9/9 e arquivo de testes inteiro aprovado no staging (teste D executado com comanda temporária em transação revertida). 0064 com preflight 8/8, 9 cenários de teste aprovados e verificação pós-aplicação OK (RLS, 3 policies, trigger, security_invoker, anon sem acesso, sem DELETE, zero linhas residuais). Hashes SHA-256 (prefixo): 0062 migração ebf4e374, teste 3f166c21; 0064 migração 10e6ddc7, teste d4c7b205.
+
+Riscos e pendências: 0063 (age_restricted, fumigeno, erp_discount_authorizations, configurações por tenant) não criada; baixa de estoque por ordem não implementada; erp_recipe_yields não usada (rendimento vem de erp_item_compositions); kits não geram ordem; taxa nos dois casos (item da venda e campo do pedido) a confirmar; código do módulo/gate ainda não definido.
+
+Próxima ação: 0063 — políticas fiscais e de desconto (preflight, testes e rollback), após aprovação.
+</pre></section>
+<!-- PDV-ERP-END -->
 </body>
 </html>
