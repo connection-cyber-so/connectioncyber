@@ -22,7 +22,7 @@ export default async function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
-        {brandingCss && <style dangerouslySetInnerHTML={{ __html: brandingCss }} />}
+        {brandingCss ? <style dangerouslySetInnerHTML={{ __html: brandingCss }} /> : null}
       </head>
       <body>
         <CartProvider>
