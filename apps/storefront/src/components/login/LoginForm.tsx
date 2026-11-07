@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { PAPEIS } from "@/lib/rbac";
 
 // Aceita apenas caminhos internos (evita open redirect via ?next=).
 function destinoPadrao(): string {
@@ -11,38 +10,13 @@ function destinoPadrao(): string {
   return "/crm";
 }
 
-// Revenda compra no /produtos; fornecedor vai ao proprio portal. Areas
-// privadas seguem o ?next= do middleware.
-function destinoParaPapel(role: string): string {
-  if (role === "revenda") return "/produtos";
-  if (role === "fornecedor") return "/portal/fornecedor";
-  return destinoPadrao();
-}
-
+// A decisão de acesso fica no middleware: ele checa a permissão do ERP
+// (storefront_has_permission) para o módulo pedido. Aqui só autenticamos.
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) return;
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role, status")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (
-        profile &&
-        profile.status === "ativo" &&
-        PAPEIS.includes(profile.role)
-      ) {
-        window.location.replace(destinoParaPapel(profile.role));
-      }
-    });
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,26 +32,7 @@ export function LoginForm() {
       return;
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, status")
-      .maybeSingle();
-
-    if (profile && profile.status === "pendente") {
-      await supabase.auth.signOut();
-      setErro("Cadastro em análise — aguarde aprovação.");
-      setCarregando(false);
-      return;
-    }
-
-    if (!profile || profile.status !== "ativo" || !PAPEIS.includes(profile.role)) {
-      await supabase.auth.signOut();
-      setErro("Perfil sem acesso a esta área.");
-      setCarregando(false);
-      return;
-    }
-
-    window.location.replace(destinoParaPapel(profile.role));
+    window.location.replace(destinoPadrao());
   }
 
   return (

@@ -1,6 +1,6 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { papelPermitidoNoModulo } from "@/lib/rbac";
+import { permissaoDoModulo } from "@/lib/rbac";
 import { normalizeRequestHost, resolveTenantIdByHost, TENANT_HEADER } from "@/lib/tenant-host";
 
 // 1) Resolve o tenant pelo hostname e grava x-cc-tenant-id (apaga o que o cliente enviar).
@@ -76,22 +76,18 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(login);
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, status")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile) {
-    return new NextResponse("Acesso restrito: perfil nao encontrado.", { status: 403 });
+  const permissao = permissaoDoModulo(request.nextUrl.pathname);
+  if (!permissao) {
+    return new NextResponse("Acesso restrito: modulo sem permissao mapeada.", { status: 403 });
   }
 
-  if (profile.status !== "ativo") {
-    return new NextResponse("Acesso restrito: perfil desativado.", { status: 403 });
-  }
+  const { data: autorizado } = await supabase.rpc("storefront_has_permission", {
+    p_tenant_id: tenantId,
+    p_permission_key: permissao,
+  });
 
-  if (!papelPermitidoNoModulo(request.nextUrl.pathname, profile.role)) {
-    return new NextResponse("Acesso restrito: seu papel nao tem permissao neste modulo.", {
+  if (autorizado !== true) {
+    return new NextResponse("Acesso restrito: seu acesso nao inclui este modulo nesta empresa.", {
       status: 403,
     });
   }

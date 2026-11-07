@@ -51,3 +51,25 @@ export function papelPermitidoNoModulo(pathname: string, role: string): boolean 
 export function podeGerenciar(gestorRole: string, alvoRole: string): boolean {
   return (PAPEIS_QUE_GERENCIA[gestorRole] ?? []).includes(alvoRole);
 }
+
+// Permissão do ERP (erp_permissions.key) exigida por módulo. Fonte da checagem
+// da vitrine via public.storefront_has_permission (migration 0061).
+// Prefixo mais específico vence. Módulo sem mapeamento = negado (fail-closed).
+export const PERMISSAO_POR_MODULO: Record<string, string> = {
+  "/crm": "parties.read",
+  "/vendas": "sales.read",
+  "/compras": "purchasing.read",
+  "/financeiro": "finance.read",
+  "/pdv": "cash.operate",
+  "/logistica": "stock.read",
+  "/configuracoes": "memberships.read",
+  "/email": "support.read",
+  "/portal": "purchasing.read",
+};
+
+export function permissaoDoModulo(pathname: string): string | null {
+  const modulo = Object.keys(PERMISSAO_POR_MODULO)
+    .filter((p) => pathname === p || pathname.startsWith(p + "/"))
+    .sort((a, b) => b.length - a.length)[0];
+  return modulo ? PERMISSAO_POR_MODULO[modulo] : null;
+}
