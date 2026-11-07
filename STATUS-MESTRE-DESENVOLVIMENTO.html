@@ -678,7 +678,11 @@ Evidência: 0062 com preflight 9/9 e arquivo de testes inteiro aprovado no stagi
 
 Riscos e pendências: 0063 (age_restricted, fumigeno, erp_discount_authorizations, configurações por tenant) não criada; baixa de estoque por ordem não implementada; erp_recipe_yields não usada (rendimento vem de erp_item_compositions); kits não geram ordem; taxa nos dois casos (item da venda e campo do pedido) a confirmar; código do módulo/gate ainda não definido.
 
-Próxima ação: 0063 — políticas fiscais e de desconto (preflight, testes e rollback), após aprovação.
+Atualização 07/11/2026 (0063): 0063 — políticas fiscais e de desconto aplicada no staging. Flags age_restricted (+18) e fumigeno em erp_catalog_items (fumígeno exige +18 e não pode ser fracionado); erp_discount_authorizations com alçada de desconto acima do limite (aprovador diferente do solicitante, motivo com 3+ caracteres, RLS por sales.discount); seeds de pdv.discount.auto_limit_percent (5%), pdv.fiscal.emit_nfce_by_channel (balcão emite; app, site e iFood não) e pdv.kitchen.print_on_accept nos 8 tenants. Preflight 10/10, 9 cenários de teste aprovados, verificação pós-aplicação OK. Limitações: validação de aprovador por RPC e alçada para sangria e fechamento ficam para gate próprio. Relatório: RELATORIO-0063-politicas-fiscais-produtos.md.
+
+Atualização 07/11/2026 (0065): 0065 — alçada de desconto por RPC aplicada no staging. Removido o insert direto de authenticated em erp_discount_authorizations; a gravação passa por erp_authorize_discount (security definer, search_path fixo, execute só para authenticated). A RPC exige sessão, sales.discount do aprovador, solicitante membro ativo, aprovador diferente do solicitante e desconto acima do limite configurado. Preflight 8/8, 8 cenários de teste aprovados (um deles corrigido para não pular caso silenciosamente), verificação pós-aplicação OK. Limitação: sem PIN ou MFA do aprovador. Relatório: RELATORIO-0065-alcada-desconto-rpc.md.
+
+Próxima ação: alçada de sangria e fechamento de caixa (cash.adjust / cash.close), ou PIN/MFA do aprovador — aguarda escolha.
 </pre></section>
 <!-- PDV-ERP-END -->
 </body>
