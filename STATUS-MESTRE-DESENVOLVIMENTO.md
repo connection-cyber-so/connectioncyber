@@ -2362,5 +2362,23 @@ Atualização 07/11/2026 (0063): **0063 — políticas fiscais e de desconto apl
 
 Atualização 07/11/2026 (0065): **0065 — alçada de desconto por RPC aplicada no staging.** Removido o insert direto de `authenticated` em `erp_discount_authorizations`; a gravação passa por `erp_authorize_discount` (security definer, `search_path` fixo, execute só para `authenticated`). A RPC exige sessão, `sales.discount` do aprovador, solicitante membro ativo, aprovador diferente do solicitante e desconto acima do limite configurado. Preflight 8/8, 8 cenários de teste aprovados (um deles corrigido para não pular caso silenciosamente), verificação pós-aplicação OK. Limitação: sem PIN ou MFA do aprovador. Relatório: `RELATORIO-0065-alcada-desconto-rpc.md`.
 
-Próxima ação: **alçada de sangria e fechamento de caixa (`cash.adjust` / `cash.close`), ou PIN/MFA do aprovador — aguarda escolha.**
+Atualização 07/11/2026 (0066): **0066 — alçada de caixa (sangria e fechamento) aplicada no staging.** Sangria acima de `pdv.cash.withdrawal_limit_amount` (500,00 proposto) exige autorização de mesmo valor, de outra pessoa, usada uma vez (trigger). Fechamento com diferença ≠ 0 exige autorização com o valor absoluto da diferença; `erp_command_close_cash_v1` grava a diferença real. Gravação só pela RPC `erp_authorize_cash_action`. Migration ajustada após falha de preflight (constraint já existia). Teste A–V aprovado, verificação pós-aplicação OK. Limitações: limite e regra de diferença são propostas a validar; fluxo completo do comando de fechamento não testado; sem PIN/MFA. Relatório: `RELATORIO-0066-alcada-caixa-sangria-fechamento.md`.
+
+Teste de integração do fechamento (`0066_pdv_alcada_caixa_fechamento_integracao.test.sql`) aprovado no staging: fechamento com diferença negado sem autorização, aceito com autorização exata, `difference_amount` gravado e replay idempotente.
+
+Atualização 07/11/2026 (0067): **0067 — PIN do aprovador aplicado no staging.** PIN de 4 a 6 dígitos (hash bcrypt, tabela `erp_approver_pins` sem acesso direto), vale para desconto e caixa. Cinco erros bloqueiam por 15 minutos. `erp_authorize_discount` e `erp_authorize_cash_action` ganham `p_pin` e devolvem `jsonb` com `status` (`authorized`, `pin_invalid`, `pin_locked`, `pin_missing`). Testes 0065, 0066 (principal e integração) e 0067 atualizados e aprovados. Relatório: `RELATORIO-0067-pdv-pin-aprovador.md`. Limitação: o app ainda não usa a nova assinatura.
+
+Atualização 07/11/2026 (0068): **0068 — PIN cadastrado pelo gerente aplicado no staging.** Autoatendimento de PIN removido. `erp_manager_set_approver_pin(tenant, usuário, novo_pin)` exige `memberships.manage` (Administrador e Proprietário), PIN de 4 a 6 dígitos, alvo membro ativo com permissão de alçada, e zera o bloqueio ao cadastrar. Teste 0067 (versão do gerente) rodado de novo sem erro; verificação de privilégios OK (anon sem acesso; authenticated só na função de gerente). Preflight e rollback criados. Relatório: `RELATORIO-0068-pdv-pin-gerente.md`. Relatório 0067 marcado como superado no ponto do autoatendimento.
+
+Limitações: gerente pode aprovar a própria alçada (a confirmar); sem auditoria do cadastro de PIN; MFA não decidido; app ainda não usa a nova assinatura.
+
+Atualização 07/11/2026 (0069): **0069 — auditoria do PIN e auto-PIN do gerente aplicados no staging.** Tabela `erp_approver_pin_audit` (quem, para quem, quando, `is_self`; sem PIN nem hash), imutável por trigger, leitura só com `memberships.manage` ou staff. Configuração `pdv.alcada.allow_self_pin` (padrão desligado) decide se o gerente pode cadastrar o próprio PIN. Aprovação da própria solicitação segue proibida. Teste 0069 aprovado (transação revertida). Preflight e rollback criados. Relatório: `RELATORIO-0069-pdv-auditoria-pin-auto-pin-gerente.md`.
+
+Integração no `apps/portal`: `src/domain/pdv-alcada.ts` (contrato puro) e `src/features/pdv-alcada/service.ts` (RPCs de alçada e cadastro de PIN com `p_pin` e retorno `jsonb`). Testes `tests/pdv-alcada.test.ts` 6/6; `tsc` sem erro. Suíte completa do portal: 168/168. A falha anterior em `m18-g22-mfa-security` foi corrigida: `CrmShell.tsx` deixou de importar o client do navegador (o "Sair" passou a ser form POST para `/auth/logout`).
+
+Teste 0067 rodado de novo no staging, sem erro, com gerente fixo (`e2b88e26`). Regressão resolvida.
+
+Pendências: ligar as telas `DemoPos` e `DemoCash` às RPCs exige mudar testes `demo-*` que proíbem Supabase (decisão); commit e push aguardam "commit local" e "push".
+
+Próxima ação: decidir como ligar as telas demo às RPCs (opção A: ajustar testes `demo-*` para permitir o serviço; opção B: tela nova ligada às RPCs). Commit e push aguardam "commit local" e "push".
 <!-- PDV-ERP-END -->

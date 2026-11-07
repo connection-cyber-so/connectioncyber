@@ -2,7 +2,6 @@
 
 import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import './crm-shell.css';
 
 // Menu lateral do porte CRM (visual copiado da Nuvem de Papel).
@@ -15,11 +14,6 @@ const LINKS = [
 
 export function CrmShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? '';
-
-  async function sair() {
-    await createClient().auth.signOut();
-    window.location.href = '/login';
-  }
 
   return (
     <div className="admin-shell">
@@ -45,7 +39,9 @@ export function CrmShell({ children }: { children: ReactNode }) {
             ))}
           </nav>
           <div className="admin-foot">
-            <button type="button" className="admin-sair" onClick={sair}>Sair</button>
+            <form method="post" action="/auth/logout">
+              <button type="submit" className="admin-sair">Sair</button>
+            </form>
           </div>
         </div>
       </aside>
